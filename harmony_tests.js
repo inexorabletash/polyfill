@@ -249,62 +249,68 @@ test("Simple Maps and Sets", 13, function () {
   delete set;
 });
 
-test("WeakMap", 35, function () {
+test("WeakMap", function () {
 
-  var wm1 = new WeakMap(),
-      wm2 = new WeakMap(),
-      x = {},
-      y = {},
-      v = {};
+  wm1 = new WeakMap();
+  wm2 = new WeakMap();
+  x = {};
+  y = {};
+  v = {};
 
-  ok(!wm1.has(x));
-  ok(!wm2.has(x));
-  ok(!wm1.has(y));
-  ok(!wm2.has(y));
+  assertFalse("wm1.has(x)");
+  assertFalse("wm2.has(x)");
+  assertFalse("wm1.has(y)");
+  assertFalse("wm2.has(y)");
 
   wm1.set(x, "x-value");
-  ok(wm1.has(x));
-  ok(!wm2.has(x));
-  ok(!wm1.has(y));
-  ok(!wm2.has(y));
-  equal(wm1.get(x), "x-value");
+  assertTrue("wm1.has(x)");
+  assertFalse("wm2.has(x)");
+  assertFalse("wm1.has(y)");
+  assertFalse("wm2.has(y)");
+  assertEqual("wm1.get(x)", "x-value");
 
   wm1.set(y, "y-value");
-  ok(wm1.has(x));
-  ok(!wm2.has(x));
-  ok(wm1.has(y));
-  ok(!wm2.has(y));
-  equal(wm1.get(x), "x-value");
-  equal(wm1.get(y), "y-value");
+  assertTrue("wm1.has(x)");
+  assertFalse("wm2.has(x)");
+  assertTrue("wm1.has(y)");
+  assertFalse("wm2.has(y)");
+  assertEqual("wm1.get(x)", "x-value");
+  assertEqual("wm1.get(y)", "y-value");
 
   wm2.set(x, "x-value-2");
-  ok(wm1.has(x));
-  ok(wm2.has(x));
-  ok(wm1.has(y));
-  ok(!wm2.has(y));
-  equal(wm1.get(x), "x-value");
-  equal(wm2.get(x), "x-value-2");
-  equal(wm1.get(y), "y-value");
+  assertTrue("wm1.has(x)");
+  assertTrue("wm2.has(x)");
+  assertTrue("wm1.has(y)");
+  assertFalse("wm2.has(y)");
+  assertEqual("wm1.get(x)", "x-value");
+  assertEqual("wm2.get(x)", "x-value-2");
+  assertEqual("wm1.get(y)", "y-value");
 
   wm1['delete'](x);
-  ok(!wm1.has(x));
-  ok(wm2.has(x));
-  ok(wm1.has(y));
-  ok(!wm2.has(y));
-  equal(wm2.get(x), "x-value-2");
-  equal(wm1.get(y), "y-value");
+  assertFalse("wm1.has(x)");
+  assertTrue("wm2.has(x)");
+  assertTrue("wm1.has(y)");
+  assertFalse("wm2.has(y)");
+  assertEqual("wm2.get(x)", "x-value-2");
+  assertEqual("wm1.get(y)", "y-value");
 
   wm1.set(y, "y-value-new");
-  ok(!wm1.has(x));
-  ok(wm2.has(x));
-  ok(wm1.has(y));
-  ok(!wm2.has(y));
-  equal(wm2.get(x), "x-value-2");
-  equal(wm1.get(y), "y-value-new");
+  assertFalse("wm1.has(x)");
+  assertTrue("wm2.has(x)");
+  assertTrue("wm1.has(y)");
+  assertFalse("wm2.has(y)");
+  assertEqual("wm2.get(x)", "x-value-2");
+  assertEqual("wm1.get(y)", "y-value-new");
 
   wm1.set(x, v);
   wm2.set(y, v);
   equal(wm1.get(x), wm2.get(y));
+
+  delete wm1;
+  delete wm2;
+  delete x;
+  delete y;
+  delete v;
 });
 
 test("Array extras", 15, function () {

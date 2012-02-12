@@ -1,37 +1,37 @@
 
 function assertTrue(expr) {
-  var x;
-  try { eval("x = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }
-  ok(x, expr);
+  var _x_;
+  try { eval("_x_ = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }
+  ok(_x_, expr + " is true");
 }
 
 function assertFalse(expr) {
-  var x;
-  try { eval("x = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }
-  ok(!x, expr);
+  var _x_;
+  try { eval("_x_ = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }
+  ok(!_x_, expr + " is true");
 }
 
 function assertEqual(expr, value) {
-  var x;
-  try { eval("x = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }
+  var _x_;
+  try { eval("_x_ = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }
   if (value instanceof RegExp) {
-    ok(value.test(x), expr);
+    ok(value.test(_x_), expr);
   } else if (value !== value) {
-    ok(x !== x, expr);
+    ok(_x_ !== _x_, expr);
   } else {
-    strictEqual(x, value, expr);
+    strictEqual(_x_, value, expr);
   }
 }
 
 function assertEpsilon(expr, value, epsilon) {
-  var x;
-  try { eval("x = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }
+  var _x_;
+  try { eval("_x_ = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }
   var p;
-  if (x === value) {
+  if (_x_ === value) {
     p = true;
   } else {
-    p = (Math.abs((x - value)/Math.max(Math.abs(x), Math.abs(value))) < epsilon);
+    p = (Math.abs((_x_ - value)/Math.max(Math.abs(_x_), Math.abs(value))) < epsilon);
   }
 
-  ok(p, expr + " was " + x + ", expected " + value);
+  ok(p, expr + " was " + _x_ + ", expected " + value);
 }
