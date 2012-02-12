@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+
+<script type="text/javascript" src="polyfill.js"></script>
+<script type="text/javascript" src="json2.js"></script>
+<script type="text/javascript" src="keyboard.js"></script>
+
+<style>
+#keyboard { font-family: Sans-Serif; font-size: 10pt; width: 1190px; height: 290px; background-color: #eeeeee; }
+.section { float: left; margin: 10px;}
+
+.key, .gap {
+	display: inline-block;
+	overflow: hidden;
+	vertical-align: top;
+	width: 20px;
+	height: 20px;
+	margin: 2px;
+	padding: 10px;
+	border: solid 2px black;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	white-space: nowrap;
+	text-align: center;
+}
+.gap { border-color: transparent; }
+.tiny { font-size: 6pt; }
+.short { height: 15px; padding-top: 5px; padding-bottom: 5px; }
+
+
+.Escape, .F1, .F2, .F3, .F4, .F5, .F6, .F7, .F8, .F9, .F10, .F11, .F12 { width: 27px; }
+.Tab { width: 40px; }
+.Backspace { width: 60px; }
+.Backslash { width: 40px; }
+.CapsLock, .standard .Enter { width: 67px; }
+.Shift { width: 93px; }
+.Control, .Win, .Meta, .Alt, .Apps { width: 40px; }
+.Spacebar { width: 234px; }
+.numpad .k0 { width: 71px; }
+.numpad .Add, .numpad .Enter { height: 68px; float: right; margin-right: 6px; }
+</style>
+
+<body>
+<div id="keyboard">
+
+<div class="section standard">
+<div>
+<span class="key short Escape">Esc</span>
+<span class="key short F1">F1</span>
+<span class="key short F2">F2</span>
+<span class="key short F3">F3</span>
+<span class="key short F4">F4</span>
+<span class="key short F5">F5</span>
+<span class="key short F6">F6</span>
+<span class="key short F7">F7</span>
+<span class="key short F8">F8</span>
+<span class="key short F9">F9</span>
+<span class="key short F10">F10</span>
+<span class="key short F11">F11</span>
+<span class="key short F12">F12</span>
+</div>
+
+<div>
+<span class="key Grave"><sup>~</sup> `</span>
+<span class="key k1"><sup>!</sup> 1</span>
+<span class="key k2"><sup>@</sup> 2</span>
+<span class="key k3"><sup>#</sup> 3</span>
+<span class="key k4"><sup>$</sup> 4</span>
+<span class="key k5"><sup>%</sup> 5</span>
+<span class="key k6"><sup>^</sup> 6</span>
+<span class="key k7"><sup>&</sup> 7</span>
+<span class="key k8"><sup>*</sup> 8</span>
+<span class="key k9"><sup>(</sup> 9</span>
+<span class="key k0"><sup>)</sup> 0</span>
+<span class="key Minus"><sup>_</sup> -</span>
+<span class="key Equals"><sup>+</sup> =</span>
+<span class="key Backspace">Backspace</span>
+</div>
+
+<div>
+<span class="key Tab">Tab</span>
+<span class="key Q">Q</span>
+<span class="key W">W</span>
+<span class="key E">E</span>
+<span class="key R">R</span>
+<span class="key T">T</span>
+<span class="key Y">Y</span>
+<span class="key U">U</span>
+<span class="key I">I</span>
+<span class="key O">O</span>
+<span class="key P">P</span>
+<span class="key LeftSquareBracket"><sup>{</sup> [</span>
+<span class="key RightSquareBracket"><sup>}</sup> ]</span>
+<span class="key Backslash"><sup>|</sup> \</span>
+</div>
+
+<div>
+<span class="key CapsLock">Caps Lock</span>
+<span class="key A">A</span>
+<span class="key S">S</span>
+<span class="key D">D</span>
+<span class="key F">F</span>
+<span class="key G">G</span>
+<span class="key H">H</span>
+<span class="key J">J</span>
+<span class="key K">K</span>
+<span class="key L">L</span>
+<span class="key Semicolon"><sup>:</sup> ;</span>
+<span class="key Apostrophe"><sup>&quot;</sup> &apos;</span>
+<span class="key Enter">Enter</span>
+</div>
+
+<div>
+<span class="key Shift">Shift</span>
+<span class="key Z">Z</span>
+<span class="key X">X</span>
+<span class="key C">C</span>
+<span class="key V">V</span>
+<span class="key B">B</span>
+<span class="key N">N</span>
+<span class="key M">M</span>
+<span class="key Comma"><sup>&lt;</sup> ,</span>
+<span class="key Period"><sup>&gt;</sup> .</span>
+<span class="key Solidus"><sup>?</sup> /</span>
+<span class="key Shift">Shift</span>
+</div>
+
+<div>
+<span class="key Control">Ctrl</span>
+<span class="key Win">Win</span>
+<span class="key Alt">Alt</span>
+<span class="key Spacebar">Spacebar</span>
+<span class="key Alt">Alt</span>
+<span class="key Win">Win</span>
+<span class="key Apps">Apps</span>
+<span class="key Control">Ctrl</span>
+</div>
+</div>
+
+<div class="section standard">
+<div>
+<span class="key short tiny PrintScreen">PrtScr</span>
+<span class="key short tiny Scroll">Scroll<br>Lock</span>
+<span class="key short tiny Pause">Pause<br>Break</span>
+</div>
+
+<div>
+<span class="key tiny Insert">Ins</span>
+<span class="key tiny Home">Home</span>
+<span class="key tiny PageUp">Page<br>Up</span>
+</div>
+
+<div>
+<span class="key tiny Delete">Del</span>
+<span class="key tiny End">End</span>
+<span class="key tiny PageDown">Page<br>Down</span>
+</div>
+
+
+<div>
+<span class="gap"></span>
+<br>
+<span class="gap"></span>
+<span class="key Up">&uarr;</span>
+<span class="gap"></span>
+<br>
+<span class="key Left">&larr;</span>
+<span class="key Down">&darr;</span>
+<span class="key Right">&rarr;</span>
+</div>
+
+</div>
+
+<div class="section numpad">
+<span class="gap short"></span>
+<br>
+
+<span class="key tiny NumLock">Num<br>Lock</span>
+<span class="key Divide">/</span>
+<span class="key Multiply">*</span>
+<span class="key Subtract">-</span>
+<br>
+<span class="key Add">+</span>
+<span class="key k7">7</span>
+<span class="key k8">8</span>
+<span class="key k9">9</span>
+<br>
+<span class="key k4">4</span>
+<span class="key k5">5</span>
+<span class="key k6">6</span>
+<br>
+<span class="key tiny Enter">Enter</span>
+<span class="key k1">1</span>
+<span class="key k2">2</span>
+<span class="key k3">3</span>
+<br>
+<span class="key k0">0</span>
+<span class="key Decimal">.</span>
+</div>
+
+</div>
+
+<input id="target" style="width: 1px; height: 1px; border: none; position: absolute; xleft: -1000px; xtop: -1000px;"/>
+
+<br clear=all>
+<div>Raw Event: <span id="eventdata"></span></div>
+<div>Augmented Event: <span id="identifydata"></span></div>
+
+<script src="keyboard_test.js"></script>
+
+</body>
+

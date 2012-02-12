@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<title>Polyfills and Shims</title>
+
+<h1>Polyfills and Shims (and more)</h1>
+
+<ul>
+  <li>A <em>shim</em> lets you write the same code across all browsers, e.g. by providing a new function with browser-specific implementations.
+  <li>A <em>polyfill</em> is a type of shim that implements a new API in downlevel browsers.
+</ul>
+
+<p>In general, a polyfill is preferrable to a mere shim but may not be possible, practical, or efficient to implement. In practice, the terms get used somewhat interchangably.
+
+<p>I use these in various pages on this site; most are by me, or I have at least tweaked them.
+A more comprehensive list can be found at <a href="https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills">The All-In-One Entirely-Not-Alphabetical No-Bullshit Guide to HTML5 Fallbacks</a> by Paul Irish.
+
+
+<h2>Browser &amp ES5 (shims and polyfills)</h2>
+<a href="polyfill.js">script</a> - <a href="polyfill.html">unit tests</a>
+<ul>
+  <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/dom.html#dom-document-head"><code>document.head</code></a> (polyfill)
+  <li><a href="http://www.w3.org/TR/XMLHttpRequest/"><code>XMLHttpRequest</code></a> (polyfill for IE6-)
+  <li><a href="https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html"><code>setImmediate</code>/<code>clearImmediate</code></a> (polyfill)
+  <li><a href="http://www.w3.org/TR/selectors-api/">Selector API</a> (polyfill for IE7-): <code>document.querySelector()</code> / <code>document.querySelectorAll()</code> - adapted from <a href="http://ajaxian.com/archives/creating-a-queryselector-for-ie-that-runs-at-native-speed">Paul Young</a>
+  <li><a href="http://www.w3.org/TR/DOM-Level-2-Events/">DOM Level 2 Events</a> (shim for IE8-): call <code>window.addEvent(element, event, handler)</code> - from <a href="http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html">QuirksMode</a> -
+  <li><a href="http://www.w3.org/TR/html5-author/webappapis.html#atob">Base64 Encoding</a> (polyfill for IE9-): <code>window.btoa()</code> / <code>window.atob()</code> -
+  <li><a href="http://www.w3.org/TR/html5/common-dom-interfaces.html#domtokenlist">classList</a> (shim): call <code>window.getClassList(element)</code>
+  <li> <a href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMAScript 5</a> Object, Function, String and Date extras (polyfill)
+</ul>
+
+<h2>ECMAScript "Harmony" (polyfill)</h2>
+<a href="harmony.js">script</a> - <a href="harmony.html">unit tests</a> - <a href="http://wiki.ecmascript.org/doku.php?id=harmony:proposals">wiki</a>
+<ul>
+<li>Approved for inclusion in ES Harmony:
+<ul>
+<li>Object: <code>is</code>, <code>isnt</code>
+<li>Number: <code>isFinite</code>, <code>isNaN</code>, <code>isInteger</code>, <code>toInteger</code>
+<li>String.prototype: <code>repeat</code>, <code>startsWith</code>, <code>endsWith</code>, <code>contains</code>, <code>toArray</code>
+<li>Math: <code>log10</code>, <code>log2</code>, <code>log1p</code>, <code>expm1</code>, <code>cosh</code>, <code>sinh</code>, <code>tanh</code>, <code>acosh</code>, <code>asinh</code>, <code>atanh</code>, <code>hypot</code>, <code>trunc</code>, <code>sign</code>
+<li><code>Map</code>, <code>Set</code>, <code>WeakMap</code>
+</ul>
+<li>Not yet approved:
+<ul>
+<li>Number: <code>compare</code>, <code>EPILON</code>, <code>MAX_INTEGER</code>
+</ul>
+</ul>
+
+<h2>URL API (polyfill)</h2>
+<a href="url.js">script</a> - <a href="url.html">unit tests</a> - <a href="http://dvcs.w3.org/hg/url/raw-file/tip/Overview.html">draft spec</a> - <em>See script for cross-browser quirks</em>
+
+<h2>Keyboard Events (shim)</h2>
+<a href="keyboard.js">script</a> - <a href="keyboard.html">interactive test</a> - <a href="http://www.w3.org/TR/DOM-Level-3-Events/">OLD spec</a>
+
+<h2>requestAnimationFrame (polyfill)</h2>
+<a href="raf.js">script</a> - <a href="raf.html">demo page</a> - <a href="http://www.w3.org/TR/animation-timing/">spec</a>
+
+<h2>Web Storage (polyfill)</h2>
+<a href="storage.js">script</a> - <a href="http://dev.w3.org/html5/webstorage/">spec</a> - adapted from <a href="https://gist.github.com/350433">Remy Sharp</a>
+
+<h2>Web Workers (polyfill)</h2>
+<a href="workers.js">script</a> - <a href="http://dev.w3.org/html5/workers/">spec</a> - <em>just for kicks</em>
+
+<h2>Cookie API (polyfill)</h2>
+<a href="cookie.js">script</a> - <a href="https://docs.google.com/Doc?docid=0AZpchfQ5mBrEZGQ0cDh3YzRfMTRmdHFma21kMg&hl=en&pli=1">Adam Barth&apos;s Cookie API proposal</a> - <em>abandoned</em>
+
+<h2>Console (polyfill)</h2>
+<a href="console.js">script</a> - <a href="console.html">unit tests</a>
+
+<h2>sprintf (other)</h2>
+<a href="sprintf.js">script</a> - <a href="sprintf.html">unit tests</a> - <em>used for a few C-to-JavaScript porting projects</em>
+
+<h2>Typed Arrays (polyfill)</h2>
+<a href="typedarray.js">script</a> - <a href="typedarray.html">unit tests</a> - Copyright &copy; 2010 Linden Research, Inc. - MIT License. <a href="https://bitbucket.org/lindenlab/llsd/">original</a> - <em>At my previous place of employment I was doing work on binary file serialization/parsing in JavaScript and Typed Arrays were an appropriate fit, but had not yet been widely implemented.</em>

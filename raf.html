@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<div id="box" style="width: 200px; height: 200px; background-color: gray; position: relative;">
+<div id="ball" style="width: 10px; height: 10px; background-color: red; position: relative; left: 0px; top: 0px;">
+</div>
+</div>
+
+<div id="framerate" style="font-family: sans-serif; font-size: 10pt"></div>
+
+<script src="polyfill.js"></script>
+<script src="raf.js"></script>
+<script>
+window.onload = function () {
+  var x = 0,
+      y = 0,
+      theta = Math.random() * Math.PI * 2,
+      dx = Math.cos(theta),
+      dy = Math.sin(theta),
+      ball = document.getElementById('ball');
+
+  function tick(t) {
+    requestAnimationFrame(tick);
+    x += dx * 10;
+    y += dy * 10;
+
+    if (x < 0) { x = 0 - x; dx = -dx; }
+    else if (x > 200) { x = 400 - x; dx = -dx; }
+
+    if (y < 0) { y = 0 - y; dy = -dy; }
+    else if (y > 200) { y = 400 - y; dy = -dy; }
+
+    ball.style.left = x + 'px';
+    ball.style.top = y + 'px';
+    updateStats();
+  }
+  requestAnimationFrame(tick);
+
+
+  function format(string, params) {
+    return string.replace(/\{(\w+)\}/g, function(m, n) { return params[n]; });
+  }
+
+  function escapeHtml(string) {
+    return String(string).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  var frameTimes = [], lastTime = Date.now(), FRAMES = 40;
+  function updateStats() {
+    var curTime = Date.now(),
+        dur = curTime - lastTime,
+        avg;
+    lastTime = curTime;
+    frameTimes.push(dur);
+    while (frameTimes.length > FRAMES) {
+      frameTimes.shift();
+    }
+    if (frameTimes.length === FRAMES) {
+      avg = frameTimes.reduce(function(a,b) { return a+b; }) / frameTimes.length;
+      document.querySelector('#framerate').innerHTML = escapeHtml(format("{fps} FPS / {ms} ms ({count} frame average)",
+        {fps: Math.round(1000/avg), ms: Math.round(avg), count: frameTimes.length}));
+    }
+  }
+};
+</script>

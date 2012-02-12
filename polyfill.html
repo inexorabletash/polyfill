@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<title>Polyfill Unit Tests</title>
+
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css" type="text/css" media="screen" />
+<script type="text/javascript" src="http://code.jquery.com/qunit/git/qunit.js"></script>
+
+<h1 id="qunit-header">Polyfill Unit Tests</h1>
+<h2 id="qunit-banner"></h2>
+<div id="qunit-testrunner-toolbar"></div>
+<h2 id="qunit-userAgent"></h2>
+<ol id="qunit-tests"></ol>
+<div id="qunit-fixture">
+
+test markup, will be hidden
+
+<div>
+  <div id="foo" class="alpha">
+    <div id="bar" class="beta">
+      <span id="baz" class="beta delta epsilon phi"></span>
+    </div>
+  </div>
+  <span id="bat" class="alpha"></span>
+</div>
+
+</div>
+
+<script type="text/javascript" src="polyfill.js"></script>
+<script type="text/javascript" src="testhelpers.js"></script>
+<script type="text/javascript" src="polyfill_tests.js"></script>

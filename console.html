@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<title>Console Unit Tests</title>
+
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css" type="text/css" media="screen" />
+<script type="text/javascript" src="http://code.jquery.com/qunit/git/qunit.js"></script>
+
+<h1 id="qunit-header">Console Tests</h1>
+<h2 id="qunit-banner"></h2>
+<div id="qunit-testrunner-toolbar"></div>
+<h2 id="qunit-userAgent"></h2>
+<ol id="qunit-tests"></ol>
+<div id="qunit-fixture">test markup, will be hidden</div>
+
+<script type="text/javascript" src="polyfill.js"></script>
+<script type="text/javascript" src="json2.js"></script>
+<script type="text/javascript">window.console = null;</script>
+<script type="text/javascript" src="console.js"></script>
+<script type="text/javascript">
+
+test("API", function () {
+  equal(typeof console, "object");
+  ok(console != null);
+  equal(typeof console.log, "function");
+  equal(typeof console.debug, "function");
+  equal(typeof console.info, "function");
+  equal(typeof console.warn, "function");
+  equal(typeof console.error, "function");
+
+  equal(typeof console.assert, "function");
+
+  equal(typeof console.count, "function");
+
+  equal(typeof console.time, "function");
+  equal(typeof console.timeEnd, "function");
+
+  equal(typeof console.group, "function");
+  equal(typeof console.groupEnd, "function");
+
+  equal(typeof console.dir, "function");
+  equal(typeof console.dirxml, "function");
+
+  equal(typeof console.trace, "function");
+});
+
+test("Data types", function () {
+  var data = ['"test"', '123', 'true', 'false', 'undefined', 'null'];
+  while (data.length) {
+    var datum = data.shift();
+    var value = eval('value = ' + datum);
+    ok(console.log(value) || true, datum);
+    ok(console.debug(value) || true, datum);
+    ok(console.info(value) || true, datum);
+    ok(console.warn(value) || true, datum);
+    ok(console.error(value) || true, datum);
+  }
+});
+
+test("Multiple arguments", function () {
+  ok(console.log("test", 123, true, false, undefined, null) || true);
+  ok(console.debug("test", 123, true, false, undefined, null) || true);
+  ok(console.info("test", 123, true, false, undefined, null) || true);
+  ok(console.warn("test", 123, true, false, undefined, null) || true);
+  ok(console.error("test", 123, true, false, undefined, null) || true);
+});
+
+test("Cyclic data structures", function () {
+  var cyclic_array = [], cyclic_object = {};
+  cyclic_array.push(cyclic_array);
+  cyclic_object['self'] = cyclic_object;
+
+  ok(console.log(cyclic_array) || true);
+  ok(console.log(cyclic_object) || true);
+});
+
+test("Built-ins and non-JS objects", function () {
+  ok(console.log(Math) || true);
+  ok(console.log(document) || true);
+  ok(console.log(window) || true);
+});
+
+test("Formatting", function () {
+  console.log("%%");
+  var data = ['"test"', '123', 'true', 'false', 'undefined', 'null', '{a: 1, b: 2}', 'new Date(0)', 'Math', 'Error', 'document', 'window'];
+  while (data.length) {
+    var datum = data.shift();
+    var value = eval('value = ' + datum);
+    ok(console.log("string %s", value) || true, datum);
+    ok(console.log("integer %d", value) || true, datum);
+    ok(console.log("integer %l", value) || true, datum);
+    ok(console.log("integer %i", value) || true, datum);
+    ok(console.log("float %f", value) || true, datum);
+    ok(console.log("object %o", value) || true, datum);
+    ok(console.log("other %x", value) || true, datum);
+  }
+  ok(console.log("%s %d %o", "string", 1234, {a:1, b: 2}, "extra", 1234, {c: 3, d: 4}) || true);
+});
+
+test("Dir", function () {
+  ok(console.dir({}) || true);
+  ok(console.dir({a:1, b: 2}) || true);
+
+  ok(console.dirxml({}) || true);
+  ok(console.dirxml({a:1, b: 2}) || true);
+});
+
+test("Assert", function () {
+  ok(console.assert(false, "this should fail") || true);
+  ok(console.assert(true, "this should pass") || true);
+});
+
+test("Count", function () {
+  ok(console.count() || true);
+  ok(console.count() || true);
+  ok(console.count("foo") || true);
+  ok(console.count("foo") || true);
+});
+
+test("Time", function () {
+  ok(console.time() || true);
+  ok(console.timeEnd() || true);
+  ok(console.time("foo") || true);
+  ok(console.timeEnd("foo") || true);
+});
+
+test("Trace", function () {
+  ok(console.trace() || true);
+});
+
+test("Group", function () {
+  ok(console.log("not in group") || true);
+  ok(console.group() || true);
+  ok(console.log("in anonymous group") || true);
+  ok(console.groupEnd() || true);
+  ok(console.group("foo") || true);
+  ok(console.log("in group foo") || true);
+  ok(console.group("bar") || true);
+  ok(console.log("in group foo / bar") || true);
+  ok(console.groupEnd() || true);
+  ok(console.groupEnd() || true);
+  ok(console.log("not in group") || true);
+});
+
+
+</script>
