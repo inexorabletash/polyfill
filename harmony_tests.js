@@ -223,6 +223,49 @@ test("String extras", 15, function () {
   // TODO: Other string extras
 });
 
+test("Identity Testing", 578, function () {
+
+  window.testobj1 = {};
+  window.testobj2 = {};
+
+  var examples = [
+    "(void 0)",
+    "null",
+    "-Infinity",
+    "-Number.MAX_VALUE",
+    "-Number.MIN_VALUE",
+    "-0",
+    "0",
+    "Number.MIN_VALUE",
+    "Number.MAX_VALUE",
+    "Infinity",
+    "true",
+    "false",
+    "''",
+    "'abc'",
+    "'abd'",
+    "testobj1",
+    "testobj2"
+  ];
+
+  var i, j;
+
+  for (i = 0; i < examples.length; i += 1) {
+    for (j = 0; j < examples.length; j += 1) {
+      if (i === j) {
+        assertTrue("Object.is(" + examples[i] + "," + examples[j] + ")");
+        assertFalse("Object.isnt(" + examples[i] + "," + examples[j] + ")");
+      } else {
+        assertFalse("Object.is(" + examples[i] + "," + examples[j] + ")");
+        assertTrue("Object.isnt(" + examples[i] + "," + examples[j] + ")");
+      }
+    }
+  }
+
+  delete window.testobj1;
+  delete window.testobj2;
+});
+
 test("Simple Maps and Sets", 13, function () {
 
   map = new Map();

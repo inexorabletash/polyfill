@@ -7,10 +7,53 @@
 (function (global) {
   "use strict";
 
+  // Approximations of internal ECMAScript functions
+  var ECMAScript = (function () {
+    var ophop = Object.prototype.hasOwnProperty,
+        floor = Math.floor,
+        abs = Math.abs;
+    return {
+      HasProperty: function (o, p) { return p in o; },
+      HasOwnProperty: function (o, p) { return ophop.call(o, p); },
+      IsCallable: function (o) { return typeof o === 'function'; },
+      ToInteger: function (n) {
+        n = Number(n);
+        if (isNaN(n)) { return 0; }
+        if (n === 0 || n === Infinity || n === -Infinity) { return n; }
+        return ((n < 0) ? -1 : 1) * floor(abs(n));
+      },
+      ToInt32: function (v) { return v >> 0; },
+      ToUint32: function (v) { return v >>> 0; },
+      SameValue: function (x, y) {
+        if (typeof x !== typeof y) {
+          return false;
+        }
+        switch (typeof x) {
+        case 'undefined':
+          return true;
+        case 'null':
+          return true;
+        case 'number':
+          if (isNaN(x) && isNaN(y)) { return true; }
+          if (x === 0 && y === 0) { return 1/x === 1/y; }
+          return x === y;
+        case 'boolean':
+        case 'string':
+        case 'object':
+        default:
+          return x === y;
+        }
+      }
+    };
+  }());
+
+
+  //----------------------------------------------------------------------
   //
   // Tentatively approved proposals
   // http://wiki.ecmascript.org/doku.php?id=harmony:proposals
   //
+  //----------------------------------------------------------------------
 
   //----------------------------------------
   // Identity Testing
@@ -23,18 +66,7 @@
       'is',
       {
         value: function (x, y) {
-          if (x === y) {
-            // 0 === -0, but they are not identical
-            return x !== 0 || 1 / x === 1 / y;
-          }
-
-          // NaN !== NaN, but they are identical.
-          // NaNs are the only non-reflexive value, i.e., if x !== x,
-          // then x is a NaN.
-          // isNaN is broken: it converts its argument to number, so
-          // isNaN("foo") => true
-          //return x !== x && y !== y;
-          return Number.isNaN(x) && Number.isNaN(y);
+          return ECMAScript.SameValue(x, y);
         },
         configurable: true,
         enumerable: false,
@@ -48,7 +80,9 @@
       Object,
       'isnt',
       {
-        value: function isnt(x, y) { return !Object.is(x, y); },
+        value: function isnt(x, y) {
+          return !ECMAScript.SameValue(x, y);
+        },
         configurable: true,
         enumerable: false,
         writable: true
@@ -83,13 +117,12 @@
   // http://wiki.ecmascript.org/doku.php?id=harmony:number.isnan
   if (!Number.isNaN) {
     (function () {
-      var global_isNaN = global.isNaN;
       Object.defineProperty(
         Number,
         'isNaN',
         {
           value: function isNaN(value) {
-            return typeof value === 'number' && global_isNaN(value);
+            return typeof value === 'number' && value !== value;
           },
           configurable: true,
           enumerable: false,
@@ -102,17 +135,14 @@
   // http://wiki.ecmascript.org/doku.php?id=harmony:number.isinteger
   if (!Number.isInteger) {
     (function () {
-      var floor = Math.floor,
-          isFinite = global.isFinite;
+      var isFinite = global.isFinite;
 
       Object.defineProperty(
         Number,
         'isInteger',
         {
           value: function isInteger(value) {
-            return typeof value === 'number' && isFinite(value) &&
-              value > -9007199254740992 && value < 9007199254740992 &&
-              floor(value) === value;
+            return typeof value === 'number' && isFinite(value) && value === ECMAScript.ToInteger(value);
           },
           configurable: true,
           enumerable: false,
@@ -125,26 +155,12 @@
   // http://wiki.ecmascript.org/doku.php?id=harmony:number.tointeger
   if (!Number.toInteger) {
     (function () {
-      var abs = Math.abs,
-          floor = Math.floor,
-          isFinite = global.isFinite,
-          isNaN = global.isNaN;
-
-      function sign(n) { return (n < 0) ? -1 : 1; }
-
       Object.defineProperty(
         Number,
         'toInteger',
         {
           value: function toInteger(value) {
-            var n = +value;
-            if (isNaN(n)) {
-              return +0;
-            } else if (n === 0 || !isFinite(n)) {
-              return n;
-            } else {
-              return sign(n) * floor(abs(n));
-            }
+            return ECMAScript.ToInteger(value);
           },
           configurable: true,
           enumerable: false,
@@ -161,7 +177,6 @@
 
   // http://wiki.ecmascript.org/doku.php?id=harmony:string.prototype.repeat
   if (!String.prototype.repeat) {
-    // var ToInteger = Number.toInteger;
 
     Object.defineProperty(
       String.prototype,
@@ -169,14 +184,13 @@
       {
         value: function (count) {
           // var string = '' + this;
-          // count = ToInteger(count);
+          // count = ECMAScript.ToInteger(count);
           // var result = ';
           // while (--count >= 0) {
           //     result += string;
           // }
           // return result;
-
-          count = Number.toInteger(count);
+          count = ECMAScript.ToInteger(count);
           var a = [];
           a.length = count + 1;
           return a.join(String(this));
@@ -195,7 +209,8 @@
       'startsWith',
       {
         value: function startsWith(s) {
-          return String(this).indexOf(s) === 0;
+          s = String(s);
+          return String(this).substring(0, s.length) === s;
         },
         configurable: true,
         enumerable: false,
@@ -211,8 +226,8 @@
       'endsWith',
       {
         value: function endsWith(s) {
-          var t = String(s);
-          return String(this).lastIndexOf(t) === (this.length - t.length);
+          var s = String(s), t = String(this);
+          return t.substring(t.length - s.length) === s;
         },
         configurable: true,
         enumerable: false,
@@ -690,7 +705,7 @@
           value: function get(key, defaultValue) {
             key = Object(key);
             var secrets = reveal(key);
-            return (secrets && Object.prototype.hasOwnProperty.call(secrets, 'value')) ? secrets.value : defaultValue;
+            return (secrets && ECMAScript.HasOwnProperty(secrets, 'value')) ? secrets.value : defaultValue;
           },
           configurable: true,
           enumerable: false,
@@ -710,7 +725,7 @@
           value: function has(key) {
             key = Object(key);
             var secrets = reveal(key);
-            return Boolean(secrets && 'value' in secrets);
+            return Boolean(secrets && ECMAScript.HasOwnProperty(secrets, 'value'));
           },
           configurable: true,
           enumerable: false,
@@ -814,7 +829,7 @@
       {
         value: function from(o) {
           o = Object(o);
-          var i, length = o.length >>> 0, result = [];
+          var i, length = ECMAScript.ToUint32(o.length), result = [];
           for (i = 0; i < length; i += 1) {
             result[i] = o[i];
           }
@@ -837,14 +852,14 @@
           if (typeof start === 'undefined') {
             start = 0;
           }
-          start = start >>> 0;
-          var otherLength = other.length >>> 0;
+          start = ECMAScript.ToUint32(start);
+          var otherLength = ECMAScript.ToUint32(other.length);
           if (typeof end === 'undefined') {
             end = otherLength;
           }
-          end = end >>> 0;
+          end = ECMAScript.ToUint32(end);
           var self = Object(this);
-          var length = self.length >>> 0;
+          var length = ECMAScript.ToUint32(self.length);
           for (var i = 0, j = length; i < end; i++, j++) {
             self[j] = other[i];
           }
