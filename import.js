@@ -6,11 +6,17 @@
   }
 
   function resolveURL(url, base) {
-    if (/^\w+:/.test(url)) {
+    if (!base) {
+      // relative to page
+      return url;
+    } else if (/^\w+:/.test(url)) {
+      // absolute (has scheme)
       return url;
     } else if (/^\//.test(url) && /^(\w+:\/\/.*?)\//.test(base)) {
+      // rooted e.g. "/res/script.js"
       return RegExp.$1 + url;
     } else {
+      // relative
       return base.replace(/\/[^\/]*$/, '/' + url);
     }
   }
@@ -59,5 +65,5 @@
     xhr.send(null);
   }
 
-  window.importScript = importScript3;
+  window.importScript = importScript2;
 }());
