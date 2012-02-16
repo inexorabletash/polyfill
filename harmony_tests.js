@@ -266,7 +266,7 @@ test("Identity Testing", 578, function () {
   delete window.testobj2;
 });
 
-test("Simple Maps and Sets", 13, function () {
+test("Simple Maps and Sets", 15, function () {
 
   map = new Map();
   assertFalse("map.has(-0)");
@@ -275,8 +275,11 @@ test("Simple Maps and Sets", 13, function () {
   assertFalse("map.has(-0)");
   assertTrue("map.has(0)");
   assertEqual("map.get(0)", 1234);
-  map['delete'](0); // IE8 :(
+  map['delete'](0);
   assertFalse("map.has(-0)");
+  assertFalse("map.has(0)");
+  map.set(0, 1234);
+  map.clear();
   assertFalse("map.has(0)");
   delete map;
 
@@ -286,8 +289,11 @@ test("Simple Maps and Sets", 13, function () {
   set.add(0);
   assertFalse("set.has(-0)");
   assertTrue("set.has(0)");
-  set['delete'](0); // IE8 :(
+  set.remove(0);
   assertFalse("set.has(-0)");
+  assertFalse("set.has(0)");
+  set.add(0);
+  set.clear();
   assertFalse("set.has(0)");
   delete set;
 });

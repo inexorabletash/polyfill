@@ -642,6 +642,15 @@
           configurable: true,
           enumerable: false,
           writable: true
+        },
+        'clear': {
+          value: function clear() {
+            keys.length = 0;
+            vals.length = 0;
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
         }
       }
     );
@@ -667,8 +676,14 @@
           enumerable: false,
           writable: true
         },
-        'delete': {
-          value: function deleteFunction(key) { return map['delete'](key); },
+        'remove': {
+          value: function remove(key) { return map['delete'](key); },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        },
+        'clear': {
+          value: function clear() { map.clear(); },
           configurable: true,
           enumerable: false,
           writable: true
