@@ -15,7 +15,8 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
 
 
 <h2>Browser &amp ES5 (shims and polyfills)</h2>
-<a href="polyfill.js">script</a> - <a href="polyfill.html">unit tests</a>
+<p>Bundled together because nearly every page I create needs these.
+<p><a href="polyfill.js">script</a> - <a href="polyfill.html">unit tests</a>
 <ul>
   <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/dom.html#dom-document-head"><code>document.head</code></a> (polyfill)
   <li><a href="http://www.w3.org/TR/XMLHttpRequest/"><code>XMLHttpRequest</code></a> (polyfill for IE6-)
@@ -45,29 +46,82 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
 </ul>
 </ul>
 
-<h2>URL API (polyfill)</h2>
+<h2>W3C URL API (polyfill)</h2>
 <a href="url.js">script</a> - <a href="url.html">unit tests</a> - <a href="http://dvcs.w3.org/hg/url/raw-file/tip/Overview.html">draft spec</a> - <em>See script for cross-browser quirks</em>
+<ul>
+<li><code>new URL(<var>url</var>, <var>base</var>)</code>
+</ul>
 
-<h2>Keyboard Events (shim)</h2>
+<h2>W3C Keyboard Events (shim)</h2>
 <a href="keyboard.js">script</a> - <a href="keyboard.html">interactive test</a> - <a href="http://www.w3.org/TR/DOM-Level-3-Events/">OLD spec</a>
+<ul>
+<li><code>window.identifyKey(<var>keyboardEvent</var>)</code>
+<li><code><var>keyboardEvent</var>.keyName</code>
+<li><code><var>keyboardEvent</var>.keyIdentifier</code>
+<li><code><var>keyboardEvent</var>.keyLocation</code>
+<li><code><var>keyboardEvent</var>.keyChar</code>
+</ul>
 
-<h2>requestAnimationFrame (polyfill)</h2>
+<h2>W3C Timing control for script-based animations (polyfill)</h2>
 <a href="raf.js">script</a> - <a href="raf.html">demo page</a> - <a href="http://www.w3.org/TR/animation-timing/">spec</a>
+<ul>
+<li><code><var>id</var> = window.requestAnimationFrame()</code>
+<li><code>window.cancelAnimationFrame(<var>id</var>)</code>
+</ul>
 
-<h2>Web Storage (polyfill)</h2>
+<h2>W3C Web Storage (polyfill)</h2>
 <a href="storage.js">script</a> - <a href="http://dev.w3.org/html5/webstorage/">spec</a> - adapted from <a href="https://gist.github.com/350433">Remy Sharp</a>
+<ul>
+<li><code><var>storage</var> = window.localStorage</code>
+<li><code><var>storage</var> = window.sessionStorage</code>
+<li><code><var>storage</var>.clear()</code>
+<li><code><var>valueString</var> = <var>storage</var>.getItem(<var>keyString</var>)</code>
+<li><code><var>valueString</var> = <var>storage</var>.key(<var>index</var>)</code>
+<li><code><var>storage</var>.removeItem(<var>keyString</var>)</code>
+<li><code><var>storage</var>.setItem(<var>keyString</var>, <var>valueString</var>)</code>
+<li><code><var>storage</var>.length</code>
+</ul>
 
-<h2>Web Workers (polyfill)</h2>
+<h2>W3C Geolocation API (Level 1) (polyfill)</h2>
+<a href="geo.js">script</a> - <a href="http://dev.w3.org/geo/api/spec-source">spec</a> - uses <a href="http://freegeoip.net">freegeoip.net</a>
+<ul>
+<li><code>navigator.geolocation.getCurrentLocation(<var>successCallback</var>, <var>errorCallback</var>, <var>options</var>)</code>
+<li><code><var>watchId</var> = navigator.geolocation.watchPosition(<var>successCallback</var>, <var>errorCallback</var>, <var>options</var>)</code>
+<li><code>navigator.geolocation.clearWatch(<var>watchId</var>)</code>
+</ul>
+
+<h2>W3C Workers (polyfill)</h2>
 <a href="workers.js">script</a> - <a href="http://dev.w3.org/html5/workers/">spec</a> - <em>just for kicks</em>
 
 <h2>Cookie API (polyfill)</h2>
 <a href="cookie.js">script</a> - <a href="https://docs.google.com/Doc?docid=0AZpchfQ5mBrEZGQ0cDh3YzRfMTRmdHFma21kMg&hl=en&pli=1">Adam Barth&apos;s Cookie API proposal</a> - <em>abandoned</em>
+<ul>
+<li><code>document.getCookie(<var>name</var>, <var>callback</var>)</code>
+<li><code>document.getAllCookies(<var>callback</var>)</code>
+<li><code>document.setCookie({name: <var>name</var>, value: <var>value</var>}, <var>errorCallback</var>)</code>
+<li><code>document.deleteCookie(<var>name</var>, <var>errorCallback</var>)</code>
+</ul>
 
 <h2>Console (polyfill)</h2>
-<a href="console.js">script</a> - <a href="console.html">unit tests</a>
+<a href="console.js">script</a> - <a href="console.html">unit tests</a> - <em>de facto</em> standard in modern browsers
+<ul>
+<li><code>log</code>, <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>
+<li><code>assert</code>
+<li><code>count</code>
+<li><code>time</code>, <code>timeEnd</code>
+<li><code>group</code>, <code>groupEnd</code>
+<li><code>trace</code>
+<li><code>clear</code>
+</ul>
 
 <h2>sprintf (other)</h2>
 <a href="sprintf.js">script</a> - <a href="sprintf.html">unit tests</a> - <em>used for a few C-to-JavaScript porting projects</em>
 
-<h2>Typed Arrays (polyfill)</h2>
-<a href="typedarray.js">script</a> - <a href="typedarray.html">unit tests</a> - Copyright &copy; 2010 Linden Research, Inc. - MIT License. <a href="https://bitbucket.org/lindenlab/llsd/">original</a> - <em>At my previous place of employment I was doing work on binary file serialization/parsing in JavaScript and Typed Arrays were an appropriate fit, but had not yet been widely implemented.</em>
+<h2>Khronos Typed Arrays (polyfill)</h2>
+<a href="typedarray.js">script</a> - <a href="typedarray.html">unit tests</a> - Copyright &copy; 2010 Linden Research, Inc. - MIT License. <a href="https://bitbucket.org/lindenlab/llsd/">original</a> - <em>At my previous place of employment I was doing work on binary file serialization/parsing in JavaScript and Typed Arrays were an appropriate fit, but had not yet been widely implemented.</em> - the <code>DataView</code> implementation will also polyfill an otherwise native implementation, if necessary
+<ul>
+<li><code>ArrayBuffer</code>
+<li><code>Uint8Array</code>, <code>Int8Array</code>, <code>Uint16Array</code>, <code>Int16Array</code>, <code>Uint32Array</code>, <code>Int32Array</code>, <code>Float32Array</code>, <code>Float64Array</code>
+<li><code>DataView</code>
+</ul>
+
