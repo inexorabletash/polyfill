@@ -24,7 +24,7 @@
         array[i] = cookie;
       }
     }
-    return findName ? null : array;
+    return arguments.length > 0 ? null : array;
   }
 
   function getCookie(name, callback) {

@@ -1,3 +1,48 @@
 <!DOCTYPE html>
 <script src="polyfill.js"></script>
 <script src="geo.js"></script>
+
+<h1>Geolocation Demo</h1>
+<div style="width: 800px; height: 403px; position: relative;">
+<img id="map" src="geo.jpg" style="position: absolute; left: 0; top: 0; width: 800px; height: 403px;">
+<div id="locator" style="display: none; position: absolute; left: 100px; top: 100px; height: 10px; width: 10px; margin-left: -5px; margin-top: -5px; background-color: red; z-index: 1; border-radius: 5px;"></div>
+</div>
+<p id="message">&nbsp;</p>
+<p>Equirectangular Projection map image by Strebe. "This file is licensed under the Creative Commons Attribution-Share Alike 3.0 Unported license." <a href="http://en.wikipedia.org/wiki/File:Equirectangular_projection_SW.jpg">Wikipedia</a></p>
+
+<script>
+function $(s) {
+  return document.querySelector(s);
+}
+function message(s) {
+  var div = $("#message");
+  while (div.firstChild) {
+    div.removeChild(div.firstChild);
+  }
+  div.appendChild(document.createTextNode(s));
+}
+
+function locate(lat, long) {
+  var map = $("#map");
+  var x = map.offsetWidth * ((long + 180) % 360) / 360;
+  var y = map.offsetHeight * (90 - lat) / 180;
+  var locator = $("#locator");
+  locator.style.display = '';
+  locator.style.left = String(x) + 'px';
+  locator.style.top = String(y) + 'px';
+}
+
+window.onload = function () {
+  navigator.geolocation.getCurrentPosition(
+    function (position) {
+      var lat = position.coords.latitude;
+      var long = position.coords.longitude;
+      locate(lat, long);
+      message('Latitude: ' + lat + ' Longitude: ' + long);
+    },
+    function (error) {
+      message('Error: ' + error.message);
+    }
+  );
+};
+</script>

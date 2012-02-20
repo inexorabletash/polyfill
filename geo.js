@@ -71,7 +71,10 @@
     var cached = null;
 
     function dispatch(handler, data) {
-      if (handler) {
+      if (typeof handler === 'function') {
+        setTimeout(function () { handler(data); }, 0);
+      } else if (typeof handler === 'object' && handler && 'handleEvent' in handler) {
+        handler = handler.handleEvent;
         setTimeout(function () { handler(data); }, 0);
       }
     }

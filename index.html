@@ -83,9 +83,9 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
 </ul>
 
 <h2>W3C Geolocation API (Level 1) (polyfill)</h2>
-<a href="geo.js">script</a> - <a href="http://dev.w3.org/geo/api/spec-source">spec</a> - uses <a href="http://freegeoip.net">freegeoip.net</a>
+<a href="geo.js">script</a> - <a href="geo.html">demo page</a> - <a href="http://dev.w3.org/geo/api/spec-source">spec</a> - uses <a href="http://freegeoip.net">freegeoip.net</a>
 <ul>
-<li><code>navigator.geolocation.getCurrentLocation(<var>successCallback</var>, <var>errorCallback</var>, <var>options</var>)</code>
+<li><code>navigator.geolocation.getCurrentPosition(<var>successCallback</var>, <var>errorCallback</var>, <var>options</var>)</code>
 <li><code><var>watchId</var> = navigator.geolocation.watchPosition(<var>successCallback</var>, <var>errorCallback</var>, <var>options</var>)</code>
 <li><code>navigator.geolocation.clearWatch(<var>watchId</var>)</code>
 </ul>
@@ -96,29 +96,31 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
 <h2>Cookie API (polyfill)</h2>
 <a href="cookie.js">script</a> - <a href="https://docs.google.com/Doc?docid=0AZpchfQ5mBrEZGQ0cDh3YzRfMTRmdHFma21kMg&hl=en&pli=1">Adam Barth&apos;s Cookie API proposal</a> - <em>abandoned</em>
 <ul>
-<li><code>document.getCookie(<var>name</var>, <var>callback</var>)</code>
-<li><code>document.getAllCookies(<var>callback</var>)</code>
-<li><code>document.setCookie({name: <var>name</var>, value: <var>value</var>}, <var>errorCallback</var>)</code>
+<li><code><var>cookie</var> = document.getCookie(<var>name</var>, <var>callback</var>)</code>
+<li><code><var>cookieArray</var> = document.getAllCookies(<var>callback</var>)</code>
+<li><code>document.setCookie(<var>cookie</var>, <var>errorCallback</var>)</code>
 <li><code>document.deleteCookie(<var>name</var>, <var>errorCallback</var>)</code>
+<li><code><var>cookie</var>.name</code>
+<li><code><var>cookie</var>.value</code>
 </ul>
 
 <h2>Console (polyfill)</h2>
 <a href="console.js">script</a> - <a href="console.html">unit tests</a> - <em>de facto</em> standard in modern browsers
 <ul>
-<li><code>log</code>, <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>
-<li><code>assert</code>
-<li><code>count</code>
-<li><code>time</code>, <code>timeEnd</code>
-<li><code>group</code>, <code>groupEnd</code>
-<li><code>trace</code>
-<li><code>clear</code>
+<li><code>console.log(<var>messageObject</var>, <var>arguments...</var>)</code>, and variations: <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>
+<li><code>console.assert(<var>assertion</var>, <var>messageObject</var>, <var>arguments...</var>)</code>
+<li><code>console.count(<var>name</var>)</code>
+<li><code>console.time(<var>name</var>)</code>, <code>console.timeEnd(<var>name</var>)</code>
+<li><code>console.group(<var>name</var>)</code>, <code>console.groupEnd()</code>
+<li><code>console.trace()</code>
+<li><code>console.clear()</code>
 </ul>
 
 <h2>sprintf (other)</h2>
 <a href="sprintf.js">script</a> - <a href="sprintf.html">unit tests</a> - <em>used for a few C-to-JavaScript porting projects</em>
 
 <h2>Khronos Typed Arrays (polyfill)</h2>
-<a href="typedarray.js">script</a> - <a href="typedarray.html">unit tests</a> - Copyright &copy; 2010 Linden Research, Inc. - MIT License. <a href="https://bitbucket.org/lindenlab/llsd/">original</a> - <em>At my previous place of employment I was doing work on binary file serialization/parsing in JavaScript and Typed Arrays were an appropriate fit, but had not yet been widely implemented.</em> - the <code>DataView</code> implementation will also polyfill an otherwise native implementation, if necessary
+<a href="typedarray.js">script</a> - <a href="typedarray.html">unit tests</a> - <a href="http://www.khronos.org/registry/typedarray/specs/latest/">spec</a> - Copyright &copy; 2010 Linden Research, Inc. - MIT License. <a href="https://bitbucket.org/lindenlab/llsd/">original</a> - <em>At my previous place of employment I was doing work on binary file serialization/parsing in JavaScript and Typed Arrays were an appropriate fit, but had not yet been widely implemented.</em> - the <code>DataView</code> implementation will also polyfill an otherwise native implementation, if necessary
 <ul>
 <li><code>ArrayBuffer</code>
 <li><code>Uint8Array</code>, <code>Int8Array</code>, <code>Uint16Array</code>, <code>Int16Array</code>, <code>Uint32Array</code>, <code>Int32Array</code>, <code>Float32Array</code>, <code>Float64Array</code>

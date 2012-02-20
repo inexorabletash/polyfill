@@ -143,8 +143,8 @@
       return result;
     }
 
-    this.log = function info(messageObject) { show(toArray(arguments), 'LOG'); };
-    this.debug = function info(messageObject) { show(toArray(arguments), 'DEBUG'); };
+    this.log = function log(messageObject) { show(toArray(arguments), 'LOG'); };
+    this.debug = function debug(messageObject) { show(toArray(arguments), 'DEBUG'); };
     this.info = function info(messageObject) { show(toArray(arguments), 'INFO'); };
     this.warn = function warn(messageObject) { show(toArray(arguments), 'WARN', 'Warning: '); };
     this.error = function error(messageObject) { show(toArray(arguments), 'ERROR', 'Error: '); };
