@@ -1,14 +1,21 @@
 <!DOCTYPE html>
-<script src="polyfill.js"></script>
-<script src="geo.js"></script>
+<title>Geolocation API Polyfill Demo</title>
+<link rel="stylesheet" href="polyfill.css">
 
-<h1>Geolocation Demo</h1>
+<h1>Geolocation API Polyfill Demo</h1>
+<p>This demo page overrides your browser&apos;s built-in geolocation support, if possible.</p>
+
 <div style="width: 800px; height: 403px; position: relative;">
 <img id="map" src="geo.jpg" style="position: absolute; left: 0; top: 0; width: 800px; height: 403px;">
 <div id="locator" style="display: none; position: absolute; left: 100px; top: 100px; height: 10px; width: 10px; margin-left: -5px; margin-top: -5px; background-color: red; z-index: 1; border-radius: 5px;"></div>
 </div>
-<p id="message">&nbsp;</p>
-<p>Equirectangular Projection map image by Strebe. "This file is licensed under the Creative Commons Attribution-Share Alike 3.0 Unported license." <a href="http://en.wikipedia.org/wiki/File:Equirectangular_projection_SW.jpg">Wikipedia</a></p>
+<p style="font-size: 8pt"><a href="http://en.wikipedia.org/wiki/File:Equirectangular_projection_SW.jpg">Equirectangular projection by Strebe.</a> Licensed under the Creative Commons Attribution-Share Alike 3.0 Unported license.</p>
+
+<p id="message">Checking position...</p>
+
+<script src="polyfill.js"></script>
+<script>window.navigator = {};</script>
+<script src="geo.js"></script>
 
 <script>
 function $(s) {

@@ -1,0 +1,5 @@
+body { margin-left: 80px; margin-right: 80px; }
+h1 { border-bottom: solid 2px black; margin-bottom: 0; }
+h2 { text-decoration: underline; margin-bottom: 0; }
+p { margin-top: 0.5em; margin-bottom: 0.5em; }
+code { background-color: #eeeeee; }
