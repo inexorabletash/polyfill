@@ -23,6 +23,7 @@
     return Object.prototype.hasOwnProperty.call(o, p);
   }
 
+  /** @constructor */
   function PositionError(code, message) {
     this.code = code;
     this.message = message;
@@ -30,8 +31,9 @@
   PositionError.PERMISSION_DENIED = 1;
   PositionError.POSITION_UNAVAILABLE = 2;
   PositionError.TIMEOUT = 3;
-  PositionError.prototye = new Error();
+  PositionError.prototype = new Error();
 
+  /** @constructor */
   function Coordinates(data) {
     this.accuracy = EARTH_RADIUS_M * Math.PI;
     this.altitude = null;
@@ -42,6 +44,7 @@
     this.speed = null;
   }
 
+  /** @constructor */
   function Geoposition(data) {
     this.timestamp = Number(new Date());
     this.coords = new Coordinates(data);
@@ -66,7 +69,8 @@
                                   p2.coords.latitude, p2.coords.longitude);
   };
 
-  function Geolocation() {
+  /** @constructor */
+  function GeolocationPolyfill() {
 
     var cached = null;
 
@@ -266,7 +270,7 @@
 
   // Exports
   if (!navigator.geolocation) {
-    navigator.geolocation = new Geolocation();
+    navigator.geolocation = new GeolocationPolyfill();
     window.PositionError = PositionError;
   }
 

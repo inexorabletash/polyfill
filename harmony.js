@@ -591,6 +591,7 @@
   //----------------------------------------
 
   // http://wiki.ecmascript.org/doku.php?id=harmony:simple_maps_and_sets
+  /** @constructor */
   global.Map = global.Map || function Map() {
     if (!(this instanceof Map)) { return new Map(); }
     var keys = [], vals = [];
@@ -658,6 +659,7 @@
     return this;
   };
 
+  /** @constructor */
   global.Set = global.Set || function Set() {
     if (!(this instanceof Set)) { return new Set(); }
     var map = new global.Map();
@@ -696,6 +698,7 @@
 
   // Inspired by https://gist.github.com/1638059
   // http://wiki.ecmascript.org/doku.php?id=harmony:weak_maps
+  /** @constructor */
   global.WeakMap = global.WeakMap || function WeakMap() {
     if (!(this instanceof WeakMap)) { return new WeakMap(); }
 

@@ -433,9 +433,10 @@ if (typeof Object.create !== "function") {
   Object.create = function (prototype, properties) {
     "use strict";
     if (prototype !== Object(prototype)) { throw new TypeError(); }
-    var Ctor = function () { }, o;
+    /** @constructor */
+    function Ctor() {}
     Ctor.prototype = prototype;
-    o = new Ctor();
+    var o = new Ctor();
     o.constructor = Ctor;
     if (arguments.length > 1) {
       if (properties !== Object(properties)) { throw new TypeError(); }
@@ -512,12 +513,13 @@ if (!Function.prototype.bind) {
     var slice = [].slice,
         args = slice.call(arguments, 1),
         self = this,
-        nop = function () { },
         bound = function () {
           return self.apply(this instanceof nop ? this : (o || {}),
                             args.concat(slice.call(arguments)));
         };
 
+    /** @constructor */
+    function nop() {}
     nop.prototype = self.prototype;
 
     bound.prototype = new nop();

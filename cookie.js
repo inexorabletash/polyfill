@@ -5,6 +5,7 @@
 (function () {
   "use strict";
 
+  /** @constructor */
   function Cookie(name, value) {
     this.name = name;
     this.value = value;

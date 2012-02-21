@@ -257,6 +257,7 @@
 
   (function () {
 
+    /** @constructor */
     var ArrayBuffer = function ArrayBuffer(length) {
       length = ECMAScript.ToInt32(length);
       if (length < 0) { throw new RangeError('ArrayBuffer size is not a small enough positive integer.'); }
@@ -279,6 +280,7 @@
     //
 
     // NOTE: this constructor is not exported
+    /** @constructor */
     var ArrayBufferView = function ArrayBufferView() {
       //this.buffer = null;
       //this.byteOffset = 0;
@@ -551,6 +553,7 @@
     // Constructor(ArrayBuffer buffer,
     //             optional unsigned long byteOffset,
     //             optional unsigned long byteLength)
+    /** @constructor */
     var DataView = function DataView(buffer, byteOffset, byteLength) {
       if (arguments.length === 0) {
         buffer = new ArrayBuffer(0);
