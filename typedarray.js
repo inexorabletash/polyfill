@@ -100,6 +100,7 @@
       if (ECMAScript.HasProperty(desc, 'get') && Object.prototype.__defineGetter__) { Object.prototype.__defineGetter__.call(obj, prop, desc.get); }
       if (ECMAScript.HasProperty(desc, 'set') && Object.prototype.__defineSetter__) { Object.prototype.__defineSetter__.call(obj, prop, desc.set); }
       if (ECMAScript.HasProperty(desc, 'value')) { obj[prop] = desc.value; }
+      return obj;
     };
   }
 
@@ -552,12 +553,12 @@
     //             optional unsigned long byteLength)
     var DataView = function DataView(buffer, byteOffset, byteLength) {
       if (arguments.length === 0) {
-        buffer = new ArrayBuffer();
+        buffer = new ArrayBuffer(0);
       } else if (!(buffer instanceof ArrayBuffer || ECMAScript.Class(buffer) === 'ArrayBuffer')) {
         throw new TypeError("TypeError");
       }
 
-      this.buffer = buffer || new ArrayBuffer();
+      this.buffer = buffer || new ArrayBuffer(0);
 
       this.byteOffset = ECMAScript.ToUint32(byteOffset);
       if (this.byteOffset > this.buffer.byteLength) {

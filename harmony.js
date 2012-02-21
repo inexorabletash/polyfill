@@ -226,7 +226,8 @@
       'endsWith',
       {
         value: function endsWith(s) {
-          var s = String(s), t = String(this);
+          s = String(s);
+          var t = String(this);
           return t.substring(t.length - s.length) === s;
         },
         configurable: true,

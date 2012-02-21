@@ -231,7 +231,8 @@
               if (e.attrName === 'href') {
                 update(e.target);
               }
-            });
+            },
+            false);
         } else if (anchor.attachEvent) {
           anchor.attachEvent(
             'onpropertychange',

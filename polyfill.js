@@ -279,7 +279,7 @@ if ('window' in this && 'document' in this) {
     if (!elem || !('className' in elem)) { throw new TypeError("No element specified"); }
     if ('classList' in elem) { return elem.classList; }
 
-    return {
+    var classList = {
       length: elem.className.split(/\s+/g).length,
       item: function (idx) {
         var classes = elem.className.split(/\s+/g);
@@ -291,6 +291,7 @@ if ('window' in this && 'document' in this) {
 
         return index !== -1;
       },
+      // TODO: multiple tokens
       add: function (token) {
         var classes = elem.className.split(/\s+/g),
             index = classes.indexOf(token);
@@ -298,9 +299,10 @@ if ('window' in this && 'document' in this) {
         if (index === -1) {
           classes.push(token);
           elem.className = classes.join(' ');
-          this.length = classes.length;
+          classList.length = classes.length;
         }
       },
+      // TODO: multiple tokens
       remove: function (token) {
         var classes = elem.className.split(/\s+/g),
             index = classes.indexOf(token);
@@ -308,9 +310,10 @@ if ('window' in this && 'document' in this) {
         if (index !== -1) {
           classes.splice(index, 1);
           elem.className = classes.join(' ');
-          this.length = classes.length;
+          classList.length = classes.length;
         }
       },
+      // TODO: multiple tokens
       toggle: function (token) {
         var classes = elem.className.split(/\s+/g),
             index = classes.indexOf(token);
@@ -322,9 +325,10 @@ if ('window' in this && 'document' in this) {
           classes.splice(index, 1);
           elem.className = classes.join(' ');
         }
-        this.length = classes.length;
+        classList.length = classes.length;
       }
     };
+    return classList;
   };
 
 
@@ -457,6 +461,7 @@ if (!Object.defineProperty ||
     if ('value' in desc) {
       o[prop] = desc.value;
     }
+    return o;
   };
 }
 
@@ -471,6 +476,7 @@ if (typeof Object.defineProperties !== "function") {
         Object.defineProperty(o, name, properties[name]);
       }
     }
+    return o;
   };
 }
 
@@ -532,7 +538,7 @@ if (!Function.prototype.bind) {
 
 // ES5 15.4.3.2 Array.isArray ( arg )
 // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/isArray
-Array.isArray = Array.isArray || function (o) { return Object.prototype.toString.call(o) === '[object Array]'; };
+Array.isArray = Array.isArray || function (o) { return Boolean(o && Object.prototype.toString.call(Object(o)) === '[object Array]'); };
 
 
 //

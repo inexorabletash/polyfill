@@ -208,7 +208,7 @@
       var lastPosition = null, timerId = 0;
       acquisitionSteps();
       function acquisitionSteps() {
-        var cancelOperation = acquireLocation(onSuccess, onFailure);
+        var cancelOperation = acquireLocation(onSuccess, onFailure, enableHighAccuracy);
 
         var timedOut = false;
         if (isFinite(timeout) && !timerId) {
