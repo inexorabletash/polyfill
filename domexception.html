@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<script src="polyfill.js"></script>
+<script src="domexception.js"></script>
+<script>
+window.onload = function () {
+  Object.keys(DOMException).filter(function(k) {
+    return typeof DOMException[k] === 'number';
+  }).forEach(function (k) {
+    var tbody = document.querySelector('#rows'),
+        tr = document.createElement('tr');
+
+    function col(s) {
+      var td = document.createElement('td');
+      td.appendChild(document.createTextNode(s));
+      tr.appendChild(td);
+    }
+
+    var e = DOMException.create(DOMException[k]);
+    col(e.code);
+    col(e.name);
+    col(e.message);
+    col(Object.prototype.toString.call(e) === '[object DOMException]');
+
+    tbody.appendChild(tr);
+  });
+};
+</script>
+
+<style>
+body { font-family: sans-serif; }
+th { text-align: left; }
+th, td { padding: 2px; }
+tr:nth-child(even) { background-color: #eeeeee; }
+tr:nth-child(odd) { background-color: #ccccee; }
+
+</style>
+
+<table>
+<tbody id="rows">
+<tr><th>code<th>name<th>message<th>native?
+</tbody>
+</table>
