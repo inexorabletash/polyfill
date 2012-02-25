@@ -2,13 +2,13 @@
 function assertTrue(expr) {
   var _x_;
   try { eval("_x_ = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }
-  ok(_x_, expr + " is true");
+  ok(_x_, "Expecting " + String(expr) + " to be true, was: " + String(_x_));
 }
 
 function assertFalse(expr) {
   var _x_;
   try { eval("_x_ = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }
-  ok(!_x_, expr + " is true");
+  ok(!_x_, "Expecting " + String(expr) + " to be false, was: " + String(_x_));
 }
 
 function assertEqual(expr, value) {

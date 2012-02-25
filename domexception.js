@@ -40,26 +40,27 @@
   });
 
   var funcs = (function () {
-    var funcs = [], w = window, d = document, im = d.implementation, ce = d.createElement.bind(d), de = DOMException;
+    var funcs = [], w = window, d = document, im = d.implementation, de = DOMException;
     funcs[de.INDEX_SIZE_ERR] = function () { d.createTextNode("").splitText(1); };
     //funcs[de.DOMSTRING_SIZE_ERR] = function () {};
     funcs[de.HIERARCHY_REQUEST_ERR] = function () { d.appendChild(d); };
     funcs[de.WRONG_DOCUMENT_ERR] = function () { var dt = im.createDocumentType('x'); im.createDocument('', '', dt); im.createDocument('', '', dt); };
-    funcs[de.INVALID_CHARACTER_ERR] = function () { ce("!"); };
+    funcs[de.INVALID_CHARACTER_ERR] = function () { document.createElement("!"); };
     //funcs[de.NO_DATA_ALLOWED_ERR] = function () {};
     //funcs[de.NO_MODIFICATION_ALLOWED_ERR] = function () {};
     funcs[de.NOT_FOUND_ERR] = function () { d.removeChild(null); };
     funcs[de.NOT_SUPPORTED_ERR] = function () { d.createCDATASection(); };
-    funcs[de.INUSE_ATTRIBUTE_ERR] = function () { var a = ce('a'), n = d.createAttribute('n'); a.setAttributeNode(n); ce('b').setAttributeNode(n); };
+    funcs[de.INUSE_ATTRIBUTE_ERR] = function () { var a = d.createElement('a'), n = d.createAttribute('n'); a.setAttributeNode(n); d.createElement('b').setAttributeNode(n); };
     funcs[de.INVALID_STATE_ERR] = function () { var r = d.createRange(); r.detach(); r.detach(); };
-    funcs[de.SYNTAX_ERR] = function () { ce('a').contentEditable = 'bogus'; };
+    funcs[de.SYNTAX_ERR] = function () { d.createElement('a').contentEditable = 'bogus'; };
     //funcs[de.INVALID_MODIFICATION_ERR] = function () {};
     funcs[de.NAMESPACE_ERR] = function () { d.createAttributeNS('', 'a:b'); };
     //funcs[de.INVALID_ACCESS_ERR] = function () {};
     //funcs[de.VALIDATION_ERR] = function () {};
     //funcs[de.TYPE_MISMATCH_ERR] = function () {};
     // ...
-    funcs[de.DATA_CLONE_ERR] = function () { w.postMessage(d); };
+    funcs[de.INVALID_NODE_TYPE_ERR] = function () { d.createRange().selectNode(d.createElement('a')); }; // "DOM Range Exception 2"
+    funcs[de.DATA_CLONE_ERR] = function () { w.postMessage(w); };
     return funcs;
   }());
 
@@ -80,7 +81,9 @@
       try {
         funcs[code]();
       } catch (e) {
-        return e;
+        if (e.code === code) {
+          return e;
+        }
       }
     }
 

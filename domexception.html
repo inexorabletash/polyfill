@@ -9,17 +9,20 @@ window.onload = function () {
     var tbody = document.querySelector('#rows'),
         tr = document.createElement('tr');
 
-    function col(s) {
+    function col(s, c) {
       var td = document.createElement('td');
       td.appendChild(document.createTextNode(s));
       tr.appendChild(td);
+      td.className = c ? c : '';
     }
 
     var e = DOMException.create(DOMException[k]);
+    col(DOMException[k]);
     col(e.code);
     col(e.name);
     col(e.message);
-    col(Object.prototype.toString.call(e) === '[object DOMException]');
+    var native = Object.prototype.toString.call(e) === '[object DOMException]';
+    col(native, native ? 'yay' : 'boo');
 
     tbody.appendChild(tr);
   });
@@ -32,11 +35,12 @@ th { text-align: left; }
 th, td { padding: 2px; }
 tr:nth-child(even) { background-color: #eeeeee; }
 tr:nth-child(odd) { background-color: #ccccee; }
-
+td.yay { color: #008000; font-weight: bold; }
+td.boo { color: #800000; font-weight: bold; }
 </style>
 
 <table>
 <tbody id="rows">
-<tr><th>code<th>name<th>message<th>native?
+<tr><th>key<th>code<th>name<th>message<th>native?
 </tbody>
 </table>
