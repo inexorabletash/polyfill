@@ -892,4 +892,29 @@
     );
   }
 
+  // es-discuss: DOMStringList replacement
+  if (!Array.prototype.contains) {
+    Object.defineProperty(
+      Array.prototype,
+      'contains', {
+        value: function (target) {
+          if (this === void 0 || this === null) { throw new TypeError(); }
+          var t = Object(this),
+              len = ECMAScript.ToUint32(t.length),
+              i;
+          for (i = 0; i < len; i += 1) {
+            if (i in t && Object.is(t[i], target)) {
+              return true;
+            }
+          }
+          return false;
+        },
+        configurable: true,
+        enumerable: false,
+        writable: true
+      }
+    );
+  }
+
+
 }(self));

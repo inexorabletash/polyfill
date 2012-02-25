@@ -362,7 +362,7 @@ test("WeakMap", function () {
   delete v;
 });
 
-test("Array extras", 15, function () {
+test("Array extras", 37, function () {
   ok('of' in Array);
   ok(typeof Array.of === 'function');
   deepEqual(Array.of(), []);
@@ -379,4 +379,29 @@ test("Array extras", 15, function () {
   deepEqual(Array.from({length: 0, 0: 'a'}), []);
   deepEqual(Array.from({length: 1, 0: 'a'}), ['a']);
   deepEqual(Array.from({length: 2, 1: 'a'}), [(void 0), 'a']);
+
+  ok('pushAll' in Array.prototype);
+  ok(typeof Array.prototype.pushAll === 'function');
+  var a;
+  a = []; a.pushAll([]); deepEqual(a, []);
+  a = [1,2]; a.pushAll([]); deepEqual(a, [1,2]);
+  a = []; a.pushAll([1,2]); deepEqual(a, [1,2]);
+  a = [1,2]; a.pushAll([1,2]); deepEqual(a, [1,2,1,2]);
+
+  ok('contains' in Array.prototype);
+  ok(typeof Array.prototype.contains === 'function');
+  assertTrue("[1,2,3].contains(1)");
+  assertFalse("[1,2,3].contains(0)");
+  assertTrue("[1,NaN,3].contains(NaN)");
+  assertFalse("[1,2,3].contains(NaN)");
+  assertTrue("[1,-0,3].contains(-0)");
+  assertFalse("[1,-0,3].contains(0)");
+  assertFalse("[1,[],3].contains([])");
+  assertFalse("[1,{},3].contains({})");
+  assertFalse("[1,2,3].contains(Math)");
+  assertTrue("[1,Math,3].contains(Math)");
+  assertFalse("[1,2,3].contains(undefined)");
+  assertTrue("[1,undefined,3].contains(undefined)");
+  assertFalse("[1,2,3].contains(null)");
+  assertTrue("[1,null,3].contains(null)");
 });
