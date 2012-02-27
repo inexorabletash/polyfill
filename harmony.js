@@ -333,7 +333,7 @@
             // from: http://www.johndcook.com/cpp_expm1.html
             if (x <= -1) {
               return -Infinity;
-            } else if (Object.is(x, -0)) {
+            } else if (ECMAScript.SameValue(x, -0)) {
               return -0;
             } else if (abs(x) > 1e-4) {
               return log(1 + x);
@@ -361,7 +361,7 @@
           value: function expm1(x) {
             x = (typeof x !== 'number') ? NaN : x;
             // from: http://www.johndcook.com/cpp_log1p.html
-            if (Object.is(x, -0)) {
+            if (ECMAScript.SameValue(x, -0)) {
               return -0;
             } else if (x === -Infinity) {
               return 1;
@@ -413,7 +413,7 @@
         {
           value: function sinh(x) {
             x = (typeof x !== 'number') ? NaN : x;
-            return Object.is(x, -0) ? x : (pow(E, x) - pow(E, -x)) / 2;
+            return ECMAScript.SameValue(x, -0) ? x : (pow(E, x) - pow(E, -x)) / 2;
           },
           configurable: true,
           enumerable: false,
@@ -481,7 +481,7 @@
         {
           value: function asinh(x) {
             x = (typeof x !== 'number') ? NaN : x;
-            if (Object.is(x, -0)) {
+            if (ECMAScript.SameValue(x, -0)) {
               return x;
             }
             var s = sqrt(x * x + 1);
@@ -598,7 +598,7 @@
     function indexOfIdentical(keys, key) {
       var i;
       for (i = 0; i < keys.length; i += 1) {
-        if (Object.is(keys[i], key)) { return i; }
+        if (ECMAScript.SameValue(keys[i], key)) { return i; }
       }
       return -1;
     }
@@ -903,7 +903,7 @@
               len = ECMAScript.ToUint32(t.length),
               i;
           for (i = 0; i < len; i += 1) {
-            if (i in t && Object.is(t[i], target)) {
+            if (i in t && ECMAScript.SameValue(t[i], target)) {
               return true;
             }
           }
