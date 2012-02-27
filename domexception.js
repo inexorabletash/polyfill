@@ -65,10 +65,8 @@
   }());
 
   var DOMExceptionShim = (function () {
-    function DOMException(message) {
-      this.message = message;
-      this.name = 'UNKNOWN_ERR';
-      this.code = 0;
+    function DOMException(name) {
+      this.name = name || 'UNKNOWN_ERR';
     }
     DOMException.prototype = new DOMException();
     return DOMException;
@@ -82,16 +80,15 @@
         funcs[code]();
       } catch (e) {
         if (e.code === code) {
+          e.name = e.name || code_to_name[code];
           return e;
         }
       }
     }
 
-    var ex = new DOMExceptionShim();
+    var name = Object.prototype.hasOwnProperty.call(code_to_name, code) ? code_to_name[code] : null,
+          ex = new DOMExceptionShim(name);
     ex.code = code;
-    if (Object.prototype.hasOwnProperty.call(code_to_name, code)) {
-      ex.name = code_to_name[code];
-    }
     ex.message = ex.name + ': DOM Exception ' + String(code);
     return ex;
   };

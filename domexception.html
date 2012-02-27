@@ -3,9 +3,7 @@
 <script src="domexception.js"></script>
 <script>
 window.onload = function () {
-  Object.keys(DOMException).filter(function(k) {
-    return typeof DOMException[k] === 'number';
-  }).forEach(function (k) {
+  for (var c = 1; c <= 25; c += 1) {
     var tbody = document.querySelector('#rows'),
         tr = document.createElement('tr');
 
@@ -16,8 +14,8 @@ window.onload = function () {
       td.className = c ? c : '';
     }
 
-    var e = DOMException.create(DOMException[k]);
-    col(DOMException[k]);
+    var e = DOMException.create(c);
+    col(c);
     col(e.code);
     col(e.name);
     col(e.message);
@@ -25,7 +23,7 @@ window.onload = function () {
     col(native, native ? 'yay' : 'boo');
 
     tbody.appendChild(tr);
-  });
+  }
 };
 </script>
 
