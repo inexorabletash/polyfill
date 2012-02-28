@@ -82,7 +82,7 @@ test("Web Standards Polyfills", 64, function () {
   assertEqual("DOMException.INVALID_ACCESS_ERR", 15);
 });
 
-test("Web Standards Shims", 28, function () {
+test("Web Standards Shims", 30, function () {
 
   // getClassList()
   assertEqual("getClassList(document.getElementById('baz')).length", 4);
@@ -121,6 +121,11 @@ test("Web Standards Shims", 28, function () {
   assertTrue("getClassList(elem).contains('bar')");
   assertFalse("getClassList(elem).contains('baz')");
   assertEqual("getClassList(elem).item(0)", 'bar');
+  getClassList(elem).remove('bar');
+  assertEqual("getClassList(elem).length", 0);
+
+  elem = document.createElement('span');
+  assertEqual("getClassList(elem).length", 0);
 
   // TODO: addEvent/removeEvent
 

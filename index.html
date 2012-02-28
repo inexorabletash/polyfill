@@ -63,6 +63,7 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
     </ul>
   <li><a href="http://www.w3.org/TR/html5/common-dom-interfaces.html#domtokenlist">classList</a> (shim)
     <ul>
+      <li><code><var>elem</var>.classList</code> <em>- not available in IE7-, so use with caution</em>
       <li><code><var>classList</var> = window.getClassList(<var>element</var>)</code>
       <li><code><var>classList</var>.length</code>
       <li><code><var>classList</var>.item(<var>index</var>)</code>
@@ -102,13 +103,14 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
   <li>Not yet approved:
     <ul>
       <li>Number: <code>compare</code>, <code>EPILON</code>, <code>MAX_INTEGER</code>
+      <li>Array prototype: <code>of</code>, <code>from</code>, <code>pushAll</code>, <code>contains</code>
     </ul>
 </ul>
 
 <h2 id="url">W3C URL API (polyfill)</h2>
 <p><a href="url.js">script</a> - <a href="url.html">unit tests</a> - <a href="http://dvcs.w3.org/hg/url/raw-file/tip/Overview.html">draft spec</a> - <em>See script for cross-browser quirks</em>
 <ul>
-<li><code>new URL(<var>url</var>, <var>base</var>)</code>
+<li><code><var>url</var> = new URL(<var>url</var>, <var>base</var>)</code>
 <li><code><var>value</var> = <var>url</var>.getParameter(<var>name</var>)</code>
 <li><code><var>valueArray</var> = <var>url</var>.getParameterAll(<var>name</var>)</code>
 <li><code><var>url</var>.appendParameter(<var>name</var>, <var>valueOrValues</var>)</code>

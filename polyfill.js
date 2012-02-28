@@ -273,64 +273,79 @@ if ('window' in this && 'document' in this) {
   //----------------------------------------------------------------------
 
   // Shim for http://www.whatwg.org/specs/web-apps/current-work/multipage/elements.html#dom-classlist
-  // Use getClassList(elem) instead of elem.classList()
+  // Use getClassList(elem) instead of elem.classList() (unless on IE8+)
 
-  window.getClassList = function (elem) {
-    if (!elem || !('className' in elem)) { throw new TypeError("No element specified"); }
-    if ('classList' in elem) { return elem.classList; }
+  (function () {
+    if ('classList' in document.createElement('span')) {
+      // Enable window.getClassList() for all browsers
+      window.getClassList = function (elem) { return elem.classList; };
+    } else {
+      window.getClassList = function (elem) {
+        if (!elem || !('className' in elem)) { throw new TypeError("No element specified"); }
 
-    var classList = {
-      length: elem.className.split(/\s+/g).length,
-      item: function (idx) {
-        var classes = elem.className.split(/\s+/g);
-        return 0 <= idx && idx < classes.length ? classes[idx] : null;
-      },
-      contains: function (token) {
-        var classes = elem.className.split(/\s+/g),
-            index = classes.indexOf(token);
+        var classList = {
+          length: elem.className.length ? elem.className.split(/\s+/g).length : 0,
+          item: function (idx) {
+            var classes = elem.className.length ? elem.className.split(/\s+/g) : [];
+            return 0 <= idx && idx < classes.length ? classes[idx] : null;
+          },
+          contains: function (token) {
+            var classes = elem.className.length ? elem.className.split(/\s+/g) : [],
+                index = classes.indexOf(token);
 
-        return index !== -1;
-      },
-      // TODO: multiple tokens
-      add: function (token) {
-        var classes = elem.className.split(/\s+/g),
-            index = classes.indexOf(token);
+            return index !== -1;
+          },
+          // TODO: multiple tokens
+          add: function (token) {
+            var classes = elem.className.length ? elem.className.split(/\s+/g) : [],
+                index = classes.indexOf(token);
 
-        if (index === -1) {
-          classes.push(token);
-          elem.className = classes.join(' ');
-          classList.length = classes.length;
-        }
-      },
-      // TODO: multiple tokens
-      remove: function (token) {
-        var classes = elem.className.split(/\s+/g),
-            index = classes.indexOf(token);
+            if (index === -1) {
+              classes.push(token);
+              elem.className = classes.join(' ');
+              classList.length = classes.length;
+            }
+          },
+          // TODO: multiple tokens
+          remove: function (token) {
+            var classes = elem.className.length ? elem.className.split(/\s+/g) : [],
+                index = classes.indexOf(token);
 
-        if (index !== -1) {
-          classes.splice(index, 1);
-          elem.className = classes.join(' ');
-          classList.length = classes.length;
-        }
-      },
-      // TODO: multiple tokens
-      toggle: function (token) {
-        var classes = elem.className.split(/\s+/g),
-            index = classes.indexOf(token);
+            if (index !== -1) {
+              classes.splice(index, 1);
+              elem.className = classes.join(' ');
+              classList.length = classes.length;
+            }
+          },
+          // TODO: multiple tokens
+          toggle: function (token) {
+            var classes = elem.className.length ? elem.className.split(/\s+/g) : [],
+                index = classes.indexOf(token);
 
-        if (index === -1) {
-          classes.push(token);
-          elem.className = classes.join(' ');
-        } else {
-          classes.splice(index, 1);
-          elem.className = classes.join(' ');
-        }
-        classList.length = classes.length;
+            if (index === -1) {
+              classes.push(token);
+              elem.className = classes.join(' ');
+            } else {
+              classes.splice(index, 1);
+              elem.className = classes.join(' ');
+            }
+            classList.length = classes.length;
+          }
+        };
+        return classList;
+      };
+
+      // For IE8+ make this a polyfill
+      if (Element && Element.prototype) {
+        Object.defineProperty(
+          Element.prototype,
+          'classList',
+          {
+            get: function () { return window.getClassList(this); }
+          });
       }
-    };
-    return classList;
-  };
-
+    }
+  }());
 
   //----------------------------------------------------------------------
   //
