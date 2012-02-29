@@ -337,12 +337,19 @@ if ('window' in this && 'document' in this) {
 
       // For IE8+ make this a polyfill
       if (Element && Element.prototype) {
-        Object.defineProperty(
-          Element.prototype,
-          'classList',
-          {
-            get: function () { return window.getClassList(this); }
-          });
+        if (Object.defineProperty) {
+          Object.defineProperty(
+            Element.prototype,
+            'classList',
+            {
+              get: function () { return window.getClassList(this); }
+            });
+        } else if (Object.prototype.__defineGetter__) {
+          Object.prototype.__defineGetter__.call(
+            Element.prototype,
+            'classList',
+            function () { return window.getClassList(this); });
+        }
       }
     }
   }());
