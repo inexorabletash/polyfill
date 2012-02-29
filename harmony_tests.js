@@ -289,7 +289,7 @@ test("Simple Maps and Sets", 15, function () {
   set.add(0);
   assertFalse("set.has(-0)");
   assertTrue("set.has(0)");
-  set.remove(0);
+  set['delete'](0);
   assertFalse("set.has(-0)");
   assertFalse("set.has(0)");
   set.add(0);

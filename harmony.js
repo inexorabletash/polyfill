@@ -679,7 +679,8 @@
           enumerable: false,
           writable: true
         },
-        'remove': {
+        'delete': {
+          // es-discuss is waffling on remove vs. delete
           value: function remove(key) { return map['delete'](key); },
           configurable: true,
           enumerable: false,
