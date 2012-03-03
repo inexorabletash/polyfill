@@ -1,402 +1,3 @@
-// Polyfills: Compatibility shims that all scripts can share
-
-
-//----------------------------------------------------------------------
-//
-// Browser Polyfills
-//
-//----------------------------------------------------------------------
-
-if ('window' in this && 'document' in this) {
-  /*jslint sloppy:true*/
-
-  //----------------------------------------------------------------------
-  //
-  // Web Standards Polyfills
-  //
-  //----------------------------------------------------------------------
-
-  //
-  // document.head (HTML5)
-  //
-  document.head = document.head || document.getElementsByTagName('head')[0];
-
-  //
-  // XMLHttpRequest (http://www.w3.org/TR/XMLHttpRequest/)
-  //
-  window.XMLHttpRequest = window.XMLHttpRequest || function () {
-    /*global ActiveXObject*/
-    try { return new ActiveXObject("Msxml2.XMLHTTP.6.0"); } catch (e1) { }
-    try { return new ActiveXObject("Msxml2.XMLHTTP.3.0"); } catch (e2) { }
-    try { return new ActiveXObject("Msxml2.XMLHTTP"); } catch (e3) { }
-    throw new Error("This browser does not support XMLHttpRequest.");
-  };
-  XMLHttpRequest.UNSENT = 0;
-  XMLHttpRequest.OPENED = 1;
-  XMLHttpRequest.HEADERS_RECEIVED = 2;
-  XMLHttpRequest.LOADING = 3;
-  XMLHttpRequest.DONE = 4;
-
-  if (!window.BlobBuilder) {
-    window.BlobBuilder = window.WebKitBlobBuilder || window.MozBlobBuilder;
-  }
-
-  //
-  // Base64 utility methods (HTML5)
-  //
-  (function () {
-    /*jslint plusplus: true, bitwise: true*/
-    var B64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-    window.atob = window.atob || function (a) {
-      a = String(a);
-      var pos = 0,
-          len = a.length,
-          octets = [],
-          e1, e2, e3, e4,
-          o1, o2, o3;
-
-      while (pos < len) {
-        e1 = B64_ALPHABET.indexOf(a.charAt(pos++));
-        e2 = (pos < len) ? B64_ALPHABET.indexOf(a.charAt(pos++)) : -1; // required
-        e3 = (pos < len) ? B64_ALPHABET.indexOf(a.charAt(pos++)) : 64; // optional padding
-        e4 = (pos < len) ? B64_ALPHABET.indexOf(a.charAt(pos++)) : 64; // optional padding
-
-        if (e1 === -1 || e2 === -1 || e3 === -1 || e4 === -1) {
-          throw new Error("INVALID_CHARACTER_ERR");
-        }
-
-        // 11111122 22223333 33444444
-        o1 = (e1 << 2) | (e2 >> 4);
-        o2 = ((e2 & 0xf) << 4) | (e3 >> 2);
-        o3 = ((e3 & 0x3) << 6) | e4;
-
-        octets.push(String.fromCharCode(o1));
-        if (e3 !== 64) {
-          octets.push(String.fromCharCode(o2));
-        }
-        if (e4 !== 64) {
-          octets.push(String.fromCharCode(o3));
-        }
-      }
-
-      return octets.join('');
-    };
-    window.btoa = window.btoa || function (b) {
-      b = String(b);
-      var pos = 0,
-          len = b.length,
-          out = [],
-          o1, o2, o3,
-          e1, e2, e3, e4;
-
-      while (pos < len) {
-        o1 = b.charCodeAt(pos++);
-        o2 = b.charCodeAt(pos++);
-        o3 = b.charCodeAt(pos++);
-
-        // 111111 112222 222233 333333
-        e1 = o1 >> 2;
-        e2 = ((o1 & 0x3) << 4) | (o2 >> 4);
-        e3 = ((o2 & 0xf) << 2) | (o3 >> 6);
-        e4 = o3 & 0x3f;
-
-        if (pos === len + 2) {
-          e3 = 64; e4 = 64;
-        }
-        else if (pos === len + 1) {
-          e4 = 64;
-        }
-
-        out.push(B64_ALPHABET.charAt(e1),
-                 B64_ALPHABET.charAt(e2),
-                 B64_ALPHABET.charAt(e3),
-                 B64_ALPHABET.charAt(e4));
-      }
-
-      return out.join('');
-    };
-  } ());
-
-  //----------------------------------------------------------------------
-  //
-  // Performance (see also: raf.js)
-  //
-  //----------------------------------------------------------------------
-
-  // setImmediate
-  // https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html
-  (function () {
-    function setImmediate(callback, args) {
-      var params = [callback, 0], i;
-      for (i = 1; i < arguments.length; i += 1) {
-        params.push(arguments[i]);
-      }
-      return window.setTimeout.apply(null, params);
-    }
-
-    function clearImmediate(handle) {
-      window.clearTimeout(handle);
-    }
-
-    window.setImmediate =
-      window.setImmediate ||
-      window.msSetImmediate ||
-      setImmediate;
-
-    window.clearImmediate =
-      window.clearImmediate ||
-      window.msClearImmediate ||
-      clearImmediate;
-  } ());
-
-  //----------------------------------------------------------------------
-  //
-  // DOM
-  //
-  //----------------------------------------------------------------------
-
-  //
-  // Selectors API Level 1 (http://www.w3.org/TR/selectors-api/)
-  // http://ajaxian.com/archives/creating-a-queryselector-for-ie-that-runs-at-native-speed
-  //
-  if (!document.querySelectorAll) {
-    document.querySelectorAll = function (selectors) {
-      /*jslint nomen:true*/
-      var style = document.createElement('style'), elements = [], element;
-      document.documentElement.firstChild.appendChild(style);
-      document._qsa = [];
-
-      style.styleSheet.cssText = selectors + '{x-qsa:expression(document._qsa && document._qsa.push(this))}';
-      window.scrollBy(0, 0);
-      style.parentNode.removeChild(style);
-
-      while (document._qsa.length) {
-        element = document._qsa.shift();
-        element.style.removeAttribute('x-qsa');
-        elements.push(element);
-      }
-      document._qsa = null;
-      return elements;
-    };
-  }
-
-  if (!document.querySelector) {
-    document.querySelector = function (selectors) {
-      var elements = document.querySelectorAll(selectors);
-      return (elements.length) ? elements[0] : null;
-    };
-  }
-
-  if (!document.getElementsByClassName) {
-    document.getElementsByClassName = function (className) {
-      return document.querySelectorAll('.' + String(className));
-    };
-  }
-
-  //
-  // DOM Enumerations (http://www.w3.org/TR/DOM-Level-2-Core/)
-  //
-  window.Node = window.Node || function Node() { throw new Error("Illegal constructor"); };
-  window.Node.ELEMENT_NODE = 1;
-  window.Node.ATTRIBUTE_NODE = 2;
-  window.Node.TEXT_NODE = 3;
-  window.Node.CDATA_SECTION_NODE = 4;
-  window.Node.ENTITY_REFERENCE_NODE = 5;
-  window.Node.ENTITY_NODE = 6;
-  window.Node.PROCESSING_INSTRUCTION_NODE = 7;
-  window.Node.COMMENT_NODE = 8;
-  window.Node.DOCUMENT_NODE = 9;
-  window.Node.DOCUMENT_TYPE_NODE = 10;
-  window.Node.DOCUMENT_FRAGMENT_NODE = 11;
-  window.Node.NOTATION_NODE = 12;
-
-  window.DOMException = window.DOMException || function DOMException() { throw new TypeError("Illegal constructor"); };
-  window.DOMException.INDEX_SIZE_ERR = 1;
-  window.DOMException.DOMSTRING_SIZE_ERR = 2;
-  window.DOMException.HIERARCHY_REQUEST_ERR = 3;
-  window.DOMException.WRONG_DOCUMENT_ERR = 4;
-  window.DOMException.INVALID_CHARACTER_ERR = 5;
-  window.DOMException.NO_DATA_ALLOWED_ERR = 6;
-  window.DOMException.NO_MODIFICATION_ALLOWED_ERR = 7;
-  window.DOMException.NOT_FOUND_ERR = 8;
-  window.DOMException.NOT_SUPPORTED_ERR = 9;
-  window.DOMException.INUSE_ATTRIBUTE_ERR = 10;
-  window.DOMException.INVALID_STATE_ERR = 11;
-  window.DOMException.SYNTAX_ERR = 12;
-  window.DOMException.INVALID_MODIFICATION_ERR = 13;
-  window.DOMException.NAMESPACE_ERR = 14;
-  window.DOMException.INVALID_ACCESS_ERR = 15;
-
-  //----------------------------------------------------------------------
-  //
-  // Events
-  //
-  //----------------------------------------------------------------------
-
-  // Shim for DOM Events
-  // http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html
-  // Use addEvent(object, event, handler) instead of object.addEventListener(event, handler)
-
-  window.addEvent = function (obj, type, fn) {
-    if (obj.addEventListener) {
-      obj.addEventListener(type, fn, false);
-    } else if (obj.attachEvent) {
-      obj["e" + type + fn] = fn;
-      obj[type + fn] = function () {
-        var e = window.event;
-        e.currentTarget = obj;
-        e.preventDefault = function () { e.returnValue = false; };
-        e.stopPropagation = function () { e.cancelBubble = true; };
-        e.target = e.srcElement;
-        e.timeStamp = new Date();
-        obj["e" + type + fn].call(this, e);
-      };
-      obj.attachEvent("on" + type, obj[type + fn]);
-    }
-  };
-
-  window.removeEvent = function (obj, type, fn) {
-    if (obj.removeEventListener) {
-      obj.removeEventListener(type, fn, false);
-    } else if (obj.detachEvent) {
-      obj.detachEvent("on" + type, obj[type + fn]);
-      obj[type + fn] = null;
-      obj["e" + type + fn] = null;
-    }
-  };
-
-  //----------------------------------------------------------------------
-  //
-  // Classes
-  //
-  //----------------------------------------------------------------------
-
-  // Shim for http://www.whatwg.org/specs/web-apps/current-work/multipage/elements.html#dom-classlist
-  // Use getClassList(elem) instead of elem.classList() (unless on IE8+)
-
-  (function () {
-    if ('classList' in document.createElement('span')) {
-      // Enable window.getClassList() for all browsers
-      window.getClassList = function (elem) { return elem.classList; };
-    } else {
-      window.getClassList = function (elem) {
-        if (!elem || !('className' in elem)) { throw new TypeError("No element specified"); }
-
-        var classList = {
-          length: elem.className.length ? elem.className.split(/\s+/g).length : 0,
-          item: function (idx) {
-            var classes = elem.className.length ? elem.className.split(/\s+/g) : [];
-            return 0 <= idx && idx < classes.length ? classes[idx] : null;
-          },
-          contains: function (token) {
-            var classes = elem.className.length ? elem.className.split(/\s+/g) : [],
-                index = classes.indexOf(token);
-
-            return index !== -1;
-          },
-          // TODO: multiple tokens
-          add: function (token) {
-            var classes = elem.className.length ? elem.className.split(/\s+/g) : [],
-                index = classes.indexOf(token);
-
-            if (index === -1) {
-              classes.push(token);
-              elem.className = classes.join(' ');
-              classList.length = classes.length;
-            }
-          },
-          // TODO: multiple tokens
-          remove: function (token) {
-            var classes = elem.className.length ? elem.className.split(/\s+/g) : [],
-                index = classes.indexOf(token);
-
-            if (index !== -1) {
-              classes.splice(index, 1);
-              elem.className = classes.join(' ');
-              classList.length = classes.length;
-            }
-          },
-          // TODO: multiple tokens
-          toggle: function (token) {
-            var classes = elem.className.length ? elem.className.split(/\s+/g) : [],
-                index = classes.indexOf(token);
-
-            if (index === -1) {
-              classes.push(token);
-              elem.className = classes.join(' ');
-            } else {
-              classes.splice(index, 1);
-              elem.className = classes.join(' ');
-            }
-            classList.length = classes.length;
-          }
-        };
-        return classList;
-      };
-
-      // For IE8+ make this a polyfill
-      if (Element && Element.prototype) {
-        if (Object.defineProperty) {
-          Object.defineProperty(
-            Element.prototype,
-            'classList',
-            {
-              get: function () { return window.getClassList(this); }
-            });
-        } else if (Object.prototype.__defineGetter__) {
-          Object.prototype.__defineGetter__.call(
-            Element.prototype,
-            'classList',
-            function () { return window.getClassList(this); });
-        }
-      }
-    }
-  }());
-}
-
-
-//----------------------------------------------------------------------
-//
-// Non-standard JavaScript (Mozilla) functions
-//
-//----------------------------------------------------------------------
-
-(function () {
-  // JavaScript 1.8.1
-  String.prototype.trimLeft = String.prototype.trimLeft || function () {
-    return String(this).replace(/^\s+/, '');
-  };
-
-  // JavaScript 1.8.1
-  String.prototype.trimRight = String.prototype.trimRight || function () {
-    return String(this).replace(/\s+$/, '');
-  };
-
-  // JavaScript 1.?
-  var ESCAPES = {
-    //'\x00': '\\0', Special case in FF3.6, removed by FF10
-    '\b': '\\b',
-    '\t': '\\t',
-    '\n': '\\n',
-    '\f': '\\f',
-    '\r': '\\r',
-    '"' : '\\"',
-    '\\': '\\\\'
-  };
-  String.prototype.quote = String.prototype.quote || function() {
-    return '"' + String(this).replace(/[\x00-\x1F"\\\x7F-\uFFFF]/g, function(c) {
-      if (Object.prototype.hasOwnProperty.call(ESCAPES, c)) {
-        return ESCAPES[c];
-      } else if (c.charCodeAt(0) <= 0xFF) {
-        return '\\x' + ('00' + c.charCodeAt(0).toString(16).toUpperCase()).slice(-2);
-      } else {
-        return '\\u' + ('0000' + c.charCodeAt(0).toString(16).toUpperCase()).slice(-4);
-      }
-    }) + '"';
-  };
-}());
-
-
 //----------------------------------------------------------------------
 //
 // ECMAScript 5 Polyfills
@@ -902,3 +503,400 @@ if (!Date.prototype.toISOString) {
       pad3(this.getUTCMilliseconds()) + 'Z';
   };
 }
+
+
+//----------------------------------------------------------------------
+//
+// Non-standard JavaScript (Mozilla) functions
+//
+//----------------------------------------------------------------------
+
+(function () {
+  // JavaScript 1.8.1
+  String.prototype.trimLeft = String.prototype.trimLeft || function () {
+    return String(this).replace(/^\s+/, '');
+  };
+
+  // JavaScript 1.8.1
+  String.prototype.trimRight = String.prototype.trimRight || function () {
+    return String(this).replace(/\s+$/, '');
+  };
+
+  // JavaScript 1.?
+  var ESCAPES = {
+    //'\x00': '\\0', Special case in FF3.6, removed by FF10
+    '\b': '\\b',
+    '\t': '\\t',
+    '\n': '\\n',
+    '\f': '\\f',
+    '\r': '\\r',
+    '"' : '\\"',
+    '\\': '\\\\'
+  };
+  String.prototype.quote = String.prototype.quote || function() {
+    return '"' + String(this).replace(/[\x00-\x1F"\\\x7F-\uFFFF]/g, function(c) {
+      if (Object.prototype.hasOwnProperty.call(ESCAPES, c)) {
+        return ESCAPES[c];
+      } else if (c.charCodeAt(0) <= 0xFF) {
+        return '\\x' + ('00' + c.charCodeAt(0).toString(16).toUpperCase()).slice(-2);
+      } else {
+        return '\\u' + ('0000' + c.charCodeAt(0).toString(16).toUpperCase()).slice(-4);
+      }
+    }) + '"';
+  };
+}());
+
+
+//----------------------------------------------------------------------
+//
+// Browser Polyfills
+//
+//----------------------------------------------------------------------
+
+if ('window' in this && 'document' in this) {
+  /*jslint sloppy:true*/
+
+  //----------------------------------------------------------------------
+  //
+  // Web Standards Polyfills
+  //
+  //----------------------------------------------------------------------
+
+  //
+  // document.head (HTML5)
+  //
+  document.head = document.head || document.getElementsByTagName('head')[0];
+
+  //
+  // XMLHttpRequest (http://www.w3.org/TR/XMLHttpRequest/)
+  //
+  window.XMLHttpRequest = window.XMLHttpRequest || function () {
+    /*global ActiveXObject*/
+    try { return new ActiveXObject("Msxml2.XMLHTTP.6.0"); } catch (e1) { }
+    try { return new ActiveXObject("Msxml2.XMLHTTP.3.0"); } catch (e2) { }
+    try { return new ActiveXObject("Msxml2.XMLHTTP"); } catch (e3) { }
+    throw new Error("This browser does not support XMLHttpRequest.");
+  };
+  XMLHttpRequest.UNSENT = 0;
+  XMLHttpRequest.OPENED = 1;
+  XMLHttpRequest.HEADERS_RECEIVED = 2;
+  XMLHttpRequest.LOADING = 3;
+  XMLHttpRequest.DONE = 4;
+
+  if (!window.BlobBuilder) {
+    window.BlobBuilder = window.WebKitBlobBuilder || window.MozBlobBuilder;
+  }
+
+  //
+  // Base64 utility methods (HTML5)
+  //
+  (function () {
+    /*jslint plusplus: true, bitwise: true*/
+    var B64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    window.atob = window.atob || function (a) {
+      a = String(a);
+      var pos = 0,
+          len = a.length,
+          octets = [],
+          e1, e2, e3, e4,
+          o1, o2, o3;
+
+      while (pos < len) {
+        e1 = B64_ALPHABET.indexOf(a.charAt(pos++));
+        e2 = (pos < len) ? B64_ALPHABET.indexOf(a.charAt(pos++)) : -1; // required
+        e3 = (pos < len) ? B64_ALPHABET.indexOf(a.charAt(pos++)) : 64; // optional padding
+        e4 = (pos < len) ? B64_ALPHABET.indexOf(a.charAt(pos++)) : 64; // optional padding
+
+        if (e1 === -1 || e2 === -1 || e3 === -1 || e4 === -1) {
+          throw new Error("INVALID_CHARACTER_ERR");
+        }
+
+        // 11111122 22223333 33444444
+        o1 = (e1 << 2) | (e2 >> 4);
+        o2 = ((e2 & 0xf) << 4) | (e3 >> 2);
+        o3 = ((e3 & 0x3) << 6) | e4;
+
+        octets.push(String.fromCharCode(o1));
+        if (e3 !== 64) {
+          octets.push(String.fromCharCode(o2));
+        }
+        if (e4 !== 64) {
+          octets.push(String.fromCharCode(o3));
+        }
+      }
+
+      return octets.join('');
+    };
+    window.btoa = window.btoa || function (b) {
+      b = String(b);
+      var pos = 0,
+          len = b.length,
+          out = [],
+          o1, o2, o3,
+          e1, e2, e3, e4;
+
+      while (pos < len) {
+        o1 = b.charCodeAt(pos++);
+        o2 = b.charCodeAt(pos++);
+        o3 = b.charCodeAt(pos++);
+
+        // 111111 112222 222233 333333
+        e1 = o1 >> 2;
+        e2 = ((o1 & 0x3) << 4) | (o2 >> 4);
+        e3 = ((o2 & 0xf) << 2) | (o3 >> 6);
+        e4 = o3 & 0x3f;
+
+        if (pos === len + 2) {
+          e3 = 64; e4 = 64;
+        }
+        else if (pos === len + 1) {
+          e4 = 64;
+        }
+
+        out.push(B64_ALPHABET.charAt(e1),
+                 B64_ALPHABET.charAt(e2),
+                 B64_ALPHABET.charAt(e3),
+                 B64_ALPHABET.charAt(e4));
+      }
+
+      return out.join('');
+    };
+  } ());
+
+  //----------------------------------------------------------------------
+  //
+  // Performance (see also: raf.js)
+  //
+  //----------------------------------------------------------------------
+
+  // setImmediate
+  // https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html
+  (function () {
+    function setImmediate(callback, args) {
+      var params = [callback, 0], i;
+      for (i = 1; i < arguments.length; i += 1) {
+        params.push(arguments[i]);
+      }
+      return window.setTimeout.apply(null, params);
+    }
+
+    function clearImmediate(handle) {
+      window.clearTimeout(handle);
+    }
+
+    window.setImmediate =
+      window.setImmediate ||
+      window.msSetImmediate ||
+      setImmediate;
+
+    window.clearImmediate =
+      window.clearImmediate ||
+      window.msClearImmediate ||
+      clearImmediate;
+  } ());
+
+  //----------------------------------------------------------------------
+  //
+  // DOM
+  //
+  //----------------------------------------------------------------------
+
+  //
+  // Selectors API Level 1 (http://www.w3.org/TR/selectors-api/)
+  // http://ajaxian.com/archives/creating-a-queryselector-for-ie-that-runs-at-native-speed
+  //
+  if (!document.querySelectorAll) {
+    document.querySelectorAll = function (selectors) {
+      /*jslint nomen:true*/
+      var style = document.createElement('style'), elements = [], element;
+      document.documentElement.firstChild.appendChild(style);
+      document._qsa = [];
+
+      style.styleSheet.cssText = selectors + '{x-qsa:expression(document._qsa && document._qsa.push(this))}';
+      window.scrollBy(0, 0);
+      style.parentNode.removeChild(style);
+
+      while (document._qsa.length) {
+        element = document._qsa.shift();
+        element.style.removeAttribute('x-qsa');
+        elements.push(element);
+      }
+      document._qsa = null;
+      return elements;
+    };
+  }
+
+  if (!document.querySelector) {
+    document.querySelector = function (selectors) {
+      var elements = document.querySelectorAll(selectors);
+      return (elements.length) ? elements[0] : null;
+    };
+  }
+
+  if (!document.getElementsByClassName) {
+    document.getElementsByClassName = function (className) {
+      return document.querySelectorAll('.' + String(className));
+    };
+  }
+
+  //
+  // DOM Enumerations (http://www.w3.org/TR/DOM-Level-2-Core/)
+  //
+  window.Node = window.Node || function Node() { throw new Error("Illegal constructor"); };
+  window.Node.ELEMENT_NODE = 1;
+  window.Node.ATTRIBUTE_NODE = 2;
+  window.Node.TEXT_NODE = 3;
+  window.Node.CDATA_SECTION_NODE = 4;
+  window.Node.ENTITY_REFERENCE_NODE = 5;
+  window.Node.ENTITY_NODE = 6;
+  window.Node.PROCESSING_INSTRUCTION_NODE = 7;
+  window.Node.COMMENT_NODE = 8;
+  window.Node.DOCUMENT_NODE = 9;
+  window.Node.DOCUMENT_TYPE_NODE = 10;
+  window.Node.DOCUMENT_FRAGMENT_NODE = 11;
+  window.Node.NOTATION_NODE = 12;
+
+  window.DOMException = window.DOMException || function DOMException() { throw new TypeError("Illegal constructor"); };
+  window.DOMException.INDEX_SIZE_ERR = 1;
+  window.DOMException.DOMSTRING_SIZE_ERR = 2;
+  window.DOMException.HIERARCHY_REQUEST_ERR = 3;
+  window.DOMException.WRONG_DOCUMENT_ERR = 4;
+  window.DOMException.INVALID_CHARACTER_ERR = 5;
+  window.DOMException.NO_DATA_ALLOWED_ERR = 6;
+  window.DOMException.NO_MODIFICATION_ALLOWED_ERR = 7;
+  window.DOMException.NOT_FOUND_ERR = 8;
+  window.DOMException.NOT_SUPPORTED_ERR = 9;
+  window.DOMException.INUSE_ATTRIBUTE_ERR = 10;
+  window.DOMException.INVALID_STATE_ERR = 11;
+  window.DOMException.SYNTAX_ERR = 12;
+  window.DOMException.INVALID_MODIFICATION_ERR = 13;
+  window.DOMException.NAMESPACE_ERR = 14;
+  window.DOMException.INVALID_ACCESS_ERR = 15;
+
+  //----------------------------------------------------------------------
+  //
+  // Events
+  //
+  //----------------------------------------------------------------------
+
+  // Shim for DOM Events
+  // http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html
+  // Use addEvent(object, event, handler) instead of object.addEventListener(event, handler)
+
+  window.addEvent = function (obj, type, fn) {
+    if (obj.addEventListener) {
+      obj.addEventListener(type, fn, false);
+    } else if (obj.attachEvent) {
+      obj["e" + type + fn] = fn;
+      obj[type + fn] = function () {
+        var e = window.event;
+        e.currentTarget = obj;
+        e.preventDefault = function () { e.returnValue = false; };
+        e.stopPropagation = function () { e.cancelBubble = true; };
+        e.target = e.srcElement;
+        e.timeStamp = new Date();
+        obj["e" + type + fn].call(this, e);
+      };
+      obj.attachEvent("on" + type, obj[type + fn]);
+    }
+  };
+
+  window.removeEvent = function (obj, type, fn) {
+    if (obj.removeEventListener) {
+      obj.removeEventListener(type, fn, false);
+    } else if (obj.detachEvent) {
+      obj.detachEvent("on" + type, obj[type + fn]);
+      obj[type + fn] = null;
+      obj["e" + type + fn] = null;
+    }
+  };
+
+  //----------------------------------------------------------------------
+  //
+  // Classes
+  //
+  //----------------------------------------------------------------------
+
+  // Shim for http://www.whatwg.org/specs/web-apps/current-work/multipage/elements.html#dom-classlist
+  // Use getClassList(elem) instead of elem.classList() (unless on IE8+)
+
+  (function () {
+    if ('classList' in document.createElement('span')) {
+      // Enable window.getClassList() for all browsers
+      window.getClassList = function (elem) { return elem.classList; };
+    } else {
+      window.getClassList = function (elem) {
+        if (!elem || !('className' in elem)) { throw new TypeError("No element specified"); }
+
+        var classList = {
+          length: elem.className.length ? elem.className.split(/\s+/g).length : 0,
+          item: function (idx) {
+            var classes = elem.className.length ? elem.className.split(/\s+/g) : [];
+            return 0 <= idx && idx < classes.length ? classes[idx] : null;
+          },
+          contains: function (token) {
+            var classes = elem.className.length ? elem.className.split(/\s+/g) : [],
+                index = classes.indexOf(token);
+
+            return index !== -1;
+          },
+          // TODO: multiple tokens
+          add: function (token) {
+            var classes = elem.className.length ? elem.className.split(/\s+/g) : [],
+                index = classes.indexOf(token);
+
+            if (index === -1) {
+              classes.push(token);
+              elem.className = classes.join(' ');
+              classList.length = classes.length;
+            }
+          },
+          // TODO: multiple tokens
+          remove: function (token) {
+            var classes = elem.className.length ? elem.className.split(/\s+/g) : [],
+                index = classes.indexOf(token);
+
+            if (index !== -1) {
+              classes.splice(index, 1);
+              elem.className = classes.join(' ');
+              classList.length = classes.length;
+            }
+          },
+          // TODO: multiple tokens
+          toggle: function (token) {
+            var classes = elem.className.length ? elem.className.split(/\s+/g) : [],
+                index = classes.indexOf(token);
+
+            if (index === -1) {
+              classes.push(token);
+              elem.className = classes.join(' ');
+            } else {
+              classes.splice(index, 1);
+              elem.className = classes.join(' ');
+            }
+            classList.length = classes.length;
+          }
+        };
+        return classList;
+      };
+
+      // For IE8+ make this a polyfill
+      if (Element && Element.prototype) {
+        if (Object.defineProperty) {
+          Object.defineProperty(
+            Element.prototype,
+            'classList',
+            {
+              get: function () { return window.getClassList(this); }
+            });
+        } else if (Object.prototype.__defineGetter__) {
+          Object.prototype.__defineGetter__.call(
+            Element.prototype,
+            'classList',
+            function () { return window.getClassList(this); });
+        }
+      }
+    }
+  }());
+}
+
