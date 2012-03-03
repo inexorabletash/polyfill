@@ -874,7 +874,7 @@ if ('window' in this && 'document' in this) {
 //
 (function (global) {
   /*jslint plusplus: true, bitwise: true*/
-  var B64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  var B64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
   global.atob = global.atob || function (input) {
     input = String(input);
     var position = 0,
@@ -916,14 +916,13 @@ if ('window' in this && 'document' in this) {
   global.btoa = global.btoa || function (input) {
     input = String(input);
     var position = 0,
-        len = input.length,
         out = [],
         o1, o2, o3,
         e1, e2, e3, e4;
 
     if (/[^\x00-\xFF]/.test(input)) { throw new Error("InvalidCharacterError"); }
 
-    while (position < len) {
+    while (position < input.length) {
       o1 = input.charCodeAt(position++);
       o2 = input.charCodeAt(position++);
       o3 = input.charCodeAt(position++);
@@ -934,10 +933,10 @@ if ('window' in this && 'document' in this) {
       e3 = ((o2 & 0xf) << 2) | (o3 >> 6);
       e4 = o3 & 0x3f;
 
-      if (position === len + 2) {
+      if (position === input.length + 2) {
         e3 = 64; e4 = 64;
       }
-      else if (position === len + 1) {
+      else if (position === input.length + 1) {
         e4 = 64;
       }
 
