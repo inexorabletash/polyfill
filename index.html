@@ -63,14 +63,18 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
     </ul>
   <li><a href="http://www.w3.org/TR/html5/common-dom-interfaces.html#domtokenlist">classList</a> (shim)
     <ul>
-      <li><code><var>elem</var>.classList</code> <em>- not available in IE7-, so use with caution</em>
       <li><code><var>classList</var> = window.getClassList(<var>element</var>)</code>
+      <li><code><var>classList</var> = <var>elem</var>.classList</code> <em>- not available in IE7-, so use with caution</em>
       <li><code><var>classList</var>.length</code>
       <li><code><var>classList</var>.item(<var>index</var>)</code>
       <li><code><var>classList</var>.contains(<var>token</var>)</code>
       <li><code><var>classList</var>.add(<var>token</var>)</code>
       <li><code><var>classList</var>.remove(<var>token</var>)</code>
       <li><code><var>classList</var>.toggle(<var>token</var>)</code>
+    </ul>
+  <li><a href="http://www.w3.org/TR/html5/semantics.html#dom-link-rellist">relList</a> (shim)
+    <ul>
+      <li><code><var>relList</var> = window.getRelList(<var>element</var>)</code> - <em>otherwise, like getClassList</em>
     </ul>
   <li><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String">JavaScript 1.X String Extras</a> (polyfill)
     <ul>

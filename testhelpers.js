@@ -23,6 +23,10 @@ function assertEqual(expr, value) {
   }
 }
 
+function assertThrows(expr, expected, message) {
+  raises(function() { eval("(" + expr + ")"); }, expected, message);
+}
+
 function assertEpsilon(expr, value, epsilon) {
   var _x_;
   try { eval("_x_ = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }

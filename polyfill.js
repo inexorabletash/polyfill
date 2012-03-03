@@ -590,55 +590,62 @@ if ('window' in this && 'document' in this) {
   //
   // Base64 utility methods (HTML5)
   //
+  // TODO: Expose to any workers as well
   (function () {
     /*jslint plusplus: true, bitwise: true*/
-    var B64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-    window.atob = window.atob || function (a) {
-      a = String(a);
-      var pos = 0,
-          len = a.length,
-          octets = [],
-          e1, e2, e3, e4,
-          o1, o2, o3;
+    var B64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    window.atob = window.atob || function (input) {
+      input = String(input);
+      var position = 0,
+          output = [],
+          buffer = 0, bits = 0, n;
 
-      while (pos < len) {
-        e1 = B64_ALPHABET.indexOf(a.charAt(pos++));
-        e2 = (pos < len) ? B64_ALPHABET.indexOf(a.charAt(pos++)) : -1; // required
-        e3 = (pos < len) ? B64_ALPHABET.indexOf(a.charAt(pos++)) : 64; // optional padding
-        e4 = (pos < len) ? B64_ALPHABET.indexOf(a.charAt(pos++)) : 64; // optional padding
+      input = input.replace(/\s/g, '');
+      if ((input.length % 4) === 0) { input = input.replace(/=+$/, ''); }
+      if ((input.length % 4) === 1) { throw new Error("InvalidCharacterError"); }
+      if (/[^+/0-9A-Za-z]/.test(input)) { throw new Error("InvalidCharacterError"); }
 
-        if (e1 === -1 || e2 === -1 || e3 === -1 || e4 === -1) {
-          throw new Error("INVALID_CHARACTER_ERR");
+      while (position < input.length) {
+        n = B64_ALPHABET.indexOf(input.charAt(position));
+        buffer = (buffer << 6) | n;
+        bits += 6;
+
+        if (bits === 24) {
+          output.push(String.fromCharCode((buffer >> 16) & 0xFF));
+          output.push(String.fromCharCode((buffer >>  8) & 0xFF));
+          output.push(String.fromCharCode(buffer & 0xFF));
+          bits = 0;
+          buffer = 0;
         }
-
-        // 11111122 22223333 33444444
-        o1 = (e1 << 2) | (e2 >> 4);
-        o2 = ((e2 & 0xf) << 4) | (e3 >> 2);
-        o3 = ((e3 & 0x3) << 6) | e4;
-
-        octets.push(String.fromCharCode(o1));
-        if (e3 !== 64) {
-          octets.push(String.fromCharCode(o2));
-        }
-        if (e4 !== 64) {
-          octets.push(String.fromCharCode(o3));
-        }
+        position += 1;
       }
 
-      return octets.join('');
+      if (bits === 12) {
+        buffer = buffer >> 4;
+        output.push(String.fromCharCode(buffer & 0xFF));
+      } else if (bits === 18) {
+        buffer = buffer >> 2;
+        output.push(String.fromCharCode((buffer >> 8) & 0xFF));
+        output.push(String.fromCharCode(buffer & 0xFF));
+      }
+
+      return output.join('');
     };
-    window.btoa = window.btoa || function (b) {
-      b = String(b);
-      var pos = 0,
-          len = b.length,
+
+    window.btoa = window.btoa || function (input) {
+      input = String(input);
+      var position = 0,
+          len = input.length,
           out = [],
           o1, o2, o3,
           e1, e2, e3, e4;
 
-      while (pos < len) {
-        o1 = b.charCodeAt(pos++);
-        o2 = b.charCodeAt(pos++);
-        o3 = b.charCodeAt(pos++);
+      if (/[^\x00-\xFF]/.test(input)) { throw new Error("InvalidCharacterError"); }
+
+      while (position < len) {
+        o1 = input.charCodeAt(position++);
+        o2 = input.charCodeAt(position++);
+        o3 = input.charCodeAt(position++);
 
         // 111111 112222 222233 333333
         e1 = o1 >> 2;
@@ -646,10 +653,10 @@ if ('window' in this && 'document' in this) {
         e3 = ((o2 & 0xf) << 2) | (o3 >> 6);
         e4 = o3 & 0x3f;
 
-        if (pos === len + 2) {
+        if (position === len + 2) {
           e3 = 64; e4 = 64;
         }
-        else if (pos === len + 1) {
+        else if (position === len + 1) {
           e4 = 64;
         }
 
@@ -756,7 +763,7 @@ if ('window' in this && 'document' in this) {
   window.Node.DOCUMENT_FRAGMENT_NODE = 11;
   window.Node.NOTATION_NODE = 12;
 
-  window.DOMException = window.DOMException || function DOMException() { throw new TypeError("Illegal constructor"); };
+  window.DOMException = window.DOMException || function DOMException() { throw new Error("Illegal constructor"); };
   window.DOMException.INDEX_SIZE_ERR = 1;
   window.DOMException.DOMSTRING_SIZE_ERR = 2;
   window.DOMException.HIERARCHY_REQUEST_ERR = 3;
@@ -821,81 +828,125 @@ if ('window' in this && 'document' in this) {
   // Use getClassList(elem) instead of elem.classList() (unless on IE8+)
 
   (function () {
+
+    function DOMTokenListShim(o, p) {
+      function split(s) { return s.length ? s.split(/\s+/g) : []; }
+
+      // TODO: Methods support multiple split (proposed spec change)
+
+      Object.defineProperties(
+        this,
+        {
+          length: {
+            get: function () { return split(o[p]).length; }
+          },
+
+          // TODO: Add index getters
+          item: {
+            value: function (idx) {
+              var tokens = split(o[p]);
+              return 0 <= idx && idx < tokens.length ? tokens[idx] : null;
+            }
+          },
+
+          contains: {
+            value: function (token) {
+              token = String(token);
+              if (token.length === 0) { throw new SyntaxError(); }
+              if (/\s/.test(token)) { throw new Error("InvalidCharacterError"); }
+              var tokens = split(o[p]),
+                  index = tokens.indexOf(token);
+
+              return index !== -1;
+            }
+          },
+
+          add: {
+            value: function (token) {
+              token = String(token);
+              if (token.length === 0) { throw new SyntaxError(); }
+              if (/\s/.test(token)) { throw new Error("InvalidCharacterError"); }
+              var tokens = split(o[p]),
+                  index = tokens.indexOf(token);
+
+              if (index !== -1) { return; }
+
+              tokens.push(token);
+              o[p] = tokens.join(' ');
+              this.length = tokens.length;
+            }
+          },
+
+          remove: {
+            value: function (token) {
+              token = String(token);
+              if (token.length === 0) { throw new SyntaxError(); }
+              if (/\s/.test(token)) { throw new Error("InvalidCharacterError"); }
+              var tokens = split(o[p]),
+                  index = tokens.indexOf(token);
+
+              if (index === -1) { return; }
+
+              tokens.splice(index, 1);
+              o[p] = tokens.join(' ');
+              this.length = tokens.length;
+            }
+          },
+
+          toggle: {
+            value: function (token) {
+              token = String(token);
+              if (token.length === 0) { throw new SyntaxError(); }
+              if (/\s/.test(token)) { throw new Error("InvalidCharacterError"); }
+              var tokens = split(o[p]),
+                  index = tokens.indexOf(token);
+
+              if (index === -1) {
+                tokens.push(token);
+                o[p] = tokens.join(' ');
+              } else {
+                tokens.splice(index, 1);
+                o[p] = tokens.join(' ');
+              }
+              this.length = tokens.length;
+            }
+          },
+
+          toString: {
+            value: function () {
+              return o[p];
+            }
+          }
+        });
+      // In case getters are not supported
+      this.length = split(o[p]).length;
+    }
+
+    function addToElementPrototype(p, f) {
+      if (Element && Element.prototype && Object.defineProperty) {
+        Object.defineProperty(
+          Element.prototype,
+          p,
+          {
+            get: function () { return f(this); }
+          });
+      }
+    }
+
     if ('classList' in document.createElement('span')) {
       // Enable window.getClassList() for all browsers
       window.getClassList = function (elem) { return elem.classList; };
     } else {
-      window.getClassList = function (elem) {
-        if (!elem || !('className' in elem)) { throw new TypeError("No element specified"); }
+      window.getClassList = function (elem) { return new DOMTokenListShim(elem, 'className'); };
+      addToElementPrototype('classList', window.getClassList);
+    }
 
-        var classList = {
-          length: elem.className.length ? elem.className.split(/\s+/g).length : 0,
-          item: function (idx) {
-            var classes = elem.className.length ? elem.className.split(/\s+/g) : [];
-            return 0 <= idx && idx < classes.length ? classes[idx] : null;
-          },
-          contains: function (token) {
-            var classes = elem.className.length ? elem.className.split(/\s+/g) : [],
-                index = classes.indexOf(token);
-
-            return index !== -1;
-          },
-          // TODO: multiple tokens
-          add: function (token) {
-            var classes = elem.className.length ? elem.className.split(/\s+/g) : [],
-                index = classes.indexOf(token);
-
-            if (index === -1) {
-              classes.push(token);
-              elem.className = classes.join(' ');
-              classList.length = classes.length;
-            }
-          },
-          // TODO: multiple tokens
-          remove: function (token) {
-            var classes = elem.className.length ? elem.className.split(/\s+/g) : [],
-                index = classes.indexOf(token);
-
-            if (index !== -1) {
-              classes.splice(index, 1);
-              elem.className = classes.join(' ');
-              classList.length = classes.length;
-            }
-          },
-          // TODO: multiple tokens
-          toggle: function (token) {
-            var classes = elem.className.length ? elem.className.split(/\s+/g) : [],
-                index = classes.indexOf(token);
-
-            if (index === -1) {
-              classes.push(token);
-              elem.className = classes.join(' ');
-            } else {
-              classes.splice(index, 1);
-              elem.className = classes.join(' ');
-            }
-            classList.length = classes.length;
-          }
-        };
-        return classList;
-      };
-
-      // For IE8+ make this a polyfill
-      if (Element && Element.prototype) {
-        if (Object.defineProperty) {
-          Object.defineProperty(
-            Element.prototype,
-            'classList',
-            {
-              get: function () { return window.getClassList(this); }
-            });
-        } else if (Object.prototype.__defineGetter__) {
-          Object.prototype.__defineGetter__.call(
-            Element.prototype,
-            'classList',
-            function () { return window.getClassList(this); });
-        }
-      }
+    if ('relList' in document.createElement('link')) {
+      // Enable window.getRelList() for all browsers
+      window.getRelList = function (elem) { return elem.relList; };
+    } else {
+      window.getRelList = function (elem) { return new DOMTokenListShim(elem, 'rel'); };
+      addToElementPrototype('relList', window.getRelList);
     }
   }());
 }
