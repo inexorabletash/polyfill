@@ -1,12 +1,12 @@
 // Polyfills: Compatibility shims that all scripts can share
 
+
 //----------------------------------------------------------------------
 //
 // Browser Polyfills
 //
 //----------------------------------------------------------------------
 
-// Failing in Workers in Chrome: if (window && document) {
 if ('window' in this && 'document' in this) {
   /*jslint sloppy:true*/
 
@@ -15,7 +15,6 @@ if ('window' in this && 'document' in this) {
   // Web Standards Polyfills
   //
   //----------------------------------------------------------------------
-
 
   //
   // document.head (HTML5)
@@ -353,48 +352,50 @@ if ('window' in this && 'document' in this) {
       }
     }
   }());
-
-  //----------------------------------------------------------------------
-  //
-  // Common but non-standard browser functions
-  //
-  //----------------------------------------------------------------------
-
-  (function () {
-    // JavaScript 1.8.1
-    String.prototype.trimLeft = String.prototype.trimLeft || function () {
-      return String(this).replace(/^\s+/, '');
-    };
-
-    // JavaScript 1.8.1
-    String.prototype.trimRight = String.prototype.trimRight || function () {
-      return String(this).replace(/\s+$/, '');
-    };
-
-    // JavaScript 1.?
-    var ESCAPES = {
-      //'\x00': '\\0', Special case in FF3.6, removed by FF10
-      '\b': '\\b',
-      '\t': '\\t',
-      '\n': '\\n',
-      '\f': '\\f',
-      '\r': '\\r',
-      '"' : '\\"',
-      '\\': '\\\\'
-    };
-    String.prototype.quote = String.prototype.quote || function() {
-      return '"' + String(this).replace(/[\x00-\x1F"\\\x7F-\uFFFF]/g, function(c) {
-        if (Object.prototype.hasOwnProperty.call(ESCAPES, c)) {
-          return ESCAPES[c];
-        } else if (c.charCodeAt(0) <= 0xFF) {
-          return '\\x' + ('00' + c.charCodeAt(0).toString(16).toUpperCase()).slice(-2);
-        } else {
-          return '\\u' + ('0000' + c.charCodeAt(0).toString(16).toUpperCase()).slice(-4);
-        }
-      }) + '"';
-    };
-  }());
 }
+
+
+//----------------------------------------------------------------------
+//
+// Non-standard JavaScript (Mozilla) functions
+//
+//----------------------------------------------------------------------
+
+(function () {
+  // JavaScript 1.8.1
+  String.prototype.trimLeft = String.prototype.trimLeft || function () {
+    return String(this).replace(/^\s+/, '');
+  };
+
+  // JavaScript 1.8.1
+  String.prototype.trimRight = String.prototype.trimRight || function () {
+    return String(this).replace(/\s+$/, '');
+  };
+
+  // JavaScript 1.?
+  var ESCAPES = {
+    //'\x00': '\\0', Special case in FF3.6, removed by FF10
+    '\b': '\\b',
+    '\t': '\\t',
+    '\n': '\\n',
+    '\f': '\\f',
+    '\r': '\\r',
+    '"' : '\\"',
+    '\\': '\\\\'
+  };
+  String.prototype.quote = String.prototype.quote || function() {
+    return '"' + String(this).replace(/[\x00-\x1F"\\\x7F-\uFFFF]/g, function(c) {
+      if (Object.prototype.hasOwnProperty.call(ESCAPES, c)) {
+        return ESCAPES[c];
+      } else if (c.charCodeAt(0) <= 0xFF) {
+        return '\\x' + ('00' + c.charCodeAt(0).toString(16).toUpperCase()).slice(-2);
+      } else {
+        return '\\u' + ('0000' + c.charCodeAt(0).toString(16).toUpperCase()).slice(-4);
+      }
+    }) + '"';
+  };
+}());
+
 
 //----------------------------------------------------------------------
 //
