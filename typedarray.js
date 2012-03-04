@@ -95,12 +95,12 @@
   // note that IE<9 does not support __defineGetter__ or __defineSetter__ so it just renders the method harmless)
   if (!Object.defineProperty ||
        !(function () { try { Object.defineProperty({}, 'x', {}); return true; } catch (e) { return false; } } ())) {
-    Object.defineProperty = function (obj, prop, desc) {
+    Object.defineProperty = function (o, p, desc) {
       if (!o === Object(o)) { throw new TypeError("Object.defineProperty called on non-object"); }
-      if (ECMAScript.HasProperty(desc, 'get') && Object.prototype.__defineGetter__) { Object.prototype.__defineGetter__.call(obj, prop, desc.get); }
-      if (ECMAScript.HasProperty(desc, 'set') && Object.prototype.__defineSetter__) { Object.prototype.__defineSetter__.call(obj, prop, desc.set); }
-      if (ECMAScript.HasProperty(desc, 'value')) { obj[prop] = desc.value; }
-      return obj;
+      if (ECMAScript.HasProperty(desc, 'get') && Object.prototype.__defineGetter__) { Object.prototype.__defineGetter__.call(o, p, desc.get); }
+      if (ECMAScript.HasProperty(desc, 'set') && Object.prototype.__defineSetter__) { Object.prototype.__defineSetter__.call(o, p, desc.set); }
+      if (ECMAScript.HasProperty(desc, 'value')) { o[p] = desc.value; }
+      return o;
     };
   }
 
