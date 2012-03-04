@@ -82,7 +82,7 @@ test("Web Standards Polyfills", 64, function () {
   assertEqual("DOMException.INVALID_ACCESS_ERR", 15);
 });
 
-test("Web Standards Shims", 38, function () {
+test("Web Standards Shims", 45, function () {
 
   // getClassList()
   assertEqual("getClassList(document.getElementById('baz')).length", 4);
@@ -136,6 +136,20 @@ test("Web Standards Shims", 38, function () {
   assertThrows("getClassList(elem).add('a b')");
   assertThrows("getClassList(elem).remove('a b')");
   assertThrows("getClassList(elem).toggle('a b')");
+
+  // getRelList()
+  elem = document.createElement('link');
+  elem.setAttribute('rel', 'stylesheet');
+  assertEqual("getRelList(elem).length", 1);
+  assertTrue("getRelList(elem).contains('stylesheet')");
+  assertFalse("getRelList(elem).contains('next')");
+  assertFalse("getRelList(elem).contains('prev')");
+  getRelList(elem).remove('stylesheet');
+  getRelList(elem).add('next');
+  getRelList(elem).toggle('prev');
+  assertEqual("getRelList(elem).length", 2);
+  assertFalse("getRelList(elem).contains('stylesheet')");
+  assertTrue("getRelList(elem).contains('next')");
 
   // TODO: addEvent/removeEvent
 

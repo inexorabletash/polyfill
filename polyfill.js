@@ -791,7 +791,7 @@ if ('window' in this && 'document' in this) {
 
               tokens.push(token);
               o[p] = tokens.join(' ');
-              this.length = tokens.length;
+              if (this.length !== tokens.length) { this.length = tokens.length; }
             }
           },
 
@@ -807,7 +807,7 @@ if ('window' in this && 'document' in this) {
 
               tokens.splice(index, 1);
               o[p] = tokens.join(' ');
-              this.length = tokens.length;
+              if (this.length !== tokens.length) { this.length = tokens.length; }
             }
           },
 
@@ -826,7 +826,7 @@ if ('window' in this && 'document' in this) {
                 tokens.splice(index, 1);
                 o[p] = tokens.join(' ');
               }
-              this.length = tokens.length;
+              if (this.length !== tokens.length) { this.length = tokens.length; }
             }
           },
 
@@ -837,7 +837,7 @@ if ('window' in this && 'document' in this) {
           }
         });
       // In case getters are not supported
-      this.length = split(o[p]).length;
+      if (!('length' in this)) { this.length = split(o[p]).length; }
     }
 
     function addToElementPrototype(p, f) {
