@@ -698,6 +698,35 @@ if ('window' in this && 'document' in this) {
   window.DOMException.NAMESPACE_ERR = 14;
   window.DOMException.INVALID_ACCESS_ERR = 15;
 
+  if (!document.implementation) {
+    document.implementation = {};
+  }
+  if (!document.implementation.createHTMLDocument) {
+    if (document.implementation.createDocument) {
+      document.implementation.createHTMLDocument = function (title) {
+        var doc, elem;
+        doc = document.implementation.createDocument('http://www.w3.org/1999/xhtml', 'html', null);
+        doc.appendChild(doc.createElement('head'));
+        doc.appendChild(doc.createElement('body'));
+        elem = doc.createElement('title');
+        elem.appendChild(doc.createTextNode(title));
+        doc.getElementsByTagName('head')[0].appendChild(elem);
+        return doc;
+      };
+    } else if (window.ActiveXObject) {
+      document.implementation.createHTMLDocument = function (title) {
+        var doc;
+        doc = window.ActiveXObject("htmlfile");
+        doc.write("<head><title></title></head><body></body>");
+        doc.close();
+        doc.getElementsByTagName('title')[0].appendChild(doc.createTextNode('title'));
+        return doc;
+      };
+    } else {
+      document.implementation.createHTMLDocument = function () { throw new Error("createHTMLDocument not supported"); };
+    }
+  }
+
   //----------------------------------------------------------------------
   //
   // Events

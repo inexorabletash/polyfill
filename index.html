@@ -35,16 +35,7 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
 <p>Bundled together; nearly every page I create needs at least some of these.
 <p><a href="polyfill.js">script</a> - <a href="polyfill.html">unit tests</a>
 <ul>
-  <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/dom.html#dom-document-head">HTML5 DOM Tree Accessors</a> (polyfill)
-    <ul>
-      <li><code>document.head</code></a>
-    </ul>
   <li><a href="http://www.w3.org/TR/XMLHttpRequest/"><code>XMLHttpRequest</code></a> (polyfill for IE6-)
-  <li><a href="https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html">Efficient Script Yielding</a> DRAFT (polyfill)
-    <ul>
-      <li><code><var>id</var> = setImmediate</code>
-      <li><code>clearImmediate(<var>id</var>)</code>
-    </ul>
   <li><a href="http://www.w3.org/TR/selectors-api/">Selector API</a> (polyfill for IE7-) - adapted from <a href="http://ajaxian.com/archives/creating-a-queryselector-for-ie-that-runs-at-native-speed">Paul Young</a>
     <ul>
       <li><code><var>element</var> = document.querySelector(<var>selector</var>)</code>
@@ -56,12 +47,17 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
       <li><code>window.addEvent(<var>element</var>, <var>event</var>, <var>handler</var>)</code>
       <li><code>window.removeEvent(<var>element</var>, <var>event</var>, <var>handler</var>)</code>
     </ul>
-  <li><a href="http://www.w3.org/TR/html5-author/webappapis.html#atob">Base64 Encoding</a> (polyfill for IE9-)
+  <li><a href="http://www.w3.org/TR/html5/dom.html">HTML5 DOM</a>
     <ul>
-      <li><code><var>encodedString</var> = window.btoa(<var>binaryString</var>)</code>
-      <li><code><var>binaryString</var> = window.atob(<var>encodedString</var>)</code>
+      <li><code>document.head</code></a>
+      <li><code><var>document</var> = document.implementation.createHTMLDocument(<var>title</var>)</code>
     </ul>
-  <li><a href="http://www.w3.org/TR/html5/common-dom-interfaces.html#domtokenlist">classList</a> (shim)
+  <li><a href="http://www.w3.org/TR/html5/webappapis.html#atob">HTML5 Web Application APIs</a> (polyfill for IE9-)
+    <ul>
+      <li><code><var>encodedString</var> = window.btoa(<var>binaryString</var>)</code> - Base64 Encode
+      <li><code><var>binaryString</var> = window.atob(<var>encodedString</var>)</code> - Base64 Decode
+    </ul>
+  <li><a href="http://www.w3.org/TR/html5/common-dom-interfaces.html#domtokenlist">HTML5 Infrastructure - classList</a> (shim)
     <ul>
       <li><code><var>classList</var> = window.getClassList(<var>element</var>)</code>
       <li><code><var>classList</var> = <var>elem</var>.classList</code> <em>- not available in IE7-, so use with caution</em>
@@ -72,9 +68,14 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
       <li><code><var>classList</var>.remove(<var>token</var>)</code>
       <li><code><var>classList</var>.toggle(<var>token</var>)</code>
     </ul>
-  <li><a href="http://www.w3.org/TR/html5/semantics.html#dom-link-rellist">relList</a> (shim)
+  <li><a href="http://www.w3.org/TR/html5/semantics.html#dom-link-rellist">HTML5 Infrastructure - relList</a> (shim)
     <ul>
       <li><code><var>relList</var> = window.getRelList(<var>element</var>)</code> - <em>otherwise, like getClassList</em>
+    </ul>
+  <li><a href="https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html">Efficient Script Yielding</a> ABANDONED DRAFT (polyfill)
+    <ul>
+      <li><code><var>id</var> = setImmediate</code>
+      <li><code>clearImmediate(<var>id</var>)</code>
     </ul>
   <li><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String">JavaScript 1.X String Extras</a> (polyfill)
     <ul>
