@@ -57,20 +57,20 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
       <li><code><var>encodedString</var> = window.btoa(<var>binaryString</var>)</code> - Base64 Encode
       <li><code><var>binaryString</var> = window.atob(<var>encodedString</var>)</code> - Base64 Decode
     </ul>
-  <li><a href="http://www.w3.org/TR/html5/common-dom-interfaces.html#domtokenlist">HTML5 Infrastructure - classList</a> (shim)
+  <li><a href="http://www.w3.org/TR/html5/common-dom-interfaces.html#domtokenlist">HTML5 Infrastructure</a> -
+      <a href="http://www.w3.org/TR/html5/elements.html#dom-classlist">classList</a>,
+      <a href="http://www.w3.org/TR/html5/semantics.html#dom-link-rellist">relList</a> (shim)
     <ul>
-      <li><code><var>classList</var> = window.getClassList(<var>element</var>)</code>
-      <li><code><var>classList</var> = <var>elem</var>.classList</code> <em>- not available in IE7-, so use with caution</em>
-      <li><code><var>classList</var>.length</code>
-      <li><code><var>classList</var>.item(<var>index</var>)</code>
-      <li><code><var>classList</var>.contains(<var>token</var>)</code>
-      <li><code><var>classList</var>.add(<var>token</var>)</code>
-      <li><code><var>classList</var>.remove(<var>token</var>)</code>
-      <li><code><var>classList</var>.toggle(<var>token</var>)</code>
-    </ul>
-  <li><a href="http://www.w3.org/TR/html5/semantics.html#dom-link-rellist">HTML5 Infrastructure - relList</a> (shim)
-    <ul>
-      <li><code><var>relList</var> = window.getRelList(<var>element</var>)</code> - <em>otherwise, like getClassList</em>
+      <li><code><var>tokenList</var> = window.getClassList(<var>element</var>)</code>
+      <li><code><var>tokenList</var> = window.getRelList(<var>element</var>)</code>
+      <li><code><var>tokenList</var> = <var>elem</var>.classList</code> - <em>not available in IE7-, so use with caution</em>
+      <li><code><var>tokenList</var> = <var>elem</var>.relList</code> - <em>not available in IE7-, so use with caution</em>
+      <li><code><var>tokenList</var>.length</code>
+      <li><code><var>tokenList</var>.item(<var>index</var>)</code>
+      <li><code><var>tokenList</var>.contains(<var>token</var>)</code>
+      <li><code><var>tokenList</var>.add(<var>token</var>)</code>
+      <li><code><var>tokenList</var>.remove(<var>token</var>)</code>
+      <li><code><var>tokenList</var>.toggle(<var>token</var>)</code>
     </ul>
   <li><a href="https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html">Efficient Script Yielding</a> ABANDONED DRAFT (polyfill)
     <ul>
