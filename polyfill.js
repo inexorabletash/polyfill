@@ -702,29 +702,25 @@ if ('window' in this && 'document' in this) {
     document.implementation = {};
   }
   if (!document.implementation.createHTMLDocument) {
-    if (document.implementation.createDocument) {
-      document.implementation.createHTMLDocument = function (title) {
-        var doc, elem;
+    document.implementation.createHTMLDocument = function (title) {
+      var doc, elem;
+      if (document.implementation.createDocument) {
         doc = document.implementation.createDocument('http://www.w3.org/1999/xhtml', 'html', null);
-        doc.appendChild(doc.createElement('head'));
-        doc.appendChild(doc.createElement('body'));
-        elem = doc.createElement('title');
-        elem.appendChild(doc.createTextNode(title));
-        doc.getElementsByTagName('head')[0].appendChild(elem);
-        return doc;
-      };
-    } else if (window.ActiveXObject) {
-      document.implementation.createHTMLDocument = function (title) {
-        var doc;
+      } else if (window.ActiveXObject) {
         doc = window.ActiveXObject("htmlfile");
-        doc.write("<head><title></title></head><body></body>");
         doc.close();
-        doc.getElementsByTagName('title')[0].appendChild(doc.createTextNode('title'));
-        return doc;
-      };
-    } else {
-      document.implementation.createHTMLDocument = function () { throw new Error("createHTMLDocument not supported"); };
-    }
+      } else {
+        throw new Error("createHTMLDocument not supported");
+      }
+      doc.head = doc.createElement('head');
+      doc.documentElement.appendChild(doc.head);
+      doc.body = doc.createElement('body');
+      doc.documentElement.appendChild(doc.body);
+      elem = doc.createElement('title');
+      elem.appendChild(doc.createTextNode(title));
+      doc.head.appendChild(elem);
+      return doc;
+    };
   }
 
   //----------------------------------------------------------------------
