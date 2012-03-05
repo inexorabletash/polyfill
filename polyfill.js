@@ -659,8 +659,9 @@ if ('window' in this && 'document' in this) {
   }
 
   if (!document.getElementsByClassName) {
-    document.getElementsByClassName = function (className) {
-      return document.querySelectorAll('.' + String(className));
+    document.getElementsByClassName = function (classNames) {
+      classNames = String(classNames).replace(/^|\s+/g, '.');
+      return document.querySelectorAll(classNames);
     };
   }
 
