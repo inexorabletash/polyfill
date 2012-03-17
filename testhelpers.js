@@ -17,7 +17,7 @@ function assertEqual(expr, value) {
   if (value instanceof RegExp) {
     ok(value.test(_x_), expr);
   } else if (value !== value) {
-    ok(_x_ !== _x_, expr);
+    ok(_x_ !== _x_, "Expecting " + String(expr) + " to be NaN, was: " + String(_x_));
   } else {
     strictEqual(_x_, value, expr);
   }

@@ -285,7 +285,7 @@
         'log10',
         {
           value: function log10(x) {
-            x = (typeof x !== 'number') ? NaN : x;
+            x = Number(x);
             return log(x) * LOG10E;
           },
           configurable: true,
@@ -307,7 +307,7 @@
         'log2',
         {
           value: function log2(x) {
-            x = (typeof x !== 'number') ? NaN : x;
+            x = Number(x);
             return log(x) * LOG2E;
           },
           configurable: true,
@@ -329,7 +329,7 @@
         'log1p',
         {
           value: function log1p(x) {
-            x = (typeof x !== 'number') ? NaN : x;
+            x = Number(x);
             // from: http://www.johndcook.com/cpp_expm1.html
             if (x <= -1) {
               return -Infinity;
@@ -359,7 +359,7 @@
         'expm1',
         {
           value: function expm1(x) {
-            x = (typeof x !== 'number') ? NaN : x;
+            x = Number(x);
             // from: http://www.johndcook.com/cpp_log1p.html
             if (ECMAScript.SameValue(x, -0)) {
               return -0;
@@ -390,7 +390,7 @@
         'cosh',
         {
           value: function cosh(x) {
-            x = (typeof x !== 'number') ? NaN : x;
+            x = Number(x);
             return (pow(E, x) + pow(E, -x)) / 2;
           },
           configurable: true,
@@ -412,7 +412,7 @@
         'sinh',
         {
           value: function sinh(x) {
-            x = (typeof x !== 'number') ? NaN : x;
+            x = Number(x);
             return ECMAScript.SameValue(x, -0) ? x : (pow(E, x) - pow(E, -x)) / 2;
           },
           configurable: true,
@@ -434,7 +434,7 @@
         'tanh',
         {
           value: function tanh(x) {
-            x = (typeof x !== 'number') ? NaN : x;
+            x = Number(x);
             var n = pow(E, 2 * x) - 1,
                 d = pow(E, 2 * x) + 1;
             return (n === d) ? 1 : n / d; // Handle Infinity/Infinity
@@ -458,7 +458,7 @@
         'acosh',
         {
           value: function acosh(x) {
-            x = (typeof x !== 'number') ? NaN : x;
+            x = Number(x);
             return log(x + sqrt(x * x - 1));
           },
           configurable: true,
@@ -480,7 +480,7 @@
         'asinh',
         {
           value: function asinh(x) {
-            x = (typeof x !== 'number') ? NaN : x;
+            x = Number(x);
             if (ECMAScript.SameValue(x, -0)) {
               return x;
             }
@@ -505,7 +505,7 @@
         'atanh',
         {
           value: function atanh(x) {
-            x = (typeof x !== 'number') ? NaN : x;
+            x = Number(x);
             return (x === 0) ? x : log((1 + x) / (1 - x)) / 2;
           },
           configurable: true,
@@ -520,21 +520,58 @@
   if (!Math.hypot) {
     (function () {
       var sqrt = Math.sqrt,
-          abs = Math.abs;
+          abs = Math.abs,
+          max = Math.max;
 
       Object.defineProperty(
         Math,
         'hypot',
         {
-          value: function hypot(x, y) {
-            var tmp, d;
-            x = (typeof x !== 'number') ? NaN : x;
-            y = (typeof y !== 'number') ? NaN : y;
-            if (abs(x) < abs(y)) {
-              tmp = x; x = y; y = tmp;
+          value: function hypot(x, y /*...*/) {
+            var tmp, m, i, as = [], s = 0, len = arguments.length;
+            for (i = 0; i < len; ++i) {
+              as[i] = abs(arguments[i]);
+              if (as[i] === Infinity)
+                return Infinity;
             }
-            d = (x === y) ? 1 : y / x;
-            return abs(x) * sqrt(1 + d * d);
+            m = max.apply(null, as);
+            if (isNaN(m) || m === 0) {
+              return m;
+            }
+            for (i = 0; i < len; ++i) {
+              tmp = as[i] / m;
+              s += tmp * tmp;
+            }
+            return m * sqrt(s);
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        }
+      );
+    }());
+  }
+
+  // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
+  if (!Math.hypot2) {
+    (function () {
+      var sqrt = Math.sqrt,
+          abs = Math.abs,
+          max = Math.max;
+
+      Object.defineProperty(
+        Math,
+        'hypot2',
+        {
+          value: function hypot2(x, y /*...*/) {
+            var t, s = 0, i, len = arguments.length;
+            for (i = 0; i < len; ++i) {
+              t = abs(arguments[i]);
+              if (t === Infinity)
+                return Infinity;
+              s += t * t;
+            }
+            return s;
           },
           configurable: true,
           enumerable: false,
@@ -554,8 +591,9 @@
         'trunc',
         {
           value: function trunc(x) {
-            if (typeof (x) !== 'number') { return NaN; }
-            return x < 0 ? ceil(x) : floor(x);
+            x = Number(x);
+            return isNaN(x) ? NaN :
+              x < 0 ? ceil(x) : floor(x);
           },
           configurable: true,
           enumerable: false,
@@ -573,7 +611,8 @@
         'sign',
         {
           value: function sign(x) {
-            return typeof (x) !== 'number' || isNaN(x) ? NaN :
+            x = Number(x);
+            return isNaN(x) ? NaN :
               x < 0 ? -1 :
               x > 0 ? 1 : x;
           },

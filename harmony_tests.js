@@ -1,9 +1,9 @@
 
-test("Math extras", 133, function () {
+test("Math extras", 167, function () {
   var EPSILON = 1e-5;
 
   // log10(x)
-  assertEqual("Math.log10('')", NaN);
+  assertEqual("Math.log10('')", -Infinity);
   assertEqual("Math.log10(NaN)", NaN);
   assertEqual("Math.log10(-1)", NaN);
   assertEqual("Math.log10(-0)", -Infinity);
@@ -14,7 +14,7 @@ test("Math extras", 133, function () {
   assertEpsilon("Math.log10(1.5)", 0.176091, EPSILON);
 
   // log2(x)
-  assertEqual("Math.log2('')", NaN);
+  assertEqual("Math.log2('')", -Infinity);
   assertEqual("Math.log2(NaN)", NaN);
   assertEqual("Math.log2(-1)", NaN);
   assertEqual("Math.log2(-0)", -Infinity);
@@ -25,7 +25,7 @@ test("Math extras", 133, function () {
   assertEpsilon("Math.log2(1.5)", 0.584963, EPSILON);
 
   // log1p
-  assertEqual("Math.log1p('')", NaN);
+  assertEqual("Math.log1p('')", +0);
   assertEqual("Math.log1p(NaN)", NaN);
   assertEqual("Math.log1p(-1)", -Infinity);
   assertEqual("Math.log1p(-0)", -0);
@@ -42,7 +42,7 @@ test("Math extras", 133, function () {
   assertEpsilon("Math.log1p(0.6487212707001282)", 0.5, EPSILON);
 
   // exp1m
-  assertEqual("Math.expm1('')", NaN);
+  assertEqual("Math.expm1('')", +0);
   assertEqual("Math.expm1(NaN)", NaN);
   assertEqual("Math.expm1(+0)", +0);
   assertEqual("Math.expm1(-0)", -0);
@@ -59,7 +59,7 @@ test("Math extras", 133, function () {
   assertEpsilon("Math.expm1(0.5)", 0.6487212707001282, EPSILON);
 
   // cosh(x)
-  assertEqual("Math.cosh('')", NaN);
+  assertEqual("Math.cosh('')", 1);
   assertEqual("Math.cosh(NaN)", NaN);
   assertEqual("Math.cosh(+0)", 1);
   assertEqual("Math.cosh(-0)", 1);
@@ -70,7 +70,7 @@ test("Math extras", 133, function () {
   assertEpsilon("Math.cosh(1.5)", 2.35241, EPSILON);
 
   // sinh(x)
-  assertEqual("Math.sinh('')", NaN);
+  assertEqual("Math.sinh('')", +0);
   assertEqual("Math.sinh(NaN)", NaN);
   assertEqual("Math.sinh(+0)", +0);
   assertEqual("Math.sinh(-0)", -0);
@@ -81,7 +81,7 @@ test("Math extras", 133, function () {
   assertEpsilon("Math.sinh(1.5)", 2.12928, EPSILON);
 
   // tanh(x)
-  assertEqual("Math.tanh('')", NaN);
+  assertEqual("Math.tanh('')", 0);
   assertEqual("Math.tanh(NaN)", NaN);
   assertEqual("Math.tanh(+Infinity)", +1);
   assertEqual("Math.tanh(-Infinity)", -1);
@@ -98,7 +98,7 @@ test("Math extras", 133, function () {
   assertEpsilon("Math.acosh(1.5)", 0.962424, EPSILON);
 
   // asinh(x)
-  assertEqual("Math.asinh('')", NaN);
+  assertEqual("Math.asinh('')", +0);
   assertEqual("Math.asinh(NaN)", NaN);
   assertEqual("Math.asinh(-0)", -0);
   assertEqual("Math.asinh(+0)", +0);
@@ -109,7 +109,7 @@ test("Math extras", 133, function () {
   assertEpsilon("Math.asinh(1.5)", 1.19476, EPSILON);
 
   // atanh(x)
-  assertEqual("Math.atanh('')", NaN);
+  assertEqual("Math.atanh('')", +0);
   assertEqual("Math.atanh(NaN)", NaN);
   assertEqual("Math.atanh(-2)", NaN);
   assertEqual("Math.atanh(+2)", NaN);
@@ -121,25 +121,61 @@ test("Math extras", 133, function () {
   assertEpsilon("Math.atanh(-0.5)", -0.549306, EPSILON);
 
   // hypot(x)
-  assertEqual("Math.hypot('', 0)", NaN);
-  assertEqual("Math.hypot(0, '')", NaN);
+  assertEqual("Math.hypot('', 0)", +0);
+  assertEqual("Math.hypot(0, '')", +0);
   assertEqual("Math.hypot(NaN, 0)", NaN);
   assertEqual("Math.hypot(0, NaN)", NaN);
   assertEqual("Math.hypot(+0, -0)", +0);
   assertEqual("Math.hypot(+0, +0)", +0);
   assertEqual("Math.hypot(+0, +1)", +1);
-  assertEqual("Math.hypot(+0, -1)", +1); // spec error, should be |y| ??
+  assertEqual("Math.hypot(+0, -1)", +1);
   assertEqual("Math.hypot(-0, -0)", +0);
   assertEqual("Math.hypot(-0, +0)", +0);
   assertEqual("Math.hypot(-0, +1)", +1);
-  assertEqual("Math.hypot(-0, -1)", +1); // spec error, should be |y| ??
+  assertEqual("Math.hypot(-0, -1)", +1);
   assertEqual("Math.hypot(+Infinity, 0)", +Infinity);
   assertEqual("Math.hypot(-Infinity, 0)", +Infinity);
   assertEqual("Math.hypot(0, +Infinity)", +Infinity);
   assertEqual("Math.hypot(0, -Infinity)", +Infinity);
+  assertEqual("Math.hypot(Infinity, NaN)", +Infinity);
+  assertEqual("Math.hypot(NaN, -Infinity)", +Infinity);
+  assertEqual("Math.hypot(0)", 0);
+  assertEqual("Math.hypot(1)", 1);
+  assertEqual("Math.hypot(2)", 2);
+  assertEqual("Math.hypot(0,0,1)", 1);
+  assertEqual("Math.hypot(0,1,0)", 1);
+  assertEqual("Math.hypot(1,0,0)", 1);
+  assertEqual("Math.hypot(2,3,4)", Math.sqrt(2*2 + 3*3 + 4*4));
+
+  // hypot2(x)
+  assertEqual("Math.hypot2('', 0)", +0);
+  assertEqual("Math.hypot2(0, '')", +0);
+  assertEqual("Math.hypot2(NaN, 0)", NaN);
+  assertEqual("Math.hypot2(0, NaN)", NaN);
+  assertEqual("Math.hypot2(+0, -0)", +0);
+  assertEqual("Math.hypot2(+0, +0)", +0);
+  assertEqual("Math.hypot2(+0, +1)", +1);
+  assertEqual("Math.hypot2(+0, -1)", +1);
+  assertEqual("Math.hypot2(-0, -0)", +0);
+  assertEqual("Math.hypot2(-0, +0)", +0);
+  assertEqual("Math.hypot2(-0, +1)", +1);
+  assertEqual("Math.hypot2(-0, -1)", +1);
+  assertEqual("Math.hypot2(+Infinity, 0)", +Infinity);
+  assertEqual("Math.hypot2(-Infinity, 0)", +Infinity);
+  assertEqual("Math.hypot2(0, +Infinity)", +Infinity);
+  assertEqual("Math.hypot2(0, -Infinity)", +Infinity);
+  assertEqual("Math.hypot2(Infinity, NaN)", +Infinity);
+  assertEqual("Math.hypot2(NaN, -Infinity)", +Infinity);
+  assertEqual("Math.hypot2(0)", 0);
+  assertEqual("Math.hypot2(1)", 1);
+  assertEqual("Math.hypot2(2)", 4);
+  assertEqual("Math.hypot2(0,0,1)", 1);
+  assertEqual("Math.hypot2(0,1,0)", 1);
+  assertEqual("Math.hypot2(1,0,0)", 1);
+  assertEqual("Math.hypot2(2,3,4)", 2*2 + 3*3 + 4*4);
 
   // trunc(x)
-  assertEqual("Math.trunc('')", NaN);
+  assertEqual("Math.trunc('')", +0);
   assertEqual("Math.trunc(NaN)", NaN);
   assertEqual("Math.trunc(-0)", -0);
   assertEqual("Math.trunc(+0)", +0);
@@ -156,7 +192,7 @@ test("Math extras", 133, function () {
   assertEqual("Math.trunc(2)", 2);
 
   // sign(x)
-  assertEqual("Math.sign('')", NaN);
+  assertEqual("Math.sign('')", +0);
   assertEqual("Math.sign(NaN)", NaN);
   assertEqual("Math.sign(-0)", -0);
   assertEqual("Math.sign(+0)", +0);
