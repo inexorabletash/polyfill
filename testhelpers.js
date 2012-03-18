@@ -2,29 +2,29 @@
 function assertTrue(expr) {
   var _x_;
   try { eval("_x_ = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }
-  ok(_x_, "Expecting " + String(expr) + " to be true, was: " + String(_x_));
+  ok(_x_, String(expr) + " was: " + String(_x_) + ", expected true");
 }
 
 function assertFalse(expr) {
   var _x_;
   try { eval("_x_ = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }
-  ok(!_x_, "Expecting " + String(expr) + " to be false, was: " + String(_x_));
+  ok(!_x_, String(expr) + " was: " + String(_x_) + ", expected false");
 }
 
 function assertEqual(expr, value) {
   var _x_;
   try { eval("_x_ = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }
   if (value instanceof RegExp) {
-    ok(value.test(_x_), expr);
+    ok(value.test(_x_), String(expr) + " was: " + String(_x_) + ", expected to match: " + String(value));
   } else if (value !== value) {
-    ok(_x_ !== _x_, "Expecting " + String(expr) + " to be NaN, was: " + String(_x_));
+    ok(_x_ !== _x_, String(expr) + " was: " + String(_x_) + ", expected NaN");
   } else {
-    strictEqual(_x_, value, expr);
+    strictEqual(_x_, value, String(expr) + " was: " + String(_x_) + ", expected " + String(value));
   }
 }
 
-function assertThrows(expr, expected, message) {
-  raises(function() { eval("(" + expr + ")"); }, expected, message);
+function assertThrows(expr, expected) {
+  raises(function() { eval("(" + expr + ")"); }, expected, String(expr) + " expected to throw");
 }
 
 function assertEpsilon(expr, value, epsilon) {
@@ -37,5 +37,5 @@ function assertEpsilon(expr, value, epsilon) {
     p = (Math.abs((_x_ - value)/Math.max(Math.abs(_x_), Math.abs(value))) < epsilon);
   }
 
-  ok(p, expr + " was " + _x_ + ", expected " + value);
+  ok(p, expr + " was " + _x_ + ", expected approximately " + value);
 }
