@@ -116,20 +116,18 @@
 
   // http://wiki.ecmascript.org/doku.php?id=harmony:number.isnan
   if (!Number.isNaN) {
-    (function () {
-      Object.defineProperty(
-        Number,
-        'isNaN',
-        {
-          value: function isNaN(value) {
-            return typeof value === 'number' && value !== value;
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
+    Object.defineProperty(
+      Number,
+      'isNaN',
+      {
+        value: function isNaN(value) {
+          return typeof value === 'number' && value !== value;
+        },
+        configurable: true,
+        enumerable: false,
+        writable: true
+      }
+    );
   }
 
   // http://wiki.ecmascript.org/doku.php?id=harmony:number.isinteger
@@ -154,20 +152,18 @@
 
   // http://wiki.ecmascript.org/doku.php?id=harmony:number.tointeger
   if (!Number.toInteger) {
-    (function () {
-      Object.defineProperty(
-        Number,
-        'toInteger',
-        {
-          value: function toInteger(value) {
-            return ECMAScript.ToInteger(value);
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
+    Object.defineProperty(
+      Number,
+      'toInteger',
+      {
+        value: function toInteger(value) {
+          return ECMAScript.ToInteger(value);
+        },
+        configurable: true,
+        enumerable: false,
+        writable: true
+      }
+    );
   }
 
 
@@ -352,7 +348,8 @@
   // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
   if (!Math.expm1) {
     (function () {
-      var exp = Math.exp;
+      var exp = Math.exp,
+          abs = Math.abs;
 
       Object.defineProperty(
         Math,
@@ -365,7 +362,7 @@
               return -0;
             } else if (x === -Infinity) {
               return 1;
-            } else if (Math.abs(x) < 1e-5) {
+            } else if (abs(x) < 1e-5) {
               return x + 0.5 * x * x; // two terms of Taylor expansion
             } else {
               return exp(x) - 1;
@@ -612,9 +609,7 @@
         {
           value: function sign(x) {
             x = Number(x);
-            return isNaN(x) ? NaN :
-              x < 0 ? -1 :
-              x > 0 ? 1 : x;
+            return x < 0 ? -1 : x > 0 ? 1 : x;
           },
           configurable: true,
           enumerable: false,
@@ -815,19 +810,22 @@
 
   // http://wiki.ecmascript.org/doku.php?id=strawman:number_compare
   if (!Number.prototype.compare) {
-    Object.defineProperty(
-      Number,
-      'compare',
-      {
-        value: function compare(first, second, tolerance) {
-          var difference = first - second;
-          return Math.abs(difference) <= (tolerance || 0) ? 0 : difference < 0 ? -1 : 1;
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
-      }
-    );
+    (function () {
+      var abs = Math.abs;
+      Object.defineProperty(
+        Number,
+        'compare',
+        {
+          value: function compare(first, second, tolerance) {
+            var difference = first - second;
+            return abs(difference) <= (tolerance || 0) ? 0 : difference < 0 ? -1 : 1;
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        }
+      );
+    }());
   }
 
   // http://wiki.ecmascript.org/doku.php?id=strawman:number_epsilon
@@ -856,7 +854,8 @@
       Number,
       'MAX_INTEGER',
       {
-        value: 9007199254740992,
+        // TODO: Some debate about 2^53 vs. 2^53 - 1
+        value: 9007199254740992, // 2^53
         configurable: false,
         enumerable: false,
         writable: false
@@ -956,5 +955,83 @@
     );
   }
 
+  // http://norbertlindenberg.com/2012/03/ecmascript-supplementary-characters/index.html
+  if (!String.fromCodePoint) {
+    (function () {
+      var floor = Math.floor;
+      Object.defineProperty(
+        String,
+        'fromCodePoint', {
+          value: function () {
+            var chars = [], i;
+            for (i = 0; i < arguments.length; i++) {
+              var c = Number(arguments[i]);
+              if (!isFinite(c) || c < 0 || c > 0x10FFFF || floor(c) !== c) {
+                throw new RangeError("Invalid code point " + c);
+              }
+              if (c < 0x10000) {
+                chars.push(c);
+              } else {
+                c -= 0x10000;
+                chars.push((c >> 10) + 0xD800);
+                chars.push((c % 0x400) + 0xDC00);
+              }
+            }
+            return String.fromCharCode.apply(undefined, chars);
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        }
+      );
+    }());
+  }
+
+  // http://norbertlindenberg.com/2012/03/ecmascript-supplementary-characters/index.html
+  if (!String.prototype.codePointAt) {
+    Object.defineProperty(
+      String.prototype,
+      'codePointAt', {
+        value: function (index) {
+          var str = String(this);
+          var first = str.charCodeAt(index);
+          if (first >= 0xD800 && first <= 0xDBFF && str.length > index + 1) {
+            var second = str.charCodeAt(index + 1);
+            if (second >= 0xDC00 && second <= 0xDFFF) {
+              return ((first - 0xD800) << 10) + (second - 0xDC00) + 0x10000;
+            }
+          }
+          return first;
+        }
+      }
+    );
+  }
+
+    // https://mail.mozilla.org/pipermail/es-discuss/2012-March/021196.html
+  if (!Math.cbrt) {
+    (function () {
+      var pow = Math.pow,
+          abs = Math.abs;
+
+      Object.defineProperty(
+        Math,
+        'cbrt',
+        {
+          value: function sign(x) {
+            x = Number(x);
+            if (isNaN(x/x)) {
+              return x;
+            }
+            var r = pow( abs(x), 1/3 );
+            var t = x/r/r;
+            return r + (r * (t-r) / (2*r + t));
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        }
+      );
+    }());
+  }
 
 }(self));
