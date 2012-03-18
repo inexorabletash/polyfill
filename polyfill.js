@@ -764,12 +764,13 @@ if ('window' in this && 'document' in this) {
 
   //----------------------------------------------------------------------
   //
-  // Classes
+  // DOMTokenList - classList and relList shims
   //
   //----------------------------------------------------------------------
 
   // Shim for http://www.whatwg.org/specs/web-apps/current-work/multipage/elements.html#dom-classlist
   // Use getClassList(elem) instead of elem.classList() (unless on IE8+)
+  // Use getRelList(elem) instead of elem.relList() (unless on IE8+)
 
   (function () {
 
@@ -785,7 +786,6 @@ if ('window' in this && 'document' in this) {
             get: function () { return split(o[p]).length; }
           },
 
-          // TODO: Add index getters
           item: {
             value: function (idx) {
               var tokens = split(o[p]);
@@ -862,8 +862,17 @@ if ('window' in this && 'document' in this) {
             }
           }
         });
-      // In case getters are not supported
-      if (!('length' in this)) { this.length = split(o[p]).length; }
+      if (!('length' in this)) {
+        // In case getters are not supported
+        this.length = split(o[p]).length;
+      } else {
+        // If they are, shim in index getters (up to 100)
+        for (var i = 0; i < 100; ++i) {
+          Object.defineProperty(this, i, {
+            get: (function(n) { return function () { return this.item(n); }; }(i))
+          });
+        }
+      }
     }
 
     function addToElementPrototype(p, f) {

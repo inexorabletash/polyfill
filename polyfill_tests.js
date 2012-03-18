@@ -156,7 +156,7 @@ test("Web Standards Shims", 45, function () {
   delete elem;
 });
 
-test("Common Browser Extensions", function () {
+test("Non-Standard JavaScript 1.x Extras", function () {
 
   // String.prototype.trimLeft()
   assertEqual("''.trimLeft()", '');
