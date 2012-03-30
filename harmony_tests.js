@@ -1,5 +1,5 @@
 
-test("Approved Math extras", 152, function () {
+test("Approved Math extras", 189, function () {
   var EPSILON = 1e-5;
 
   // log10(x)
@@ -183,6 +183,45 @@ test("Approved Math extras", 152, function () {
   assertEqual("Math.cbrt(1)", 1);
   assertEqual("Math.cbrt(-27)", -3);
   assertEqual("Math.cbrt(27)", 3);
+
+  // clz(x)
+  assertEqual("Math.clz('')", 32);
+  assertEqual("Math.clz(-1)", 0);
+  assertEqual("Math.clz(0xffffffff)", 0);
+  assertEqual("Math.clz(0x80000000)", 0);
+  assertEqual("Math.clz(1<<31)", 0);
+  assertEqual("Math.clz(1<<30)", 1);
+  assertEqual("Math.clz(1<<29)", 2);
+  assertEqual("Math.clz(1<<28)", 3);
+  assertEqual("Math.clz(1<<27)", 4);
+  assertEqual("Math.clz(1<<26)", 5);
+  assertEqual("Math.clz(1<<25)", 6);
+  assertEqual("Math.clz(1<<24)", 7);
+  assertEqual("Math.clz(1<<23)", 8);
+  assertEqual("Math.clz(1<<22)", 9);
+  assertEqual("Math.clz(1<<21)", 10);
+  assertEqual("Math.clz(1<<20)", 11);
+  assertEqual("Math.clz(1<<19)", 12);
+  assertEqual("Math.clz(1<<18)", 13);
+  assertEqual("Math.clz(1<<17)", 14);
+  assertEqual("Math.clz(1<<16)", 15);
+  assertEqual("Math.clz(1<<15)", 16);
+  assertEqual("Math.clz(1<<14)", 17);
+  assertEqual("Math.clz(1<<13)", 18);
+  assertEqual("Math.clz(1<<12)", 19);
+  assertEqual("Math.clz(1<<11)", 20);
+  assertEqual("Math.clz(1<<10)", 21);
+  assertEqual("Math.clz(1<<9)", 22);
+  assertEqual("Math.clz(1<<8)", 23);
+  assertEqual("Math.clz(1<<7)", 24);
+  assertEqual("Math.clz(1<<6)", 25);
+  assertEqual("Math.clz(1<<5)", 26);
+  assertEqual("Math.clz(1<<4)", 27);
+  assertEqual("Math.clz(1<<3)", 28);
+  assertEqual("Math.clz(1<<2)", 29);
+  assertEqual("Math.clz(1<<1)", 30);
+  assertEqual("Math.clz(1)", 31);
+  assertEqual("Math.clz(0)", 32);
 });
 
 test("Approved Number extras", 28, function () {

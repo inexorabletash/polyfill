@@ -617,6 +617,30 @@
     }());
   }
 
+  if (!Math.clz) {
+    (function () {
+      function clz8(x) {
+        return (x & 0xf0) ? (x & 0x80 ? 0 : x & 0x40 ? 1 : x & 0x20 ? 2 : 3) :
+        (x & 0x08 ? 4 : x & 0x04 ? 5 : x & 0x02 ? 6 : x & 0x01 ? 7 : 8);
+      }
+      Object.defineProperty(
+        Math,
+        'clz',
+        {
+          value: function clz(x) {
+            x = x >>> 0;
+            return x & 0xff000000 ? clz8(x >> 24) :
+              x & 0xff0000 ? clz8(x >> 16) + 8 :
+              x & 0xff00 ? clz8(x >> 8) + 16 : clz8(x) + 24;
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        }
+      );
+    }());
+  }
+
 
   //----------------------------------------
   // Collections: Maps, Sets, and WeakMaps
