@@ -550,35 +550,6 @@
   }
 
   // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
-  if (!Math.hypot2) {
-    (function () {
-      var sqrt = Math.sqrt,
-          abs = Math.abs,
-          max = Math.max;
-
-      Object.defineProperty(
-        Math,
-        'hypot2',
-        {
-          value: function hypot2(x, y /*...*/) {
-            var t, s = 0, i, len = arguments.length;
-            for (i = 0; i < len; ++i) {
-              t = abs(arguments[i]);
-              if (t === Infinity)
-                return Infinity;
-              s += t * t;
-            }
-            return s;
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
-  }
-
-  // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
   if (!Math.trunc) {
     (function () {
       var ceil = Math.ceil,
@@ -610,6 +581,33 @@
           value: function sign(x) {
             x = Number(x);
             return x < 0 ? -1 : x > 0 ? 1 : x;
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        }
+      );
+    }());
+  }
+
+  // https://mail.mozilla.org/pipermail/es-discuss/2012-March/021196.html
+  if (!Math.cbrt) {
+    (function () {
+      var pow = Math.pow,
+          abs = Math.abs;
+
+      Object.defineProperty(
+        Math,
+        'cbrt',
+        {
+          value: function sign(x) {
+            x = Number(x);
+            if (isNaN(x/x)) {
+              return x;
+            }
+            var r = pow( abs(x), 1/3 );
+            var t = x/r/r;
+            return r + (r * (t-r) / (2*r + t));
           },
           configurable: true,
           enumerable: false,
@@ -1005,33 +1003,6 @@
         }
       }
     );
-  }
-
-    // https://mail.mozilla.org/pipermail/es-discuss/2012-March/021196.html
-  if (!Math.cbrt) {
-    (function () {
-      var pow = Math.pow,
-          abs = Math.abs;
-
-      Object.defineProperty(
-        Math,
-        'cbrt',
-        {
-          value: function sign(x) {
-            x = Number(x);
-            if (isNaN(x/x)) {
-              return x;
-            }
-            var r = pow( abs(x), 1/3 );
-            var t = x/r/r;
-            return r + (r * (t-r) / (2*r + t));
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
   }
 
 }(self));

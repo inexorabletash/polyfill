@@ -1,5 +1,5 @@
 
-test("Approved Math extras", 167, function () {
+test("Approved Math extras", 152, function () {
   var EPSILON = 1e-5;
 
   // log10(x)
@@ -147,33 +147,6 @@ test("Approved Math extras", 167, function () {
   assertEqual("Math.hypot(1,0,0)", 1);
   assertEqual("Math.hypot(2,3,4)", Math.sqrt(2*2 + 3*3 + 4*4));
 
-  // hypot2(x)
-  assertEqual("Math.hypot2('', 0)", +0);
-  assertEqual("Math.hypot2(0, '')", +0);
-  assertEqual("Math.hypot2(NaN, 0)", NaN);
-  assertEqual("Math.hypot2(0, NaN)", NaN);
-  assertEqual("Math.hypot2(+0, -0)", +0);
-  assertEqual("Math.hypot2(+0, +0)", +0);
-  assertEqual("Math.hypot2(+0, +1)", +1);
-  assertEqual("Math.hypot2(+0, -1)", +1);
-  assertEqual("Math.hypot2(-0, -0)", +0);
-  assertEqual("Math.hypot2(-0, +0)", +0);
-  assertEqual("Math.hypot2(-0, +1)", +1);
-  assertEqual("Math.hypot2(-0, -1)", +1);
-  assertEqual("Math.hypot2(+Infinity, 0)", +Infinity);
-  assertEqual("Math.hypot2(-Infinity, 0)", +Infinity);
-  assertEqual("Math.hypot2(0, +Infinity)", +Infinity);
-  assertEqual("Math.hypot2(0, -Infinity)", +Infinity);
-  assertEqual("Math.hypot2(Infinity, NaN)", +Infinity);
-  assertEqual("Math.hypot2(NaN, -Infinity)", +Infinity);
-  assertEqual("Math.hypot2(0)", 0);
-  assertEqual("Math.hypot2(1)", 1);
-  assertEqual("Math.hypot2(2)", 4);
-  assertEqual("Math.hypot2(0,0,1)", 1);
-  assertEqual("Math.hypot2(0,1,0)", 1);
-  assertEqual("Math.hypot2(1,0,0)", 1);
-  assertEqual("Math.hypot2(2,3,4)", 2*2 + 3*3 + 4*4);
-
   // trunc(x)
   assertEqual("Math.trunc('')", +0);
   assertEqual("Math.trunc(NaN)", NaN);
@@ -199,6 +172,17 @@ test("Approved Math extras", 167, function () {
   assertEqual("Math.sign(-2)", -1);
   assertEqual("Math.sign(+2)", +1);
 
+  // cbrt(x)
+  assertEqual("Math.cbrt('')", 0);
+  assertEqual("Math.cbrt(NaN)", NaN);
+  assertEqual("Math.cbrt(-0)", -0);
+  assertEqual("Math.cbrt(-0)", +0);
+  assertEqual("Math.cbrt(-Infinity)", -Infinity);
+  assertEqual("Math.cbrt(Infinity)", Infinity);
+  assertEqual("Math.cbrt(-1)", -1);
+  assertEqual("Math.cbrt(1)", 1);
+  assertEqual("Math.cbrt(-27)", -3);
+  assertEqual("Math.cbrt(27)", 3);
 });
 
 test("Approved Number extras", 28, function () {
@@ -287,10 +271,10 @@ test("Identity Testing", function () {
     "null",
     "-Infinity",
     "-Number.MAX_VALUE",
-    //"-Number.MIN_VALUE", // Safari on iOS thinks 0 === Number.MIN_VALUE
+    //"-Number.MIN_VALUE", // Safari on iOS/ARM thinks 0 === Number.MIN_VALUE
     "-0",
     "0",
-    //"Number.MIN_VALUE", // Safari on iOS thinks 0 === Number.MIN_VALUE
+    //"Number.MIN_VALUE", // Safari on iOS/ARM thinks 0 === Number.MIN_VALUE
     "Number.MAX_VALUE",
     "Infinity",
     "true",
@@ -521,16 +505,3 @@ test("Proposed Unicode support String extras", function () {
   assertEqual("'\\ud800\\udc00\\udbff\\udfff'.codePointAt(2)", 0x10ffff);
 });
 
-test("Proposed Math extras", function () {
-  // cbrt(x)
-  assertEqual("Math.cbrt('')", 0);
-  assertEqual("Math.cbrt(NaN)", NaN);
-  assertEqual("Math.cbrt(-0)", -0);
-  assertEqual("Math.cbrt(-0)", +0);
-  assertEqual("Math.cbrt(-Infinity)", -Infinity);
-  assertEqual("Math.cbrt(Infinity)", Infinity);
-  assertEqual("Math.cbrt(-1)", -1);
-  assertEqual("Math.cbrt(1)", 1);
-  assertEqual("Math.cbrt(-27)", -3);
-  assertEqual("Math.cbrt(27)", 3);
-});

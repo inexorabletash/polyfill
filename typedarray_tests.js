@@ -305,14 +305,14 @@ test('IEEE754 single precision parsing', function () {
   stricterEqual(fromBytes([0xff, 0x7f, 0xff, 0xff]), -3.4028234663852886E+38, '-Normalized');
   stricterEqual(fromBytes([0x80, 0x80, 0x00, 0x00]), -1.1754943508222875E-38, '-Normalized');
 
-  // TODO: Denormalized values fail on Safari iOS5
+  // TODO: Denormalized values fail on Safari on iOS/ARM
   stricterEqual(fromBytes([0x80, 0x7f, 0xff, 0xff]), -1.1754942106924411E-38, '-Denormalized');
   stricterEqual(fromBytes([0x80, 0x00, 0x00, 0x01]), -1.4012984643248170E-45, '-Denormalized');
 
   stricterEqual(fromBytes([0x80, 0x00, 0x00, 0x00]), -0, '-0');
   stricterEqual(fromBytes([0x00, 0x00, 0x00, 0x00]), +0, '+0');
 
-  // TODO: Denormalized values fail on Safari iOS5
+  // TODO: Denormalized values fail on Safari on iOS/ARM
   stricterEqual(fromBytes([0x00, 0x00, 0x00, 0x01]), 1.4012984643248170E-45, '+Denormalized');
   stricterEqual(fromBytes([0x00, 0x7f, 0xff, 0xff]), 1.1754942106924411E-38, '+Denormalized');
 
@@ -346,14 +346,14 @@ test('IEEE754 single precision formatting', 13, function () {
   deepEqual(toBytes(-3.4028234663852886E+38), [0xff, 0x7f, 0xff, 0xff], '-Normalized');
   deepEqual(toBytes(-1.1754943508222875E-38), [0x80, 0x80, 0x00, 0x00], '-Normalized');
 
-  // TODO: Denormalized values fail on Safari iOS5
+  // TODO: Denormalized values fail on Safari iOS/ARM
   deepEqual(toBytes(-1.1754942106924411E-38), [0x80, 0x7f, 0xff, 0xff], '-Denormalized');
   deepEqual(toBytes(-1.4012984643248170E-45), [0x80, 0x00, 0x00, 0x01], '-Denormalized');
 
   deepEqual(toBytes(-0), [0x80, 0x00, 0x00, 0x00], '-0');
   deepEqual(toBytes(0), [0x00, 0x00, 0x00, 0x00], '+0');
 
-  // TODO: Denormalized values fail on Safari iOS5
+  // TODO: Denormalized values fail on Safari iOS/ARM
   deepEqual(toBytes(1.4012984643248170E-45), [0x00, 0x00, 0x00, 0x01], '+Denormalized');
   deepEqual(toBytes(1.1754942106924411E-38), [0x00, 0x7f, 0xff, 0xff], '+Denormalized');
 
@@ -392,14 +392,14 @@ test('IEEE754 double precision parsing', function () {
   stricterEqual(fromBytes([0xff, 0xef, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]), -1.7976931348623157E+308, '-Normalized');
   stricterEqual(fromBytes([0x80, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]), -2.2250738585072014E-308, '-Normalized');
 
-  // TODO: Denormalized values fail on Safari iOS5
+  // TODO: Denormalized values fail on Safari iOS/ARM
   stricterEqual(fromBytes([0x80, 0x0f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]), -2.2250738585072010E-308, '-Denormalized');
   stricterEqual(fromBytes([0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01]), -4.9406564584124654E-324, '-Denormalized');
 
   stricterEqual(fromBytes([0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]), -0, '-0');
   stricterEqual(fromBytes([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]), +0, '+0');
 
-  // TODO: Denormalized values fail on Safari iOS5
+  // TODO: Denormalized values fail on Safari iOS/ARM
   stricterEqual(fromBytes([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01]), 4.9406564584124654E-324, '+Denormalized');
   stricterEqual(fromBytes([0x00, 0x0f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]), 2.2250738585072010E-308, '+Denormalized');
 
@@ -434,14 +434,14 @@ test('IEEE754 double precision formatting', 13, function () {
   deepEqual(toBytes(-1.7976931348623157E+308), [0xff, 0xef, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff], '-Normalized');
   deepEqual(toBytes(-2.2250738585072014E-308), [0x80, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], '-Normalized');
 
-  // TODO: Denormalized values fail on Safari iOS5
+  // TODO: Denormalized values fail on Safari iOS/ARM
   deepEqual(toBytes(-2.2250738585072010E-308), [0x80, 0x0f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff], '-Denormalized');
   deepEqual(toBytes(-4.9406564584124654E-324), [0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01], '-Denormalized');
 
   deepEqual(toBytes(-0), [0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], '-0');
   deepEqual(toBytes(0), [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], '+0');
 
-  // TODO: Denormalized values fail on Safari iOS5
+  // TODO: Denormalized values fail on Safari iOS/ARM
   deepEqual(toBytes(4.9406564584124654E-324), [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01], '+Denormalized');
   deepEqual(toBytes(2.2250738585072010E-308), [0x00, 0x0f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff], '+Denormalized');
 
