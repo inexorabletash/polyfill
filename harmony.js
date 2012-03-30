@@ -151,12 +151,12 @@
   }
 
   // http://wiki.ecmascript.org/doku.php?id=harmony:number.tointeger
-  if (!Number.toInteger) {
+  if (!Number.toInt) {
     Object.defineProperty(
       Number,
-      'toInteger',
+      'toInt',
       {
-        value: function toInteger(value) {
+        value: function toInt(value) {
           return ECMAScript.ToInteger(value);
         },
         configurable: true,

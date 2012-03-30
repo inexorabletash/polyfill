@@ -211,16 +211,16 @@ test("Approved Number extras", 28, function () {
   assertFalse("Number.isInteger(-1.1)");
   assertFalse("Number.isInteger(+1.1)");
 
-  // Number.toInteger
-  assertEqual("Number.toInteger('')", 0);
-  assertEqual("Number.toInteger(NaN)", 0);
-  assertEqual("Number.toInteger(-Infinity)", -Infinity);
-  assertEqual("Number.toInteger(+Infinity)", Infinity);
-  assertEqual("Number.toInteger(0)", 0);
-  assertEqual("Number.toInteger(-1)", -1);
-  assertEqual("Number.toInteger(+1)", 1);
-  assertEqual("Number.toInteger(-1.1)", -1);
-  assertEqual("Number.toInteger(+1.1)", 1);
+  // Number.toInt
+  assertEqual("Number.toInt('')", 0);
+  assertEqual("Number.toInt(NaN)", 0);
+  assertEqual("Number.toInt(-Infinity)", -Infinity);
+  assertEqual("Number.toInt(+Infinity)", Infinity);
+  assertEqual("Number.toInt(0)", 0);
+  assertEqual("Number.toInt(-1)", -1);
+  assertEqual("Number.toInt(+1)", 1);
+  assertEqual("Number.toInt(-1.1)", -1);
+  assertEqual("Number.toInt(+1.1)", 1);
 });
 
 test("Approved String extras", function () {
