@@ -795,3 +795,14 @@ test('Typed Array getters/setters', function () {
   uint32s[0] = 0xffffffff;
   stricterEqual(bytes[1], 0xff);
 });
+
+test('Uint8ClampedArray', 5, function () {
+  stricterEqual(Uint8ClampedArray.BYTES_PER_ELEMENT, 1, 'Uint8ClampedArray.BYTES_PER_ELEMENT');
+  var a = new Uint8ClampedArray([-Infinity, -Number.MAX_VALUE, -1, -Number.MIN_VALUE, -0,
+                                 0, Number.MIN_VALUE, 1, 1.1, 1.9, 255, 255.1, 255.9, 256, Number.MAX_VALUE, Infinity,
+                                 NaN]);
+  stricterEqual(a.BYTES_PER_ELEMENT, 1);
+  stricterEqual(a.byteOffset, 0);
+  stricterEqual(a.byteLength, 17);
+  arrayEqual(a, [0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0]);
+});

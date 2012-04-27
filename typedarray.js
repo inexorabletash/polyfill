@@ -150,6 +150,8 @@
   function packUint8(n) { return [n & 0xff]; }
   function unpackUint8(bytes) { return as_unsigned(bytes[0], 8); }
 
+  function packUint8Clamped(n) { n = Math.round(Number(n)); return [n < 0 ? 0 : n > 0xff ? 0xff : n & 0xff]; }
+
   function packInt16(n) { return [(n >> 8) & 0xff, n & 0xff]; }
   function unpackInt16(bytes) { return as_signed(bytes[0] << 8 | bytes[1], 16); }
 
@@ -504,6 +506,7 @@
 
     var Int8Array = makeTypedArrayConstructor(1, packInt8, unpackInt8);
     var Uint8Array = makeTypedArrayConstructor(1, packUint8, unpackUint8);
+    var Uint8ClampedArray = makeTypedArrayConstructor(1, packUint8Clamped, unpackUint8);
     var Int16Array = makeTypedArrayConstructor(2, packInt16, unpackInt16);
     var Uint16Array = makeTypedArrayConstructor(2, packUint16, unpackUint16);
     var Int32Array = makeTypedArrayConstructor(4, packInt32, unpackInt32);
@@ -515,6 +518,7 @@
       global.ArrayBuffer = global.ArrayBuffer || ArrayBuffer;
       global.Int8Array = global.Int8Array || Int8Array;
       global.Uint8Array = global.Uint8Array || Uint8Array;
+      global.Uint8ClampedArray = global.Uint8ClampedArray || Uint8ClampedArray;
       global.Int16Array = global.Int16Array || Int16Array;
       global.Uint16Array = global.Uint16Array || Uint16Array;
       global.Int32Array = global.Int32Array || Int32Array;
@@ -525,6 +529,7 @@
       global.ArrayBuffer = ArrayBuffer;
       global.Int8Array = Int8Array;
       global.Uint8Array = Uint8Array;
+      global.Uint8ClampedArray = Uint8ClampedArray;
       global.Int16Array = Int16Array;
       global.Uint16Array = Uint16Array;
       global.Int32Array = Int32Array;
