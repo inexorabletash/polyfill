@@ -12,14 +12,20 @@ function assertFalse(expr) {
 }
 
 function assertEqual(expr, value) {
+  function s(x) {
+    return (1/Number(x) === -Infinity) ? "-0" : (1/Number(x) === Infinity) ? "+0" : String(x);
+  }
+
   var _x_;
   try { eval("_x_ = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }
   if (value instanceof RegExp) {
-    ok(value.test(_x_), String(expr) + " was: " + String(_x_) + ", expected to match: " + String(value));
+    ok(value.test(_x_), s(expr) + " was: " + s(_x_) + ", expected to match: " + s(value));
   } else if (value !== value) {
-    ok(_x_ !== _x_, String(expr) + " was: " + String(_x_) + ", expected NaN");
+    ok(_x_ !== _x_, s(expr) + " was: " + s(_x_) + ", expected NaN");
+  } else if (value === 0) {
+    ok(1/_x_ === 1/value, s(expr) + " was: " + s(_x_) + ", expected " + s(value));
   } else {
-    strictEqual(_x_, value, String(expr) + " was: " + String(_x_) + ", expected " + String(value));
+    strictEqual(_x_, value, s(expr) + " was: " + s(_x_) + ", expected " + s(value));
   }
 }
 

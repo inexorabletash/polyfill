@@ -1,36 +1,40 @@
 
-test("Approved Math extras", 189, function () {
+test("Approved Math extras", 155, function () {
   var EPSILON = 1e-5;
 
   // log10(x)
-  assertEqual("Math.log10('')", -Infinity);
+  assertEqual("Math.log10('')", Math.log10(0));
   assertEqual("Math.log10(NaN)", NaN);
   assertEqual("Math.log10(-1)", NaN);
-  assertEqual("Math.log10(-0)", -Infinity);
   assertEqual("Math.log10(+0)", -Infinity);
+  assertEqual("Math.log10(-0)", -Infinity);
   assertEqual("Math.log10(1)", +0);
   assertEqual("Math.log10(+Infinity)", +Infinity);
+
   assertEpsilon("Math.log10(0.5)", -0.30103, EPSILON);
   assertEpsilon("Math.log10(1.5)", 0.176091, EPSILON);
 
   // log2(x)
-  assertEqual("Math.log2('')", -Infinity);
+  assertEqual("Math.log2('')", Math.log2(0));
   assertEqual("Math.log2(NaN)", NaN);
   assertEqual("Math.log2(-1)", NaN);
-  assertEqual("Math.log2(-0)", -Infinity);
   assertEqual("Math.log2(+0)", -Infinity);
+  assertEqual("Math.log2(-0)", -Infinity);
   assertEqual("Math.log2(1)", +0);
   assertEqual("Math.log2(+Infinity)", +Infinity);
+
   assertEpsilon("Math.log2(0.5)", -1, EPSILON);
   assertEpsilon("Math.log2(1.5)", 0.584963, EPSILON);
 
   // log1p
-  assertEqual("Math.log1p('')", +0);
+  assertEqual("Math.log1p('')", Math.log1p(0));
   assertEqual("Math.log1p(NaN)", NaN);
+  assertEqual("Math.log1p(-2)", NaN);
   assertEqual("Math.log1p(-1)", -Infinity);
-  assertEqual("Math.log1p(-0)", -0);
   assertEqual("Math.log1p(+0)", +0);
+  assertEqual("Math.log1p(-0)", -0);
   assertEqual("Math.log1p(+Infinity)", +Infinity);
+
   assertEpsilon("Math.log1p(0.5)", 0.405465, EPSILON);
   assertEpsilon("Math.log1p(-0.5)", -0.693147, EPSILON);
   assertEpsilon("Math.log1p(1.5)", 0.916291, EPSILON);
@@ -42,12 +46,13 @@ test("Approved Math extras", 189, function () {
   assertEpsilon("Math.log1p(0.6487212707001282)", 0.5, EPSILON);
 
   // exp1m
-  assertEqual("Math.expm1('')", +0);
+  assertEqual("Math.expm1('')", Math.expm1(0));
   assertEqual("Math.expm1(NaN)", NaN);
   assertEqual("Math.expm1(+0)", +0);
   assertEqual("Math.expm1(-0)", -0);
   assertEqual("Math.expm1(+Infinity)", +Infinity);
-  assertEqual("Math.expm1(-Infinity)", +1);
+  assertEqual("Math.expm1(-Infinity)", -1);
+
   assertEpsilon("Math.expm1(0.5)", 0.648721, EPSILON);
   assertEpsilon("Math.expm1(-0.5)", -0.393469, EPSILON);
   assertEpsilon("Math.expm1(1.5)", 3.48169, EPSILON);
@@ -59,7 +64,7 @@ test("Approved Math extras", 189, function () {
   assertEpsilon("Math.expm1(0.5)", 0.6487212707001282, EPSILON);
 
   // cosh(x)
-  assertEqual("Math.cosh('')", 1);
+  assertEqual("Math.cosh('')", Math.cosh(0));
   assertEqual("Math.cosh(NaN)", NaN);
   assertEqual("Math.cosh(+0)", 1);
   assertEqual("Math.cosh(-0)", 1);
@@ -70,7 +75,7 @@ test("Approved Math extras", 189, function () {
   assertEpsilon("Math.cosh(1.5)", 2.35241, EPSILON);
 
   // sinh(x)
-  assertEqual("Math.sinh('')", +0);
+  assertEqual("Math.sinh('')", Math.sinh(0));
   assertEqual("Math.sinh(NaN)", NaN);
   assertEqual("Math.sinh(+0)", +0);
   assertEqual("Math.sinh(-0)", -0);
@@ -81,8 +86,10 @@ test("Approved Math extras", 189, function () {
   assertEpsilon("Math.sinh(1.5)", 2.12928, EPSILON);
 
   // tanh(x)
-  assertEqual("Math.tanh('')", 0);
+  assertEqual("Math.tanh('')", Math.tanh(0));
   assertEqual("Math.tanh(NaN)", NaN);
+  assertEqual("Math.tanh(+0)", +0);
+  assertEqual("Math.tanh(-0)", -0);
   assertEqual("Math.tanh(+Infinity)", +1);
   assertEqual("Math.tanh(-Infinity)", -1);
   assertEpsilon("Math.tanh(0.5)", 0.462117, EPSILON);
@@ -90,7 +97,7 @@ test("Approved Math extras", 189, function () {
   assertEpsilon("Math.tanh(1.5)", 0.905148, EPSILON);
 
   // acosh(x)
-  assertEqual("Math.acosh('')", NaN);
+  assertEqual("Math.acosh('')", Math.acosh(0));
   assertEqual("Math.acosh(NaN)", NaN);
   assertEqual("Math.acosh(-1)", NaN);
   assertEqual("Math.acosh(1)", +0);
@@ -98,10 +105,10 @@ test("Approved Math extras", 189, function () {
   assertEpsilon("Math.acosh(1.5)", 0.962424, EPSILON);
 
   // asinh(x)
-  assertEqual("Math.asinh('')", +0);
+  assertEqual("Math.asinh('')", Math.asinh(0));
   assertEqual("Math.asinh(NaN)", NaN);
-  assertEqual("Math.asinh(-0)", -0);
   assertEqual("Math.asinh(+0)", +0);
+  assertEqual("Math.asinh(-0)", -0);
   assertEqual("Math.asinh(+Infinity)", +Infinity);
   assertEqual("Math.asinh(-Infinity)", -Infinity);
   assertEpsilon("Math.asinh(0.5)", 0.481212, EPSILON);
@@ -109,46 +116,46 @@ test("Approved Math extras", 189, function () {
   assertEpsilon("Math.asinh(1.5)", 1.19476, EPSILON);
 
   // atanh(x)
-  assertEqual("Math.atanh('')", +0);
+  assertEqual("Math.atanh('')", Math.atanh(0));
   assertEqual("Math.atanh(NaN)", NaN);
   assertEqual("Math.atanh(-2)", NaN);
   assertEqual("Math.atanh(+2)", NaN);
   assertEqual("Math.atanh(-1)", -Infinity);
   assertEqual("Math.atanh(+1)", +Infinity);
-  assertEqual("Math.atanh(-0)", -0);
   assertEqual("Math.atanh(+0)", +0);
+  assertEqual("Math.atanh(-0)", -0);
   assertEpsilon("Math.atanh(0.5)", 0.549306, EPSILON);
   assertEpsilon("Math.atanh(-0.5)", -0.549306, EPSILON);
 
   // hypot(x)
-  assertEqual("Math.hypot('', 0)", +0);
-  assertEqual("Math.hypot(0, '')", +0);
-  assertEqual("Math.hypot(NaN, 0)", NaN);
-  assertEqual("Math.hypot(0, NaN)", NaN);
-  assertEqual("Math.hypot(+0, -0)", +0);
-  assertEqual("Math.hypot(+0, +0)", +0);
-  assertEqual("Math.hypot(+0, +1)", +1);
-  assertEqual("Math.hypot(+0, -1)", +1);
-  assertEqual("Math.hypot(-0, -0)", +0);
-  assertEqual("Math.hypot(-0, +0)", +0);
-  assertEqual("Math.hypot(-0, +1)", +1);
-  assertEqual("Math.hypot(-0, -1)", +1);
+  assertEqual("Math.hypot('', 0)", Math.hypot(0, 0));
+  assertEqual("Math.hypot(0, '')", Math.hypot(0, 0));
   assertEqual("Math.hypot(+Infinity, 0)", +Infinity);
   assertEqual("Math.hypot(-Infinity, 0)", +Infinity);
   assertEqual("Math.hypot(0, +Infinity)", +Infinity);
   assertEqual("Math.hypot(0, -Infinity)", +Infinity);
   assertEqual("Math.hypot(Infinity, NaN)", +Infinity);
   assertEqual("Math.hypot(NaN, -Infinity)", +Infinity);
-  assertEqual("Math.hypot(0)", 0);
-  assertEqual("Math.hypot(1)", 1);
-  assertEqual("Math.hypot(2)", 2);
+  assertEqual("Math.hypot(NaN, 0)", NaN);
+  assertEqual("Math.hypot(0, NaN)", NaN);
+  assertEqual("Math.hypot(+0, -0)", +0);
+  assertEqual("Math.hypot(+0, +0)", +0);
+  assertEqual("Math.hypot(-0, -0)", +0);
+  assertEqual("Math.hypot(-0, +0)", +0);
+  assertEqual("Math.hypot(+0, +1)", +1);
+  assertEqual("Math.hypot(+0, -1)", +1);
+  assertEqual("Math.hypot(-0, +1)", +1);
+  assertEqual("Math.hypot(-0, -1)", +1);
+  assertEqual("Math.hypot(0)", NaN);
+  assertEqual("Math.hypot(1)", NaN);
+  assertEqual("Math.hypot(2)", NaN);
   assertEqual("Math.hypot(0,0,1)", 1);
   assertEqual("Math.hypot(0,1,0)", 1);
   assertEqual("Math.hypot(1,0,0)", 1);
   assertEqual("Math.hypot(2,3,4)", Math.sqrt(2*2 + 3*3 + 4*4));
 
   // trunc(x)
-  assertEqual("Math.trunc('')", +0);
+  assertEqual("Math.trunc('')", Math.trunc(0));
   assertEqual("Math.trunc(NaN)", NaN);
   assertEqual("Math.trunc(-0)", -0);
   assertEqual("Math.trunc(+0)", +0);
@@ -165,7 +172,7 @@ test("Approved Math extras", 189, function () {
   assertEqual("Math.trunc(2)", 2);
 
   // sign(x)
-  assertEqual("Math.sign('')", +0);
+  assertEqual("Math.sign('')", Math.sign(0));
   assertEqual("Math.sign(NaN)", NaN);
   assertEqual("Math.sign(-0)", -0);
   assertEqual("Math.sign(+0)", +0);
@@ -173,58 +180,33 @@ test("Approved Math extras", 189, function () {
   assertEqual("Math.sign(+2)", +1);
 
   // cbrt(x)
-  assertEqual("Math.cbrt('')", 0);
+  assertEqual("Math.cbrt('')", Math.cbrt(0));
   assertEqual("Math.cbrt(NaN)", NaN);
+  assertEqual("Math.cbrt(+0)", +0);
   assertEqual("Math.cbrt(-0)", -0);
-  assertEqual("Math.cbrt(-0)", +0);
+  assertEqual("Math.cbrt(+Infinity)", +Infinity);
   assertEqual("Math.cbrt(-Infinity)", -Infinity);
-  assertEqual("Math.cbrt(Infinity)", Infinity);
   assertEqual("Math.cbrt(-1)", -1);
   assertEqual("Math.cbrt(1)", 1);
   assertEqual("Math.cbrt(-27)", -3);
   assertEqual("Math.cbrt(27)", 3);
-
-  // clz(x)
-  assertEqual("Math.clz('')", 32);
-  assertEqual("Math.clz(-1)", 0);
-  assertEqual("Math.clz(0xffffffff)", 0);
-  assertEqual("Math.clz(0x80000000)", 0);
-  assertEqual("Math.clz(1<<31)", 0);
-  assertEqual("Math.clz(1<<30)", 1);
-  assertEqual("Math.clz(1<<29)", 2);
-  assertEqual("Math.clz(1<<28)", 3);
-  assertEqual("Math.clz(1<<27)", 4);
-  assertEqual("Math.clz(1<<26)", 5);
-  assertEqual("Math.clz(1<<25)", 6);
-  assertEqual("Math.clz(1<<24)", 7);
-  assertEqual("Math.clz(1<<23)", 8);
-  assertEqual("Math.clz(1<<22)", 9);
-  assertEqual("Math.clz(1<<21)", 10);
-  assertEqual("Math.clz(1<<20)", 11);
-  assertEqual("Math.clz(1<<19)", 12);
-  assertEqual("Math.clz(1<<18)", 13);
-  assertEqual("Math.clz(1<<17)", 14);
-  assertEqual("Math.clz(1<<16)", 15);
-  assertEqual("Math.clz(1<<15)", 16);
-  assertEqual("Math.clz(1<<14)", 17);
-  assertEqual("Math.clz(1<<13)", 18);
-  assertEqual("Math.clz(1<<12)", 19);
-  assertEqual("Math.clz(1<<11)", 20);
-  assertEqual("Math.clz(1<<10)", 21);
-  assertEqual("Math.clz(1<<9)", 22);
-  assertEqual("Math.clz(1<<8)", 23);
-  assertEqual("Math.clz(1<<7)", 24);
-  assertEqual("Math.clz(1<<6)", 25);
-  assertEqual("Math.clz(1<<5)", 26);
-  assertEqual("Math.clz(1<<4)", 27);
-  assertEqual("Math.clz(1<<3)", 28);
-  assertEqual("Math.clz(1<<2)", 29);
-  assertEqual("Math.clz(1<<1)", 30);
-  assertEqual("Math.clz(1)", 31);
-  assertEqual("Math.clz(0)", 32);
 });
 
-test("Approved Number extras", 28, function () {
+test("Approved Number extras", function () {
+  // Number.EPSILON
+  assertTrue("'EPSILON' in Number");
+  assertEqual("typeof Number.EPSILON", 'number');
+  assertTrue("(1 + Number.EPSILON) !== 1");
+  assertFalse("(1 + Number.EPSILON/2) !== 1");
+
+  // Number.MAX_INTEGER
+  assertTrue("'MAX_INTEGER' in Number");
+  assertEqual("typeof Number.MAX_INTEGER", 'number');
+  assertFalse("(Number.MAX_INTEGER + 2) > (Number.MAX_INTEGER + 1)");
+
+  // TODO: Number.parseInt
+  // TODO: Number.parseFloat
+
   // Number.isNaN
   assertFalse("Number.isNaN('')");
   assertTrue("Number.isNaN(NaN)");
@@ -242,8 +224,8 @@ test("Approved Number extras", 28, function () {
   // Number.isInteger
   assertFalse("Number.isInteger('')");
   assertFalse("Number.isInteger(NaN)");
-  assertFalse("Number.isInteger(-Infinity)");
-  assertFalse("Number.isInteger(+Infinity)");
+  //assertFalse("Number.isInteger(-Infinity)"); // TODO: true or false?
+  //assertFalse("Number.isInteger(+Infinity)"); // TODO: true or false?
   assertTrue("Number.isInteger(0)");
   assertTrue("Number.isInteger(-1)");
   assertTrue("Number.isInteger(+1)");
@@ -260,6 +242,47 @@ test("Approved Number extras", 28, function () {
   assertEqual("Number.toInt(+1)", 1);
   assertEqual("Number.toInt(-1.1)", -1);
   assertEqual("Number.toInt(+1.1)", 1);
+});
+
+test("Approved Number.prototype extras", function () {
+  // Number.prototype.clz()
+  assertEqual("typeof Number.prototype.clz", "function");
+  assertEqual("(-1).clz()", 0);
+  assertEqual("(0xffffffff).clz()", 0);
+  assertEqual("(0x80000000).clz()", 0);
+  assertEqual("(1<<31).clz()", 0);
+  assertEqual("(1<<30).clz()", 1);
+  assertEqual("(1<<29).clz()", 2);
+  assertEqual("(1<<28).clz()", 3);
+  assertEqual("(1<<27).clz()", 4);
+  assertEqual("(1<<26).clz()", 5);
+  assertEqual("(1<<25).clz()", 6);
+  assertEqual("(1<<24).clz()", 7);
+  assertEqual("(1<<23).clz()", 8);
+  assertEqual("(1<<22).clz()", 9);
+  assertEqual("(1<<21).clz()", 10);
+  assertEqual("(1<<20).clz()", 11);
+  assertEqual("(1<<19).clz()", 12);
+  assertEqual("(1<<18).clz()", 13);
+  assertEqual("(1<<17).clz()", 14);
+  assertEqual("(1<<16).clz()", 15);
+  assertEqual("(1<<15).clz()", 16);
+  assertEqual("(1<<14).clz()", 17);
+  assertEqual("(1<<13).clz()", 18);
+  assertEqual("(1<<12).clz()", 19);
+  assertEqual("(1<<11).clz()", 20);
+  assertEqual("(1<<10).clz()", 21);
+  assertEqual("(1<<9).clz()", 22);
+  assertEqual("(1<<8).clz()", 23);
+  assertEqual("(1<<7).clz()", 24);
+  assertEqual("(1<<6).clz()", 25);
+  assertEqual("(1<<5).clz()", 26);
+  assertEqual("(1<<4).clz()", 27);
+  assertEqual("(1<<3).clz()", 28);
+  assertEqual("(1<<2).clz()", 29);
+  assertEqual("(1<<1).clz()", 30);
+  assertEqual("(1).clz()", 31);
+  assertEqual("(0).clz()", 32);
 });
 
 test("Approved String extras", function () {
@@ -298,6 +321,31 @@ test("Approved String extras", function () {
   // String.prototype.toArray
   deepEqual(''.toArray(), []);
   deepEqual('abcdef'.toArray(), ['a', 'b', 'c', 'd', 'e', 'f']);
+});
+
+test("Approved Array extras", function () {
+  assertTrue("'of' in Array");
+  assertEqual("typeof Array.of", 'function');
+  assertEqual("Array.of.length", 0);
+  assertEqual("Array.of(1,2,3).length", 3);
+  assertEqual("Array.of([1,2,3]).length", 1);
+  deepEqual(Array.of(), []);
+  deepEqual(Array.of(1), [1]);
+  deepEqual(Array.of(1, 2), [1, 2]);
+  deepEqual(Array.of(1, 2, 3), [1, 2, 3]);
+  deepEqual(Array.of([]), [[]]);
+
+  assertTrue("'from' in Array");
+  assertEqual("typeof Array.from", 'function');
+  assertEqual("Array.from.length", 1);
+  assertEqual("Array.from(1,2,3).length", 0);
+  assertEqual("Array.from([1,2,3]).length", 3);
+  deepEqual(Array.from([1, 2, 3]), [1, 2, 3]);
+  deepEqual(Array.from({length: 0}), []);
+  deepEqual(Array.from({length: 1}), [(void 0)]);
+  deepEqual(Array.from({length: 0, 0: 'a'}), []);
+  deepEqual(Array.from({length: 1, 0: 'a'}), ['a']);
+  deepEqual(Array.from({length: 2, 1: 'a'}), [(void 0), 'a']);
 });
 
 test("Identity Testing", function () {
@@ -341,6 +389,30 @@ test("Identity Testing", function () {
 
   delete window.testobj1;
   delete window.testobj2;
+
+  // Object.isObject
+  assertEqual("typeof Object.isObject", "function");
+  assertEqual("Object.isObject.length", 1);
+  assertTrue("Object.isObject({})");
+  assertTrue("Object.isObject([])");
+  assertTrue("Object.isObject(/(?:)/)");
+  assertTrue("Object.isObject(new Object)");
+  assertTrue("Object.isObject(new Array)");
+  assertTrue("Object.isObject(new RegExp)");
+  assertTrue("Object.isObject(new Date)");
+  assertTrue("Object.isObject(new Number(1))");
+  assertTrue("Object.isObject(new String('a'))");
+  assertTrue("Object.isObject(new Boolean(true))");
+  assertTrue("Object.isObject(Object)");
+  assertTrue("Object.isObject(Math)");
+  assertTrue("Object.isObject(JSON)");
+  assertFalse("Object.isObject(null)");
+  assertFalse("Object.isObject(undefined)");
+  assertFalse("Object.isObject()");
+  assertFalse("Object.isObject(1)");
+  assertFalse("Object.isObject('a')");
+  assertFalse("Object.isObject(true)");
+  assertFalse("Object.isObject(false)");
 });
 
 test("Simple Maps and Sets", 15, function () {
@@ -442,52 +514,18 @@ test("WeakMap", function () {
 test("Proposed Number extras", function () {
   // Number.compare
   assertTrue("'compare' in Number");
-  assertTrue("typeof Number.compare === 'function'");
-  assertTrue("Number.compare(0, 0) === 0");
-  assertTrue("Number.compare(1, 0) === 1");
-  assertTrue("Number.compare(0, 1) === -1");
-  assertTrue("Number.compare(0, 0, 1) === 0");
-  assertTrue("Number.compare(1, 0, 1) === 0");
-  assertTrue("Number.compare(0, 1, 1) === 0");
-
-  // Number.EPSILON
-  assertTrue("'EPSILON' in Number");
-  assertTrue("typeof Number.EPSILON === 'number'");
-  assertTrue("(1 + Number.EPSILON) !== 1");
-  assertFalse("(1 + Number.EPSILON/2) !== 1");
-
-  // Number.MAX_INTEGER
-  assertTrue("'MAX_INTEGER' in Number");
-  assertTrue("typeof Number.MAX_INTEGER === 'number'");
-  assertFalse("(Number.MAX_INTEGER + 1) > Number.MAX_INTEGER");
+  assertEqual("typeof Number.compare", 'function');
+  assertEqual("Number.compare(0, 0)", 0);
+  assertEqual("Number.compare(1, 0)", 1);
+  assertEqual("Number.compare(0, 1)", -1);
+  assertEqual("Number.compare(0, 0, 1)", 0);
+  assertEqual("Number.compare(1, 0, 1)", 0);
+  assertEqual("Number.compare(0, 1, 1)", 0);
 });
 
 test("Proposed Array extras", function () {
-  assertTrue("'of' in Array");
-  assertTrue("typeof Array.of === 'function'");
-  assertTrue("Array.of().length === 0");
-  assertTrue("Array.of(1,2,3).length === 3");
-  assertTrue("Array.of([1,2,3]).length === 1");
-  deepEqual(Array.of(), []);
-  deepEqual(Array.of(1), [1]);
-  deepEqual(Array.of(1, 2), [1, 2]);
-  deepEqual(Array.of(1, 2, 3), [1, 2, 3]);
-  deepEqual(Array.of([]), [[]]);
-
-  assertTrue("'from' in Array");
-  assertTrue("typeof Array.from === 'function'");
-  assertTrue("Array.from().length === 0");
-  assertTrue("Array.from(1,2,3).length === 0");
-  assertTrue("Array.from([1,2,3]).length === 3");
-  deepEqual(Array.from([1, 2, 3]), [1, 2, 3]);
-  deepEqual(Array.from({length: 0}), []);
-  deepEqual(Array.from({length: 1}), [(void 0)]);
-  deepEqual(Array.from({length: 0, 0: 'a'}), []);
-  deepEqual(Array.from({length: 1, 0: 'a'}), ['a']);
-  deepEqual(Array.from({length: 2, 1: 'a'}), [(void 0), 'a']);
-
   assertTrue("'pushAll' in Array.prototype");
-  assertTrue("typeof Array.prototype.pushAll === 'function'");
+  assertEqual("typeof Array.prototype.pushAll", 'function');
   var a;
   a = []; a.pushAll([]); deepEqual(a, []);
   a = [1,2]; a.pushAll([]); deepEqual(a, [1,2]);
@@ -495,7 +533,7 @@ test("Proposed Array extras", function () {
   a = [1,2]; a.pushAll([1,2]); deepEqual(a, [1,2,1,2]);
 
   assertTrue("'contains' in Array.prototype");
-  assertTrue("typeof Array.prototype.contains === 'function'");
+  assertEqual("typeof Array.prototype.contains", 'function');
   assertTrue("[1,2,3].contains(1)");
   assertFalse("[1,2,3].contains(0)");
   assertTrue("[1,NaN,3].contains(NaN)");

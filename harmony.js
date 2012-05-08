@@ -16,6 +16,7 @@
       HasProperty: function (o, p) { return p in o; },
       HasOwnProperty: function (o, p) { return ophop.call(o, p); },
       IsCallable: function (o) { return typeof o === 'function'; },
+      IsConstructor: function (o) { return typeof o === 'function'; }, // TODO: Define
       ToInteger: function (n) {
         n = Number(n);
         if (isNaN(n)) { return 0; }
@@ -50,13 +51,13 @@
 
   //----------------------------------------------------------------------
   //
-  // Tentatively approved proposals
-  // http://wiki.ecmascript.org/doku.php?id=harmony:proposals
+  // ECMAScript 6 Draft
+  // http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts
   //
   //----------------------------------------------------------------------
 
   //----------------------------------------
-  // Identity Testing
+  // Properties of the Object Constructor
   //----------------------------------------
 
   // http://wiki.ecmascript.org/doku.php?id=harmony:egal
@@ -90,10 +91,92 @@
     );
   }
 
+  if (!Object.isObject) {
+    Object.defineProperty(
+      Object,
+      'isObject', {
+        value: function (o) {
+          var t = typeof o;
+          return t !== 'undefined' && t !== 'boolean' && t !== 'number' && t !== 'string' && o !== null;
+        },
+        configurable: true,
+        enumerable: false,
+        writable: true
+      }
+    );
+  }
 
   //----------------------------------------
-  // Number improvements
+  // Properties of the Number Constructor
   //----------------------------------------
+
+  // http://wiki.ecmascript.org/doku.php?id=strawman:number_epsilon
+  if (!Number.EPSILON) {
+    Object.defineProperty(
+      Number,
+      'EPSILON',
+      {
+        value: (function () {
+          var next, result;
+          for (next = 1; 1 + next !== 1; next = next / 2) {
+            result = next;
+          }
+          return result;
+        }()),
+        configurable: false,
+        enumerable: false,
+        writable: false
+      }
+    );
+  }
+
+  // http://wiki.ecmascript.org/doku.php?id=strawman:number_max_integer
+  if (!Number.MAX_INTEGER) {
+    Object.defineProperty(
+      Number,
+      'MAX_INTEGER',
+      {
+        value: 9007199254740991, // 2^53 - 1
+        configurable: false,
+        enumerable: false,
+        writable: false
+      }
+    );
+  }
+
+  if (!Number.parseFloat) {
+    (function () {
+      var global_parseFloat = global.parseFloat;
+      Object.defineProperty(
+        Number,
+        'parseFloat', {
+          value: function (string) {
+            return global_parseFloat(string);
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        }
+      );
+    }());
+  }
+
+  if (!Number.parseInt) {
+    (function () {
+      var global_parseInt = global.parseInt;
+      Object.defineProperty(
+        Number,
+        'parseInt', {
+          value: function (string) {
+            return global_parseInt(string);
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        }
+      );
+    }());
+  }
 
   // http://wiki.ecmascript.org/doku.php?id=harmony:number.isfinite
   if (!Number.isFinite) {
@@ -116,31 +199,14 @@
 
   // http://wiki.ecmascript.org/doku.php?id=harmony:number.isnan
   if (!Number.isNaN) {
-    Object.defineProperty(
-      Number,
-      'isNaN',
-      {
-        value: function isNaN(value) {
-          return typeof value === 'number' && value !== value;
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
-      }
-    );
-  }
-
-  // http://wiki.ecmascript.org/doku.php?id=harmony:number.isinteger
-  if (!Number.isInteger) {
     (function () {
-      var isFinite = global.isFinite;
-
+      var global_isNaN = global.isNaN;
       Object.defineProperty(
         Number,
-        'isInteger',
+        'isNaN',
         {
-          value: function isInteger(value) {
-            return typeof value === 'number' && isFinite(value) && value === ECMAScript.ToInteger(value);
+          value: function isNaN(value) {
+            return typeof value === 'number' && global_isNaN(value);
           },
           configurable: true,
           enumerable: false,
@@ -148,6 +214,29 @@
         }
       );
     }());
+  }
+
+  // http://wiki.ecmascript.org/doku.php?id=harmony:number.isinteger
+  if (!Number.isInteger) {
+    Object.defineProperty(
+      Number,
+      'isInteger',
+      {
+        value: function isInteger(number) {
+          if (typeof number !== 'number') {
+            return false;
+          }
+          var integer = ECMAScript.ToInteger(number);
+          if (integer !== number) {
+            return false;
+          }
+          return true;
+        },
+        configurable: true,
+        enumerable: false,
+        writable: true
+      }
+    );
   }
 
   // http://wiki.ecmascript.org/doku.php?id=harmony:number.tointeger
@@ -168,7 +257,37 @@
 
 
   //----------------------------------------
-  // String improvements
+  // Properties of the Number Prototype Object
+  //----------------------------------------
+
+  if (!Number.prototype.clz) {
+    (function () {
+      function clz8(x) {
+        return (x & 0xf0) ? (x & 0x80 ? 0 : x & 0x40 ? 1 : x & 0x20 ? 2 : 3) :
+        (x & 0x08 ? 4 : x & 0x04 ? 5 : x & 0x02 ? 6 : x & 0x01 ? 7 : 8);
+      }
+      Object.defineProperty(
+        Number.prototype,
+        'clz',
+        {
+          value: function clz() {
+            var x = Number(this);
+            x = ECMAScript.ToUint32(x);
+            return x & 0xff000000 ? clz8(x >> 24) :
+              x & 0xff0000 ? clz8(x >> 16) + 8 :
+              x & 0xff00 ? clz8(x >> 8) + 16 : clz8(x) + 24;
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        }
+      );
+    }());
+  }
+
+
+  //----------------------------------------
+  // Properties of the String Prototype Object
   //----------------------------------------
 
   // http://wiki.ecmascript.org/doku.php?id=harmony:string.prototype.repeat
@@ -267,7 +386,7 @@
 
 
   //----------------------------------------
-  // Math improvements
+  // Function Properties of the Math Object
   //----------------------------------------
 
   // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
@@ -327,8 +446,8 @@
           value: function log1p(x) {
             x = Number(x);
             // from: http://www.johndcook.com/cpp_expm1.html
-            if (x <= -1) {
-              return -Infinity;
+            if (x < -1) {
+              return NaN;
             } else if (ECMAScript.SameValue(x, -0)) {
               return -0;
             } else if (abs(x) > 1e-4) {
@@ -360,8 +479,6 @@
             // from: http://www.johndcook.com/cpp_log1p.html
             if (ECMAScript.SameValue(x, -0)) {
               return -0;
-            } else if (x === -Infinity) {
-              return 1;
             } else if (abs(x) < 1e-5) {
               return x + 0.5 * x * x; // two terms of Taylor expansion
             } else {
@@ -434,7 +551,7 @@
             x = Number(x);
             var n = pow(E, 2 * x) - 1,
                 d = pow(E, 2 * x) + 1;
-            return (n === d) ? 1 : n / d; // Handle Infinity/Infinity
+            return ECMAScript.SameValue(x, -0) ? x : (n === d) ? 1 : n / d; // Handle Infinity/Infinity
           },
           configurable: true,
           enumerable: false,
@@ -516,30 +633,38 @@
   // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
   if (!Math.hypot) {
     (function () {
-      var sqrt = Math.sqrt,
-          abs = Math.abs,
-          max = Math.max;
+      var global_isNaN = global.isNaN,
+          sqrt = Math.sqrt;
+
+      function isInfinite(x) { return x === Infinity || x === -Infinity; }
 
       Object.defineProperty(
         Math,
         'hypot',
         {
-          value: function hypot(x, y /*...*/) {
-            var tmp, m, i, as = [], s = 0, len = arguments.length;
-            for (i = 0; i < len; ++i) {
-              as[i] = abs(arguments[i]);
-              if (as[i] === Infinity)
+          value: function hypot(x, y, z) {
+            if (arguments.length < 3) {
+              x = Number(x);
+              y = Number(y);
+              if (isInfinite(x) || isInfinite(y)) {
                 return Infinity;
+              }
+              if (global_isNaN(x) || global_isNaN(y)) {
+                return NaN;
+              }
+              return sqrt(x*x + y*y);
+            } else {
+              x = Number(x);
+              y = Number(y);
+              z = Number(z);
+              if (isInfinite(x) || isInfinite(y) || isInfinite(z)) {
+                return Infinity;
+              }
+              if (global_isNaN(x) || global_isNaN(y) || global_isNaN(z)) {
+                return NaN;
+              }
+              return sqrt(x*x + y*y + z*z);
             }
-            m = max.apply(null, as);
-            if (isNaN(m) || m === 0) {
-              return m;
-            }
-            for (i = 0; i < len; ++i) {
-              tmp = as[i] / m;
-              s += tmp * tmp;
-            }
-            return m * sqrt(s);
           },
           configurable: true,
           enumerable: false,
@@ -553,14 +678,15 @@
   if (!Math.trunc) {
     (function () {
       var ceil = Math.ceil,
-          floor = Math.floor;
+          floor = Math.floor,
+          global_isNaN = global.isNaN;
       Object.defineProperty(
         Math,
         'trunc',
         {
           value: function trunc(x) {
             x = Number(x);
-            return isNaN(x) ? NaN :
+            return global_isNaN(x) ? NaN :
               x < 0 ? ceil(x) : floor(x);
           },
           configurable: true,
@@ -594,7 +720,8 @@
   if (!Math.cbrt) {
     (function () {
       var pow = Math.pow,
-          abs = Math.abs;
+          abs = Math.abs,
+          global_isNaN = global.isNaN;
 
       Object.defineProperty(
         Math,
@@ -602,7 +729,7 @@
         {
           value: function sign(x) {
             x = Number(x);
-            if (isNaN(x/x)) {
+            if (global_isNaN(x/x)) {
               return x;
             }
             var r = pow( abs(x), 1/3 );
@@ -617,28 +744,74 @@
     }());
   }
 
-  if (!Math.clz) {
-    (function () {
-      function clz8(x) {
-        return (x & 0xf0) ? (x & 0x80 ? 0 : x & 0x40 ? 1 : x & 0x20 ? 2 : 3) :
-        (x & 0x08 ? 4 : x & 0x04 ? 5 : x & 0x02 ? 6 : x & 0x01 ? 7 : 8);
+
+  //----------------------------------------
+  // Properties of the Array Constructor
+  //----------------------------------------
+
+  // http://wiki.ecmascript.org/doku.php?id=strawman:array_extras
+  if (!Array.of) {
+    Object.defineProperty(
+      Array,
+      'of',
+      {
+        value: function of() {
+          var items = arguments;
+          var lenValue = items.length;
+          var len = ECMAScript.ToUint32(lenValue);
+          var c = this, a;
+          if (ECMAScript.IsConstructor(c)) {
+            a = new c(len);
+            a = Object(a);
+          } else {
+            a = new Array(len);
+          }
+          var k = 0;
+          while (k < len) {
+            a[k] = items[k];
+            k += 1;
+          }
+          a.length = len;
+          return a;
+          return Array.from(arguments);
+        },
+        configurable: true,
+        enumerable: false,
+        writable: true
       }
-      Object.defineProperty(
-        Math,
-        'clz',
-        {
-          value: function clz(x) {
-            x = x >>> 0;
-            return x & 0xff000000 ? clz8(x >> 24) :
-              x & 0xff0000 ? clz8(x >> 16) + 8 :
-              x & 0xff00 ? clz8(x >> 8) + 16 : clz8(x) + 24;
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
+    );
+  }
+
+  // http://wiki.ecmascript.org/doku.php?id=strawman:array_extras
+  if (!Array.from) {
+    Object.defineProperty(
+      Array,
+      'from',
+      {
+        value: function from(arrayLike) {
+          var items = Object(arrayLike);
+          var lenValue = items.length;
+          var len = ECMAScript.ToUint32(lenValue);
+          var c = this, a;
+          if (ECMAScript.IsConstructor(c)) {
+            a = new c(len);
+            a = Object(a);
+          } else {
+            a = new Array(len);
+          }
+          var k = 0;
+          while (k < len) {
+            a[k] = items[k];
+            k += 1;
+          }
+          a.length = len;
+          return a;
+        },
+        configurable: true,
+        enumerable: false,
+        writable: true
+      }
+    );
   }
 
 
@@ -850,77 +1023,6 @@
     }());
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=strawman:number_epsilon
-  if (!Number.EPSILON) {
-    Object.defineProperty(
-      Number,
-      'EPSILON',
-      {
-        value: (function () {
-          var next, result;
-          for (next = 1; 1 + next !== 1; next = next / 2) {
-            result = next;
-          }
-          return result;
-        }()),
-        configurable: false,
-        enumerable: false,
-        writable: false
-      }
-    );
-  }
-
-  // http://wiki.ecmascript.org/doku.php?id=strawman:number_max_integer
-  if (!Number.MAX_INTEGER) {
-    Object.defineProperty(
-      Number,
-      'MAX_INTEGER',
-      {
-        // TODO: Some debate about 2^53 vs. 2^53 - 1
-        value: 9007199254740992, // 2^53
-        configurable: false,
-        enumerable: false,
-        writable: false
-      }
-    );
-  }
-
-  // http://wiki.ecmascript.org/doku.php?id=strawman:array_extras
-  if (!Array.of) {
-    Object.defineProperty(
-      Array,
-      'of',
-      {
-        value: function of() {
-          return Array.from(arguments);
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
-      }
-    );
-  }
-
-  // http://wiki.ecmascript.org/doku.php?id=strawman:array_extras
-  if (!Array.from) {
-    Object.defineProperty(
-      Array,
-      'from',
-      {
-        value: function from(o) {
-          o = Object(o);
-          var i, length = ECMAScript.ToUint32(o.length), result = [];
-          for (i = 0; i < length; i += 1) {
-            result[i] = o[i];
-          }
-          return result;
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
-      }
-    );
-  }
 
   // http://wiki.ecmascript.org/doku.php?id=strawman:array.prototype.pushall
   if (!Array.prototype.pushAll) {
