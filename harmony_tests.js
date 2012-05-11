@@ -396,6 +396,7 @@ test("Identity Testing", function () {
   assertTrue("Object.isObject({})");
   assertTrue("Object.isObject([])");
   assertTrue("Object.isObject(/(?:)/)");
+  assertTrue("Object.isObject(function () {})");
   assertTrue("Object.isObject(new Object)");
   assertTrue("Object.isObject(new Array)");
   assertTrue("Object.isObject(new RegExp)");
@@ -403,6 +404,7 @@ test("Identity Testing", function () {
   assertTrue("Object.isObject(new Number(1))");
   assertTrue("Object.isObject(new String('a'))");
   assertTrue("Object.isObject(new Boolean(true))");
+  assertTrue("Object.isObject(new Function())");
   assertTrue("Object.isObject(Object)");
   assertTrue("Object.isObject(Math)");
   assertTrue("Object.isObject(JSON)");

@@ -7,6 +7,11 @@
 (function (global) {
   "use strict";
 
+  var global_isNaN = global.isNaN,
+      global_isFinite = global.isFinite,
+      global_parseInt = global.parseInt,
+      global_parseFloat = global.parseFloat;
+
   // Approximations of internal ECMAScript functions
   var ECMAScript = (function () {
     var ophop = Object.prototype.hasOwnProperty,
@@ -19,7 +24,7 @@
       IsConstructor: function (o) { return typeof o === 'function'; }, // TODO: Define
       ToInteger: function (n) {
         n = Number(n);
-        if (isNaN(n)) { return 0; }
+        if (global_isNaN(n)) { return 0; }
         if (n === 0 || n === Infinity || n === -Infinity) { return n; }
         return ((n < 0) ? -1 : 1) * floor(abs(n));
       },
@@ -35,7 +40,7 @@
         case 'null':
           return true;
         case 'number':
-          if (isNaN(x) && isNaN(y)) { return true; }
+          if (global_isNaN(x) && global_isNaN(y)) { return true; }
           if (x === 0 && y === 0) { return 1/x === 1/y; }
           return x === y;
         case 'boolean':
@@ -60,13 +65,13 @@
   // Properties of the Object Constructor
   //----------------------------------------
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:egal
+  // TODO: Make sure these get added as functions, not just operators.
   if (!Object.is) {
     Object.defineProperty(
       Object,
       'is',
       {
-        value: function (x, y) {
+        value: function is(x, y) {
           return ECMAScript.SameValue(x, y);
         },
         configurable: true,
@@ -76,6 +81,7 @@
     );
   }
 
+  // TODO: Make sure these get added as functions, not just operators.
   if (!Object.isnt) {
     Object.defineProperty(
       Object,
@@ -95,7 +101,7 @@
     Object.defineProperty(
       Object,
       'isObject', {
-        value: function (o) {
+        value: function isObject(o) {
           var t = typeof o;
           return t !== 'undefined' && t !== 'boolean' && t !== 'number' && t !== 'string' && o !== null;
         },
@@ -110,7 +116,6 @@
   // Properties of the Number Constructor
   //----------------------------------------
 
-  // http://wiki.ecmascript.org/doku.php?id=strawman:number_epsilon
   if (!Number.EPSILON) {
     Object.defineProperty(
       Number,
@@ -130,7 +135,6 @@
     );
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=strawman:number_max_integer
   if (!Number.MAX_INTEGER) {
     Object.defineProperty(
       Number,
@@ -146,11 +150,10 @@
 
   if (!Number.parseFloat) {
     (function () {
-      var global_parseFloat = global.parseFloat;
       Object.defineProperty(
         Number,
         'parseFloat', {
-          value: function (string) {
+          value: function parseFloat(string) {
             return global_parseFloat(string);
           },
           configurable: true,
@@ -163,11 +166,10 @@
 
   if (!Number.parseInt) {
     (function () {
-      var global_parseInt = global.parseInt;
       Object.defineProperty(
         Number,
         'parseInt', {
-          value: function (string) {
+          value: function parseInt(string) {
             return global_parseInt(string);
           },
           configurable: true,
@@ -178,10 +180,8 @@
     }());
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:number.isfinite
   if (!Number.isFinite) {
     (function () {
-      var global_isFinite = global.isFinite;
       Object.defineProperty(
         Number,
         'isFinite',
@@ -197,10 +197,8 @@
     }());
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:number.isnan
   if (!Number.isNaN) {
     (function () {
-      var global_isNaN = global.isNaN;
       Object.defineProperty(
         Number,
         'isNaN',
@@ -216,7 +214,6 @@
     }());
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:number.isinteger
   if (!Number.isInteger) {
     Object.defineProperty(
       Number,
@@ -239,7 +236,6 @@
     );
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:number.tointeger
   if (!Number.toInt) {
     Object.defineProperty(
       Number,
@@ -290,14 +286,12 @@
   // Properties of the String Prototype Object
   //----------------------------------------
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:string.prototype.repeat
   if (!String.prototype.repeat) {
-
     Object.defineProperty(
       String.prototype,
       'repeat',
       {
-        value: function (count) {
+        value: function repeat(count) {
           // var string = '' + this;
           // count = ECMAScript.ToInteger(count);
           // var result = ';
@@ -317,7 +311,6 @@
     );
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:string_extras
   if (!String.prototype.startsWith) {
     Object.defineProperty(
       String.prototype,
@@ -334,7 +327,6 @@
     );
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:string_extras
   if (!String.prototype.endsWith) {
     Object.defineProperty(
       String.prototype,
@@ -352,7 +344,6 @@
     );
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:string_extras
   if (!String.prototype.contains) {
     Object.defineProperty(
       String.prototype,
@@ -368,7 +359,6 @@
     );
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:string_extras
   if (!String.prototype.toArray) {
     Object.defineProperty(
       String.prototype,
@@ -389,7 +379,6 @@
   // Function Properties of the Math Object
   //----------------------------------------
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
   if (!Math.log10) {
     (function () {
       var log = Math.log,
@@ -411,7 +400,6 @@
     }());
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
   if (!Math.log2) {
     (function () {
       var log = Math.log,
@@ -433,7 +421,6 @@
     }());
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
   if (!Math.log1p) {
     (function () {
       var log = Math.log,
@@ -464,7 +451,6 @@
     }());
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
   if (!Math.expm1) {
     (function () {
       var exp = Math.exp,
@@ -493,7 +479,6 @@
     }());
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
   if (!Math.cosh) {
     (function () {
       var pow = Math.pow,
@@ -515,7 +500,6 @@
     }());
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
   if (!Math.sinh) {
     (function () {
       var pow = Math.pow,
@@ -537,7 +521,6 @@
     }());
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
   if (!Math.tanh) {
     (function () {
       var pow = Math.pow,
@@ -561,7 +544,6 @@
     }());
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
   if (!Math.acosh) {
     (function () {
       var log = Math.log,
@@ -583,7 +565,6 @@
     }());
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
   if (!Math.asinh) {
     (function () {
       var log = Math.log,
@@ -609,7 +590,6 @@
     }());
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
   if (!Math.atanh) {
     (function () {
       var log = Math.log;
@@ -630,11 +610,9 @@
     }());
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
   if (!Math.hypot) {
     (function () {
-      var global_isNaN = global.isNaN,
-          sqrt = Math.sqrt;
+      var sqrt = Math.sqrt;
 
       function isInfinite(x) { return x === Infinity || x === -Infinity; }
 
@@ -674,12 +652,10 @@
     }());
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
   if (!Math.trunc) {
     (function () {
       var ceil = Math.ceil,
-          floor = Math.floor,
-          global_isNaN = global.isNaN;
+          floor = Math.floor;
       Object.defineProperty(
         Math,
         'trunc',
@@ -697,7 +673,6 @@
     }());
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
   if (!Math.sign) {
     (function () {
       Object.defineProperty(
@@ -716,13 +691,10 @@
     }());
   }
 
-  // https://mail.mozilla.org/pipermail/es-discuss/2012-March/021196.html
   if (!Math.cbrt) {
     (function () {
       var pow = Math.pow,
-          abs = Math.abs,
-          global_isNaN = global.isNaN;
-
+          abs = Math.abs;
       Object.defineProperty(
         Math,
         'cbrt',
@@ -749,7 +721,6 @@
   // Properties of the Array Constructor
   //----------------------------------------
 
-  // http://wiki.ecmascript.org/doku.php?id=strawman:array_extras
   if (!Array.of) {
     Object.defineProperty(
       Array,
@@ -782,7 +753,6 @@
     );
   }
 
-  // http://wiki.ecmascript.org/doku.php?id=strawman:array_extras
   if (!Array.from) {
     Object.defineProperty(
       Array,
@@ -819,7 +789,6 @@
   // Collections: Maps, Sets, and WeakMaps
   //----------------------------------------
 
-  // http://wiki.ecmascript.org/doku.php?id=harmony:simple_maps_and_sets
   /** @constructor */
   global.Map = global.Map || function Map() {
     if (!(this instanceof Map)) { return new Map(); }
@@ -927,7 +896,6 @@
   };
 
   // Inspired by https://gist.github.com/1638059
-  // http://wiki.ecmascript.org/doku.php?id=harmony:weak_maps
   /** @constructor */
   global.WeakMap = global.WeakMap || function WeakMap() {
     if (!(this instanceof WeakMap)) { return new WeakMap(); }
@@ -1060,7 +1028,7 @@
     Object.defineProperty(
       Array.prototype,
       'contains', {
-        value: function (target) {
+        value: function contains(target) {
           if (this === void 0 || this === null) { throw new TypeError(); }
           var t = Object(this),
               len = ECMAScript.ToUint32(t.length),
@@ -1086,7 +1054,7 @@
       Object.defineProperty(
         String,
         'fromCodePoint', {
-          value: function () {
+          value: function fromCodePoint() {
             var chars = [], i;
             for (i = 0; i < arguments.length; i++) {
               var c = Number(arguments[i]);
@@ -1116,7 +1084,7 @@
     Object.defineProperty(
       String.prototype,
       'codePointAt', {
-        value: function (index) {
+        value: function codePointAt(index) {
           var str = String(this);
           var first = str.charCodeAt(index);
           if (first >= 0xD800 && first <= 0xDBFF && str.length > index + 1) {
