@@ -16,7 +16,7 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
 
 <ul>
   <li><a href="#polyfill">Browser Compat & ECMAScript 5</a>
-  <li><a href="#harmony">ECMAScript "Harmony"</a>
+  <li><a href="#harmony">ECMAScript 6 / "Harmony"</a>
   <li><a href="#url">URL</a>
   <li><a href="#keyboard">Keyboard Events</a>
   <li><a href="#timing">Timing control for script-based animations</a>
@@ -93,25 +93,62 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
     </ul>
 </ul>
 
-<h2 id="harmony">ECMAScript "Harmony" (polyfill)</h2>
+<h2 id="harmony">ECMAScript 6 / "Harmony" (polyfill)</h2>
 <p>"Harmony" is the aspirational term for future iterations of ECMAScript (the standardized version of JavaScript). The standardization of ES6 is currently in progress.
 <p><a href="harmony.js">script</a> - <a href="harmony.html">unit tests</a> - <a href="http://wiki.ecmascript.org/doku.php?id=harmony:proposals">wiki</a>
 <ul>
-  <li>Approved for inclusion in ES6:
+  <li>In the <a href="http://wiki.ecmascript.org/doku.php?id=harmony:drafts">ES6 Drafts</a>:
     <ul>
-      <li>Object: <code>is</code>, <code>isnt</code>
-      <li>Number: <code>isFinite</code>, <code>isNaN</code>, <code>isInteger</code>, <code>toInt</code>
-      <li>String prototype: <code>repeat</code>, <code>startsWith</code>, <code>endsWith</code>, <code>contains</code>, <code>toArray</code>
-      <li>Math: <code>log10</code>, <code>log2</code>, <code>log1p</code>, <code>expm1</code>, <code>cosh</code>, <code>sinh</code>, <code>tanh</code>, <code>acosh</code>, <code>asinh</code>, <code>atanh</code>, <code>hypot</code>, <code>trunc</code>, <code>sign</code>, <code>cbrt</code>, <code>clz</code>
-
-      <li>Collections: <code>Map</code>, <code>Set</code>, <code>WeakMap</code>
+      <li>Object:
+        <code>is</code> (as function, not operator),
+        <code>isnt</code> (ditto),
+        <code>isObject</code>
+      <li>Number:
+        <code>EPILON</code>,
+        <code>MAX_INTEGER</code>,
+        <code>parseInt</code>,
+        <code>parseFloat</code>,
+        <code>isFinite</code>,
+        <code>isNaN</code>,
+        <code>isInteger</code>,
+        <code>toInt</code>
+      <li>Number prototype:
+        <code>clz</code>,
+      <li>String prototype:
+        <code>repeat</code>,
+        <code>startsWith</code>,
+        <code>endsWith</code>,
+        <code>contains</code>,
+        <code>toArray</code>
+      <li>Math:
+        <code>log10</code>,
+        <code>log2</code>,
+        <code>log1p</code>,
+        <code>expm1</code>,
+        <code>cosh</code>,
+        <code>sinh</code>,
+        <code>tanh</code>,
+        <code>acosh</code>,
+        <code>asinh</code>,
+        <code>atanh</code>,
+        <code>hypot</code>,
+        <code>trunc</code>,
+        <code>sign</code>,
+        <code>cbrt</code>
+      <li>Array prototype:
+        <code>of</code>,
+        <code>from</code>
+      <li>Collections:
+        <code>Map</code>,
+        <code>Set</code>,
+        <code>WeakMap</code> (intrusive; modifies valueOf property of key)
     </ul>
   <li>Not yet approved:
     <ul>
-      <li>Number: <code>compare</code>, <code>EPILON</code>, <code>MAX_INTEGER</code>
-      <li>Array prototype: <code>of</code>, <code>from</code>, <code>pushAll</code>, <code>contains</code>
-      <li>String: <code>fromCodePoint</code>
-      <li>String.prototype: <code>codePointAt</code>
+      <li>Number: <code>compare</code>
+      <li>Array prototype: <code>pushAll</code>, <code>contains</code>
+      <li>String: <code>fromCodePoint</code> (from <a href="http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html">Supplementary Characters for ECMAScript proposal</a>)
+      <li>String.prototype: <code>codePointAt</code> (from <a href="http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html">Supplementary Characters for ECMAScript proposal</a>)
     </ul>
 </ul>
 

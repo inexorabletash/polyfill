@@ -576,8 +576,8 @@ test("Proposed Unicode support String extras", function () {
   assertEqual("'\\ufffd'.codePointAt(0)", 0xfffd);
   assertEqual("'\\ud800\\udc00'.codePointAt(0)", 0x10000);
   assertEqual("'\\udbff\\udfff'.codePointAt(0)", 0x10ffff);
-  assertEqual("''.codePointAt(0)", NaN);
-  assertEqual("'A'.codePointAt(1)", NaN);
+  assertEqual("''.codePointAt(0)", undefined);
+  assertEqual("'A'.codePointAt(1)", undefined);
   assertEqual("'AB'.codePointAt(1)", 66);
   assertEqual("'\\ud800\\udc00\\udbff\\udfff'.codePointAt(0)", 0x10000);
   assertEqual("'\\ud800\\udc00\\udbff\\udfff'.codePointAt(1)", 0xdc00);

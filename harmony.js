@@ -1047,7 +1047,7 @@
     );
   }
 
-  // http://norbertlindenberg.com/2012/03/ecmascript-supplementary-characters/index.html
+  // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
   if (!String.fromCodePoint) {
     (function () {
       var floor = Math.floor;
@@ -1079,13 +1079,16 @@
     }());
   }
 
-  // http://norbertlindenberg.com/2012/03/ecmascript-supplementary-characters/index.html
+  // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
   if (!String.prototype.codePointAt) {
     Object.defineProperty(
       String.prototype,
       'codePointAt', {
         value: function codePointAt(index) {
           var str = String(this);
+          if (index < 0 || index >= str.length) {
+            return undefined;
+          }
           var first = str.charCodeAt(index);
           if (first >= 0xD800 && first <= 0xDBFF && str.length > index + 1) {
             var second = str.charCodeAt(index + 1);
@@ -1094,7 +1097,10 @@
             }
           }
           return first;
-        }
+        },
+        configurable: true,
+        enumerable: false,
+        writable: true
       }
     );
   }
