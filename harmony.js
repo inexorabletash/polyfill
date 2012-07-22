@@ -97,7 +97,8 @@
     );
   }
 
-  if (!Object.isObject) {
+  // Removed from latest ES6 drafts
+  if (false && !Object.isObject) {
     Object.defineProperty(
       Object,
       'isObject', {
@@ -351,21 +352,6 @@
       {
         value: function contains(searchString, position) {
           return String(this).indexOf(searchString, position) !== -1;
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
-      }
-    );
-  }
-
-  if (!String.prototype.toArray) {
-    Object.defineProperty(
-      String.prototype,
-      'toArray',
-      {
-        value: function toArray() {
-          return String(this).split('');
         },
         configurable: true,
         enumerable: false,
@@ -1034,7 +1020,8 @@
               len = ECMAScript.ToUint32(t.length),
               i;
           for (i = 0; i < len; i += 1) {
-            if (i in t && ECMAScript.SameValue(t[i], target)) {
+            // eval("0 in [undefined]") == false in IE8-
+            if (/*i in t &&*/ ECMAScript.SameValue(t[i], target)) {
               return true;
             }
           }
@@ -1097,6 +1084,42 @@
             }
           }
           return first;
+        },
+        configurable: true,
+        enumerable: false,
+        writable: true
+      }
+    );
+  }
+
+  // NOTE: Since true iterators can't be polyfilled, this is a hack
+  global.iterator__StopIteraton = global.iterator__StopIteration || (function () {
+    function StopIterationClass() {
+    }
+    StopIterationClass.prototype = {
+      toString: function () { return "[object StopIteration]"; }
+    };
+    return new StopIterationClass;
+  }());
+
+  // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
+  if (!String.prototype.iterator__get) {
+    Object.defineProperty(
+      String.prototype,
+      'iterator__get', {
+        value: function () {
+          var s = this;
+          return {
+            index: 0,
+            next: function () {
+              if (this.index >= s.length) {
+                throw iterator__StopIteration;
+              }
+              var cp = s.codePointAt(this.index);
+              this.index += cp > 0xFFFF ? 2 : 1;
+              return String.fromCodePoint(cp);
+            }
+          };
         },
         configurable: true,
         enumerable: false,

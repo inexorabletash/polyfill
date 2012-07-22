@@ -1,18 +1,17 @@
 <!DOCTYPE html>
-<title>Polyfills and Shims</title>
+<title>Polyfills, Shims, Helpers and More</title>
 <link rel="stylesheet" href="polyfill.css">
 
-<h1>Polyfills and Shims (and more)</h1>
+<h1>Polyfills, Shims and More</h1>
 
 <ul>
-  <li>A <em>shim</em> lets you write the same code across all browsers, e.g. by providing a new function with browser-specific implementations.
-  <li>A <em>polyfill</em> is a shim or collection of shims that implements a new API in downlevel browsers.
+  <li>A <em>polyfill</em> is a collection of shims (and a catchy name).
+  <li>A <em>shim</em> lets you write the same code across all browsers by implementing a new API in downlevel browsers.
+  <li>A <em>helper</em> helps write cross-browser code where a true API shim/polyfill is not possible.
 </ul>
 
-<p>In general, a polyfill is preferrable to a mere shim but may not be possible, practical, or efficient to implement. In practice, the terms get used somewhat interchangably.
-
 <p>I use these in various pages on this site; most are by me, or I have at least tweaked them.
-A more comprehensive list can be found at <a href="https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills">The All-In-One Entirely-Not-Alphabetical No-Bullshit Guide to HTML5 Fallbacks</a> by Paul Irish.
+A more comprehensive list can be found at <a target="_other" href="https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills">The All-In-One Entirely-Not-Alphabetical No-Bullshit Guide to HTML5 Fallbacks</a> by Paul Irish.
 
 <ul>
   <li><a href="#polyfill">Browser Compat & ECMAScript 5</a>
@@ -31,35 +30,34 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
 </ul>
 
 
-<h2 id="polyfill">Browser Compat &amp ECMAScript 5 (shims and polyfills)</h2>
+<h2 id="polyfill">Browser Compat &amp ECMAScript 5 Polyfill</h2>
 <p>Bundled together; nearly every page I create needs at least some of these.
-<p><a href="polyfill.js">script</a> - <a href="polyfill.html">unit tests</a>
+<p><a target="_other" href="polyfill.js">script</a> - <a target="_other" href="polyfill.html">unit tests</a>
 <ul>
-  <li><a href="http://www.w3.org/TR/XMLHttpRequest/"><code>XMLHttpRequest</code></a> (polyfill for IE6-)
-  <li><a href="http://www.w3.org/TR/selectors-api/">Selector API</a> (polyfill for IE7-) - adapted from <a href="http://ajaxian.com/archives/creating-a-queryselector-for-ie-that-runs-at-native-speed">Paul Young</a>
+  <li><a target="_other" href="http://www.w3.org/TR/XMLHttpRequest/"><code>XMLHttpRequest</code></a> (shim for IE6-)
+  <li><a target="_other" href="http://www.w3.org/TR/selectors-api/">Selector API</a> (shim for IE7-) - adapted from <a target="_other" href="http://ajaxian.com/archives/creating-a-queryselector-for-ie-that-runs-at-native-speed">Paul Young</a>
     <ul>
       <li><code><var>element</var> = document.querySelector(<var>selector</var>)</code>
       <li><code><var>elementArray</var> = document.querySelectorAll(<var>selector</var>)</code>
     </ul>
-  <li><a href="http://www.w3.org/TR/DOM-Level-2-Events/">DOM Level 2 Events</a> (shim for IE8-) - adapted from <a href="http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html">QuirksMode</a>
+  <li><a target="_other" href="http://www.w3.org/TR/DOM-Level-2-Events/">DOM Level 2 Events</a> (helper) - adapted from <a target="_other" href="http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html">QuirksMode</a>
     <ul>
       <li><code>window.addEvent(<var>element</var>, <var>event</var>, <var>handler</var>)</code>
       <li><code>window.removeEvent(<var>element</var>, <var>event</var>, <var>handler</var>)</code>
     </ul>
-  <li><a href="http://www.w3.org/TR/html5/dom.html">HTML5 DOM</a>
+  <li><a target="_other" href="http://www.w3.org/TR/html5/dom.html">HTML5 DOM</a> (shim)
     <ul>
       <li><code>document.head</code></a>
-      <li><code><var>document</var> = document.implementation.createHTMLDocument(<var>title</var>)</code>
       <li><code><var>elementArray</var> = document.getElementsByClassName(<var>classNames</var>)</code>
     </ul>
-  <li><a href="http://www.w3.org/TR/html5/webappapis.html#atob">HTML5 Web Application APIs</a> (polyfill for IE9-)
+  <li><a target="_other" href="http://www.w3.org/TR/html5/webappapis.html#atob">HTML5 Web Application APIs</a> (shim for IE9-)
     <ul>
       <li><code><var>encodedString</var> = window.btoa(<var>binaryString</var>)</code> - Base64 Encode
       <li><code><var>binaryString</var> = window.atob(<var>encodedString</var>)</code> - Base64 Decode
     </ul>
-  <li><a href="http://www.w3.org/TR/html5/common-dom-interfaces.html#domtokenlist">HTML5 Infrastructure</a> -
-      <a href="http://www.w3.org/TR/html5/elements.html#dom-classlist">classList</a>,
-      <a href="http://www.w3.org/TR/html5/semantics.html#dom-link-rellist">relList</a> (shim)
+  <li><a target="_other" href="http://www.w3.org/TR/html5/common-dom-interfaces.html#domtokenlist">HTML5 Infrastructure</a> -
+      <a target="_other" href="http://www.w3.org/TR/html5/elements.html#dom-classlist">classList</a>,
+      <a target="_other" href="http://www.w3.org/TR/html5/semantics.html#dom-link-rellist">relList</a> (shim)
     <ul>
       <li><code><var>tokenList</var> = window.getClassList(<var>element</var>)</code>
       <li><code><var>tokenList</var> = window.getRelList(<var>element</var>)</code>
@@ -72,16 +70,16 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
       <li><code><var>tokenList</var>.remove(<var>token</var>)</code>
       <li><code><var>tokenList</var>.toggle(<var>token</var>)</code>
     </ul>
-  <li><a href="https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html">Efficient Script Yielding</a> ABANDONED DRAFT (polyfill)
+  <li><a target="_other" href="https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html">Efficient Script Yielding</a> ABANDONED DRAFT (shim)
     <ul>
       <li><code><var>id</var> = setImmediate</code>
       <li><code>clearImmediate(<var>id</var>)</code>
     </ul>
-  <li><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String">JavaScript 1.X String Extras</a> (polyfill)
+  <li><a target="_other" href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String">JavaScript 1.X String Extras</a> (shim)
     <ul>
       <li>String prototype: <code>trimLeft</code>, <code>trimRight</code>, <code>quote</code>
     </ul>
-  <li><a href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMAScript 5</a> Object, Function, String and Date extras (polyfill)
+  <li><a target="_other" href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMAScript 5</a> Object, Function, String and Date extras (shim)
     <ul>
       <li>Object: <code>getPrototypeOf</code>, <code>getOwnPropertyNames</code>, <code>create</code>, <code>defineProperty</code>, <code>defineProperties</code>, <code>keys</code>
       <li>Function prototype: <code>bind</code>
@@ -94,10 +92,10 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
 </ul>
 
 <h2 id="harmony">ECMAScript 6 / "Harmony" (polyfill)</h2>
-<p>"Harmony" is the aspirational term for future iterations of ECMAScript (the standardized version of JavaScript). The standardization of ES6 is currently in progress.
-<p><a href="harmony.js">script</a> - <a href="harmony.html">unit tests</a> - <a href="http://wiki.ecmascript.org/doku.php?id=harmony:proposals">wiki</a>
+<p>"Harmony" is the aspirational term for future iterations of ECMAScript (the standardized version of JavaScript). The standardization of ES6 is currently in progress. This will attempt to track the evolving spec, so may change at any time.
+<p><a target="_other" href="harmony.js">script</a> - <a target="_other" href="harmony.html">unit tests</a> - <a target="_other" href="http://wiki.ecmascript.org/doku.php?id=harmony:proposals">wiki</a>
 <ul>
-  <li>In the <a href="http://wiki.ecmascript.org/doku.php?id=harmony:drafts">ES6 Drafts</a>:
+  <li>In the <a target="_other" href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6 Drafts</a>:
     <ul>
       <li>Object:
         <code>is</code> (as function, not operator),
@@ -118,8 +116,7 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
         <code>repeat</code>,
         <code>startsWith</code>,
         <code>endsWith</code>,
-        <code>contains</code>,
-        <code>toArray</code>
+        <code>contains</code>
       <li>Math:
         <code>log10</code>,
         <code>log2</code>,
@@ -147,13 +144,13 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
     <ul>
       <li>Number: <code>compare</code>
       <li>Array prototype: <code>pushAll</code>, <code>contains</code>
-      <li>String: <code>fromCodePoint</code> (from <a href="http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html">Supplementary Characters for ECMAScript proposal</a>)
-      <li>String.prototype: <code>codePointAt</code> (from <a href="http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html">Supplementary Characters for ECMAScript proposal</a>)
+      <li>String: <code>fromCodePoint</code> (from <a target="_other" href="http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html">Supplementary Characters for ECMAScript proposal</a>)
+      <li>String.prototype: <code>codePointAt</code> (from <a target="_other" href="http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html">Supplementary Characters for ECMAScript proposal</a>)
     </ul>
 </ul>
 
-<h2 id="url">W3C URL API (polyfill)</h2>
-<p><a href="url.js">script</a> - <a href="url.html">unit tests</a> - <a href="http://dvcs.w3.org/hg/url/raw-file/tip/Overview.html">draft spec</a> - <em>See script for cross-browser quirks</em>
+<h2 id="url">W3C URL API (shim)</h2>
+<p><a target="_other" href="url.js">script</a> - <a target="_other" href="url.html">unit tests</a> - <a target="_other" href="http://dvcs.w3.org/hg/url/raw-file/tip/Overview.html">draft spec</a> - <em>See script for cross-browser quirks</em>
 <ul>
 <li><code><var>url</var> = new URL(<var>url</var>, <var>base</var>)</code>
 <li><code><var>value</var> = <var>url</var>.getParameter(<var>name</var>)</code>
@@ -172,8 +169,8 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
 <li><code><var>url</var>.href</code>
 </ul>
 
-<h2 id="keyboard">W3C Keyboard Events (shim)</h2>
-<p><a href="keyboard.js">script</a> - <a href="keyboard.html">interactive test</a> - <a href="http://www.w3.org/TR/DOM-Level-3-Events/">OLD spec</a>
+<h2 id="keyboard">W3C Keyboard Events (helper)</h2>
+<p><a target="_other" href="keyboard.js">script</a> - <a target="_other" href="keyboard.html">interactive test</a> - <a target="_other" href="http://www.w3.org/TR/DOM-Level-3-Events/">OLD spec</a>
 <ul>
 <li><code>window.identifyKey(<var>keyboardEvent</var>)</code>
 <li><code><var>keyboardEvent</var>.keyName</code>
@@ -182,15 +179,15 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
 <li><code><var>keyboardEvent</var>.keyChar</code>
 </ul>
 
-<h2 id="timing">W3C Timing control for script-based animations (polyfill)</h2>
-<p><a href="raf.js">script</a> - <a href="raf.html">demo page</a> - <a href="http://www.w3.org/TR/animation-timing/">spec</a>
+<h2 id="timing">W3C Timing control for script-based animations (shim)</h2>
+<p><a target="_other" href="raf.js">script</a> - <a target="_other" href="raf.html">demo page</a> - <a target="_other" href="http://www.w3.org/TR/animation-timing/">spec</a>
 <ul>
 <li><code><var>id</var> = window.requestAnimationFrame()</code>
 <li><code>window.cancelAnimationFrame(<var>id</var>)</code>
 </ul>
 
-<h2 id="storage">W3C Web Storage (polyfill)</h2>
-<p><a href="storage.js">script</a> - <a href="http://dev.w3.org/html5/webstorage/">spec</a> - adapted from <a href="https://gist.github.com/350433">Remy Sharp</a>
+<h2 id="storage">W3C Web Storage (shim)</h2>
+<p><a target="_other" href="storage.js">script</a> - <a target="_other" href="http://dev.w3.org/html5/webstorage/">spec</a> - adapted from <a target="_other" href="https://gist.github.com/350433">Remy Sharp</a>
 <ul>
 <li><code><var>storage</var> = window.localStorage</code>
 <li><code><var>storage</var> = window.sessionStorage</code>
@@ -202,19 +199,19 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
 <li><code><var>storage</var>.length</code>
 </ul>
 
-<h2 id="geo">W3C Geolocation API (Level 1) (polyfill)</h2>
-<p><a href="geo.js">script</a> - <a href="geo.html">demo page</a> - <a href="http://dev.w3.org/geo/api/spec-source">spec</a> - uses <a href="http://freegeoip.net">freegeoip.net</a>
+<h2 id="geo">W3C Geolocation API (Level 1) (shim)</h2>
+<p><a target="_other" href="geo.js">script</a> - <a target="_other" href="geo.html">demo page</a> - <a target="_other" href="http://dev.w3.org/geo/api/spec-source">spec</a> - uses <a target="_other" href="http://freegeoip.net">freegeoip.net</a>
 <ul>
 <li><code>navigator.geolocation.getCurrentPosition(<var>successCallback</var>, <var>errorCallback</var>, <var>options</var>)</code>
 <li><code><var>watchId</var> = navigator.geolocation.watchPosition(<var>successCallback</var>, <var>errorCallback</var>, <var>options</var>)</code>
 <li><code>navigator.geolocation.clearWatch(<var>watchId</var>)</code>
 </ul>
 
-<h2 id="workers">W3C Workers (polyfill)</h2>
-<p><a href="workers.js">script</a> - <a href="http://dev.w3.org/html5/workers/">spec</a> - <em>just for kicks; you probably don&apos;t want to use this</em>
+<h2 id="workers">W3C Workers (shim)</h2>
+<p><a target="_other" href="workers.js">script</a> - <a target="_other" href="http://dev.w3.org/html5/workers/">spec</a> - <em>just for kicks; you probably don't want to use this</em>
 
-<h2 id="cookie">Cookie API (polyfill)</h2>
-<p><a href="cookie.js">script</a> - <a href="https://docs.google.com/Doc?docid=0AZpchfQ5mBrEZGQ0cDh3YzRfMTRmdHFma21kMg&hl=en&pli=1">Adam Barth&apos;s Cookie API proposal</a> - <em>abandoned</em>
+<h2 id="cookie">Cookie API (shim)</h2>
+<p><a target="_other" href="cookie.js">script</a> - <a target="_other" href="https://docs.google.com/Doc?docid=0AZpchfQ5mBrEZGQ0cDh3YzRfMTRmdHFma21kMg&hl=en&pli=1">Adam Barth's Cookie API proposal</a> - <em>abandoned</em>
 <ul>
 <li><code><var>cookie</var> = document.getCookie(<var>name</var>, <var>callback</var>)</code>
 <li><code><var>cookieArray</var> = document.getAllCookies(<var>callback</var>)</code>
@@ -224,8 +221,8 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
 <li><code><var>cookie</var>.value</code>
 </ul>
 
-<h2 id="console">Console (polyfill)</h2>
-<p><a href="console.js">script</a> - <a href="console.html">unit tests</a> - <em>de facto</em> standard in modern browsers
+<h2 id="console">Console (shim)</h2>
+<p><a target="_other" href="console.js">script</a> - <a target="_other" href="console.html">unit tests</a> - <em>de facto</em> standard in modern browsers
 <ul>
 <li><code>console.log(<var>messageObject</var>, <var>arguments...</var>)</code>, and variations: <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>
 <li><code>console.assert(<var>assertion</var>, <var>messageObject</var>, <var>arguments...</var>)</code>
@@ -237,18 +234,18 @@ A more comprehensive list can be found at <a href="https://github.com/Modernizr/
 </ul>
 
 <h2 id="sprintf">sprintf (other)</h2>
-<p><a href="sprintf.js">script</a> - <a href="sprintf.html">unit tests</a> - <em>used for a few C-to-JavaScript porting projects</em>
+<p><a target="_other" href="sprintf.js">script</a> - <a target="_other" href="sprintf.html">unit tests</a> - <em>used for a few C-to-JavaScript porting projects</em>
 
 <h2 id="typedarray">Khronos Typed Arrays (polyfill)</h2>
-<p><a href="typedarray.js">script</a> - <a href="typedarray.html">unit tests</a> - <a href="http://www.khronos.org/registry/typedarray/specs/latest/">spec</a> - Copyright &copy; 2010 Linden Research, Inc. - MIT License. <a href="https://bitbucket.org/lindenlab/llsd/">original</a> - <em>At my previous place of employment I was doing work on binary file serialization/parsing in JavaScript and Typed Arrays were an appropriate fit, but had not yet been widely implemented.</em> - the <code>DataView</code> implementation will also polyfill an otherwise native implementation, if necessary
+<p><a target="_other" href="typedarray.js">script</a> - <a target="_other" href="typedarray.html">unit tests</a> - <a target="_other" href="http://www.khronos.org/registry/typedarray/specs/latest/">spec</a> - Copyright &copy; 2010 Linden Research, Inc. - MIT License. <a target="_other" href="https://bitbucket.org/lindenlab/llsd/">original</a> - <em>At my previous place of employment I was doing work on binary file serialization/parsing in JavaScript and Typed Arrays were an appropriate fit, but had not yet been widely implemented.</em> - the <code>DataView</code> implementation will also polyfill an otherwise native implementation, if necessary.
 <ul>
 <li><code>ArrayBuffer</code>
 <li><code>Uint8Array</code>, <code>Int8Array</code>, <code>Uint16Array</code>, <code>Int16Array</code>, <code>Uint32Array</code>, <code>Int32Array</code>, <code>Float32Array</code>, <code>Float64Array</code>
 <li><code>DataView</code>
 </ul>
 
-<h2 id="domexception">DOMException (shim)</h2>
-<p><a href="domexception.js">script</a> - <a href="domexception.html">demo page</a> - creates a native DOMException of the specified type if possible, otherwise a similar looking object. Useful when implementing other polyfills.
+<h2 id="domexception">DOMException (helper)</h2>
+<p><a target="_other" href="domexception.js">script</a> - <a target="_other" href="domexception.html">demo page</a> - creates a native DOMException of the specified type if possible, otherwise a similar looking object. Useful when implementing other polyfills.
 <ul>
 <li><code><var>exception</var> = DOMException.create(<var>code</var>)</code>
 </ul>

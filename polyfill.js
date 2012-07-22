@@ -699,31 +699,6 @@ if ('window' in this && 'document' in this) {
   window.DOMException.NAMESPACE_ERR = 14;
   window.DOMException.INVALID_ACCESS_ERR = 15;
 
-  if (!document.implementation) {
-    document.implementation = {};
-  }
-  if (!document.implementation.createHTMLDocument) {
-    document.implementation.createHTMLDocument = function (title) {
-      var doc, elem;
-      if (document.implementation.createDocument) {
-        doc = document.implementation.createDocument('http://www.w3.org/1999/xhtml', 'html', null);
-      } else if (window.ActiveXObject) {
-        doc = window.ActiveXObject("htmlfile");
-        doc.close();
-      } else {
-        throw new Error("createHTMLDocument not supported");
-      }
-      doc.head = doc.createElement('head');
-      doc.documentElement.appendChild(doc.head);
-      doc.body = doc.createElement('body');
-      doc.documentElement.appendChild(doc.body);
-      elem = doc.createElement('title');
-      elem.appendChild(doc.createTextNode(title));
-      doc.head.appendChild(elem);
-      return doc;
-    };
-  }
-
   //----------------------------------------------------------------------
   //
   // Events

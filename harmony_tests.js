@@ -317,10 +317,6 @@ test("Approved String extras", function () {
   assertTrue("'abcdef'.contains('bcd')");
   assertFalse("'abcdef'.contains('mno')");
   assertTrue("'abcdef'.contains('')");
-
-  // String.prototype.toArray
-  deepEqual(''.toArray(), []);
-  deepEqual('abcdef'.toArray(), ['a', 'b', 'c', 'd', 'e', 'f']);
 });
 
 test("Approved Array extras", function () {
@@ -350,8 +346,8 @@ test("Approved Array extras", function () {
 
 test("Identity Testing", function () {
 
-  window.testobj1 = {};
-  window.testobj2 = {};
+  testobj1 = {};
+  testobj2 = {};
 
   var examples = [
     "(void 0)",
@@ -387,34 +383,37 @@ test("Identity Testing", function () {
     }
   }
 
-  delete window.testobj1;
-  delete window.testobj2;
+  delete testobj1;
+  delete testobj2;
 
+  // Removed from latest ES6 drafts
   // Object.isObject
-  assertEqual("typeof Object.isObject", "function");
-  assertEqual("Object.isObject.length", 1);
-  assertTrue("Object.isObject({})");
-  assertTrue("Object.isObject([])");
-  assertTrue("Object.isObject(/(?:)/)");
-  assertTrue("Object.isObject(function () {})");
-  assertTrue("Object.isObject(new Object)");
-  assertTrue("Object.isObject(new Array)");
-  assertTrue("Object.isObject(new RegExp)");
-  assertTrue("Object.isObject(new Date)");
-  assertTrue("Object.isObject(new Number(1))");
-  assertTrue("Object.isObject(new String('a'))");
-  assertTrue("Object.isObject(new Boolean(true))");
-  assertTrue("Object.isObject(new Function())");
-  assertTrue("Object.isObject(Object)");
-  assertTrue("Object.isObject(Math)");
-  assertTrue("Object.isObject(JSON)");
-  assertFalse("Object.isObject(null)");
-  assertFalse("Object.isObject(undefined)");
-  assertFalse("Object.isObject()");
-  assertFalse("Object.isObject(1)");
-  assertFalse("Object.isObject('a')");
-  assertFalse("Object.isObject(true)");
-  assertFalse("Object.isObject(false)");
+  if (false) {
+    assertEqual("typeof Object.isObject", "function");
+    assertEqual("Object.isObject.length", 1);
+    assertTrue("Object.isObject({})");
+    assertTrue("Object.isObject([])");
+    assertTrue("Object.isObject(/(?:)/)");
+    assertTrue("Object.isObject(function () {})");
+    assertTrue("Object.isObject(new Object)");
+    assertTrue("Object.isObject(new Array)");
+    assertTrue("Object.isObject(new RegExp)");
+    assertTrue("Object.isObject(new Date)");
+    assertTrue("Object.isObject(new Number(1))");
+    assertTrue("Object.isObject(new String('a'))");
+    assertTrue("Object.isObject(new Boolean(true))");
+    assertTrue("Object.isObject(new Function())");
+    assertTrue("Object.isObject(Object)");
+    assertTrue("Object.isObject(Math)");
+    assertTrue("Object.isObject(JSON)");
+    assertFalse("Object.isObject(null)");
+    assertFalse("Object.isObject(undefined)");
+    assertFalse("Object.isObject()");
+    assertFalse("Object.isObject(1)");
+    assertFalse("Object.isObject('a')");
+    assertFalse("Object.isObject(true)");
+    assertFalse("Object.isObject(false)");
+  }
 });
 
 test("Simple Maps and Sets", 15, function () {
