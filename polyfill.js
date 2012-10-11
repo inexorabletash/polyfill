@@ -752,7 +752,15 @@ if ('window' in this && 'document' in this) {
     function DOMTokenListShim(o, p) {
       function split(s) { return s.length ? s.split(/\s+/g) : []; }
 
-      // TODO: Methods support multiple split (proposed spec change)
+      // NOTE: This does not exactly match the spec.
+      function removeTokenFromString(token, string) {
+        var tokens = split(string),
+            index = tokens.indexOf(token);
+        if (index !== -1) {
+          tokens.splice(index, 1);
+        }
+        return tokens.join(' ');
+      }
 
       Object.defineProperties(
         this,
@@ -773,61 +781,92 @@ if ('window' in this && 'document' in this) {
               token = String(token);
               if (token.length === 0) { throw new SyntaxError(); }
               if (/\s/.test(token)) { throw new Error("InvalidCharacterError"); }
-              var tokens = split(o[p]),
-                  index = tokens.indexOf(token);
+              var tokens = split(o[p]);
 
-              return index !== -1;
+              return tokens.indexOf(token) !== -1;
             }
           },
 
           add: {
-            value: function (token) {
-              token = String(token);
-              if (token.length === 0) { throw new SyntaxError(); }
-              if (/\s/.test(token)) { throw new Error("InvalidCharacterError"); }
-              var tokens = split(o[p]),
-                  index = tokens.indexOf(token);
+            value: function (tokens___) {
+              tokens = Array.prototype.slice.call(arguments).map(String);
+              if (tokens.some(function(token) { return token.length === 0; })) {
+                throw new SyntaxError();
+              }
+              if (tokens.some(function(token) { return /\s/.test(token); })) {
+                throw new Error("InvalidCharacterError");
+              }
 
-              if (index !== -1) { return; }
-
-              tokens.push(token);
-              o[p] = tokens.join(' ');
-              if (this.length !== tokens.length) { this.length = tokens.length; }
+              try {
+                var underlying_string = o[p];
+                var token_list = split(underlying_string);
+                tokens = tokens.filter(function(token) { return token_list.indexOf(token) === -1; });
+                if (tokens.length === 0) {
+                  return;
+                }
+                if (underlying_string.length !== 0 && !/\s$/.test(underlying_string)) {
+                  underlying_string += ' ';
+                }
+                underlying_string += tokens.join(' ');
+                o[p] = underlying_string;
+              } finally {
+                var length = split(o[p]).length;
+                if (this.length !== length) { this.length = length; }
+              }
             }
           },
 
           remove: {
-            value: function (token) {
-              token = String(token);
-              if (token.length === 0) { throw new SyntaxError(); }
-              if (/\s/.test(token)) { throw new Error("InvalidCharacterError"); }
-              var tokens = split(o[p]),
-                  index = tokens.indexOf(token);
+            value: function (tokens___) {
+              tokens = Array.prototype.slice.call(arguments).map(String);
+              if (tokens.some(function(token) { return token.length === 0; })) {
+                throw new SyntaxError();
+              }
+              if (tokens.some(function(token) { return /\s/.test(token); })) {
+                throw new Error("InvalidCharacterError");
+              }
 
-              if (index === -1) { return; }
 
-              tokens.splice(index, 1);
-              o[p] = tokens.join(' ');
-              if (this.length !== tokens.length) { this.length = tokens.length; }
+              try {
+                var underlying_string = o[p];
+                tokens.forEach(function(token) {
+                  underlying_string = removeTokenFromString(token, underlying_string);
+                });
+                o[p] = underlying_string;
+              } finally {
+                var length = split(o[p]).length;
+                if (this.length !== length) { this.length = length; }
+              }
             }
           },
 
           toggle: {
-            value: function (token) {
-              token = String(token);
-              if (token.length === 0) { throw new SyntaxError(); }
-              if (/\s/.test(token)) { throw new Error("InvalidCharacterError"); }
-              var tokens = split(o[p]),
-                  index = tokens.indexOf(token);
+            value: function (token, force) {
+              try {
+                token = String(token);
+                if (token.length === 0) { throw new SyntaxError(); }
+                if (/\s/.test(token)) { throw new Error("InvalidCharacterError"); }
+                var tokens = split(o[p]),
+                    index = tokens.indexOf(token);
 
-              if (index === -1) {
-                tokens.push(token);
-                o[p] = tokens.join(' ');
-              } else {
-                tokens.splice(index, 1);
-                o[p] = tokens.join(' ');
+                if (index !== -1 && (!force || force === (void 0))) {
+                  o[p] = removeTokenFromString(token, o[p]);
+                  return false;
+                }
+                if (index !== -1 && force) {
+                  return true;
+                }
+                var underlying_string = o[p];
+                if (underlying_string.length !== 0 && !/\s$/.test(underlying_string)) {
+                  underlying_string += ' ';
+                }
+                underlying_string += token;
+                o[p] = underlying_string;
+                return true;
+              } finally {
+                var length = split(o[p]).length;
+                if (this.length !== length) { this.length = length; }
               }
-              if (this.length !== tokens.length) { this.length = tokens.length; }
             }
           },
 
