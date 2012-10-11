@@ -88,7 +88,7 @@
           cbname = '_geoip_callback_' + Math.floor(Math.random() * (1<<30));
       function cleanup() {
         if (script.parentNode) { script.parentNode.removeChild(script); }
-        delete window[cbname];
+        try { delete window[cbname]; } catch (ex) { window[cbname] = (void 0); /*IE8-*/ }
       }
       window[cbname] = function (data) {
         cleanup();
