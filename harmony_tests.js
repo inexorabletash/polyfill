@@ -416,12 +416,13 @@ test("Identity Testing", function () {
   }
 });
 
-test("Simple Maps and Sets", 15, function () {
+test("Simple Maps and Sets", 23, function () {
 
   map = new Map();
   assertFalse("map.has(-0)");
   assertFalse("map.has(0)");
   map.set(0, 1234);
+  assertEqual("map.size", 1);
   assertFalse("map.has(-0)");
   assertTrue("map.has(0)");
   assertEqual("map.get(0)", 1234);
@@ -431,6 +432,22 @@ test("Simple Maps and Sets", 15, function () {
   map.set(0, 1234);
   map.clear();
   assertFalse("map.has(0)");
+  assertEqual("map.size", 0);
+
+  var data = [[1, 2], [3, 4]];
+  map = new Map(data);
+  var count = 0;
+  map.forEach(function(k, v, m) {
+    assertEqual("map", m);
+    self.k = k;
+    self.v = v;
+    assertEqual("k", data[count][0]);
+    assertEqual("v", data[count][1]);
+    ++count;
+    delete self.k;
+    delete self.v;
+  });
+
   delete map;
 
   set = new Set();

@@ -778,11 +778,11 @@
   /** @constructor */
   global.Map = global.Map || function Map(iterable) {
     if (!(this instanceof Map)) { return new Map(iterable); }
-    var keys = [], vals = [];
-    function indexOfIdentical(keys, key) {
+    var mapData = [];
+    function indexOf(key) {
       var i;
-      for (i = 0; i < keys.length; i += 1) {
-        if (ECMAScript.SameValue(keys[i], key)) { return i; }
+      for (i = 0; i < mapData.length; i += 1) {
+        if (ECMAScript.SameValue(mapData[i].key, key)) { return i; }
       }
       return -1;
     }
@@ -791,13 +791,13 @@
       {
         'size': {
           get: function() {
-            return keys.length;
+            return mapData.length;
           }
         },
         'get': {
           value: function get(key) {
-            var i = indexOfIdentical(keys, key);
-            return i < 0 ? undefined : vals[i];
+            var i = indexOf(key);
+            return i < 0 ? undefined : mapData[i].value;
           },
           configurable: true,
           enumerable: false,
@@ -805,7 +805,7 @@
         },
         'has': {
           value: function has(key) {
-            return indexOfIdentical(keys, key) >= 0;
+            return indexOf(key) >= 0;
           },
           configurable: true,
           enumerable: false,
@@ -813,10 +813,9 @@
         },
         'set': {
           value: function set(key, val) {
-            var i = indexOfIdentical(keys, key);
-            if (i < 0) { i = keys.length; }
-            keys[i] = key;
-            vals[i] = val;
+            var i = indexOf(key);
+            if (i < 0) { i = mapData.length; }
+            mapData[i] = {key: key, value: val};
           },
           configurable: true,
           enumerable: false,
@@ -824,10 +823,9 @@
         },
         'delete': {
           value: function deleteFunction(key) {
-            var i = indexOfIdentical(keys, key);
+            var i = indexOf(key);
             if (i < 0) { return false; }
-            keys.splice(i, 1);
-            vals.splice(i, 1);
+            mapData.splice(i, 1);
             return true;
           },
           configurable: true,
@@ -836,8 +834,45 @@
         },
         'clear': {
           value: function clear() {
-            keys.length = 0;
-            vals.length = 0;
+            mapData.length = 0;
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        },
+        'forEach': {
+          value: function forEach(callbackfn, thisArg) {
+            var m = Object(this);
+            if (!ECMAScript.IsCallable(callbackfn)) {
+              throw new TypeError("First argument to forEach is not callable.");
+            }
+            mapData.forEach(function(e) {
+              callbackfn.call(thisArg, e.key, e.value, m);
+            });
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        },
+        'items': {
+          value: function items() {
+            return CreateMapIterator(Object(this), "key+value");
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        },
+        'keys': {
+          value: function items() {
+            return CreateMapIterator(Object(this), "key");
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        },
+        'values': {
+          value: function items() {
+            return CreateMapIterator(Object(this), "value");
           },
           configurable: true,
           enumerable: false,
@@ -845,6 +880,19 @@
         }
       }
     );
+
+    // TODO: Proper iterator
+    function CreateMapIterator(map, kind) {
+      var result = [];
+      map.forEach(function(k, v) {
+        switch (kind) {
+        case "key": result.push(k); return;
+        case "value": result.push(v); return;
+        case "key+value": result.push([k, v]); return;
+        }
+      });
+      return result;
+    }
 
     if (iterable) {
       iterable = Object(iterable);
