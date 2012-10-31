@@ -776,8 +776,8 @@
   //----------------------------------------
 
   /** @constructor */
-  global.Map = global.Map || function Map() {
-    if (!(this instanceof Map)) { return new Map(); }
+  global.Map = global.Map || function Map(iterable) {
+    if (!(this instanceof Map)) { return new Map(iterable); }
     var keys = [], vals = [];
     function indexOfIdentical(keys, key) {
       var i;
@@ -789,6 +789,11 @@
     Object.defineProperties(
       this,
       {
+        'size': {
+          get: function() {
+            return keys.length;
+          }
+        },
         'get': {
           value: function get(key) {
             var i = indexOfIdentical(keys, key);
@@ -840,17 +845,34 @@
         }
       }
     );
+
+    if (iterable) {
+      iterable = Object(iterable);
+      for (var i = 0; i < iterable.length; i += 1) {
+        var o = iterable[i];
+        if (o) {
+          o = Object(o);
+          this.set(o[0], o[1]);
+        }
+      }
+    }
+
     return this;
   };
 
   /** @constructor */
-  global.Set = global.Set || function Set() {
-    if (!(this instanceof Set)) { return new Set(); }
+  global.Set = global.Set || function Set(iterable) {
+    if (!(this instanceof Set)) { return new Set(iterable); }
     var map = new global.Map();
 
     Object.defineProperties(
       this,
       {
+        'size': {
+          get: function() {
+            return map.size;
+          }
+        },
         'has': {
           value: function has(key) { return map.has(key); },
           configurable: true,
@@ -878,6 +900,14 @@
         }
       }
     );
+
+    if (iterable) {
+      iterable = Object(iterable);
+      for (var i = 0; i < iterable.length; i += 1) {
+        this.add(iterable[i]);
+      }
+    }
+
     return this;
   };
 
