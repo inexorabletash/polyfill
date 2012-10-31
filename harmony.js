@@ -982,21 +982,23 @@
     Object.defineProperties(
       this,
       {
-        'get': {
-          value: function get(key, defaultValue) {
+        'delete': {
+          value: function deleteFunction(key) {
             key = Object(key);
             var secrets = reveal(key);
-            return (secrets && ECMAScript.HasOwnProperty(secrets, 'value')) ? secrets.value : defaultValue;
+            if (secrets) {
+              delete secrets.value;
+            }
           },
           configurable: true,
           enumerable: false,
           writable: true
         },
-        'set': {
-          value: function set(key, value) {
+        'get': {
+          value: function get(key, defaultValue) {
             key = Object(key);
-            var secrets = reveal(key) || conceal(key);
-            secrets.value = value;
+            var secrets = reveal(key);
+            return (secrets && ECMAScript.HasOwnProperty(secrets, 'value')) ? secrets.value : defaultValue;
           },
           configurable: true,
           enumerable: false,
@@ -1012,13 +1014,11 @@
           enumerable: false,
           writable: true
         },
-        'delete': {
-          value: function deleteFunction(key) {
+        'set': {
+          value: function set(key, value) {
             key = Object(key);
-            var secrets = reveal(key);
-            if (secrets) {
-              delete secrets.value;
-            }
+            var secrets = reveal(key) || conceal(key);
+            secrets.value = value;
           },
           configurable: true,
           enumerable: false,
