@@ -97,6 +97,26 @@
     );
   }
 
+  if (!Object.assign) {
+    Object.defineProperty(
+      Object,
+      'assign',
+      {
+        value: function assign(target, source) {
+          target = Object(target);
+          source = Object(source);
+          Object.keys(source).forEach(function(key) {
+            target[key] = source[key];
+          });
+          return target;
+        },
+        configurable: true,
+        enumerable: false,
+        writable: true
+      }
+    );
+  }
+
   // Removed from latest ES6 drafts
   if (false && !Object.isObject) {
     Object.defineProperty(
@@ -770,6 +790,14 @@
     );
   }
 
+  //----------------------------------------
+  // Properties of the Array Prototype Object
+  //----------------------------------------
+
+  // TODO: Implement
+  if (!Array.prototype.items) {}
+  if (!Array.prototype.keys) {}
+  if (!Array.prototype.values) {}
 
   //----------------------------------------
   // Collections: Maps, Sets, and WeakMaps
@@ -809,7 +837,8 @@
           writable: true
         },
         'forEach': {
-          value: function forEach(callbackfn, thisArg) {
+          value: function forEach(callbackfn /*, thisArg*/) {
+            var thisArg = arguments[1];
             var m = Object(this);
             if (!ECMAScript.IsCallable(callbackfn)) {
               throw new TypeError("First argument to forEach is not callable.");
@@ -848,7 +877,7 @@
           writable: true
         },
         'keys': {
-          value: function items() {
+          value: function keys() {
             return CreateMapIterator(Object(this), "key");
           },
           configurable: true,
@@ -871,7 +900,7 @@
           }
         },
         'values': {
-          value: function items() {
+          value: function values() {
             return CreateMapIterator(Object(this), "value");
           },
           configurable: true,
@@ -916,10 +945,38 @@
     Object.defineProperties(
       this,
       {
-        'size': {
-          get: function() {
-            return map.size;
-          }
+        'add': {
+          value: function add(key) { map.set(key, true); },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        },
+        'clear': {
+          value: function clear() { map.clear(); },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        },
+        'delete': {
+          value: function deleteFunction(key) { return map['delete'](key); },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        },
+        'forEach': {
+          value: function forEach(callbackfn/*, thisArg*/) {
+            var thisArg = arguments[1];
+            var s = Object(this);
+            if (!ECMAScript.IsCallable(callbackfn)) {
+              throw new TypeError("First argument to forEach is not callable.");
+            }
+            map.forEach(function(k, v) {
+              callbackfn.call(thisArg, k, s);
+            });
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
         },
         'has': {
           value: function has(key) { return map.has(key); },
@@ -927,21 +984,15 @@
           enumerable: false,
           writable: true
         },
-        'add': {
-          value: function add(key) { map.set(key, true); },
-          configurable: true,
-          enumerable: false,
-          writable: true
+        'size': {
+          get: function() {
+            return map.size;
+          }
         },
-        'delete': {
-          // es-discuss is waffling on remove vs. delete
-          value: function remove(key) { return map['delete'](key); },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        },
-        'clear': {
-          value: function clear() { map.clear(); },
+        'values': {
+          value: function values() {
+            return map.values();
+          },
           configurable: true,
           enumerable: false,
           writable: true

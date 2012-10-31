@@ -416,7 +416,7 @@ test("Identity Testing", function () {
   }
 });
 
-test("Simple Maps and Sets", 23, function () {
+test("Map", 16, function () {
 
   map = new Map();
   assertFalse("map.has(-0)");
@@ -434,9 +434,8 @@ test("Simple Maps and Sets", 23, function () {
   assertFalse("map.has(0)");
   assertEqual("map.size", 0);
 
-  var data = [[1, 2], [3, 4]];
+  var data = [[1, 2], [3, 4]], count = 0;
   map = new Map(data);
-  var count = 0;
   map.forEach(function(k, v, m) {
     assertEqual("map", m);
     self.k = k;
@@ -450,6 +449,9 @@ test("Simple Maps and Sets", 23, function () {
 
   delete map;
 
+});
+
+test("Set", 13, function () {
   set = new Set();
   assertFalse("set.has(-0)");
   assertFalse("set.has(0)");
@@ -462,6 +464,17 @@ test("Simple Maps and Sets", 23, function () {
   set.add(0);
   set.clear();
   assertFalse("set.has(0)");
+
+  var data = [1, 2, 3], count = 0;
+  set = new Set(data);
+  set.forEach(function(i, s) {
+    assertEqual("set", s);
+    self.i = i;
+    assertEqual("i", data[count]);
+    delete self.i;
+    ++count;
+  });
+
   delete set;
 });
 
