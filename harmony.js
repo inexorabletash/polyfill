@@ -806,20 +806,26 @@
   /** @constructor */
   global.Map = global.Map || function Map(iterable) {
     if (!(this instanceof Map)) { return new Map(iterable); }
-    var mapData = [];
+    var mapData = { keys: [], values: [] };
     function indexOf(key) {
       var i;
-      for (i = 0; i < mapData.length; i += 1) {
-        if (ECMAScript.SameValue(mapData[i].key, key)) { return i; }
+      // Slow case for NaN/+0/-0
+      if (key !== key || key === 0) {
+        for (i = 0; i < mapData.keys.length; i += 1) {
+          if (ECMAScript.SameValue(mapData.keys[i], key)) { return i; }
+        }
+        return -1;
       }
-      return -1;
+      // Fast case
+      return mapData.keys.indexOf(key);
     }
     Object.defineProperties(
       this,
       {
         'clear': {
           value: function clear() {
-            mapData.length = 0;
+            mapData.keys.length = 0;
+            mapData.values.length = 0;
           },
           configurable: true,
           enumerable: false,
@@ -829,7 +835,8 @@
           value: function deleteFunction(key) {
             var i = indexOf(key);
             if (i < 0) { return false; }
-            mapData.splice(i, 1);
+            mapData.keys.splice(i, 1);
+            mapData.values.splice(i, 1);
             return true;
           },
           configurable: true,
@@ -843,9 +850,9 @@
             if (!ECMAScript.IsCallable(callbackfn)) {
               throw new TypeError("First argument to forEach is not callable.");
             }
-            mapData.forEach(function(e) {
-              callbackfn.call(thisArg, e.key, e.value, m);
-            });
+            for (var i = 0; i < mapData.keys.length; ++i) {
+              callbackfn.call(thisArg, mapData.keys[i], mapData.values[i], m);
+            }
           },
           configurable: true,
           enumerable: false,
@@ -854,7 +861,7 @@
         'get': {
           value: function get(key) {
             var i = indexOf(key);
-            return i < 0 ? undefined : mapData[i].value;
+            return i < 0 ? undefined : mapData.values[i];
           },
           configurable: true,
           enumerable: false,
@@ -887,8 +894,9 @@
         'set': {
           value: function set(key, val) {
             var i = indexOf(key);
-            if (i < 0) { i = mapData.length; }
-            mapData[i] = {key: key, value: val};
+            if (i < 0) { i = mapData.keys.length; }
+            mapData.keys[i] = key;
+            mapData.values[i] = val;
           },
           configurable: true,
           enumerable: false,
@@ -896,7 +904,7 @@
         },
         'size': {
           get: function() {
-            return mapData.length;
+            return mapData.keys.length;
           }
         },
         'values': {
