@@ -826,7 +826,6 @@ if ('window' in this && 'document' in this) {
                 throw new Error("InvalidCharacterError");
               }
 
-
               try {
                 var underlying_string = o[p];
                 tokens.forEach(function(token) {

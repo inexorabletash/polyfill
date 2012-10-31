@@ -89,6 +89,7 @@ function show(selector, e) {
         keyIdentifier: e.keyIdentifier,
         keyLocation: e.keyLocation,
         keyName: e.keyName,
+        usbUsage: e.usbUsage !== undefined ? "0x" + Number(e.usbUsage).toString(16) : undefined,
         which: e.which,
         altKey: e.altKey,
         charCode: e.charCode,
@@ -100,7 +101,12 @@ function show(selector, e) {
   while (elem.hasChildNodes()) {
     elem.removeChild(elem.firstChild);
   }
-  elem.appendChild(document.createTextNode(JSON.stringify(data)));
+  var s = Object.keys(data).filter(function(k){
+    return typeof data[k] !== 'undefined';
+  }).map(function(k){
+    return k + ": " + data[k];
+  }).join(", ");
+  elem.appendChild(document.createTextNode(s));
 }
 
 addEvent(target, 'keydown',

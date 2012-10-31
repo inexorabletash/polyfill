@@ -202,8 +202,11 @@
 <input id="target" style="width: 1px; height: 1px; border: none; position: absolute; xleft: -1000px; xtop: -1000px;"/>
 
 <br clear=all>
-<div>Raw Event: <span id="eventdata"></span></div>
-<div>Augmented Event: <span id="identifydata"></span></div>
+<style>
+.event { border: 1px solid black; margin: 10px; padding: 4px; }
+</style>
+<div class="event">Raw Event:<br><span id="eventdata"></span></div>
+<div class="event">Augmented Event:<br><span id="identifydata"></span></div>
 
 <script src="keyboard_test.js"></script>
 
