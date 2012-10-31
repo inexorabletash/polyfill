@@ -789,33 +789,9 @@
     Object.defineProperties(
       this,
       {
-        'size': {
-          get: function() {
-            return mapData.length;
-          }
-        },
-        'get': {
-          value: function get(key) {
-            var i = indexOf(key);
-            return i < 0 ? undefined : mapData[i].value;
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        },
-        'has': {
-          value: function has(key) {
-            return indexOf(key) >= 0;
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        },
-        'set': {
-          value: function set(key, val) {
-            var i = indexOf(key);
-            if (i < 0) { i = mapData.length; }
-            mapData[i] = {key: key, value: val};
+        'clear': {
+          value: function clear() {
+            mapData.length = 0;
           },
           configurable: true,
           enumerable: false,
@@ -832,14 +808,6 @@
           enumerable: false,
           writable: true
         },
-        'clear': {
-          value: function clear() {
-            mapData.length = 0;
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        },
         'forEach': {
           value: function forEach(callbackfn, thisArg) {
             var m = Object(this);
@@ -849,6 +817,23 @@
             mapData.forEach(function(e) {
               callbackfn.call(thisArg, e.key, e.value, m);
             });
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        },
+        'get': {
+          value: function get(key) {
+            var i = indexOf(key);
+            return i < 0 ? undefined : mapData[i].value;
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        },
+        'has': {
+          value: function has(key) {
+            return indexOf(key) >= 0;
           },
           configurable: true,
           enumerable: false,
@@ -869,6 +854,21 @@
           configurable: true,
           enumerable: false,
           writable: true
+        },
+        'set': {
+          value: function set(key, val) {
+            var i = indexOf(key);
+            if (i < 0) { i = mapData.length; }
+            mapData[i] = {key: key, value: val};
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        },
+        'size': {
+          get: function() {
+            return mapData.length;
+          }
         },
         'values': {
           value: function items() {
