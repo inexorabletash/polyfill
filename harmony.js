@@ -826,6 +826,7 @@
           value: function clear() {
             mapData.keys.length = 0;
             mapData.values.length = 0;
+            if (this.size !== mapData.keys.length) { this.size = mapData.keys.length; }
           },
           configurable: true,
           enumerable: false,
@@ -837,6 +838,7 @@
             if (i < 0) { return false; }
             mapData.keys.splice(i, 1);
             mapData.values.splice(i, 1);
+            if (this.size !== mapData.keys.length) { this.size = mapData.keys.length; }
             return true;
           },
           configurable: true,
@@ -897,6 +899,7 @@
             if (i < 0) { i = mapData.keys.length; }
             mapData.keys[i] = key;
             mapData.values[i] = val;
+            if (this.size !== mapData.keys.length) { this.size = mapData.keys.length; }
           },
           configurable: true,
           enumerable: false,
@@ -954,19 +957,28 @@
       this,
       {
         'add': {
-          value: function add(key) { map.set(key, true); },
+          value: function add(key) {
+            map.set(key, true);
+            if (this.size !== map.size) { this.size = map.size; }
+          },
           configurable: true,
           enumerable: false,
           writable: true
         },
         'clear': {
-          value: function clear() { map.clear(); },
+          value: function clear() {
+            map.clear();
+            if (this.size !== map.size) { this.size = map.size; }
+          },
           configurable: true,
           enumerable: false,
           writable: true
         },
         'delete': {
-          value: function deleteFunction(key) { return map['delete'](key); },
+          value: function deleteFunction(key) {
+            return map['delete'](key);
+            if (this.size !== map.size) { this.size = map.size; }
+          },
           configurable: true,
           enumerable: false,
           writable: true
@@ -987,7 +999,9 @@
           writable: true
         },
         'has': {
-          value: function has(key) { return map.has(key); },
+          value: function has(key) {
+            return map.has(key);
+          },
           configurable: true,
           enumerable: false,
           writable: true
@@ -1023,20 +1037,20 @@
   global.WeakMap = global.WeakMap || function WeakMap() {
     if (!(this instanceof WeakMap)) { return new WeakMap(); }
 
-    var unique = {};
+    var secretKey = {};
 
     function conceal(o) {
       var oValueOf = o.valueOf, secrets = {};
-      o.valueOf = (function(unique) {
+      o.valueOf = (function(secretKey) {
         return function (k) {
-          return (k === unique) ? secrets : oValueOf.apply(o, arguments);
+          return (k === secretKey) ? secrets : oValueOf.apply(o, arguments);
         };
-      }(unique));
+      }(secretKey));
       return secrets;
     }
 
     function reveal(o) {
-      var v = o.valueOf(unique);
+      var v = o.valueOf(secretKey);
       return v === o ? null : v;
     }
 
@@ -1045,7 +1059,7 @@
       {
         'clear': {
           value: function clear() {
-            unique = {};
+            secretKey = {};
           },
           configurable: true,
           enumerable: false,
