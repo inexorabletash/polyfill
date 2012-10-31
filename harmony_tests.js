@@ -522,6 +522,10 @@ test("WeakMap", function () {
   wm2.set(y, v);
   assertTrue("wm1.get(x) === wm2.get(y)");
 
+  wm1.clear();
+  assertFalse("wm1.has(x)");
+  assertTrue("wm2.has(y)");
+
   delete wm1;
   delete wm2;
   delete x;

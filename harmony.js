@@ -968,9 +968,11 @@
 
     function conceal(o) {
       var oValueOf = o.valueOf, secrets = {};
-      o.valueOf = function (k) {
-        return (k === unique) ? secrets : oValueOf.apply(o, arguments);
-      };
+      o.valueOf = (function(unique) {
+        return function (k) {
+          return (k === unique) ? secrets : oValueOf.apply(o, arguments);
+        };
+      }(unique));
       return secrets;
     }
 
@@ -982,6 +984,14 @@
     Object.defineProperties(
       this,
       {
+        'clear': {
+          value: function clear() {
+            unique = {};
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
+        },
         'delete': {
           value: function deleteFunction(key) {
             key = Object(key);
