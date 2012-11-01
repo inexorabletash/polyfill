@@ -434,14 +434,14 @@ test("Map", 16, function () {
   assertFalse("map.has(0)");
   assertEqual("map.size", 0);
 
-  var data = [[1, 2], [3, 4]], count = 0;
+  var data = ["a", "b"], expected = [["0", "a"], ["1", "b"]], count = 0;
   map = new Map(data);
   map.forEach(function(k, v, m) {
     assertEqual("map", m);
     self.k = k;
     self.v = v;
-    assertEqual("k", data[count][0]);
-    assertEqual("v", data[count][1]);
+    assertEqual("k", expected[count][0]);
+    assertEqual("v", expected[count][1]);
     ++count;
     delete self.k;
     delete self.v;

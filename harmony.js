@@ -794,10 +794,81 @@
   // Properties of the Array Prototype Object
   //----------------------------------------
 
-  // TODO: Implement
-  if (!Array.prototype.items) {}
-  if (!Array.prototype.keys) {}
-  if (!Array.prototype.values) {}
+  (function() {
+    function ArrayIterator(object, nextIndex, kind) {
+      this.iteratedObject = object;
+      this.nextIndex = nextIndex;
+      this.iterationKind = kind;
+    }
+    ArrayIterator.prototype = {
+      next: function() {
+        if (typeof this !== 'object') { throw new TypeError; }
+        var a = this.iteratedObject,
+            index = this.nextIndex,
+            itemKind = this.iterationKind,
+            lenValue = a.length,
+            len = ECMAScript.ToUint32(lenValue),
+            elementKey,
+            elementValue;
+        if (itemKind.indexOf("sparse") !== -1) {
+          var found = false;
+          while (!found && index < len) {
+            elementKey = String(index);
+            found = ECMAScript.HasProperty(a, elementKey);
+            if (!found) {
+              index += 1;
+            }
+          }
+        }
+        if (index >= len) {
+          this.nextIndex = Infinity;
+          throw global.iterator__StopIteration;
+        }
+        elementKey = String(index);
+        this.nextIndex = index + 1;
+        if (itemKind.indexOf("value") !== -1) {
+          elementValue = a[elementKey];
+        }
+        if (itemKind.indexOf("key+value") !== -1) {
+          return [elementKey, elementValue];
+        } else if (itemKind.indexOf("key") !== -1) {
+          return elementKey;
+        } else if (itemKind === "value") {
+          return elementValue;
+        }
+        throw new Error("Internal error");
+      },
+      __iterator__: function() {
+        return this;
+      }
+    };
+
+    function CreateArrayIterator(array, kind) {
+      return new ArrayIterator(array, 0, kind);
+    }
+
+    if (!Array.prototype.items) {
+      Array.prototype.items = function items() {
+        return CreateArrayIterator(this, "key+value");
+      };
+    }
+    if (!Array.prototype.keys) {
+      Array.prototype.keys = function keys() {
+        return CreateArrayIterator(this, "key");
+      };
+    }
+    if (!Array.prototype.values) {
+      Array.prototype.values = function values() {
+        return CreateArrayIterator(this, "value");
+      };
+    }
+    if (!Array.prototype.__iterator__) {
+      Array.prototype.__iterator__ = function __iterator() {
+        return CreateArrayIterator(this, "key+value");
+      };
+    }
+  }());
+
 
   //----------------------------------------
   // Collections: Maps, Sets, and WeakMaps
@@ -917,30 +988,67 @@
           configurable: true,
           enumerable: false,
           writable: true
+        },
+        '__iterator__': {
+          value: function items() {
+            return CreateMapIterator(Object(this), "key+value");
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
         }
       }
     );
 
-    // TODO: Proper iterator
-    function CreateMapIterator(map, kind) {
-      var result = [];
-      map.forEach(function(k, v) {
-        switch (kind) {
-        case "key": result.push(k); return;
-        case "value": result.push(v); return;
-        case "key+value": result.push([k, v]); return;
+    function MapIterator(map, index, kind) {
+      this.map = map;
+      this.nextIndex = index;
+      this.iterationKind = kind;
+    }
+    MapIterator.prototype = {
+      next: function() {
+        if (typeof this !== 'object') { throw new TypeError(); }
+        var m = this.map,
+            index = this.nextIndex,
+            itemKind = this.iterationKind,
+            entries = mapData; // NOTE: closure over this particular Map instance
+        while (index < entries.keys.length) {
+          var e = {key: entries.keys[index], value: entries.values[index]};
+          index = index += 1;
+          this.nextIndex = index;
+          if (e.key !== undefined) { // |empty| ?
+            if (itemKind === "key") {
+              return e.key;
+            } else if (itemKind === "value") {
+              return e.value;
+            } else {
+              return [e.key, e.value];
+            }
+          }
         }
-      });
-      return result;
+        throw global.iterator__StopIteration;
+      },
+      __iterator__: function() {
+        return this;
+      }
+    };
+
+    function CreateMapIterator(map, kind) {
+      map = Object(map);
+      return new MapIterator(map, 0, kind);
     }
 
     if (iterable) {
       iterable = Object(iterable);
-      for (var i = 0; i < iterable.length; i += 1) {
-        var o = iterable[i];
-        if (o) {
-          o = Object(o);
-          this.set(o[0], o[1]);
+      var it = iterable.__iterator__(); // or throw...
+      try {
+        while (true) {
+          var next = it.next();
+          this.set(next[0], next[1]);
+        }
+      } catch (ex) {
+        if (ex !== global.iterator__StopIteration) {
+          throw ex;
         }
       }
     }
@@ -951,15 +1059,29 @@
   /** @constructor */
   global.Set = global.Set || function Set(iterable) {
     if (!(this instanceof Set)) { return new Set(iterable); }
-    var map = new global.Map();
+    var setData = [];
+    function indexOf(key) {
+      var i;
+      // Slow case for NaN/+0/-0
+      if (key !== key || key === 0) {
+        for (i = 0; i < setData.length; i += 1) {
+          if (ECMAScript.SameValue(setData[i], key)) { return i; }
+        }
+        return -1;
+      }
+      // Fast case
+      return setData.indexOf(key);
+    }
 
     Object.defineProperties(
       this,
       {
         'add': {
           value: function add(key) {
-            map.set(key, true);
-            if (this.size !== map.size) { this.size = map.size; }
+            var i = indexOf(key);
+            if (i < 0) { i = setData.length; }
+            setData[i] = key;
+            if (this.size !== setData.length) { this.size = setData.length; }
           },
           configurable: true,
           enumerable: false,
@@ -967,8 +1089,8 @@
         },
         'clear': {
           value: function clear() {
-            map.clear();
-            if (this.size !== map.size) { this.size = map.size; }
+            setData = [];
+            if (this.size !== setData.length) { this.size = setData.length; }
           },
           configurable: true,
           enumerable: false,
@@ -976,8 +1098,11 @@
         },
         'delete': {
           value: function deleteFunction(key) {
-            return map['delete'](key);
-            if (this.size !== map.size) { this.size = map.size; }
+            var i = indexOf(key);
+            if (i < 0) { return false; }
+            setData.splice(i, 1);
+            if (this.size !== setData.length) { this.size = setData.length; }
+            return true;
           },
           configurable: true,
           enumerable: false,
@@ -990,9 +1115,9 @@
             if (!ECMAScript.IsCallable(callbackfn)) {
               throw new TypeError("First argument to forEach is not callable.");
             }
-            map.forEach(function(k, v) {
-              callbackfn.call(thisArg, k, s);
-            });
+            for (var i = 0; i < setData.length; ++i) {
+              callbackfn.call(thisArg, setData[i], s);
+            }
           },
           configurable: true,
           enumerable: false,
@@ -1000,7 +1125,7 @@
         },
         'has': {
           value: function has(key) {
-            return map.has(key);
+            return indexOf(key) !== -1;
           },
           configurable: true,
           enumerable: false,
@@ -1008,12 +1133,12 @@
         },
         'size': {
           get: function() {
-            return map.size;
+            return setData.length;
           }
         },
         'values': {
           value: function values() {
-            return map.values();
+            return CreateSetIterator(Object(this));
           },
           configurable: true,
           enumerable: false,
@@ -1022,10 +1147,50 @@
       }
     );
 
+    function CreateSetIterator(set) {
+      set = Object(set);
+      return new SetIterator(set, 0);
+    }
+
+    function SetIterator(set, index) {
+      this.set = set;
+      this.nextIndex = index;
+    }
+    SetIterator.prototype = {
+      next: function() {
+        if (typeof this !== 'object') { throw new TypeError; }
+        var s = this.set,
+            index = this.nextIndex,
+            entries = setData; // NOTE: closure over this particular Set instance
+        while (index < entries.length) {
+          var e = entries[index];
+          index = index += 1;
+          this.nextIndex = index;
+          if (e !== undefined) { // |empty| ?
+            return e;
+          }
+        }
+        throw global.iterator__StopIteration;
+      },
+      __iterator__: function() {
+        return this;
+      }
+    };
+
+
     if (iterable) {
       iterable = Object(iterable);
-      for (var i = 0; i < iterable.length; i += 1) {
-        this.add(iterable[i]);
+      var it = ECMAScript.HasProperty(iterable, "values") ? iterable.values() : iterable.__iterator__(); // or throw...
+      try {
+        while (true) {
+          var next = it.next();
+          // Spec has next = ToObject(next) here
+          this.add(next);
+        }
+      } catch (ex) {
+        if (ex !== global.iterator__StopIteration) {
+          throw ex;
+        }
       }
     }
 
@@ -1034,8 +1199,8 @@
 
   // Inspired by https://gist.github.com/1638059
   /** @constructor */
-  global.WeakMap = global.WeakMap || function WeakMap() {
-    if (!(this instanceof WeakMap)) { return new WeakMap(); }
+  global.WeakMap = global.WeakMap || function WeakMap(iterable) {
+    if (!(this instanceof WeakMap)) { return new WeakMap(iterable); }
 
     var secretKey = {};
 
@@ -1108,6 +1273,23 @@
           writable: true
         }
       });
+
+    if (iterable) {
+      iterable = Object(iterable);
+      var it = iterable.__iterator__(); // or throw...
+      try {
+        while (true) {
+          var next = it.next();
+          this.set(next[0], next[1]);
+        }
+      } catch (ex) {
+        if (ex !== global.iterator__StopIteration) {
+          throw ex;
+        }
+      }
+    }
+
+
     return this;
   };
 
@@ -1254,12 +1436,13 @@
   }
 
   // NOTE: Since true iterators can't be polyfilled, this is a hack
-  global.iterator__StopIteraton = global.iterator__StopIteration || (function () {
+  global.iterator__StopIteration = global.iterator__StopIteration || (function () {
     function StopIterationClass() {
     }
     StopIterationClass.prototype = {
       toString: function () { return "[object StopIteration]"; }
     };
+    // TODO: Wedge into Object.prototype.toString() as well.
     return new StopIterationClass;
   }());
 
@@ -1274,7 +1457,7 @@
             index: 0,
             next: function () {
               if (this.index >= s.length) {
-                throw iterator__StopIteration;
+                throw global.iterator__StopIteration;
               }
               var cp = s.codePointAt(this.index);
               this.index += cp > 0xFFFF ? 2 : 1;
