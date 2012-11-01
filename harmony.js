@@ -61,6 +61,18 @@
   //
   //----------------------------------------------------------------------
 
+  // NOTE: Since true iterators can't be polyfilled, this is a hack
+  global.StopIteration = global.StopIteration || (function () {
+    function StopIterationClass() {
+    }
+    StopIterationClass.prototype = {
+      toString: function () { return "[object StopIteration]"; }
+    };
+    // TODO: Wedge into Object.prototype.toString() as well.
+    return new StopIterationClass;
+  }());
+
+
   //----------------------------------------
   // Properties of the Object Constructor
   //----------------------------------------
@@ -801,7 +813,7 @@
       this.iterationKind = kind;
     }
     ArrayIterator.prototype = {
-      next: function() {
+      'next': function() {
         if (typeof this !== 'object') { throw new TypeError; }
         var a = this.iteratedObject,
             index = this.nextIndex,
@@ -822,7 +834,7 @@
         }
         if (index >= len) {
           this.nextIndex = Infinity;
-          throw global.iterator__StopIteration;
+          throw global.StopIteration;
         }
         elementKey = String(index);
         this.nextIndex = index + 1;
@@ -838,7 +850,7 @@
         }
         throw new Error("Internal error");
       },
-      __iterator__: function() {
+      '__iterator': function() {
         return this;
       }
     };
@@ -862,8 +874,8 @@
         return CreateArrayIterator(this, "value");
       };
     }
-    if (!Array.prototype.__iterator__) {
-      Array.prototype.__iterator__ = function __iterator() {
+    if (!Array.prototype.__iterator) {
+      Array.prototype.__iterator = function() {
         return CreateArrayIterator(this, "key+value");
       };
     }
@@ -989,8 +1001,8 @@
           enumerable: false,
           writable: true
         },
-        '__iterator__': {
-          value: function items() {
+        '__iterator': {
+          value: function() {
             return CreateMapIterator(Object(this), "key+value");
           },
           configurable: true,
@@ -1006,7 +1018,7 @@
       this.iterationKind = kind;
     }
     MapIterator.prototype = {
-      next: function() {
+      'next': function() {
         if (typeof this !== 'object') { throw new TypeError(); }
         var m = this.map,
             index = this.nextIndex,
@@ -1026,9 +1038,9 @@
             }
           }
         }
-        throw global.iterator__StopIteration;
+        throw global.StopIteration;
       },
-      __iterator__: function() {
+      '__iterator': function() {
         return this;
       }
     };
@@ -1040,14 +1052,14 @@
 
     if (iterable) {
       iterable = Object(iterable);
-      var it = iterable.__iterator__(); // or throw...
+      var it = iterable.__iterator(); // or throw...
       try {
         while (true) {
           var next = it.next();
           this.set(next[0], next[1]);
         }
       } catch (ex) {
-        if (ex !== global.iterator__StopIteration) {
+        if (ex !== global.StopIteration) {
           throw ex;
         }
       }
@@ -1143,6 +1155,14 @@
           configurable: true,
           enumerable: false,
           writable: true
+        },
+        '__iterator': {
+          value: function() {
+            return CreateSetIterator(Object(this));
+          },
+          configurable: true,
+          enumerable: false,
+          writable: true
         }
       }
     );
@@ -1157,7 +1177,7 @@
       this.nextIndex = index;
     }
     SetIterator.prototype = {
-      next: function() {
+      'next': function() {
         if (typeof this !== 'object') { throw new TypeError; }
         var s = this.set,
             index = this.nextIndex,
@@ -1170,9 +1190,9 @@
             return e;
           }
         }
-        throw global.iterator__StopIteration;
+        throw global.StopIteration;
       },
-      __iterator__: function() {
+      '__iterator': function() {
         return this;
       }
     };
@@ -1180,7 +1200,7 @@
 
     if (iterable) {
       iterable = Object(iterable);
-      var it = ECMAScript.HasProperty(iterable, "values") ? iterable.values() : iterable.__iterator__(); // or throw...
+      var it = ECMAScript.HasProperty(iterable, "values") ? iterable.values() : iterable.__iterator(); // or throw...
       try {
         while (true) {
           var next = it.next();
@@ -1188,7 +1208,7 @@
           this.add(next);
         }
       } catch (ex) {
-        if (ex !== global.iterator__StopIteration) {
+        if (ex !== global.StopIteration) {
           throw ex;
         }
       }
@@ -1276,14 +1296,14 @@
 
     if (iterable) {
       iterable = Object(iterable);
-      var it = iterable.__iterator__(); // or throw...
+      var it = iterable.__iterator(); // or throw...
       try {
         while (true) {
           var next = it.next();
           this.set(next[0], next[1]);
         }
       } catch (ex) {
-        if (ex !== global.iterator__StopIteration) {
+        if (ex !== global.StopIteration) {
           throw ex;
         }
       }
@@ -1435,33 +1455,25 @@
     );
   }
 
-  // NOTE: Since true iterators can't be polyfilled, this is a hack
-  global.iterator__StopIteration = global.iterator__StopIteration || (function () {
-    function StopIterationClass() {
-    }
-    StopIterationClass.prototype = {
-      toString: function () { return "[object StopIteration]"; }
-    };
-    // TODO: Wedge into Object.prototype.toString() as well.
-    return new StopIterationClass;
-  }());
-
   // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
-  if (!String.prototype.iterator__get) {
+  if (!String.prototype.__iterator) {
     Object.defineProperty(
       String.prototype,
-      'iterator__get', {
+      '__iterator', {
         value: function () {
           var s = this;
           return {
             index: 0,
-            next: function () {
+            'next': function () {
               if (this.index >= s.length) {
-                throw global.iterator__StopIteration;
+                throw global.StopIteration;
               }
               var cp = s.codePointAt(this.index);
               this.index += cp > 0xFFFF ? 2 : 1;
               return String.fromCodePoint(cp);
+            },
+            '__iterator': function() {
+              return this;
             }
           };
         },

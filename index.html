@@ -98,59 +98,95 @@ A more comprehensive list can be found at <a target="_other" href="https://githu
   <li>In the <a target="_other" href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6 Drafts</a>:
     <ul>
       <li>Object:
-        <code>is</code> (as function, not operator),
-        <code>isnt</code> (ditto),
-        <code>isObject</code>
+        <code>assign()</code>,
+        <code>is()</code> (as function, not operator),
+        <code>isnt()</code> (ditto),
+        <!-- <code>isObject()</code> -->
       <li>Number:
         <code>EPILON</code>,
         <code>MAX_INTEGER</code>,
-        <code>parseInt</code>,
-        <code>parseFloat</code>,
-        <code>isFinite</code>,
-        <code>isNaN</code>,
-        <code>isInteger</code>,
-        <code>toInt</code>
+        <code>parseInt()</code>,
+        <code>parseFloat()</code>,
+        <code>isFinite()</code>,
+        <code>isNaN()</code>,
+        <code>isInteger()</code>,
+        <code>toInt()</code>
       <li>Number prototype:
-        <code>clz</code>,
-      <li>String prototype:
-        <code>repeat</code>,
-        <code>startsWith</code>,
-        <code>endsWith</code>,
-        <code>contains</code>
+        <code>clz()</code>,
+      <li>String:
+        <code>fromCodePoint()</code>
+      <li>String.prototype:
+        <code>codePointAt()</code>
+        <code>repeat()</code>,
+        <code>startsWith()</code>,
+        <code>endsWith()</code>,
+        <code>contains()</code>,
+        <code>__iterator()</code>
       <li>Math:
-        <code>log10</code>,
-        <code>log2</code>,
-        <code>log1p</code>,
-        <code>expm1</code>,
-        <code>cosh</code>,
-        <code>sinh</code>,
-        <code>tanh</code>,
-        <code>acosh</code>,
-        <code>asinh</code>,
-        <code>atanh</code>,
-        <code>hypot</code>,
-        <code>trunc</code>,
-        <code>sign</code>,
-        <code>cbrt</code>
+        <code>log10()</code>,
+        <code>log2()</code>,
+        <code>log1p()</code>,
+        <code>expm1()</code>,
+        <code>cosh()</code>,
+        <code>sinh()</code>,
+        <code>tanh()</code>,
+        <code>acosh()</code>,
+        <code>asinh()</code>,
+        <code>atanh()</code>,
+        <code>hypot()</code>,
+        <code>trunc()</code>,
+        <code>sign()</code>,
+        <code>cbrt()</code>
+      <li>Array:
+        <code>of()</code>,
+        <code>from()</code>
       <li>Array prototype:
-        <code>of</code>,
-        <code>from</code>
-      <li>Collections:
-        <code>Map</code>,
-        <code>Set</code>,
-        <code>WeakMap</code> (intrusive; modifies valueOf property of key)
+        <code>items()</code>,
+        <code>keys()</code>,
+        <code>values()</code>,
+        <code>__iterator()</code>
+      <li>Map:
+        <code>clear()</code>,
+        <code>delete()</code>,
+        <code>forEach()</code>,
+        <code>get()</code>,
+        <code>has()</code>,
+        <code>items()</code>,
+        <code>keys()</code>,
+        <code>set()</code>,
+        <code>size</code>,
+        <code>values()</code>,
+        <code>__iterator()</code>
+      <li>Set:
+        <code>add()</code>,
+        <code>clear()</code>,
+        <code>delete()</code>,
+        <code>forEach()</code>,
+        <code>has()</code>,
+        <code>size</code>,
+        <code>values()</code>,
+        <code>__iterator()</code>
+      <li>WeakMap (intrusive; modifies valueOf property of key):
+        <code>clear()</code>,
+        <code>delete()</code>,
+        <code>get()</code>,
+        <code>has()</code>,
+        <code>set()</code>
     </ul>
   <li>Not yet approved:
     <ul>
-      <li>Number: <code>compare</code>
-      <li>Array prototype: <code>pushAll</code>, <code>contains</code>
-      <li>String: <code>fromCodePoint</code> (from <a target="_other" href="http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html">Supplementary Characters for ECMAScript proposal</a>)
-      <li>String.prototype: <code>codePointAt</code> (from <a target="_other" href="http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html">Supplementary Characters for ECMAScript proposal</a>)
+      <li>Number:
+        <code>compare()</code>
+      <li>Array prototype:
+        <code>pushAll()</code>,
+        <code>contains()</code> <a href="https://mail.mozilla.org/pipermail/es-discuss/2011-December/019099.html">[ref]</a>
+      <li>String prototype:
+        <code>__iterator()</code> <a href="http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html">[ref]</a>
     </ul>
 </ul>
 
-<h2 id="url">W3C URL API (shim)</h2>
-<p><a target="_other" href="url.js">script</a> - <a target="_other" href="url.html">unit tests</a> - <a target="_other" href="http://dvcs.w3.org/hg/url/raw-file/tip/Overview.html">draft spec</a> - <em>See script for cross-browser quirks</em>
+<h2 id="url">WHATWG URL API (shim)</h2>
+<p><a target="_other" href="url.js">script</a> - <a target="_other" href="url.html">unit tests</a> - <a target="_other" href="http://url.spec.whatwg.org">draft spec</a> - <em>See script for cross-browser quirks</em>
 <ul>
 <li><code><var>url</var> = new URL(<var>url</var>, <var>base</var>)</code>
 <li><code><var>value</var> = <var>url</var>.getParameter(<var>name</var>)</code>
