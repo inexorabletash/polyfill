@@ -570,7 +570,7 @@
   //----------------------------------------
 
   /** @constructor */
-  global.Map = global.Map || function Map(iterable) {
+  function Map(iterable) {
     if (!(this instanceof Map)) { return new Map(iterable); }
 
     var mapData = { keys: [], values: [] };
@@ -682,6 +682,7 @@
       return new MapIterator(map, 0, kind);
     }
 
+    /** @constructor */
     function MapIterator(map, index, kind) {
       this.map = map;
       this.nextIndex = index;
@@ -734,10 +735,14 @@
     }
 
     return this;
-  };
+  }
+  if (!global.Map) {
+    global.Map = Map;
+    brand(Map, 'Map');
+  }
 
   /** @constructor */
-  global.Set = global.Set || function Set(iterable) {
+  function Set(iterable) {
     if (!(this instanceof Set)) { return new Set(iterable); }
 
     var setData = [];
@@ -828,6 +833,7 @@
       return new SetIterator(set, 0);
     }
 
+    /** @constructor */
     function SetIterator(set, index) {
       this.set = set;
       this.nextIndex = index;
@@ -873,11 +879,15 @@
     }
 
     return this;
-  };
+  }
+  if (!global.Set) {
+    global.Set = Set;
+    brand(Set, 'Set');
+  }
 
   // Inspired by https://gist.github.com/1638059
   /** @constructor */
-  global.WeakMap = global.WeakMap || function WeakMap(iterable) {
+  function WeakMap(iterable) {
     if (!(this instanceof WeakMap)) { return new WeakMap(iterable); }
 
     var secretKey = {};
@@ -957,10 +967,12 @@
       }
     }
 
-
     return this;
-  };
-
+  }
+  if (!global.WeakMap) {
+    global.WeakMap = WeakMap;
+    brand(WeakMap, 'WeakMap');
+  }
 
   //----------------------------------------------------------------------
   //
@@ -1057,24 +1069,42 @@
     });
 
   // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
-  defineFunction(
-    String.prototype, '__iterator',
-    function () {
-      var s = this;
-      return {
-        index: 0,
-        'next': function () {
-          if (this.index >= s.length) {
-            throw global.StopIteration;
-          }
-          var cp = s.codePointAt(this.index);
-          this.index += cp > 0xFFFF ? 2 : 1;
-          return String.fromCodePoint(cp);
-        },
-        '__iterator': function() {
-          return this;
+  (function() {
+    defineFunction(
+      String.prototype, '__iterator',
+      function items() {
+        return CreateStringIterator(this);
+      });
+
+    function CreateStringIterator(string) {
+      return new StringIterator(string, 0);
+    }
+
+    /** @constructor */
+    function StringIterator(object, nextIndex) {
+      this.iteratedObject = object;
+      this.nextIndex = nextIndex;
+    }
+    StringIterator.prototype = {};
+    defineFunction(
+      StringIterator.prototype, 'next',
+      function() {
+        var s = String(this.iteratedObject),
+            index = this.nextIndex,
+            len = s.length;
+        if (index >= len) {
+          this.nextIndex = Infinity;
+          throw global.StopIteration;
         }
-      };
-    });
+        var cp = s.codePointAt(index);
+        this.nextIndex += cp > 0xFFFF ? 2 : 1;
+        return String.fromCodePoint(cp);
+      });
+    defineFunction(
+      StringIterator.prototype, '__iterator',
+      function() {
+        return this;
+      });
+  }());
 
 }(self));

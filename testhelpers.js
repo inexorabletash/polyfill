@@ -1,47 +1,47 @@
 
-function assertTrue(expr) {
+function assertTrue(_expr) {
   var _x_;
-  try { eval("_x_ = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }
-  ok(_x_, String(expr) + " was: " + String(_x_) + ", expected true");
+  try { eval("_x_ = (" + _expr + ")"); } catch(e) { ok(false, _expr + " threw exception: " + e); return; }
+  ok(_x_, String(_expr) + " was: " + String(_x_) + ", expected true");
 }
 
-function assertFalse(expr) {
+function assertFalse(_expr) {
   var _x_;
-  try { eval("_x_ = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }
-  ok(!_x_, String(expr) + " was: " + String(_x_) + ", expected false");
+  try { eval("_x_ = (" + _expr + ")"); } catch(e) { ok(false, _expr + " threw exception: " + e); return; }
+  ok(!_x_, String(_expr) + " was: " + String(_x_) + ", expected false");
 }
 
-function assertEqual(expr, value) {
-  function s(x) {
+function assertEqual(_expr, _value) {
+  function _s(x) {
     return (1/Number(x) === -Infinity) ? "-0" : (1/Number(x) === Infinity) ? "+0" : String(x);
   }
 
-  var _x_;
-  try { eval("_x_ = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }
-  if (value instanceof RegExp) {
-    ok(value.test(_x_), s(expr) + " was: " + s(_x_) + ", expected to match: " + s(value));
-  } else if (value !== value) {
-    ok(_x_ !== _x_, s(expr) + " was: " + s(_x_) + ", expected NaN");
-  } else if (value === 0) {
-    ok(1/_x_ === 1/value, s(expr) + " was: " + s(_x_) + ", expected " + s(value));
+  var _x;
+  try { eval("_x = (" + _expr + ")"); } catch(e) { ok(false, _expr + " threw exception: " + e); return; }
+  if (_value instanceof RegExp) {
+    ok(_value.test(_x), _s(_expr) + " was: " + _s(_x) + ", expected to match: " + _s(_value));
+  } else if (_value !== _value) {
+    ok(_x !== _x, _s(_expr) + " was: " + _s(_x) + ", expected NaN");
+  } else if (_value === 0) {
+    ok(1/_x === 1/_value, _s(_expr) + " was: " + _s(_x) + ", expected " + _s(_value));
   } else {
-    strictEqual(_x_, value, s(expr) + " was: " + s(_x_) + ", expected " + s(value));
+    strictEqual(_x, _value, _s(_expr) + " was: " + _s(_x) + ", expected " + _s(_value));
   }
 }
 
-function assertThrows(expr, expected) {
-  raises(function() { eval("(" + expr + ")"); }, expected, String(expr) + " expected to throw");
+function assertThrows(_expr, expected) {
+  raises(function() { eval("(" + _expr + ")"); }, expected, String(_expr) + " expected to throw");
 }
 
-function assertEpsilon(expr, value, epsilon) {
-  var _x_;
-  try { eval("_x_ = (" + expr + ")"); } catch(e) { ok(false, expr + " threw exception: " + e); return; }
+function assertEpsilon(_expr, _value, _epsilon) {
+  var _x;
+  try { eval("_x = (" + _expr + ")"); } catch(e) { ok(false, _expr + " threw exception: " + e); return; }
   var p;
-  if (_x_ === value) {
+  if (_x === _value) {
     p = true;
   } else {
-    p = (Math.abs((_x_ - value)/Math.max(Math.abs(_x_), Math.abs(value))) < epsilon);
+    p = (Math.abs((_x - _value)/Math.max(Math.abs(_x), Math.abs(_value))) < _epsilon);
   }
 
-  ok(p, expr + " was " + _x_ + ", expected approximately " + value);
+  ok(p, _expr + " was " + _x + ", expected approximately " + _value);
 }

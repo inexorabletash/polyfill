@@ -451,19 +451,23 @@ test("Map", 16, function () {
 
 });
 
-test("Set", 13, function () {
+test("Set", 17, function () {
   set = new Set();
   assertFalse("set.has(-0)");
   assertFalse("set.has(0)");
+  assertEqual("set.size", 0);
   set.add(0);
   assertFalse("set.has(-0)");
   assertTrue("set.has(0)");
+  assertEqual("set.size", 1);
   set['delete'](0);
   assertFalse("set.has(-0)");
   assertFalse("set.has(0)");
+  assertEqual("set.size", 0);
   set.add(0);
   set.clear();
   assertFalse("set.has(0)");
+  assertEqual("set.size", 0);
 
   var data = [1, 2, 3], count = 0;
   set = new Set(data);
@@ -617,3 +621,9 @@ test("Proposed Unicode support String extras", function () {
   assertEqual("'\\ud800\\udc00\\udbff\\udfff'.codePointAt(2)", 0x10ffff);
 });
 
+test("Iterators", function () {
+  s = Set("ABC");
+  assertTrue("s.has('A')");
+  assertFalse("s.has('Z')");
+  assertEqual("s.size", 3);
+});
