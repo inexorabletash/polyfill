@@ -493,8 +493,10 @@
       this.nextIndex = nextIndex;
       this.iterationKind = kind;
     }
-    ArrayIterator.prototype = {
-      'next': function() {
+    ArrayIterator.prototype = {};
+    defineFunction(
+      ArrayIterator.prototype, 'next',
+      function() {
         if (typeof this !== 'object') { throw new TypeError; }
         var a = this.iteratedObject,
             index = this.nextIndex,
@@ -530,36 +532,37 @@
           return elementValue;
         }
         throw new Error("Internal error");
-      },
-      '__iterator': function() {
+      });
+
+    defineFunction(
+      ArrayIterator.prototype, '__iterator',
+      function() {
         return this;
-      }
-    };
+      });
 
     function CreateArrayIterator(array, kind) {
       return new ArrayIterator(array, 0, kind);
     }
 
-    if (!Array.prototype.items) {
-      Array.prototype.items = function items() {
+    defineFunction(
+      Array.prototype, 'items',
+      function items() {
         return CreateArrayIterator(this, "key+value");
-      };
-    }
-    if (!Array.prototype.keys) {
-      Array.prototype.keys = function keys() {
+      });
+    defineFunction(
+      Array.prototype, 'keys',
+      function keys() {
         return CreateArrayIterator(this, "key");
-      };
-    }
-    if (!Array.prototype.values) {
-      Array.prototype.values = function values() {
+      });
+    defineFunction(
+      Array.prototype, 'values',
+      function values() {
         return CreateArrayIterator(this, "value");
-      };
-    }
-    if (!Array.prototype.__iterator) {
-      Array.prototype.__iterator = function() {
-        return CreateArrayIterator(this, "key+value");
-      };
-    }
+      });
+    defineFunction(
+      Array.prototype, '__iterator',
+      Array.prototype.items
+    );
   }());
 
 
@@ -595,9 +598,7 @@
             mapData.values.length = 0;
             if (this.size !== mapData.keys.length) { this.size = mapData.keys.length; }
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         'delete': {
           value: function deleteFunction(key) {
@@ -608,9 +609,7 @@
             if (this.size !== mapData.keys.length) { this.size = mapData.keys.length; }
             return true;
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         'forEach': {
           value: function forEach(callbackfn /*, thisArg*/) {
@@ -623,42 +622,32 @@
               callbackfn.call(thisArg, mapData.keys[i], mapData.values[i], m);
             }
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         'get': {
           value: function get(key) {
             var i = indexOf(key);
             return i < 0 ? undefined : mapData.values[i];
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         'has': {
           value: function has(key) {
             return indexOf(key) >= 0;
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         'items': {
           value: function items() {
             return CreateMapIterator(Object(this), "key+value");
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         'keys': {
           value: function keys() {
             return CreateMapIterator(Object(this), "key");
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         'set': {
           value: function set(key, val) {
@@ -668,9 +657,7 @@
             mapData.values[i] = val;
             if (this.size !== mapData.keys.length) { this.size = mapData.keys.length; }
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         'size': {
           get: function() {
@@ -681,17 +668,13 @@
           value: function values() {
             return CreateMapIterator(Object(this), "value");
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         '__iterator': {
           value: function() {
             return CreateMapIterator(Object(this), "key+value");
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         }
       }
     );
@@ -781,18 +764,14 @@
             setData[i] = key;
             if (this.size !== setData.length) { this.size = setData.length; }
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         'clear': {
           value: function clear() {
             setData = [];
             if (this.size !== setData.length) { this.size = setData.length; }
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         'delete': {
           value: function deleteFunction(key) {
@@ -802,9 +781,7 @@
             if (this.size !== setData.length) { this.size = setData.length; }
             return true;
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         'forEach': {
           value: function forEach(callbackfn/*, thisArg*/) {
@@ -817,17 +794,13 @@
               callbackfn.call(thisArg, setData[i], s);
             }
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         'has': {
           value: function has(key) {
             return indexOf(key) !== -1;
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         'size': {
           get: function() {
@@ -838,17 +811,13 @@
           value: function values() {
             return CreateSetIterator(Object(this));
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         '__iterator': {
           value: function() {
             return CreateSetIterator(Object(this));
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         }
       }
     );
@@ -932,9 +901,7 @@
           value: function clear() {
             secretKey = {};
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         'delete': {
           value: function deleteFunction(key) {
@@ -944,9 +911,7 @@
               delete secrets.value;
             }
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         'get': {
           value: function get(key, defaultValue) {
@@ -954,9 +919,7 @@
             var secrets = reveal(key);
             return (secrets && ECMAScript.HasOwnProperty(secrets, 'value')) ? secrets.value : defaultValue;
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         'has': {
           value: function has(key) {
@@ -964,9 +927,7 @@
             var secrets = reveal(key);
             return Boolean(secrets && ECMAScript.HasOwnProperty(secrets, 'value'));
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         },
         'set': {
           value: function set(key, value) {
@@ -974,9 +935,7 @@
             var secrets = reveal(key) || conceal(key);
             secrets.value = value;
           },
-          configurable: true,
-          enumerable: false,
-          writable: true
+          configurable: true, enumerable: false, writable: true
         }
       });
 
@@ -1056,27 +1015,25 @@
     });
 
   // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
-  (function () {
-    defineFunction(
-      String, 'fromCodePoint',
-      function fromCodePoint() {
-        var chars = [], i;
-        for (i = 0; i < arguments.length; i++) {
-          var c = Number(arguments[i]);
-          if (!isFinite(c) || c < 0 || c > 0x10FFFF || floor(c) !== c) {
-            throw new RangeError("Invalid code point " + c);
-          }
-          if (c < 0x10000) {
-            chars.push(c);
-          } else {
-            c -= 0x10000;
-            chars.push((c >> 10) + 0xD800);
-            chars.push((c % 0x400) + 0xDC00);
-          }
+  defineFunction(
+    String, 'fromCodePoint',
+    function fromCodePoint() {
+      var chars = [], i;
+      for (i = 0; i < arguments.length; i++) {
+        var c = Number(arguments[i]);
+        if (!isFinite(c) || c < 0 || c > 0x10FFFF || floor(c) !== c) {
+          throw new RangeError("Invalid code point " + c);
         }
-        return String.fromCharCode.apply(undefined, chars);
-      });
-  }());
+        if (c < 0x10000) {
+          chars.push(c);
+        } else {
+          c -= 0x10000;
+          chars.push((c >> 10) + 0xD800);
+          chars.push((c % 0x400) + 0xDC00);
+        }
+      }
+      return String.fromCharCode.apply(undefined, chars);
+    });
 
   // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
   defineFunction(
