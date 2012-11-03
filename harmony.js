@@ -517,6 +517,7 @@
       this.nextIndex = nextIndex;
       this.iterationKind = kind;
     }
+    brand(ArrayIterator, 'Array Iterator');
     ArrayIterator.prototype = {};
     defineFunction(
       ArrayIterator.prototype, 'next',
@@ -607,95 +608,81 @@
     }
 
     Map.prototype = {};
-    Object.defineProperties(
-      Map.prototype,
-      {
-        'clear': {
-          value: function clear() {
-            this._mapData.keys.length = 0;
-            this._mapData.values.length = 0;
-            if (this.size !== this._mapData.keys.length) { this.size = this._mapData.keys.length; }
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        'delete': {
-          value: function deleteFunction(key) {
-            var i = indexOf(this._mapData, key);
-            if (i < 0) { return false; }
-            this._mapData.keys.splice(i, 1);
-            this._mapData.values.splice(i, 1);
-            if (this.size !== this._mapData.keys.length) { this.size = this._mapData.keys.length; }
-            return true;
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        'forEach': {
-          value: function forEach(callbackfn /*, thisArg*/) {
-            var thisArg = arguments[1];
-            var m = Object(this);
-            if (!ECMAScript.IsCallable(callbackfn)) {
-              throw new TypeError("First argument to forEach is not callable.");
-            }
-            for (var i = 0; i < this._mapData.keys.length; ++i) {
-              callbackfn.call(thisArg, this._mapData.keys[i], this._mapData.values[i], m);
-            }
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        'get': {
-          value: function get(key) {
-            var i = indexOf(this._mapData, key);
-            return i < 0 ? undefined : this._mapData.values[i];
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        'has': {
-          value: function has(key) {
-            return indexOf(this._mapData, key) >= 0;
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        'items': {
-          value: function items() {
-            return CreateMapIterator(Object(this), "key+value");
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        'keys': {
-          value: function keys() {
-            return CreateMapIterator(Object(this), "key");
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        'set': {
-          value: function set(key, val) {
-            var i = indexOf(this._mapData, key);
-            if (i < 0) { i = this._mapData.keys.length; }
-            this._mapData.keys[i] = key;
-            this._mapData.values[i] = val;
-            if (this.size !== this._mapData.keys.length) { this.size = this._mapData.keys.length; }
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        'size': {
-          get: function() {
-            return this._mapData.keys.length;
-          }
-        },
-        'values': {
-          value: function values() {
-            return CreateMapIterator(Object(this), "value");
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        '__iterator': {
-          value: function() {
-            return CreateMapIterator(Object(this), "key+value");
-          },
-          configurable: true, enumerable: false, writable: true
+    defineFunction(
+      Map.prototype, 'clear',
+      function clear() {
+        this._mapData.keys.length = 0;
+        this._mapData.values.length = 0;
+        if (this.size !== this._mapData.keys.length) { this.size = this._mapData.keys.length; }
+      });
+    defineFunction(
+      Map.prototype, 'delete',
+      function deleteFunction(key) {
+        var i = indexOf(this._mapData, key);
+        if (i < 0) { return false; }
+        this._mapData.keys.splice(i, 1);
+        this._mapData.values.splice(i, 1);
+        if (this.size !== this._mapData.keys.length) { this.size = this._mapData.keys.length; }
+        return true;
+      });
+    defineFunction(
+      Map.prototype, 'forEach',
+      function forEach(callbackfn /*, thisArg*/) {
+        var thisArg = arguments[1];
+        var m = Object(this);
+        if (!ECMAScript.IsCallable(callbackfn)) {
+          throw new TypeError("First argument to forEach is not callable.");
         }
-      }
-    );
+        for (var i = 0; i < this._mapData.keys.length; ++i) {
+          callbackfn.call(thisArg, this._mapData.keys[i], this._mapData.values[i], m);
+        }
+      });
+    defineFunction(
+      Map.prototype, 'get',
+      function get(key) {
+        var i = indexOf(this._mapData, key);
+        return i < 0 ? undefined : this._mapData.values[i];
+      });
+    defineFunction(
+      Map.prototype, 'has',
+      function has(key) {
+        return indexOf(this._mapData, key) >= 0;
+      });
+    defineFunction(
+      Map.prototype, 'items',
+      function items() {
+        return CreateMapIterator(Object(this), "key+value");
+      });
+    defineFunction(
+      Map.prototype, 'keys',
+      function keys() {
+        return CreateMapIterator(Object(this), "key");
+      });
+    defineFunction(
+      Map.prototype, 'set',
+      function set(key, val) {
+        var i = indexOf(this._mapData, key);
+        if (i < 0) { i = this._mapData.keys.length; }
+        this._mapData.keys[i] = key;
+        this._mapData.values[i] = val;
+        if (this.size !== this._mapData.keys.length) { this.size = this._mapData.keys.length; }
+      });
+    Object.defineProperty(
+      Map.prototype, 'size', {
+        get: function() {
+          return this._mapData.keys.length;
+        }
+      });
+    defineFunction(
+      Map.prototype, 'values',
+      function values() {
+        return CreateMapIterator(Object(this), "value");
+      });
+    defineFunction(
+      Map.prototype, '__iterator',
+      function() {
+        return CreateMapIterator(Object(this), "key+value");
+      });
 
     function CreateMapIterator(map, kind) {
       map = Object(map);
@@ -742,6 +729,7 @@
     if (!global.Map) {
       global.Map = Map;
       brand(Map, 'Map');
+      brand(MapIterator, 'Map Iterator');
     }
   }());
 
@@ -784,73 +772,62 @@
     }
 
     Set.prototype = {};
-    Object.defineProperties(
-      Set.prototype,
-      {
-        'add': {
-          value: function add(key) {
-            var i = indexOf(this._setData, key);
-            if (i < 0) { i = this._setData.length; }
-            this._setData[i] = key;
-            if (this.size !== this._setData.length) { this.size = this._setData.length; }
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        'clear': {
-          value: function clear() {
-            this._setData = [];
-            if (this.size !== this._setData.length) { this.size = this._setData.length; }
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        'delete': {
-          value: function deleteFunction(key) {
-            var i = indexOf(this._setData, key);
-            if (i < 0) { return false; }
-            this._setData.splice(i, 1);
-            if (this.size !== this._setData.length) { this.size = this._setData.length; }
-            return true;
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        'forEach': {
-          value: function forEach(callbackfn/*, thisArg*/) {
-            var thisArg = arguments[1];
-            var s = Object(this);
-            if (!ECMAScript.IsCallable(callbackfn)) {
-              throw new TypeError("First argument to forEach is not callable.");
-            }
-            for (var i = 0; i < this._setData.length; ++i) {
-              callbackfn.call(thisArg, this._setData[i], s);
-            }
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        'has': {
-          value: function has(key) {
-            return indexOf(this._setData, key) !== -1;
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        'size': {
-          get: function() {
-            return this._setData.length;
-          }
-        },
-        'values': {
-          value: function values() {
-            return CreateSetIterator(Object(this));
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        '__iterator': {
-          value: function() {
-            return CreateSetIterator(Object(this));
-          },
-          configurable: true, enumerable: false, writable: true
+    defineFunction(
+      Set.prototype, 'add',
+      function add(key) {
+        var i = indexOf(this._setData, key);
+        if (i < 0) { i = this._setData.length; }
+        this._setData[i] = key;
+        if (this.size !== this._setData.length) { this.size = this._setData.length; }
+      });
+    defineFunction(
+      Set.prototype, 'clear',
+      function clear() {
+        this._setData = [];
+        if (this.size !== this._setData.length) { this.size = this._setData.length; }
+      });
+    defineFunction(
+      Set.prototype, 'delete',
+      function deleteFunction(key) {
+        var i = indexOf(this._setData, key);
+        if (i < 0) { return false; }
+        this._setData.splice(i, 1);
+        if (this.size !== this._setData.length) { this.size = this._setData.length; }
+        return true;
+      });
+    defineFunction(
+      Set.prototype, 'forEach',
+      function forEach(callbackfn/*, thisArg*/) {
+        var thisArg = arguments[1];
+        var s = Object(this);
+        if (!ECMAScript.IsCallable(callbackfn)) {
+          throw new TypeError("First argument to forEach is not callable.");
         }
-      }
-    );
+        for (var i = 0; i < this._setData.length; ++i) {
+          callbackfn.call(thisArg, this._setData[i], s);
+        }
+      });
+    defineFunction(
+      Set.prototype, 'has',
+      function has(key) {
+        return indexOf(this._setData, key) !== -1;
+      });
+    Object.defineProperty(
+      Set.prototype, 'size', {
+        get: function() {
+          return this._setData.length;
+        }
+      });
+    defineFunction(
+      Set.prototype, 'values',
+      function values() {
+        return CreateSetIterator(Object(this));
+      });
+    defineFunction(
+      Set.prototype, '__iterator',
+      function() {
+        return CreateSetIterator(Object(this));
+      });
 
     function CreateSetIterator(set) {
       set = Object(set);
@@ -889,6 +866,7 @@
     if (!global.Set) {
       global.Set = Set;
       brand(Set, 'Set');
+      brand(SetIterator, 'Set Iterator');
     }
   }());
 
@@ -961,43 +939,34 @@
     }
 
     WeakMap.prototype = {};
-    Object.defineProperties(
-      WeakMap.prototype,
-      {
-        'clear': {
-          value: function clear() {
-            this._table.clear();
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        'delete': {
-          value: function deleteFunction(key) {
-            if (key !== Object(key)) { throw new TypeError("Expected object"); }
-            this._table.remove(key);
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        'get': {
-          value: function get(key, defaultValue) {
-            if (key !== Object(key)) { throw new TypeError("Expected object"); }
-            return this._table.get(key, defaultValue);
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        'has': {
-          value: function has(key) {
-            if (key !== Object(key)) { throw new TypeError("Expected object"); }
-            return this._table.has(key);
-          },
-          configurable: true, enumerable: false, writable: true
-        },
-        'set': {
-          value: function set(key, value) {
-            if (key !== Object(key)) { throw new TypeError("Expected object"); }
-            this._table.set(key, value);
-          },
-          configurable: true, enumerable: false, writable: true
-        }
+    defineFunction(
+      WeakMap.prototype, 'clear',
+      function clear() {
+        this._table.clear();
+      });
+    defineFunction(
+      WeakMap.prototype, 'delete',
+      function deleteFunction(key) {
+        if (key !== Object(key)) { throw new TypeError("Expected object"); }
+        this._table.remove(key);
+      });
+    defineFunction(
+      WeakMap.prototype, 'get',
+      function get(key, defaultValue) {
+        if (key !== Object(key)) { throw new TypeError("Expected object"); }
+        return this._table.get(key, defaultValue);
+      });
+    defineFunction(
+      WeakMap.prototype, 'has',
+      function has(key) {
+        if (key !== Object(key)) { throw new TypeError("Expected object"); }
+        return this._table.has(key);
+      });
+    defineFunction(
+      WeakMap.prototype, 'set',
+      function set(key, value) {
+        if (key !== Object(key)) { throw new TypeError("Expected object"); }
+        this._table.set(key, value);
       });
 
     if (!global.WeakMap) {
