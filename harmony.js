@@ -504,7 +504,7 @@
         return CreateArrayIterator(this, "value");
       });
     defineFunction(
-      Array.prototype, '__iterator',
+      Array.prototype, '@@iterator',
       Array.prototype.items
     );
 
@@ -558,7 +558,7 @@
         throw new Error("Internal error");
       });
     defineFunction(
-      ArrayIterator.prototype, '__iterator',
+      ArrayIterator.prototype, '@@iterator',
       function() {
         return this;
       });
@@ -578,7 +578,7 @@
 
       if (iterable) {
         iterable = Object(iterable);
-        var it = iterable.__iterator(); // or throw...
+        var it = iterable['@@iterator'](); // or throw...
         try {
           while (true) {
             var next = it.next();
@@ -678,7 +678,7 @@
         return CreateMapIterator(Object(this), "value");
       });
     defineFunction(
-      Map.prototype, '__iterator',
+      Map.prototype, '@@iterator',
       function() {
         return CreateMapIterator(Object(this), "key+value");
       });
@@ -720,7 +720,7 @@
         throw global.StopIteration;
       });
     defineFunction(
-      MapIterator.prototype, '__iterator',
+      MapIterator.prototype, '@@iterator',
       function() {
         return this;
       });
@@ -737,7 +737,7 @@
 
       if (iterable) {
         iterable = Object(iterable);
-        var it = ECMAScript.HasProperty(iterable, "values") ? iterable.values() : iterable.__iterator(); // or throw...
+        var it = ECMAScript.HasProperty(iterable, "values") ? iterable.values() : iterable['@@iterator'](); // or throw...
         try {
           while (true) {
             var next = it.next();
@@ -819,7 +819,7 @@
         return CreateSetIterator(Object(this));
       });
     defineFunction(
-      Set.prototype, '__iterator',
+      Set.prototype, '@@iterator',
       function() {
         return CreateSetIterator(Object(this));
       });
@@ -853,7 +853,7 @@
         throw global.StopIteration;
       });
     defineFunction(
-      SetIterator.prototype, '__iterator',
+      SetIterator.prototype, '@@iterator',
       function() {
         return this;
       });
@@ -913,7 +913,7 @@
 
       if (iterable) {
         iterable = Object(iterable);
-        var it = iterable.__iterator(); // or throw...
+        var it = iterable['@@iterator'](); // or throw...
         try {
           while (true) {
             var next = it.next();
@@ -1060,7 +1060,7 @@
   // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
   (function() {
     defineFunction(
-      String.prototype, '__iterator',
+      String.prototype, '@@iterator',
       function items() {
         return CreateStringIterator(this);
       });
@@ -1090,7 +1090,7 @@
         return String.fromCodePoint(cp);
       });
     defineFunction(
-      StringIterator.prototype, '__iterator',
+      StringIterator.prototype, '@@iterator',
       function() {
         return this;
       });
