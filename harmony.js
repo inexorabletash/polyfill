@@ -157,6 +157,34 @@
       });
   }
 
+  // http://wiki.ecmascript.org/doku.php?id=harmony:extended_object_api
+  defineFunctionProperty(
+    Object, 'getPropertyDescriptor',
+    function getPropertyDescriptor(o, p) {
+      do {
+        var desc = Object.getOwnPropertyDescriptor(o, p);
+        if (desc) {
+          return desc;
+        }
+        o = Object.getPrototypeOf(o);
+      } while (o);
+      return (void 0);
+    });
+
+  // http://wiki.ecmascript.org/doku.php?id=harmony:extended_object_api
+  defineFunctionProperty(
+    Object, 'getPropertyNames',
+    function getPropertyNames(o) {
+      var names = Object.create(null);
+      do {
+        Object.getOwnPropertyNames(o).forEach(function(name) {
+          names[name] = true;
+        });
+        o = Object.getPrototypeOf(o);
+      } while (o);
+      return Object.keys(names);
+    });
+
   //----------------------------------------
   // Properties of the Number Constructor
   //----------------------------------------
