@@ -646,3 +646,40 @@ test("Iterators", function () {
   delete m;
   delete it;
 });
+
+test("Branding", function() {
+  assertEqual("String(new Map)", "[object Map]");
+  assertEqual("Object.prototype.toString.call(new Map)", "[object Map]");
+  assertEqual("String((new Map).items())", "[object Map Iterator]");
+  assertEqual("Object.prototype.toString.call((new Map).items())", "[object Map Iterator]");
+
+  assertEqual("String(new Set)", "[object Set]");
+  assertEqual("Object.prototype.toString.call(new Set)", "[object Set]");
+  assertEqual("String((new Set).values())", "[object Set Iterator]");
+  assertEqual("Object.prototype.toString.call((new Set).values())", "[object Set Iterator]");
+
+  assertEqual("String(new WeakMap)", "[object WeakMap]");
+  assertEqual("Object.prototype.toString.call(new WeakMap)", "[object WeakMap]");
+
+  assertEqual("String([].items())", "[object Array Iterator]");
+  assertEqual("Object.prototype.toString.call([].items())", "[object Array Iterator]");
+
+  // Make sure these aren't broken:
+  assertEqual("Object.prototype.toString.call(undefined)", "[object Undefined]");
+  assertEqual("Object.prototype.toString.call(null)", "[object Null]");
+
+  assertEqual("Object.prototype.toString.call(0)", "[object Number]");
+  assertEqual("Object.prototype.toString.call(1)", "[object Number]");
+  assertEqual("Object.prototype.toString.call(NaN)", "[object Number]");
+
+  assertEqual("Object.prototype.toString.call('')", "[object String]");
+  assertEqual("Object.prototype.toString.call('x')", "[object String]");
+
+  assertEqual("Object.prototype.toString.call(true)", "[object Boolean]");
+  assertEqual("Object.prototype.toString.call(false)", "[object Boolean]");
+
+  assertEqual("Object.prototype.toString.call({})", "[object Object]");
+  assertEqual("Object.prototype.toString.call([])", "[object Array]");
+  assertEqual("Object.prototype.toString.call(function(){})", "[object Function]");
+  // etc.
+});

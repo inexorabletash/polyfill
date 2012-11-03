@@ -73,11 +73,6 @@
     };
   }
 
-  function brand(t, s) {
-    hook(Object.prototype, 'toString', function() {
-      return (this instanceof t) ? '[object ' + s + ']' : (void 0);
-    });
-  }
 
   function defineFunction(o, p, f) {
     if (!(p in o)) {
@@ -109,10 +104,15 @@
   //
   //----------------------------------------------------------------------
 
+  // Object.prototype.toString
+  hook(Object.prototype, 'toString', function() {
+    return (this === Object(this) && '@@toStringTag' in this) ? '[object ' + this['@@toStringTag'] + ']' : (void 0);
+  });
+
   // NOTE: Since true iterators can't be polyfilled, this is a hack
   global.StopIteration = global.StopIteration || (function () {
     function StopIterationClass() {}
-    brand(StopIterationClass, 'StopIteration');
+    StopIterationClass.prototype = {'@@toStringTag': 'StopIteration'};
     return new StopIterationClass;
   }());
 
@@ -517,8 +517,7 @@
       this.nextIndex = nextIndex;
       this.iterationKind = kind;
     }
-    brand(ArrayIterator, 'Array Iterator');
-    ArrayIterator.prototype = {};
+    ArrayIterator.prototype = {'@@toStringTag': 'Array Iterator'};
     defineFunction(
       ArrayIterator.prototype, 'next',
       function() {
@@ -607,7 +606,7 @@
       return -1;
     }
 
-    Map.prototype = {};
+    Map.prototype = {'@@toStringTag': 'Map'};
     defineFunction(
       Map.prototype, 'clear',
       function clear() {
@@ -695,7 +694,7 @@
       this._nextIndex = index;
       this._iterationKind = kind;
     }
-    MapIterator.prototype = {};
+    MapIterator.prototype = {'@@toStringTag': 'Map Iterator'};
     defineFunction(
       MapIterator.prototype, 'next',
       function() {
@@ -726,11 +725,7 @@
         return this;
       });
 
-    if (!global.Map) {
-      global.Map = Map;
-      brand(Map, 'Map');
-      brand(MapIterator, 'Map Iterator');
-    }
+    global.Map = global.Map || Map;
   }());
 
   (function() {
@@ -771,7 +766,7 @@
       return -1;
     }
 
-    Set.prototype = {};
+    Set.prototype = {'@@toStringTag': 'Set'};
     defineFunction(
       Set.prototype, 'add',
       function add(key) {
@@ -839,7 +834,7 @@
       this.set = set;
       this.nextIndex = index;
     }
-    SetIterator.prototype = {};
+    SetIterator.prototype = {'@@toStringTag': 'Set Iterator'};
     defineFunction(
       SetIterator.prototype, 'next',
       function() {
@@ -863,11 +858,7 @@
         return this;
       });
 
-    if (!global.Set) {
-      global.Set = Set;
-      brand(Set, 'Set');
-      brand(SetIterator, 'Set Iterator');
-    }
+    global.Set = global.Set || Set;
   }());
 
   (function() {
@@ -938,7 +929,7 @@
       return this;
     }
 
-    WeakMap.prototype = {};
+    WeakMap.prototype = {'@@toStringTag': 'WeakMap'};
     defineFunction(
       WeakMap.prototype, 'clear',
       function clear() {
@@ -969,10 +960,7 @@
         this._table.set(key, value);
       });
 
-    if (!global.WeakMap) {
-      global.WeakMap = WeakMap;
-      brand(WeakMap, 'WeakMap');
-    }
+    global.WeakMap = global.WeakMap || WeakMap;
   }());
 
   //----------------------------------------------------------------------
@@ -1086,7 +1074,7 @@
       this.iteratedObject = object;
       this.nextIndex = nextIndex;
     }
-    StringIterator.prototype = {};
+    StringIterator.prototype = {'@@toStringTag': 'String Iterator'};
     defineFunction(
       StringIterator.prototype, 'next',
       function() {
