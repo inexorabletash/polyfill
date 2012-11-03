@@ -12,6 +12,8 @@
       global_parseInt = global.parseInt,
       global_parseFloat = global.parseFloat;
 
+  // TODO: Snapshot Math.*
+
   // Approximations of internal ECMAScript functions
   var ECMAScript = (function () {
     var ophop = Object.prototype.hasOwnProperty,
@@ -53,6 +55,45 @@
     };
   }());
 
+  // Helpers
+
+  function hook(o, p, f) {
+    var op = o[p];
+    if (typeof op !== 'function') { throw new TypeError("Not a function"); }
+    o[p] = function() {
+      var r = f.apply(this, arguments);
+      return r !== (void 0) ? r : op.apply(this, arguments);
+    };
+  }
+
+  function brand(t, s) {
+    hook(Object.prototype, 'toString', function() {
+      return (this instanceof t) ? '[object ' + s + ']' : (void 0);
+    });
+  }
+
+  function defineFunction(o, p, f) {
+    if (!(p in o)) {
+      Object.defineProperty(o, p, {
+        value: f,
+        configurable: true,
+        enumerable: false,
+        writable: true
+      });
+    }
+  }
+
+  function defineConstant(o, p, c) {
+    if (!(p in o)) {
+      Object.defineProperty(o, p, {
+        value: c,
+        configurable: false,
+        enumerable: false,
+        writable: false
+      });
+    }
+  }
+
 
   //----------------------------------------------------------------------
   //
@@ -63,12 +104,8 @@
 
   // NOTE: Since true iterators can't be polyfilled, this is a hack
   global.StopIteration = global.StopIteration || (function () {
-    function StopIterationClass() {
-    }
-    StopIterationClass.prototype = {
-      toString: function () { return "[object StopIteration]"; }
-    };
-    // TODO: Wedge into Object.prototype.toString() as well.
+    function StopIterationClass() {}
+    brand(StopIterationClass, 'StopIteration');
     return new StopIterationClass;
   }());
 
@@ -78,319 +115,164 @@
   //----------------------------------------
 
   // TODO: Make sure these get added as functions, not just operators.
-  if (!Object.is) {
-    Object.defineProperty(
-      Object,
-      'is',
-      {
-        value: function is(x, y) {
-          return ECMAScript.SameValue(x, y);
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
-      }
-    );
-  }
+  defineFunction(
+    Object, 'is',
+    function is(x, y) {
+      return ECMAScript.SameValue(x, y);
+    });
 
   // TODO: Make sure these get added as functions, not just operators.
-  if (!Object.isnt) {
-    Object.defineProperty(
-      Object,
-      'isnt',
-      {
-        value: function isnt(x, y) {
-          return !ECMAScript.SameValue(x, y);
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
-      }
-    );
-  }
+  defineFunction(
+    Object, 'isnt',
+    function isnt(x, y) {
+      return !ECMAScript.SameValue(x, y);
+    });
 
-  if (!Object.assign) {
-    Object.defineProperty(
-      Object,
-      'assign',
-      {
-        value: function assign(target, source) {
-          target = Object(target);
-          source = Object(source);
-          Object.keys(source).forEach(function(key) {
-            target[key] = source[key];
-          });
-          return target;
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
-      }
-    );
-  }
+  defineFunction(
+    Object, 'assign',
+    function assign(target, source) {
+      target = Object(target);
+      source = Object(source);
+      Object.keys(source).forEach(function(key) {
+        target[key] = source[key];
+      });
+      return target;
+    });
 
   // Removed from latest ES6 drafts
-  if (false && !Object.isObject) {
-    Object.defineProperty(
-      Object,
-      'isObject', {
-        value: function isObject(o) {
-          var t = typeof o;
-          return t !== 'undefined' && t !== 'boolean' && t !== 'number' && t !== 'string' && o !== null;
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
-      }
-    );
+  if (false) {
+    defineFunction(
+      Object, 'isObject',
+      function isObject(o) {
+        var t = typeof o;
+        return t !== 'undefined' && t !== 'boolean' && t !== 'number' && t !== 'string' && o !== null;
+      });
   }
 
   //----------------------------------------
   // Properties of the Number Constructor
   //----------------------------------------
 
-  if (!Number.EPSILON) {
-    Object.defineProperty(
-      Number,
-      'EPSILON',
-      {
-        value: (function () {
-          var next, result;
-          for (next = 1; 1 + next !== 1; next = next / 2) {
-            result = next;
-          }
-          return result;
-        }()),
-        configurable: false,
-        enumerable: false,
-        writable: false
-      }
-    );
-  }
-
-  if (!Number.MAX_INTEGER) {
-    Object.defineProperty(
-      Number,
-      'MAX_INTEGER',
-      {
-        value: 9007199254740991, // 2^53 - 1
-        configurable: false,
-        enumerable: false,
-        writable: false
-      }
-    );
-  }
-
-  if (!Number.parseFloat) {
+  defineConstant(
+    Number, 'EPSILON',
     (function () {
-      Object.defineProperty(
-        Number,
-        'parseFloat', {
-          value: function parseFloat(string) {
-            return global_parseFloat(string);
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
-  }
-
-  if (!Number.parseInt) {
-    (function () {
-      Object.defineProperty(
-        Number,
-        'parseInt', {
-          value: function parseInt(string) {
-            return global_parseInt(string);
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
-  }
-
-  if (!Number.isFinite) {
-    (function () {
-      Object.defineProperty(
-        Number,
-        'isFinite',
-        {
-          value: function isFinite(value) {
-            return typeof value === 'number' && global_isFinite(value);
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
-  }
-
-  if (!Number.isNaN) {
-    (function () {
-      Object.defineProperty(
-        Number,
-        'isNaN',
-        {
-          value: function isNaN(value) {
-            return typeof value === 'number' && global_isNaN(value);
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
-  }
-
-  if (!Number.isInteger) {
-    Object.defineProperty(
-      Number,
-      'isInteger',
-      {
-        value: function isInteger(number) {
-          if (typeof number !== 'number') {
-            return false;
-          }
-          var integer = ECMAScript.ToInteger(number);
-          if (integer !== number) {
-            return false;
-          }
-          return true;
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
+      var next, result;
+      for (next = 1; 1 + next !== 1; next = next / 2) {
+        result = next;
       }
-    );
-  }
+      return result;
+    }()));
 
-  if (!Number.toInt) {
-    Object.defineProperty(
-      Number,
-      'toInt',
-      {
-        value: function toInt(value) {
-          return ECMAScript.ToInteger(value);
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
+  defineConstant(
+    Number, 'MAX_INTEGER',
+    9007199254740991); // 2^53 - 1
+
+  defineFunction(
+    Number, 'parseFloat',
+    function parseFloat(string) {
+      return global_parseFloat(string);
+    });
+
+  defineFunction(
+    Number,
+    'parseInt',
+    function parseInt(string) {
+      return global_parseInt(string);
+    });
+
+  defineFunction(
+    Number, 'isFinite',
+    function isFinite(value) {
+      return typeof value === 'number' && global_isFinite(value);
+    });
+
+  defineFunction(
+    Number, 'isNaN',
+    function isNaN(value) {
+      return typeof value === 'number' && global_isNaN(value);
+    });
+
+  defineFunction(
+    Number, 'isInteger',
+    function isInteger(number) {
+      if (typeof number !== 'number') {
+        return false;
       }
-    );
-  }
+      var integer = ECMAScript.ToInteger(number);
+      if (integer !== number) {
+        return false;
+      }
+      return true;
+    });
+
+  defineFunction(
+    Number, 'toInt',
+    function toInt(value) {
+      return ECMAScript.ToInteger(value);
+    });
 
 
   //----------------------------------------
   // Properties of the Number Prototype Object
   //----------------------------------------
 
-  if (!Number.prototype.clz) {
-    (function () {
+  defineFunction(
+    Number.prototype, 'clz',
+    function clz() {
+
       function clz8(x) {
         return (x & 0xf0) ? (x & 0x80 ? 0 : x & 0x40 ? 1 : x & 0x20 ? 2 : 3) :
         (x & 0x08 ? 4 : x & 0x04 ? 5 : x & 0x02 ? 6 : x & 0x01 ? 7 : 8);
       }
-      Object.defineProperty(
-        Number.prototype,
-        'clz',
-        {
-          value: function clz() {
-            var x = Number(this);
-            x = ECMAScript.ToUint32(x);
-            return x & 0xff000000 ? clz8(x >> 24) :
-              x & 0xff0000 ? clz8(x >> 16) + 8 :
-              x & 0xff00 ? clz8(x >> 8) + 16 : clz8(x) + 24;
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
-  }
+
+      var x = Number(this);
+      x = ECMAScript.ToUint32(x);
+      return x & 0xff000000 ? clz8(x >> 24) :
+        x & 0xff0000 ? clz8(x >> 16) + 8 :
+        x & 0xff00 ? clz8(x >> 8) + 16 : clz8(x) + 24;
+    });
 
 
   //----------------------------------------
   // Properties of the String Prototype Object
   //----------------------------------------
 
-  if (!String.prototype.repeat) {
-    Object.defineProperty(
-      String.prototype,
-      'repeat',
-      {
-        value: function repeat(count) {
-          // var string = '' + this;
-          // count = ECMAScript.ToInteger(count);
-          // var result = ';
-          // while (--count >= 0) {
-          //     result += string;
-          // }
-          // return result;
-          count = ECMAScript.ToInteger(count);
-          var a = [];
-          a.length = count + 1;
-          return a.join(String(this));
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
-      }
-    );
-  }
+  defineFunction(
+    String.prototype, 'repeat',
+    function repeat(count) {
+      // var string = '' + this;
+      // count = ECMAScript.ToInteger(count);
+      // var result = ';
+      // while (--count >= 0) {
+      //     result += string;
+      // }
+      // return result;
+      count = ECMAScript.ToInteger(count);
+      var a = [];
+      a.length = count + 1;
+      return a.join(String(this));
+    });
 
-  if (!String.prototype.startsWith) {
-    Object.defineProperty(
-      String.prototype,
-      'startsWith',
-      {
-        value: function startsWith(s) {
-          s = String(s);
-          return String(this).substring(0, s.length) === s;
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
-      }
-    );
-  }
+  defineFunction(
+    String.prototype, 'startsWith',
+    function startsWith(s) {
+      s = String(s);
+      return String(this).substring(0, s.length) === s;
+    });
 
-  if (!String.prototype.endsWith) {
-    Object.defineProperty(
-      String.prototype,
-      'endsWith',
-      {
-        value: function endsWith(s) {
-          s = String(s);
-          var t = String(this);
-          return t.substring(t.length - s.length) === s;
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
-      }
-    );
-  }
+  defineFunction(
+    String.prototype, 'endsWith',
+    function endsWith(s) {
+      s = String(s);
+      var t = String(this);
+      return t.substring(t.length - s.length) === s;
+    });
 
-  if (!String.prototype.contains) {
-    Object.defineProperty(
-      String.prototype,
-      'contains',
-      {
-        value: function contains(searchString, position) {
-          return String(this).indexOf(searchString, position) !== -1;
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
-      }
-    );
-  }
+  defineFunction(
+    String.prototype, 'contains',
+    function contains(searchString, position) {
+      return String(this).indexOf(searchString, position) !== -1;
+    });
 
 
   //----------------------------------------
@@ -739,68 +621,50 @@
   // Properties of the Array Constructor
   //----------------------------------------
 
-  if (!Array.of) {
-    Object.defineProperty(
-      Array,
-      'of',
-      {
-        value: function of() {
-          var items = arguments;
-          var lenValue = items.length;
-          var len = ECMAScript.ToUint32(lenValue);
-          var c = this, a;
-          if (ECMAScript.IsConstructor(c)) {
-            a = new c(len);
-            a = Object(a);
-          } else {
-            a = new Array(len);
-          }
-          var k = 0;
-          while (k < len) {
-            a[k] = items[k];
-            k += 1;
-          }
-          a.length = len;
-          return a;
-          return Array.from(arguments);
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
+  defineFunction(
+    Array, 'of',
+    function of() {
+      var items = arguments;
+      var lenValue = items.length;
+      var len = ECMAScript.ToUint32(lenValue);
+      var c = this, a;
+      if (ECMAScript.IsConstructor(c)) {
+        a = new c(len);
+        a = Object(a);
+      } else {
+        a = new Array(len);
       }
-    );
-  }
+      var k = 0;
+      while (k < len) {
+        a[k] = items[k];
+        k += 1;
+      }
+      a.length = len;
+      return a;
+      return Array.from(arguments);
+    });
 
-  if (!Array.from) {
-    Object.defineProperty(
-      Array,
-      'from',
-      {
-        value: function from(arrayLike) {
-          var items = Object(arrayLike);
-          var lenValue = items.length;
-          var len = ECMAScript.ToUint32(lenValue);
-          var c = this, a;
-          if (ECMAScript.IsConstructor(c)) {
-            a = new c(len);
-            a = Object(a);
-          } else {
-            a = new Array(len);
-          }
-          var k = 0;
-          while (k < len) {
-            a[k] = items[k];
-            k += 1;
-          }
-          a.length = len;
-          return a;
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
+  defineFunction(
+    Array, 'from',
+    function from(arrayLike) {
+      var items = Object(arrayLike);
+      var lenValue = items.length;
+      var len = ECMAScript.ToUint32(lenValue);
+      var c = this, a;
+      if (ECMAScript.IsConstructor(c)) {
+        a = new c(len);
+        a = Object(a);
+      } else {
+        a = new Array(len);
       }
-    );
-  }
+      var k = 0;
+      while (k < len) {
+        a[k] = items[k];
+        k += 1;
+      }
+      a.length = len;
+      return a;
+    });
 
   //----------------------------------------
   // Properties of the Array Prototype Object
@@ -1342,146 +1206,106 @@
 
 
   // http://wiki.ecmascript.org/doku.php?id=strawman:array.prototype.pushall
-  if (!Array.prototype.pushAll) {
-    Object.defineProperty(
-      Array.prototype,
-      'pushAll', {
-        value: function pushAll(other, start, end) {
-          other = Object(other);
-          if (typeof start === 'undefined') {
-            start = 0;
-          }
-          start = ECMAScript.ToUint32(start);
-          var otherLength = ECMAScript.ToUint32(other.length);
-          if (typeof end === 'undefined') {
-            end = otherLength;
-          }
-          end = ECMAScript.ToUint32(end);
-          var self = Object(this);
-          var length = ECMAScript.ToUint32(self.length);
-          for (var i = 0, j = length; i < end; i++, j++) {
-            self[j] = other[i];
-          }
-          self.length = j;
-          return;
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
+  defineFunction(
+    Array.prototype, 'pushAll',
+    function pushAll(other, start, end) {
+      other = Object(other);
+      if (typeof start === 'undefined') {
+        start = 0;
       }
-    );
-  }
+      start = ECMAScript.ToUint32(start);
+      var otherLength = ECMAScript.ToUint32(other.length);
+      if (typeof end === 'undefined') {
+        end = otherLength;
+      }
+      end = ECMAScript.ToUint32(end);
+      var self = Object(this);
+      var length = ECMAScript.ToUint32(self.length);
+      for (var i = 0, j = length; i < end; i++, j++) {
+        self[j] = other[i];
+      }
+      self.length = j;
+      return;
+    });
 
   // es-discuss: DOMStringList replacement
-  if (!Array.prototype.contains) {
-    Object.defineProperty(
-      Array.prototype,
-      'contains', {
-        value: function contains(target) {
-          if (this === void 0 || this === null) { throw new TypeError(); }
-          var t = Object(this),
-              len = ECMAScript.ToUint32(t.length),
-              i;
-          for (i = 0; i < len; i += 1) {
-            // eval("0 in [undefined]") == false in IE8-
-            if (/*i in t &&*/ ECMAScript.SameValue(t[i], target)) {
-              return true;
-            }
-          }
-          return false;
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
-      }
-    );
-  }
-
-  // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
-  if (!String.fromCodePoint) {
-    (function () {
-      var floor = Math.floor;
-      Object.defineProperty(
-        String,
-        'fromCodePoint', {
-          value: function fromCodePoint() {
-            var chars = [], i;
-            for (i = 0; i < arguments.length; i++) {
-              var c = Number(arguments[i]);
-              if (!isFinite(c) || c < 0 || c > 0x10FFFF || floor(c) !== c) {
-                throw new RangeError("Invalid code point " + c);
-              }
-              if (c < 0x10000) {
-                chars.push(c);
-              } else {
-                c -= 0x10000;
-                chars.push((c >> 10) + 0xD800);
-                chars.push((c % 0x400) + 0xDC00);
-              }
-            }
-            return String.fromCharCode.apply(undefined, chars);
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
+  defineFunction(
+    Array.prototype, 'contains',
+    function contains(target) {
+      if (this === void 0 || this === null) { throw new TypeError(); }
+      var t = Object(this),
+          len = ECMAScript.ToUint32(t.length),
+          i;
+      for (i = 0; i < len; i += 1) {
+        // eval("0 in [undefined]") == false in IE8-
+        if (/*i in t &&*/ ECMAScript.SameValue(t[i], target)) {
+          return true;
         }
-      );
-    }());
-  }
+      }
+      return false;
+    });
 
   // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
-  if (!String.prototype.codePointAt) {
-    Object.defineProperty(
-      String.prototype,
-      'codePointAt', {
-        value: function codePointAt(index) {
-          var str = String(this);
-          if (index < 0 || index >= str.length) {
-            return undefined;
+  (function () {
+    var floor = Math.floor;
+    defineFunction(
+      String, 'fromCodePoint',
+      function fromCodePoint() {
+        var chars = [], i;
+        for (i = 0; i < arguments.length; i++) {
+          var c = Number(arguments[i]);
+          if (!isFinite(c) || c < 0 || c > 0x10FFFF || floor(c) !== c) {
+            throw new RangeError("Invalid code point " + c);
           }
-          var first = str.charCodeAt(index);
-          if (first >= 0xD800 && first <= 0xDBFF && str.length > index + 1) {
-            var second = str.charCodeAt(index + 1);
-            if (second >= 0xDC00 && second <= 0xDFFF) {
-              return ((first - 0xD800) << 10) + (second - 0xDC00) + 0x10000;
-            }
+          if (c < 0x10000) {
+            chars.push(c);
+          } else {
+            c -= 0x10000;
+            chars.push((c >> 10) + 0xD800);
+            chars.push((c % 0x400) + 0xDC00);
           }
-          return first;
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
-      }
-    );
-  }
+        }
+        return String.fromCharCode.apply(undefined, chars);
+      });
+  }());
 
   // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
-  if (!String.prototype.__iterator) {
-    Object.defineProperty(
-      String.prototype,
-      '__iterator', {
-        value: function () {
-          var s = this;
-          return {
-            index: 0,
-            'next': function () {
-              if (this.index >= s.length) {
-                throw global.StopIteration;
-              }
-              var cp = s.codePointAt(this.index);
-              this.index += cp > 0xFFFF ? 2 : 1;
-              return String.fromCodePoint(cp);
-            },
-            '__iterator': function() {
-              return this;
-            }
-          };
-        },
-        configurable: true,
-        enumerable: false,
-        writable: true
+  defineFunction(
+    String.prototype, 'codePointAt',
+    function codePointAt(index) {
+      var str = String(this);
+      if (index < 0 || index >= str.length) {
+        return undefined;
       }
-    );
-  }
+      var first = str.charCodeAt(index);
+      if (first >= 0xD800 && first <= 0xDBFF && str.length > index + 1) {
+        var second = str.charCodeAt(index + 1);
+        if (second >= 0xDC00 && second <= 0xDFFF) {
+          return ((first - 0xD800) << 10) + (second - 0xDC00) + 0x10000;
+        }
+      }
+      return first;
+    });
+
+  // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
+  defineFunction(
+    String.prototype, '__iterator',
+    function () {
+      var s = this;
+      return {
+        index: 0,
+        'next': function () {
+          if (this.index >= s.length) {
+            throw global.StopIteration;
+          }
+          var cp = s.codePointAt(this.index);
+          this.index += cp > 0xFFFF ? 2 : 1;
+          return String.fromCodePoint(cp);
+        },
+        '__iterator': function() {
+          return this;
+        }
+      };
+    });
 
 }(self));
