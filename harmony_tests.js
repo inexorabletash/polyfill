@@ -626,4 +626,23 @@ test("Iterators", function () {
   assertTrue("s.has('A')");
   assertFalse("s.has('Z')");
   assertEqual("s.size", 3);
+  it = s.values();
+  assertEqual("it.next()", 'A');
+  assertEqual("it.next()", 'B');
+  assertEqual("it.next()", 'C');
+  assertThrows("it.next()");
+
+  m = Map();
+  m.set(1, 'a');
+  m.set(2, 'b');
+  m.set(3, 'c');
+  it = m.items();
+  assertEqual("it.next().length", 2);
+  assertEqual("it.next()[0]", 2);
+  assertEqual("it.next()[1]", "c");
+  assertThrows("it.next()");
+
+  delete s;
+  delete m;
+  delete it;
 });
