@@ -895,13 +895,11 @@
   (function() {
     // Inspired by https://gist.github.com/1638059
     /** @constructor */
-    function WeakMap(iterable) {
-      if (!(this instanceof WeakMap)) { return new WeakMap(iterable); }
-
-      var secretKey = {};
+    function EphemeronTable() {
+      var secretKey = Object.create(null);
 
       function conceal(o) {
-        var oValueOf = o.valueOf, secrets = {};
+        var oValueOf = o.valueOf, secrets = Object.create(null);
         o.valueOf = (function(secretKey) {
           return function (k) {
             return (k === secretKey) ? secrets : oValueOf.apply(o, arguments);
@@ -915,50 +913,34 @@
         return v === o ? null : v;
       }
 
-      Object.defineProperties(
-        this,
-        {
-          'clear': {
-            value: function clear() {
-              secretKey = {};
-            },
-            configurable: true, enumerable: false, writable: true
-          },
-          'delete': {
-            value: function deleteFunction(key) {
-              key = Object(key);
-              var secrets = reveal(key);
-              if (secrets) {
-                delete secrets.value;
-              }
-            },
-            configurable: true, enumerable: false, writable: true
-          },
-          'get': {
-            value: function get(key, defaultValue) {
-              key = Object(key);
-              var secrets = reveal(key);
-              return (secrets && ECMAScript.HasOwnProperty(secrets, 'value')) ? secrets.value : defaultValue;
-            },
-            configurable: true, enumerable: false, writable: true
-          },
-          'has': {
-            value: function has(key) {
-              key = Object(key);
-              var secrets = reveal(key);
-              return Boolean(secrets && ECMAScript.HasOwnProperty(secrets, 'value'));
-            },
-            configurable: true, enumerable: false, writable: true
-          },
-          'set': {
-            value: function set(key, value) {
-              key = Object(key);
-              var secrets = reveal(key) || conceal(key);
-              secrets.value = value;
-            },
-            configurable: true, enumerable: false, writable: true
-          }
-        });
+      this.clear = function() {
+        secretKey = Object.create(null);
+      };
+      this.remove = function(key) {
+        var secrets = reveal(key);
+        if (secrets) {
+          delete secrets.value;
+        }
+      };
+      this.get = function(key, defaultValue) {
+        var secrets = reveal(key);
+        return (secrets && ECMAScript.HasOwnProperty(secrets, 'value')) ? secrets.value : defaultValue;
+      };
+      this.has = function(key) {
+        var secrets = reveal(key);
+        return Boolean(secrets && ECMAScript.HasOwnProperty(secrets, 'value'));
+      };
+      this.set = function(key, value) {
+        var secrets = reveal(key) || conceal(key);
+        secrets.value = value;
+      };
+    }
+
+    /** @constructor */
+    function WeakMap(iterable) {
+      if (!(this instanceof WeakMap)) { return new WeakMap(iterable); }
+
+      this._table = new EphemeronTable;
 
       if (iterable) {
         iterable = Object(iterable);
@@ -977,6 +959,47 @@
 
       return this;
     }
+
+    WeakMap.prototype = {};
+    Object.defineProperties(
+      WeakMap.prototype,
+      {
+        'clear': {
+          value: function clear() {
+            this._table.clear();
+          },
+          configurable: true, enumerable: false, writable: true
+        },
+        'delete': {
+          value: function deleteFunction(key) {
+            if (key !== Object(key)) { throw new TypeError("Expected object"); }
+            this._table.remove(key);
+          },
+          configurable: true, enumerable: false, writable: true
+        },
+        'get': {
+          value: function get(key, defaultValue) {
+            if (key !== Object(key)) { throw new TypeError("Expected object"); }
+            return this._table.get(key, defaultValue);
+          },
+          configurable: true, enumerable: false, writable: true
+        },
+        'has': {
+          value: function has(key) {
+            if (key !== Object(key)) { throw new TypeError("Expected object"); }
+            return this._table.has(key);
+          },
+          configurable: true, enumerable: false, writable: true
+        },
+        'set': {
+          value: function set(key, value) {
+            if (key !== Object(key)) { throw new TypeError("Expected object"); }
+            this._table.set(key, value);
+          },
+          configurable: true, enumerable: false, writable: true
+        }
+      });
+
     if (!global.WeakMap) {
       global.WeakMap = WeakMap;
       brand(WeakMap, 'WeakMap');
