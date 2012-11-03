@@ -7,6 +7,8 @@
 (function (global) {
   "use strict";
 
+  // Snapshot intrinsic functions
+
   var global_isNaN = global.isNaN,
       global_isFinite = global.isFinite,
       global_parseInt = global.parseInt,
@@ -73,8 +75,7 @@
     };
   }
 
-
-  function defineFunction(o, p, f) {
+  function defineFunctionProperty(o, p, f) {
     if (!(p in o)) {
       Object.defineProperty(o, p, {
         value: f,
@@ -85,7 +86,7 @@
     }
   }
 
-  function defineConstant(o, p, c) {
+  function defineValueProperty(o, p, c) {
     if (!(p in o)) {
       Object.defineProperty(o, p, {
         value: c,
@@ -122,20 +123,20 @@
   //----------------------------------------
 
   // TODO: Make sure these get added as functions, not just operators.
-  defineFunction(
+  defineFunctionProperty(
     Object, 'is',
     function is(x, y) {
       return ECMAScript.SameValue(x, y);
     });
 
   // TODO: Make sure these get added as functions, not just operators.
-  defineFunction(
+  defineFunctionProperty(
     Object, 'isnt',
     function isnt(x, y) {
       return !ECMAScript.SameValue(x, y);
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Object, 'assign',
     function assign(target, source) {
       target = Object(target);
@@ -148,7 +149,7 @@
 
   // Removed from latest ES6 drafts
   if (false) {
-    defineFunction(
+    defineFunctionProperty(
       Object, 'isObject',
       function isObject(o) {
         var t = typeof o;
@@ -160,7 +161,7 @@
   // Properties of the Number Constructor
   //----------------------------------------
 
-  defineConstant(
+  defineValueProperty(
     Number, 'EPSILON',
     (function () {
       var next, result;
@@ -170,36 +171,36 @@
       return result;
     }()));
 
-  defineConstant(
+  defineValueProperty(
     Number, 'MAX_INTEGER',
     9007199254740991); // 2^53 - 1
 
-  defineFunction(
+  defineFunctionProperty(
     Number, 'parseFloat',
     function parseFloat(string) {
       return global_parseFloat(string);
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Number,
     'parseInt',
     function parseInt(string) {
       return global_parseInt(string);
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Number, 'isFinite',
     function isFinite(value) {
       return typeof value === 'number' && global_isFinite(value);
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Number, 'isNaN',
     function isNaN(value) {
       return typeof value === 'number' && global_isNaN(value);
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Number, 'isInteger',
     function isInteger(number) {
       if (typeof number !== 'number') {
@@ -212,7 +213,7 @@
       return true;
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Number, 'toInt',
     function toInt(value) {
       return ECMAScript.ToInteger(value);
@@ -223,7 +224,7 @@
   // Properties of the Number Prototype Object
   //----------------------------------------
 
-  defineFunction(
+  defineFunctionProperty(
     Number.prototype, 'clz',
     function clz() {
 
@@ -244,7 +245,7 @@
   // Properties of the String Prototype Object
   //----------------------------------------
 
-  defineFunction(
+  defineFunctionProperty(
     String.prototype, 'repeat',
     function repeat(count) {
       // var string = '' + this;
@@ -260,14 +261,14 @@
       return a.join(String(this));
     });
 
-  defineFunction(
+  defineFunctionProperty(
     String.prototype, 'startsWith',
     function startsWith(s) {
       s = String(s);
       return String(this).substring(0, s.length) === s;
     });
 
-  defineFunction(
+  defineFunctionProperty(
     String.prototype, 'endsWith',
     function endsWith(s) {
       s = String(s);
@@ -275,7 +276,7 @@
       return t.substring(t.length - s.length) === s;
     });
 
-  defineFunction(
+  defineFunctionProperty(
     String.prototype, 'contains',
     function contains(searchString, position) {
       return String(this).indexOf(searchString, position) !== -1;
@@ -286,21 +287,21 @@
   // Function Properties of the Math Object
   //----------------------------------------
 
-  defineFunction(
+  defineFunctionProperty(
     Math, 'log10',
     function log10(x) {
       x = Number(x);
       return log(x) * LOG10E;
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Math, 'log2',
     function log2(x) {
       x = Number(x);
       return log(x) * LOG2E;
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Math, 'log1p',
     function log1p(x) {
       x = Number(x);
@@ -316,7 +317,7 @@
       }
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Math, 'expm1',
     function expm1(x) {
       x = Number(x);
@@ -330,21 +331,21 @@
       }
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Math, 'cosh',
     function cosh(x) {
       x = Number(x);
       return (pow(E, x) + pow(E, -x)) / 2;
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Math, 'sinh',
     function sinh(x) {
       x = Number(x);
       return ECMAScript.SameValue(x, -0) ? x : (pow(E, x) - pow(E, -x)) / 2;
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Math, 'tanh',
     function tanh(x) {
       x = Number(x);
@@ -353,14 +354,14 @@
       return ECMAScript.SameValue(x, -0) ? x : (n === d) ? 1 : n / d; // Handle Infinity/Infinity
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Math, 'acosh',
     function acosh(x) {
       x = Number(x);
       return log(x + sqrt(x * x - 1));
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Math, 'asinh',
     function asinh(x) {
       x = Number(x);
@@ -371,14 +372,14 @@
       return (s === -x) ? log(0) : log(x + s);
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Math, 'atanh',
     function atanh(x) {
       x = Number(x);
       return (x === 0) ? x : log((1 + x) / (1 - x)) / 2;
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Math, 'hypot',
     function hypot(x, y, z) {
       function isInfinite(x) { return x === Infinity || x === -Infinity; }
@@ -406,7 +407,7 @@
       }
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Math, 'trunc',
     function trunc(x) {
       x = Number(x);
@@ -414,14 +415,14 @@
         x < 0 ? ceil(x) : floor(x);
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Math, 'sign',
     function sign(x) {
       x = Number(x);
       return x < 0 ? -1 : x > 0 ? 1 : x;
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Math, 'cbrt',
     function sign(x) {
       x = Number(x);
@@ -438,7 +439,7 @@
   // Properties of the Array Constructor
   //----------------------------------------
 
-  defineFunction(
+  defineFunctionProperty(
     Array, 'of',
     function of() {
       var items = arguments;
@@ -461,7 +462,7 @@
       return Array.from(arguments);
     });
 
-  defineFunction(
+  defineFunctionProperty(
     Array, 'from',
     function from(arrayLike) {
       var items = Object(arrayLike);
@@ -488,22 +489,22 @@
   //----------------------------------------
 
   (function() {
-    defineFunction(
+    defineFunctionProperty(
       Array.prototype, 'items',
       function items() {
         return CreateArrayIterator(this, "key+value");
       });
-    defineFunction(
+    defineFunctionProperty(
       Array.prototype, 'keys',
       function keys() {
         return CreateArrayIterator(this, "key");
       });
-    defineFunction(
+    defineFunctionProperty(
       Array.prototype, 'values',
       function values() {
         return CreateArrayIterator(this, "value");
       });
-    defineFunction(
+    defineFunctionProperty(
       Array.prototype, '@@iterator',
       Array.prototype.items
     );
@@ -518,7 +519,7 @@
       this.iterationKind = kind;
     }
     ArrayIterator.prototype = {'@@toStringTag': 'Array Iterator'};
-    defineFunction(
+    defineFunctionProperty(
       ArrayIterator.prototype, 'next',
       function() {
         if (typeof this !== 'object') { throw new TypeError; }
@@ -557,7 +558,7 @@
         }
         throw new Error("Internal error");
       });
-    defineFunction(
+    defineFunctionProperty(
       ArrayIterator.prototype, '@@iterator',
       function() {
         return this;
@@ -607,14 +608,14 @@
     }
 
     Map.prototype = {'@@toStringTag': 'Map'};
-    defineFunction(
+    defineFunctionProperty(
       Map.prototype, 'clear',
       function clear() {
         this._mapData.keys.length = 0;
         this._mapData.values.length = 0;
         if (this.size !== this._mapData.keys.length) { this.size = this._mapData.keys.length; }
       });
-    defineFunction(
+    defineFunctionProperty(
       Map.prototype, 'delete',
       function deleteFunction(key) {
         var i = indexOf(this._mapData, key);
@@ -624,7 +625,7 @@
         if (this.size !== this._mapData.keys.length) { this.size = this._mapData.keys.length; }
         return true;
       });
-    defineFunction(
+    defineFunctionProperty(
       Map.prototype, 'forEach',
       function forEach(callbackfn /*, thisArg*/) {
         var thisArg = arguments[1];
@@ -636,28 +637,28 @@
           callbackfn.call(thisArg, this._mapData.keys[i], this._mapData.values[i], m);
         }
       });
-    defineFunction(
+    defineFunctionProperty(
       Map.prototype, 'get',
       function get(key) {
         var i = indexOf(this._mapData, key);
         return i < 0 ? undefined : this._mapData.values[i];
       });
-    defineFunction(
+    defineFunctionProperty(
       Map.prototype, 'has',
       function has(key) {
         return indexOf(this._mapData, key) >= 0;
       });
-    defineFunction(
+    defineFunctionProperty(
       Map.prototype, 'items',
       function items() {
         return CreateMapIterator(Object(this), "key+value");
       });
-    defineFunction(
+    defineFunctionProperty(
       Map.prototype, 'keys',
       function keys() {
         return CreateMapIterator(Object(this), "key");
       });
-    defineFunction(
+    defineFunctionProperty(
       Map.prototype, 'set',
       function set(key, val) {
         var i = indexOf(this._mapData, key);
@@ -672,12 +673,12 @@
           return this._mapData.keys.length;
         }
       });
-    defineFunction(
+    defineFunctionProperty(
       Map.prototype, 'values',
       function values() {
         return CreateMapIterator(Object(this), "value");
       });
-    defineFunction(
+    defineFunctionProperty(
       Map.prototype, '@@iterator',
       function() {
         return CreateMapIterator(Object(this), "key+value");
@@ -695,7 +696,7 @@
       this._iterationKind = kind;
     }
     MapIterator.prototype = {'@@toStringTag': 'Map Iterator'};
-    defineFunction(
+    defineFunctionProperty(
       MapIterator.prototype, 'next',
       function() {
         if (typeof this !== 'object') { throw new TypeError(); }
@@ -719,7 +720,7 @@
         }
         throw global.StopIteration;
       });
-    defineFunction(
+    defineFunctionProperty(
       MapIterator.prototype, '@@iterator',
       function() {
         return this;
@@ -767,7 +768,7 @@
     }
 
     Set.prototype = {'@@toStringTag': 'Set'};
-    defineFunction(
+    defineFunctionProperty(
       Set.prototype, 'add',
       function add(key) {
         var i = indexOf(this._setData, key);
@@ -775,13 +776,13 @@
         this._setData[i] = key;
         if (this.size !== this._setData.length) { this.size = this._setData.length; }
       });
-    defineFunction(
+    defineFunctionProperty(
       Set.prototype, 'clear',
       function clear() {
         this._setData = [];
         if (this.size !== this._setData.length) { this.size = this._setData.length; }
       });
-    defineFunction(
+    defineFunctionProperty(
       Set.prototype, 'delete',
       function deleteFunction(key) {
         var i = indexOf(this._setData, key);
@@ -790,7 +791,7 @@
         if (this.size !== this._setData.length) { this.size = this._setData.length; }
         return true;
       });
-    defineFunction(
+    defineFunctionProperty(
       Set.prototype, 'forEach',
       function forEach(callbackfn/*, thisArg*/) {
         var thisArg = arguments[1];
@@ -802,7 +803,7 @@
           callbackfn.call(thisArg, this._setData[i], s);
         }
       });
-    defineFunction(
+    defineFunctionProperty(
       Set.prototype, 'has',
       function has(key) {
         return indexOf(this._setData, key) !== -1;
@@ -813,12 +814,12 @@
           return this._setData.length;
         }
       });
-    defineFunction(
+    defineFunctionProperty(
       Set.prototype, 'values',
       function values() {
         return CreateSetIterator(Object(this));
       });
-    defineFunction(
+    defineFunctionProperty(
       Set.prototype, '@@iterator',
       function() {
         return CreateSetIterator(Object(this));
@@ -835,7 +836,7 @@
       this.nextIndex = index;
     }
     SetIterator.prototype = {'@@toStringTag': 'Set Iterator'};
-    defineFunction(
+    defineFunctionProperty(
       SetIterator.prototype, 'next',
       function() {
         if (typeof this !== 'object') { throw new TypeError; }
@@ -852,7 +853,7 @@
         }
         throw global.StopIteration;
       });
-    defineFunction(
+    defineFunctionProperty(
       SetIterator.prototype, '@@iterator',
       function() {
         return this;
@@ -930,30 +931,30 @@
     }
 
     WeakMap.prototype = {'@@toStringTag': 'WeakMap'};
-    defineFunction(
+    defineFunctionProperty(
       WeakMap.prototype, 'clear',
       function clear() {
         this._table.clear();
       });
-    defineFunction(
+    defineFunctionProperty(
       WeakMap.prototype, 'delete',
       function deleteFunction(key) {
         if (key !== Object(key)) { throw new TypeError("Expected object"); }
         this._table.remove(key);
       });
-    defineFunction(
+    defineFunctionProperty(
       WeakMap.prototype, 'get',
       function get(key, defaultValue) {
         if (key !== Object(key)) { throw new TypeError("Expected object"); }
         return this._table.get(key, defaultValue);
       });
-    defineFunction(
+    defineFunctionProperty(
       WeakMap.prototype, 'has',
       function has(key) {
         if (key !== Object(key)) { throw new TypeError("Expected object"); }
         return this._table.has(key);
       });
-    defineFunction(
+    defineFunctionProperty(
       WeakMap.prototype, 'set',
       function set(key, value) {
         if (key !== Object(key)) { throw new TypeError("Expected object"); }
@@ -970,7 +971,7 @@
   //----------------------------------------------------------------------
 
   // http://wiki.ecmascript.org/doku.php?id=strawman:number_compare
-  defineFunction(
+  defineFunctionProperty(
     Number, 'compare',
     function compare(first, second, tolerance) {
       var difference = first - second;
@@ -979,7 +980,7 @@
 
 
   // http://wiki.ecmascript.org/doku.php?id=strawman:array.prototype.pushall
-  defineFunction(
+  defineFunctionProperty(
     Array.prototype, 'pushAll',
     function pushAll(other, start, end) {
       other = Object(other);
@@ -1002,7 +1003,7 @@
     });
 
   // es-discuss: DOMStringList replacement
-  defineFunction(
+  defineFunctionProperty(
     Array.prototype, 'contains',
     function contains(target) {
       if (this === void 0 || this === null) { throw new TypeError(); }
@@ -1019,7 +1020,7 @@
     });
 
   // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
-  defineFunction(
+  defineFunctionProperty(
     String, 'fromCodePoint',
     function fromCodePoint() {
       var chars = [], i;
@@ -1040,7 +1041,7 @@
     });
 
   // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
-  defineFunction(
+  defineFunctionProperty(
     String.prototype, 'codePointAt',
     function codePointAt(index) {
       var str = String(this);
@@ -1059,7 +1060,7 @@
 
   // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
   (function() {
-    defineFunction(
+    defineFunctionProperty(
       String.prototype, '@@iterator',
       function items() {
         return CreateStringIterator(this);
@@ -1075,7 +1076,7 @@
       this.nextIndex = nextIndex;
     }
     StringIterator.prototype = {'@@toStringTag': 'String Iterator'};
-    defineFunction(
+    defineFunctionProperty(
       StringIterator.prototype, 'next',
       function() {
         var s = String(this.iteratedObject),
@@ -1089,7 +1090,7 @@
         this.nextIndex += cp > 0xFFFF ? 2 : 1;
         return String.fromCodePoint(cp);
       });
-    defineFunction(
+    defineFunctionProperty(
       StringIterator.prototype, '@@iterator',
       function() {
         return this;
