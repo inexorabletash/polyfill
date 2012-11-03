@@ -488,6 +488,30 @@
   //----------------------------------------
 
   (function() {
+    defineFunction(
+      Array.prototype, 'items',
+      function items() {
+        return CreateArrayIterator(this, "key+value");
+      });
+    defineFunction(
+      Array.prototype, 'keys',
+      function keys() {
+        return CreateArrayIterator(this, "key");
+      });
+    defineFunction(
+      Array.prototype, 'values',
+      function values() {
+        return CreateArrayIterator(this, "value");
+      });
+    defineFunction(
+      Array.prototype, '__iterator',
+      Array.prototype.items
+    );
+
+    function CreateArrayIterator(array, kind) {
+      return new ArrayIterator(array, 0, kind);
+    }
+
     function ArrayIterator(object, nextIndex, kind) {
       this.iteratedObject = object;
       this.nextIndex = nextIndex;
@@ -533,36 +557,11 @@
         }
         throw new Error("Internal error");
       });
-
     defineFunction(
       ArrayIterator.prototype, '__iterator',
       function() {
         return this;
       });
-
-    function CreateArrayIterator(array, kind) {
-      return new ArrayIterator(array, 0, kind);
-    }
-
-    defineFunction(
-      Array.prototype, 'items',
-      function items() {
-        return CreateArrayIterator(this, "key+value");
-      });
-    defineFunction(
-      Array.prototype, 'keys',
-      function keys() {
-        return CreateArrayIterator(this, "key");
-      });
-    defineFunction(
-      Array.prototype, 'values',
-      function values() {
-        return CreateArrayIterator(this, "value");
-      });
-    defineFunction(
-      Array.prototype, '__iterator',
-      Array.prototype.items
-    );
   }());
 
 
@@ -578,15 +577,14 @@
 
     function indexOf(key) {
       var i;
-      // Slow case for NaN/+0/-0
-      if (key !== key || key === 0) {
-        for (i = 0; i < mapData.keys.length; i += 1) {
-          if (ECMAScript.SameValue(mapData.keys[i], key)) { return i; }
-        }
-        return -1;
+      if (key === key && key !== 0) {
+        return mapData.keys.indexOf(key);
       }
-      // Fast case
-      return mapData.keys.indexOf(key);
+      // Slow case for NaN/+0/-0
+      for (i = 0; i < mapData.keys.length; i += 1) {
+        if (ECMAScript.SameValue(mapData.keys[i], key)) { return i; }
+      }
+      return -1;
     }
 
     Object.defineProperties(
@@ -679,13 +677,20 @@
       }
     );
 
+    function CreateMapIterator(map, kind) {
+      map = Object(map);
+      return new MapIterator(map, 0, kind);
+    }
+
     function MapIterator(map, index, kind) {
       this.map = map;
       this.nextIndex = index;
       this.iterationKind = kind;
     }
-    MapIterator.prototype = {
-      'next': function() {
+    MapIterator.prototype = {};
+    defineFunction(
+      MapIterator.prototype, 'next',
+      function() {
         if (typeof this !== 'object') { throw new TypeError(); }
         var m = this.map,
             index = this.nextIndex,
@@ -706,16 +711,12 @@
           }
         }
         throw global.StopIteration;
-      },
-      '__iterator': function() {
+      });
+    defineFunction(
+      MapIterator.prototype, '__iterator',
+      function() {
         return this;
-      }
-    };
-
-    function CreateMapIterator(map, kind) {
-      map = Object(map);
-      return new MapIterator(map, 0, kind);
-    }
+      });
 
     if (iterable) {
       iterable = Object(iterable);
@@ -831,8 +832,10 @@
       this.set = set;
       this.nextIndex = index;
     }
-    SetIterator.prototype = {
-      'next': function() {
+    SetIterator.prototype = {};
+    defineFunction(
+      SetIterator.prototype, 'next',
+      function() {
         if (typeof this !== 'object') { throw new TypeError; }
         var s = this.set,
             index = this.nextIndex,
@@ -846,12 +849,12 @@
           }
         }
         throw global.StopIteration;
-      },
-      '__iterator': function() {
+      });
+    defineFunction(
+      SetIterator.prototype, '__iterator',
+      function() {
         return this;
-      }
-    };
-
+      });
 
     if (iterable) {
       iterable = Object(iterable);
