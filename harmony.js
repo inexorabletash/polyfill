@@ -12,13 +12,20 @@
       global_parseInt = global.parseInt,
       global_parseFloat = global.parseFloat;
 
-  // TODO: Snapshot Math.*
+  var E = Math.E,
+      LOG10E = Math.LOG10E,
+      LOG2E = Math.LOG2E,
+      abs = Math.abs,
+      ceil = Math.ceil,
+      exp = Math.exp,
+      floor = Math.floor,
+      log = Math.log,
+      pow = Math.pow,
+      sqrt = Math.sqrt;
 
   // Approximations of internal ECMAScript functions
   var ECMAScript = (function () {
-    var ophop = Object.prototype.hasOwnProperty,
-        floor = Math.floor,
-        abs = Math.abs;
+    var ophop = Object.prototype.hasOwnProperty;
     return {
       HasProperty: function (o, p) { return p in o; },
       HasOwnProperty: function (o, p) { return ophop.call(o, p); },
@@ -279,342 +286,152 @@
   // Function Properties of the Math Object
   //----------------------------------------
 
-  if (!Math.log10) {
-    (function () {
-      var log = Math.log,
-          LOG10E = Math.LOG10E;
+  defineFunction(
+    Math, 'log10',
+    function log10(x) {
+      x = Number(x);
+      return log(x) * LOG10E;
+    });
 
-      Object.defineProperty(
-        Math,
-        'log10',
-        {
-          value: function log10(x) {
-            x = Number(x);
-            return log(x) * LOG10E;
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
-  }
+  defineFunction(
+    Math, 'log2',
+    function log2(x) {
+      x = Number(x);
+      return log(x) * LOG2E;
+    });
 
-  if (!Math.log2) {
-    (function () {
-      var log = Math.log,
-          LOG2E = Math.LOG2E;
+  defineFunction(
+    Math, 'log1p',
+    function log1p(x) {
+      x = Number(x);
+      // from: http://www.johndcook.com/cpp_expm1.html
+      if (x < -1) {
+        return NaN;
+      } else if (ECMAScript.SameValue(x, -0)) {
+        return -0;
+      } else if (abs(x) > 1e-4) {
+        return log(1 + x);
+      } else {
+        return (-0.5 * x + 1) * x;
+      }
+    });
 
-      Object.defineProperty(
-        Math,
-        'log2',
-        {
-          value: function log2(x) {
-            x = Number(x);
-            return log(x) * LOG2E;
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
-  }
+  defineFunction(
+    Math, 'expm1',
+    function expm1(x) {
+      x = Number(x);
+      // from: http://www.johndcook.com/cpp_log1p.html
+      if (ECMAScript.SameValue(x, -0)) {
+        return -0;
+      } else if (abs(x) < 1e-5) {
+        return x + 0.5 * x * x; // two terms of Taylor expansion
+      } else {
+        return exp(x) - 1;
+      }
+    });
 
-  if (!Math.log1p) {
-    (function () {
-      var log = Math.log,
-          abs = Math.abs;
+  defineFunction(
+    Math, 'cosh',
+    function cosh(x) {
+      x = Number(x);
+      return (pow(E, x) + pow(E, -x)) / 2;
+    });
 
-      Object.defineProperty(
-        Math,
-        'log1p',
-        {
-          value: function log1p(x) {
-            x = Number(x);
-            // from: http://www.johndcook.com/cpp_expm1.html
-            if (x < -1) {
-              return NaN;
-            } else if (ECMAScript.SameValue(x, -0)) {
-              return -0;
-            } else if (abs(x) > 1e-4) {
-              return log(1 + x);
-            } else {
-              return (-0.5 * x + 1) * x;
-            }
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
-  }
+  defineFunction(
+    Math, 'sinh',
+    function sinh(x) {
+      x = Number(x);
+      return ECMAScript.SameValue(x, -0) ? x : (pow(E, x) - pow(E, -x)) / 2;
+    });
 
-  if (!Math.expm1) {
-    (function () {
-      var exp = Math.exp,
-          abs = Math.abs;
+  defineFunction(
+    Math, 'tanh',
+    function tanh(x) {
+      x = Number(x);
+      var n = pow(E, 2 * x) - 1,
+          d = pow(E, 2 * x) + 1;
+      return ECMAScript.SameValue(x, -0) ? x : (n === d) ? 1 : n / d; // Handle Infinity/Infinity
+    });
 
-      Object.defineProperty(
-        Math,
-        'expm1',
-        {
-          value: function expm1(x) {
-            x = Number(x);
-            // from: http://www.johndcook.com/cpp_log1p.html
-            if (ECMAScript.SameValue(x, -0)) {
-              return -0;
-            } else if (abs(x) < 1e-5) {
-              return x + 0.5 * x * x; // two terms of Taylor expansion
-            } else {
-              return exp(x) - 1;
-            }
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
-  }
+  defineFunction(
+    Math, 'acosh',
+    function acosh(x) {
+      x = Number(x);
+      return log(x + sqrt(x * x - 1));
+    });
 
-  if (!Math.cosh) {
-    (function () {
-      var pow = Math.pow,
-          E = Math.E;
+  defineFunction(
+    Math, 'asinh',
+    function asinh(x) {
+      x = Number(x);
+      if (ECMAScript.SameValue(x, -0)) {
+        return x;
+      }
+      var s = sqrt(x * x + 1);
+      return (s === -x) ? log(0) : log(x + s);
+    });
 
-      Object.defineProperty(
-        Math,
-        'cosh',
-        {
-          value: function cosh(x) {
-            x = Number(x);
-            return (pow(E, x) + pow(E, -x)) / 2;
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
-  }
+  defineFunction(
+    Math, 'atanh',
+    function atanh(x) {
+      x = Number(x);
+      return (x === 0) ? x : log((1 + x) / (1 - x)) / 2;
+    });
 
-  if (!Math.sinh) {
-    (function () {
-      var pow = Math.pow,
-          E = Math.E;
-
-      Object.defineProperty(
-        Math,
-        'sinh',
-        {
-          value: function sinh(x) {
-            x = Number(x);
-            return ECMAScript.SameValue(x, -0) ? x : (pow(E, x) - pow(E, -x)) / 2;
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
-  }
-
-  if (!Math.tanh) {
-    (function () {
-      var pow = Math.pow,
-          E = Math.E;
-
-      Object.defineProperty(
-        Math,
-        'tanh',
-        {
-          value: function tanh(x) {
-            x = Number(x);
-            var n = pow(E, 2 * x) - 1,
-                d = pow(E, 2 * x) + 1;
-            return ECMAScript.SameValue(x, -0) ? x : (n === d) ? 1 : n / d; // Handle Infinity/Infinity
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
-  }
-
-  if (!Math.acosh) {
-    (function () {
-      var log = Math.log,
-          sqrt = Math.sqrt;
-
-      Object.defineProperty(
-        Math,
-        'acosh',
-        {
-          value: function acosh(x) {
-            x = Number(x);
-            return log(x + sqrt(x * x - 1));
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
-  }
-
-  if (!Math.asinh) {
-    (function () {
-      var log = Math.log,
-          sqrt = Math.sqrt;
-
-      Object.defineProperty(
-        Math,
-        'asinh',
-        {
-          value: function asinh(x) {
-            x = Number(x);
-            if (ECMAScript.SameValue(x, -0)) {
-              return x;
-            }
-            var s = sqrt(x * x + 1);
-            return (s === -x) ? log(0) : log(x + s);
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
-  }
-
-  if (!Math.atanh) {
-    (function () {
-      var log = Math.log;
-
-      Object.defineProperty(
-        Math,
-        'atanh',
-        {
-          value: function atanh(x) {
-            x = Number(x);
-            return (x === 0) ? x : log((1 + x) / (1 - x)) / 2;
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
-  }
-
-  if (!Math.hypot) {
-    (function () {
-      var sqrt = Math.sqrt;
-
+  defineFunction(
+    Math, 'hypot',
+    function hypot(x, y, z) {
       function isInfinite(x) { return x === Infinity || x === -Infinity; }
-
-      Object.defineProperty(
-        Math,
-        'hypot',
-        {
-          value: function hypot(x, y, z) {
-            if (arguments.length < 3) {
-              x = Number(x);
-              y = Number(y);
-              if (isInfinite(x) || isInfinite(y)) {
-                return Infinity;
-              }
-              if (global_isNaN(x) || global_isNaN(y)) {
-                return NaN;
-              }
-              return sqrt(x*x + y*y);
-            } else {
-              x = Number(x);
-              y = Number(y);
-              z = Number(z);
-              if (isInfinite(x) || isInfinite(y) || isInfinite(z)) {
-                return Infinity;
-              }
-              if (global_isNaN(x) || global_isNaN(y) || global_isNaN(z)) {
-                return NaN;
-              }
-              return sqrt(x*x + y*y + z*z);
-            }
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
+      if (arguments.length < 3) {
+        x = Number(x);
+        y = Number(y);
+        if (isInfinite(x) || isInfinite(y)) {
+          return Infinity;
         }
-      );
-    }());
-  }
-
-  if (!Math.trunc) {
-    (function () {
-      var ceil = Math.ceil,
-          floor = Math.floor;
-      Object.defineProperty(
-        Math,
-        'trunc',
-        {
-          value: function trunc(x) {
-            x = Number(x);
-            return global_isNaN(x) ? NaN :
-              x < 0 ? ceil(x) : floor(x);
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
+        if (global_isNaN(x) || global_isNaN(y)) {
+          return NaN;
         }
-      );
-    }());
-  }
-
-  if (!Math.sign) {
-    (function () {
-      Object.defineProperty(
-        Math,
-        'sign',
-        {
-          value: function sign(x) {
-            x = Number(x);
-            return x < 0 ? -1 : x > 0 ? 1 : x;
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
+        return sqrt(x*x + y*y);
+      } else {
+        x = Number(x);
+        y = Number(y);
+        z = Number(z);
+        if (isInfinite(x) || isInfinite(y) || isInfinite(z)) {
+          return Infinity;
         }
-      );
-    }());
-  }
-
-  if (!Math.cbrt) {
-    (function () {
-      var pow = Math.pow,
-          abs = Math.abs;
-      Object.defineProperty(
-        Math,
-        'cbrt',
-        {
-          value: function sign(x) {
-            x = Number(x);
-            if (global_isNaN(x/x)) {
-              return x;
-            }
-            var r = pow( abs(x), 1/3 );
-            var t = x/r/r;
-            return r + (r * (t-r) / (2*r + t));
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
+        if (global_isNaN(x) || global_isNaN(y) || global_isNaN(z)) {
+          return NaN;
         }
-      );
-    }());
-  }
+        return sqrt(x*x + y*y + z*z);
+      }
+    });
+
+  defineFunction(
+    Math, 'trunc',
+    function trunc(x) {
+      x = Number(x);
+      return global_isNaN(x) ? NaN :
+        x < 0 ? ceil(x) : floor(x);
+    });
+
+  defineFunction(
+    Math, 'sign',
+    function sign(x) {
+      x = Number(x);
+      return x < 0 ? -1 : x > 0 ? 1 : x;
+    });
+
+  defineFunction(
+    Math, 'cbrt',
+    function sign(x) {
+      x = Number(x);
+      if (global_isNaN(x/x)) {
+        return x;
+      }
+      var r = pow( abs(x), 1/3 );
+      var t = x/r/r;
+      return r + (r * (t-r) / (2*r + t));
+    });
 
 
   //----------------------------------------
@@ -753,7 +570,9 @@
   /** @constructor */
   global.Map = global.Map || function Map(iterable) {
     if (!(this instanceof Map)) { return new Map(iterable); }
+
     var mapData = { keys: [], values: [] };
+
     function indexOf(key) {
       var i;
       // Slow case for NaN/+0/-0
@@ -766,6 +585,7 @@
       // Fast case
       return mapData.keys.indexOf(key);
     }
+
     Object.defineProperties(
       this,
       {
@@ -935,7 +755,9 @@
   /** @constructor */
   global.Set = global.Set || function Set(iterable) {
     if (!(this instanceof Set)) { return new Set(iterable); }
+
     var setData = [];
+
     function indexOf(key) {
       var i;
       // Slow case for NaN/+0/-0
@@ -1185,24 +1007,12 @@
   //----------------------------------------------------------------------
 
   // http://wiki.ecmascript.org/doku.php?id=strawman:number_compare
-  if (!Number.prototype.compare) {
-    (function () {
-      var abs = Math.abs;
-      Object.defineProperty(
-        Number,
-        'compare',
-        {
-          value: function compare(first, second, tolerance) {
-            var difference = first - second;
-            return abs(difference) <= (tolerance || 0) ? 0 : difference < 0 ? -1 : 1;
-          },
-          configurable: true,
-          enumerable: false,
-          writable: true
-        }
-      );
-    }());
-  }
+  defineFunction(
+    Number, 'compare',
+    function compare(first, second, tolerance) {
+      var difference = first - second;
+      return abs(difference) <= (tolerance || 0) ? 0 : difference < 0 ? -1 : 1;
+    });
 
 
   // http://wiki.ecmascript.org/doku.php?id=strawman:array.prototype.pushall
@@ -1247,7 +1057,6 @@
 
   // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
   (function () {
-    var floor = Math.floor;
     defineFunction(
       String, 'fromCodePoint',
       function fromCodePoint() {
