@@ -268,6 +268,36 @@
         x & 0xff00 ? clz8(x >> 8) + 16 : clz8(x) + 24;
     });
 
+  //----------------------------------------
+  // Properties of the String Constructor
+  //----------------------------------------
+
+  // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
+  defineFunctionProperty(
+    String, 'fromCodePoint',
+    function fromCodePoint(/*...codePoints*/) {
+      var codePoints = arguments,
+          length = codePoints.length,
+          elements = [],
+          nextIndex = 0;
+      while (nextIndex < length) {
+        var next = codePoints[nextIndex];
+        var nextCP = Number(next);
+        if (!ECMAScript.SameValue(nextCP, ECMAScript.ToInteger(nextCP)) ||
+            nextCP < 0 || nextCP > 0x10FFFF) {
+          throw new RangeError("Invalid code point " + nextCP);
+        }
+        if (nextCP < 0x10000) {
+          elements.push(String.fromCharCode(nextCP));
+        } else {
+          nextCP -= 0x10000;
+          elements.push(String.fromCharCode((nextCP >> 10) + 0xD800));
+          elements.push(String.fromCharCode((nextCP % 0x400) + 0xDC00));
+        }
+        nextIndex += 1;
+      }
+      return elements.join('');
+    });
 
   //----------------------------------------
   // Properties of the String Prototype Object
@@ -310,6 +340,26 @@
       return String(this).indexOf(searchString, position) !== -1;
     });
 
+  // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
+  defineFunctionProperty(
+    String.prototype, 'codePointAt',
+    function codePointAt(pos) {
+      var s = String(this),
+          position = ECMAScript.ToInteger(pos),
+          size = s.length;
+      if (position < 0 || position >= size) {
+        return undefined;
+      }
+      var first = s.charCodeAt(position);
+      if (first < 0xD800 || first > 0xDBFF || position + 1 === size) {
+        return first;
+      }
+      var second = s.charCodeAt(position + 1);
+      if (second < 0xDC00 || second > 0xDFFF) {
+        return first;
+      }
+      return ((first - 0xD800) * 1024) + (second - 0xDC00) + 0x10000;
+    });
 
   //----------------------------------------
   // Function Properties of the Math Object
@@ -1030,7 +1080,7 @@
       return;
     });
 
-  // es-discuss: DOMStringList replacement
+  // es-discuss: DOMStringList replacement; may rename to "has"
   defineFunctionProperty(
     Array.prototype, 'contains',
     function contains(target) {
@@ -1047,44 +1097,6 @@
       return false;
     });
 
-  // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
-  defineFunctionProperty(
-    String, 'fromCodePoint',
-    function fromCodePoint() {
-      var chars = [], i;
-      for (i = 0; i < arguments.length; i++) {
-        var c = Number(arguments[i]);
-        if (!isFinite(c) || c < 0 || c > 0x10FFFF || floor(c) !== c) {
-          throw new RangeError("Invalid code point " + c);
-        }
-        if (c < 0x10000) {
-          chars.push(c);
-        } else {
-          c -= 0x10000;
-          chars.push((c >> 10) + 0xD800);
-          chars.push((c % 0x400) + 0xDC00);
-        }
-      }
-      return String.fromCharCode.apply(undefined, chars);
-    });
-
-  // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
-  defineFunctionProperty(
-    String.prototype, 'codePointAt',
-    function codePointAt(index) {
-      var str = String(this);
-      if (index < 0 || index >= str.length) {
-        return undefined;
-      }
-      var first = str.charCodeAt(index);
-      if (first >= 0xD800 && first <= 0xDBFF && str.length > index + 1) {
-        var second = str.charCodeAt(index + 1);
-        if (second >= 0xDC00 && second <= 0xDFFF) {
-          return ((first - 0xD800) << 10) + (second - 0xDC00) + 0x10000;
-        }
-      }
-      return first;
-    });
 
   // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
   (function() {
