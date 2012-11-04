@@ -124,20 +124,7 @@
 
   // 15.2.3 Properties of the Object Constructor
 
-  // TODO: Make sure these get added as functions, not just operators.
-  defineFunctionProperty(
-    Object, 'is',
-    function is(x, y) {
-      return ECMAScript.SameValue(x, y);
-    });
-
-  // TODO: Make sure these get added as functions, not just operators.
-  defineFunctionProperty(
-    Object, 'isnt',
-    function isnt(x, y) {
-      return !ECMAScript.SameValue(x, y);
-    });
-
+  // 15.2.3.15
   defineFunctionProperty(
     Object, 'assign',
     function assign(target, source) {
@@ -149,50 +136,13 @@
       return target;
     });
 
-  // Removed from latest ES6 drafts
-  if (false) {
-    defineFunctionProperty(
-      Object, 'isObject',
-      function isObject(o) {
-        var t = typeof o;
-        return t !== 'undefined' && t !== 'boolean' && t !== 'number' && t !== 'string' && o !== null;
-      });
-  }
-
-  // http://wiki.ecmascript.org/doku.php?id=harmony:extended_object_api
-  defineFunctionProperty(
-    Object, 'getPropertyDescriptor',
-    function getPropertyDescriptor(o, p) {
-      do {
-        var desc = Object.getOwnPropertyDescriptor(o, p);
-        if (desc) {
-          return desc;
-        }
-        o = Object.getPrototypeOf(o);
-      } while (o);
-      return (void 0);
-    });
-
-  // http://wiki.ecmascript.org/doku.php?id=harmony:extended_object_api
-  defineFunctionProperty(
-    Object, 'getPropertyNames',
-    function getPropertyNames(o) {
-      var names = Object.create(null);
-      do {
-        Object.getOwnPropertyNames(o).forEach(function(name) {
-          names[name] = true;
-        });
-        o = Object.getPrototypeOf(o);
-      } while (o);
-      return Object.keys(names);
-    });
-
   //----------------------------------------
   // 15.4 Array Objects
   //----------------------------------------
 
   // 15.4.3 Properties of the Array Constructor
 
+  // 15.4.3.3
   defineFunctionProperty(
     Array, 'of',
     function of() {
@@ -216,6 +166,7 @@
       return Array.from(arguments);
     });
 
+  // 15.4.3.4
   defineFunctionProperty(
     Array, 'from',
     function from(arrayLike) {
@@ -240,21 +191,28 @@
 
   // 15.4.4 Properties of the Array Prototype Object
 
+  // 15.4.4.23
   defineFunctionProperty(
     Array.prototype, 'items',
     function items() {
       return CreateArrayIterator(this, "key+value");
     });
+
+  // 15.4.4.24
   defineFunctionProperty(
     Array.prototype, 'keys',
     function keys() {
       return CreateArrayIterator(this, "key");
     });
+
+  // 15.4.4.25
   defineFunctionProperty(
     Array.prototype, 'values',
     function values() {
       return CreateArrayIterator(this, "value");
     });
+
+  // 15.4.4.26
   defineFunctionProperty(
     Array.prototype, '@@iterator',
     Array.prototype.items
@@ -330,7 +288,7 @@
 
   // 15.5.3 Properties of the String Constructor
 
-  // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
+  // 15.5.3.3
   defineFunctionProperty(
     String, 'fromCodePoint',
     function fromCodePoint(/*...codePoints*/) {
@@ -359,6 +317,7 @@
 
   // 15.5.4 Properties of the String Prototype Object
 
+  // 15.5.4.21
   defineFunctionProperty(
     String.prototype, 'repeat',
     function repeat(count) {
@@ -375,6 +334,7 @@
       return a.join(String(this));
     });
 
+  // 15.5.4.22
   defineFunctionProperty(
     String.prototype, 'startsWith',
     function startsWith(s) {
@@ -382,6 +342,7 @@
       return String(this).substring(0, s.length) === s;
     });
 
+  // 15.5.4.23
   defineFunctionProperty(
     String.prototype, 'endsWith',
     function endsWith(s) {
@@ -390,13 +351,14 @@
       return t.substring(t.length - s.length) === s;
     });
 
+  // 15.5.4.24
   defineFunctionProperty(
     String.prototype, 'contains',
     function contains(searchString, position) {
       return String(this).indexOf(searchString, position) !== -1;
     });
 
-  // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
+  // 15.5.4.25
   defineFunctionProperty(
     String.prototype, 'codePointAt',
     function codePointAt(pos) {
@@ -423,6 +385,7 @@
 
   // 15.7.3 Properties of the Number Constructor
 
+  // 15.7.3.7
   defineValueProperty(
     Number, 'EPSILON',
     (function () {
@@ -433,16 +396,12 @@
       return result;
     }()));
 
+  // 15.7.3.8
   defineValueProperty(
     Number, 'MAX_INTEGER',
     9007199254740991); // 2^53 - 1
 
-  defineFunctionProperty(
-    Number, 'parseFloat',
-    function parseFloat(string) {
-      return global_parseFloat(string);
-    });
-
+  // 15.7.3.9
   defineFunctionProperty(
     Number,
     'parseInt',
@@ -450,18 +409,28 @@
       return global_parseInt(string);
     });
 
+  // 15.7.3.10
   defineFunctionProperty(
-    Number, 'isFinite',
-    function isFinite(value) {
-      return typeof value === 'number' && global_isFinite(value);
+    Number, 'parseFloat',
+    function parseFloat(string) {
+      return global_parseFloat(string);
     });
 
+  // 15.7.3.11
   defineFunctionProperty(
     Number, 'isNaN',
     function isNaN(value) {
       return typeof value === 'number' && global_isNaN(value);
     });
 
+  // 15.7.3.12
+  defineFunctionProperty(
+    Number, 'isFinite',
+    function isFinite(value) {
+      return typeof value === 'number' && global_isFinite(value);
+    });
+
+  // 15.7.3.13
   defineFunctionProperty(
     Number, 'isInteger',
     function isInteger(number) {
@@ -475,6 +444,7 @@
       return true;
     });
 
+  // 15.7.3.14
   defineFunctionProperty(
     Number, 'toInt',
     function toInt(value) {
@@ -483,6 +453,7 @@
 
   // 15.7.4 Properties of the Number Prototype Object
 
+  // 15.7.4.8
   defineFunctionProperty(
     Number.prototype, 'clz',
     function clz() {
@@ -1194,6 +1165,20 @@
   //
   //----------------------------------------------------------------------
 
+  // TODO: Make sure these get added as functions, not just operators.
+  defineFunctionProperty(
+    Object, 'is',
+    function is(x, y) {
+      return ECMAScript.SameValue(x, y);
+    });
+
+  // TODO: Make sure these get added as functions, not just operators.
+  defineFunctionProperty(
+    Object, 'isnt',
+    function isnt(x, y) {
+      return !ECMAScript.SameValue(x, y);
+    });
+
   // http://wiki.ecmascript.org/doku.php?id=strawman:number_compare
   defineFunctionProperty(
     Number, 'compare',
@@ -1202,6 +1187,44 @@
       return abs(difference) <= (tolerance || 0) ? 0 : difference < 0 ? -1 : 1;
     });
 
+
+  // Removed from latest ES6 drafts
+  if (false) {
+    defineFunctionProperty(
+      Object, 'isObject',
+      function isObject(o) {
+        var t = typeof o;
+        return t !== 'undefined' && t !== 'boolean' && t !== 'number' && t !== 'string' && o !== null;
+      });
+  }
+
+  // http://wiki.ecmascript.org/doku.php?id=harmony:extended_object_api
+  defineFunctionProperty(
+    Object, 'getPropertyDescriptor',
+    function getPropertyDescriptor(o, p) {
+      do {
+        var desc = Object.getOwnPropertyDescriptor(o, p);
+        if (desc) {
+          return desc;
+        }
+        o = Object.getPrototypeOf(o);
+      } while (o);
+      return (void 0);
+    });
+
+  // http://wiki.ecmascript.org/doku.php?id=harmony:extended_object_api
+  defineFunctionProperty(
+    Object, 'getPropertyNames',
+    function getPropertyNames(o) {
+      var names = Object.create(null);
+      do {
+        Object.getOwnPropertyNames(o).forEach(function(name) {
+          names[name] = true;
+        });
+        o = Object.getPrototypeOf(o);
+      } while (o);
+      return Object.keys(names);
+    });
 
   // http://wiki.ecmascript.org/doku.php?id=strawman:array.prototype.pushall
   defineFunctionProperty(
