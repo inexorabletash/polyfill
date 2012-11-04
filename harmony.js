@@ -654,23 +654,27 @@
     function MapInitialisation(obj, iterable) {
       if (typeof obj !== 'object') { throw new TypeError(); }
       if ('_mapData' in obj) { throw new TypeError(); }
-      obj._mapData = { keys: [], values: [] };
 
-      // TODO: Follow spec more closely here
-      var adder = obj['set'];
-      if (iterable) {
+      if (iterable !== (void 0)) {
         iterable = Object(iterable);
-        var it = iterable['@@iterator'](); // or throw...
+        var itr = iterable['@@iterator'](); // or throw...
+        var adder = obj['set'];
+        if (!ECMAScript.IsCallable(adder)) { throw new TypeError(); }
+      }
+      obj._mapData = { keys: [], values: [] };
+      if (iterable === (void 0)) {
+        return obj;
+      }
+      while (true) {
         try {
-          while (true) {
-            var next = it.next();
-            adder.call(obj, next[0], next[1]);
-          }
+          var next = itr.next();
         } catch (ex) {
-          if (ex !== global.StopIteration) {
-            throw ex;
+          if (ex === global.StopIteration) {
+            return obj;
           }
+          throw ex;
         }
+        adder.call(obj, next[0], next[1]);
       }
     }
 
@@ -908,30 +912,41 @@
       };
     }
 
+    // 15.15.1 Abstract Operations For WeakMap Objects
+    function WeakMapInitialisation(obj, iterable) {
+      if (typeof obj !== 'object') { throw new TypeError(); }
+      if ('_table' in obj) { throw new TypeError(); }
+
+      if (iterable !== (void 0)) {
+        iterable = Object(iterable);
+        var itr = iterable['@@iterator'](); // or throw...
+        var adder = obj['set'];
+        if (!ECMAScript.IsCallable(adder)) { throw new TypeError(); }
+      }
+      obj._table = new EphemeronTable;
+      if (iterable === (void 0)) {
+        return obj;
+      }
+      while (true) {
+        try {
+          var next = itr.next();
+        } catch (ex) {
+          if (ex === global.StopIteration) {
+            return obj;
+          }
+          throw ex;
+        }
+        adder.call(obj, next[0], next[1]);
+      }
+    }
+
     // 15.15.3 The WeakMap Constructor
 
     /** @constructor */
     function WeakMap(iterable) {
       if (!(this instanceof WeakMap)) { return new WeakMap(iterable); }
 
-      this._table = new EphemeronTable;
-
-      // 15.15.1 Abstract Operations For WeakMap Objects
-      // TODO: Extract, match spec
-      if (iterable) {
-        iterable = Object(iterable);
-        var it = iterable['@@iterator'](); // or throw...
-        try {
-          while (true) {
-            var next = it.next();
-            this.set(next[0], next[1]);
-          }
-        } catch (ex) {
-          if (ex !== global.StopIteration) {
-            throw ex;
-          }
-        }
-      }
+      WeakMapInitialisation(this, iterable);
 
       return this;
     }
@@ -991,30 +1006,40 @@
 
   (function() {
 
+    // 15.16.1 Abstract Operations For Set Objects
+    function SetInitialisation(obj, iterable) {
+      if (typeof obj !== 'object') { throw new TypeError(); }
+      if ('_setData' in obj) { throw new TypeError(); }
+
+      if (iterable !== (void 0)) {
+        iterable = Object(iterable);
+        var itr = ECMAScript.HasProperty(iterable, "values") ? iterable.values() : iterable['@@iterator'](); // or throw...
+        var adder = obj['add'];
+        if (!ECMAScript.IsCallable(adder)) { throw new TypeError(); }
+      }
+      obj._setData = [];
+      if (iterable === (void 0)) {
+        return obj;
+      }
+      while (true) {
+        try {
+          var next = itr.next();
+        } catch (ex) {
+          if (ex === global.StopIteration) {
+            return obj;
+          }
+          throw ex;
+        }
+        adder.call(obj, next);
+      }
+    }
+
     // 15.16.3 The Set Constructor
     /** @constructor */
     function Set(iterable) {
       if (!(this instanceof Set)) { return new Set(iterable); }
 
-      this._setData = [];
-
-      // 15.16.1 Abstract Operations For Set Objects
-      // TODO: Extract and match spec
-      if (iterable) {
-        iterable = Object(iterable);
-        var it = ECMAScript.HasProperty(iterable, "values") ? iterable.values() : iterable['@@iterator'](); // or throw...
-        try {
-          while (true) {
-            var next = it.next();
-            // Spec has next = ToObject(next) here
-            this.add(next);
-          }
-        } catch (ex) {
-          if (ex !== global.StopIteration) {
-            throw ex;
-          }
-        }
-      }
+      SetInitialisation(this, iterable);
 
       return this;
     }
