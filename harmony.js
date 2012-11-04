@@ -186,86 +186,135 @@
     });
 
   //----------------------------------------
-  // Properties of the Number Constructor
-  //----------------------------------------
-
-  defineValueProperty(
-    Number, 'EPSILON',
-    (function () {
-      var next, result;
-      for (next = 1; 1 + next !== 1; next = next / 2) {
-        result = next;
-      }
-      return result;
-    }()));
-
-  defineValueProperty(
-    Number, 'MAX_INTEGER',
-    9007199254740991); // 2^53 - 1
-
-  defineFunctionProperty(
-    Number, 'parseFloat',
-    function parseFloat(string) {
-      return global_parseFloat(string);
-    });
-
-  defineFunctionProperty(
-    Number,
-    'parseInt',
-    function parseInt(string) {
-      return global_parseInt(string);
-    });
-
-  defineFunctionProperty(
-    Number, 'isFinite',
-    function isFinite(value) {
-      return typeof value === 'number' && global_isFinite(value);
-    });
-
-  defineFunctionProperty(
-    Number, 'isNaN',
-    function isNaN(value) {
-      return typeof value === 'number' && global_isNaN(value);
-    });
-
-  defineFunctionProperty(
-    Number, 'isInteger',
-    function isInteger(number) {
-      if (typeof number !== 'number') {
-        return false;
-      }
-      var integer = ECMAScript.ToInteger(number);
-      if (integer !== number) {
-        return false;
-      }
-      return true;
-    });
-
-  defineFunctionProperty(
-    Number, 'toInt',
-    function toInt(value) {
-      return ECMAScript.ToInteger(value);
-    });
-
-
-  //----------------------------------------
-  // Properties of the Number Prototype Object
+  // Properties of the Array Constructor
   //----------------------------------------
 
   defineFunctionProperty(
-    Number.prototype, 'clz',
-    function clz() {
-
-      function clz8(x) {
-        return (x & 0xf0) ? (x & 0x80 ? 0 : x & 0x40 ? 1 : x & 0x20 ? 2 : 3) :
-        (x & 0x08 ? 4 : x & 0x04 ? 5 : x & 0x02 ? 6 : x & 0x01 ? 7 : 8);
+    Array, 'of',
+    function of() {
+      var items = arguments;
+      var lenValue = items.length;
+      var len = ECMAScript.ToUint32(lenValue);
+      var c = this, a;
+      if (ECMAScript.IsConstructor(c)) {
+        a = new c(len);
+        a = Object(a);
+      } else {
+        a = new Array(len);
       }
+      var k = 0;
+      while (k < len) {
+        a[k] = items[k];
+        k += 1;
+      }
+      a.length = len;
+      return a;
+      return Array.from(arguments);
+    });
 
-      var x = Number(this);
-      x = ECMAScript.ToUint32(x);
-      return x & 0xff000000 ? clz8(x >> 24) :
-        x & 0xff0000 ? clz8(x >> 16) + 8 :
-        x & 0xff00 ? clz8(x >> 8) + 16 : clz8(x) + 24;
+  defineFunctionProperty(
+    Array, 'from',
+    function from(arrayLike) {
+      var items = Object(arrayLike);
+      var lenValue = items.length;
+      var len = ECMAScript.ToUint32(lenValue);
+      var c = this, a;
+      if (ECMAScript.IsConstructor(c)) {
+        a = new c(len);
+        a = Object(a);
+      } else {
+        a = new Array(len);
+      }
+      var k = 0;
+      while (k < len) {
+        a[k] = items[k];
+        k += 1;
+      }
+      a.length = len;
+      return a;
+    });
+
+  //----------------------------------------
+  // Properties of the Array Prototype Object
+  //----------------------------------------
+
+  defineFunctionProperty(
+    Array.prototype, 'items',
+    function items() {
+      return CreateArrayIterator(this, "key+value");
+    });
+  defineFunctionProperty(
+    Array.prototype, 'keys',
+    function keys() {
+      return CreateArrayIterator(this, "key");
+    });
+  defineFunctionProperty(
+    Array.prototype, 'values',
+    function values() {
+      return CreateArrayIterator(this, "value");
+    });
+  defineFunctionProperty(
+    Array.prototype, '@@iterator',
+    Array.prototype.items
+    );
+
+  //----------------------------------------
+  // Array Iterator Object Structure
+  //----------------------------------------
+
+  function CreateArrayIterator(array, kind) {
+    return new ArrayIterator(array, 0, kind);
+  }
+
+  function ArrayIterator(object, nextIndex, kind) {
+    this.iteratedObject = object;
+    this.nextIndex = nextIndex;
+    this.iterationKind = kind;
+  }
+  ArrayIterator.prototype = {'@@toStringTag': 'Array Iterator'};
+  defineFunctionProperty(
+    ArrayIterator.prototype, 'next',
+    function() {
+      if (typeof this !== 'object') { throw new TypeError; }
+      var a = this.iteratedObject,
+          index = this.nextIndex,
+          itemKind = this.iterationKind,
+          lenValue = a.length,
+          len = ECMAScript.ToUint32(lenValue),
+          elementKey,
+          elementValue;
+      if (itemKind.indexOf("sparse") !== -1) {
+        var found = false;
+        while (!found && index < len) {
+          elementKey = String(index);
+          found = ECMAScript.HasProperty(a, elementKey);
+          if (!found) {
+            index += 1;
+          }
+        }
+      }
+      if (index >= len) {
+        this.nextIndex = Infinity;
+        throw global.StopIteration;
+      }
+      elementKey = String(index);
+      this.nextIndex = index + 1;
+      if (itemKind.indexOf("value") !== -1) {
+        elementValue = a[elementKey];
+      }
+      if (itemKind.indexOf("key+value") !== -1) {
+        return [elementKey, elementValue];
+      } else if (itemKind.indexOf("key") !== -1) {
+        return elementKey;
+      } else if (itemKind === "value") {
+        return elementValue;
+      }
+      throw new Error("Internal error");
+    });
+  defineFunctionProperty(
+    ArrayIterator.prototype, '@@iterator',
+    function() {
+      return this;
     });
 
   //----------------------------------------
@@ -359,6 +408,86 @@
         return first;
       }
       return ((first - 0xD800) * 1024) + (second - 0xDC00) + 0x10000;
+    });
+
+  //----------------------------------------
+  // Properties of the Number Constructor
+  //----------------------------------------
+
+  defineValueProperty(
+    Number, 'EPSILON',
+    (function () {
+      var next, result;
+      for (next = 1; 1 + next !== 1; next = next / 2) {
+        result = next;
+      }
+      return result;
+    }()));
+
+  defineValueProperty(
+    Number, 'MAX_INTEGER',
+    9007199254740991); // 2^53 - 1
+
+  defineFunctionProperty(
+    Number, 'parseFloat',
+    function parseFloat(string) {
+      return global_parseFloat(string);
+    });
+
+  defineFunctionProperty(
+    Number,
+    'parseInt',
+    function parseInt(string) {
+      return global_parseInt(string);
+    });
+
+  defineFunctionProperty(
+    Number, 'isFinite',
+    function isFinite(value) {
+      return typeof value === 'number' && global_isFinite(value);
+    });
+
+  defineFunctionProperty(
+    Number, 'isNaN',
+    function isNaN(value) {
+      return typeof value === 'number' && global_isNaN(value);
+    });
+
+  defineFunctionProperty(
+    Number, 'isInteger',
+    function isInteger(number) {
+      if (typeof number !== 'number') {
+        return false;
+      }
+      var integer = ECMAScript.ToInteger(number);
+      if (integer !== number) {
+        return false;
+      }
+      return true;
+    });
+
+  defineFunctionProperty(
+    Number, 'toInt',
+    function toInt(value) {
+      return ECMAScript.ToInteger(value);
+    });
+
+  //----------------------------------------
+  // Properties of the Number Prototype Object
+  //----------------------------------------
+
+  defineFunctionProperty(
+    Number.prototype, 'clz',
+    function clz() {
+      function clz8(x) {
+        return (x & 0xf0) ? (x & 0x80 ? 0 : x & 0x40 ? 1 : x & 0x20 ? 2 : 3) :
+        (x & 0x08 ? 4 : x & 0x04 ? 5 : x & 0x02 ? 6 : x & 0x01 ? 7 : 8);
+      }
+      var x = Number(this);
+      x = ECMAScript.ToUint32(x);
+      return x & 0xff000000 ? clz8(x >> 24) :
+        x & 0xff0000 ? clz8(x >> 16) + 8 :
+        x & 0xff00 ? clz8(x >> 8) + 16 : clz8(x) + 24;
     });
 
   //----------------------------------------
@@ -512,156 +641,28 @@
       return r + (r * (t-r) / (2*r + t));
     });
 
-
   //----------------------------------------
-  // Properties of the Array Constructor
-  //----------------------------------------
-
-  defineFunctionProperty(
-    Array, 'of',
-    function of() {
-      var items = arguments;
-      var lenValue = items.length;
-      var len = ECMAScript.ToUint32(lenValue);
-      var c = this, a;
-      if (ECMAScript.IsConstructor(c)) {
-        a = new c(len);
-        a = Object(a);
-      } else {
-        a = new Array(len);
-      }
-      var k = 0;
-      while (k < len) {
-        a[k] = items[k];
-        k += 1;
-      }
-      a.length = len;
-      return a;
-      return Array.from(arguments);
-    });
-
-  defineFunctionProperty(
-    Array, 'from',
-    function from(arrayLike) {
-      var items = Object(arrayLike);
-      var lenValue = items.length;
-      var len = ECMAScript.ToUint32(lenValue);
-      var c = this, a;
-      if (ECMAScript.IsConstructor(c)) {
-        a = new c(len);
-        a = Object(a);
-      } else {
-        a = new Array(len);
-      }
-      var k = 0;
-      while (k < len) {
-        a[k] = items[k];
-        k += 1;
-      }
-      a.length = len;
-      return a;
-    });
-
-  //----------------------------------------
-  // Properties of the Array Prototype Object
+  // 15.14 Map Objects
   //----------------------------------------
 
   (function() {
-    defineFunctionProperty(
-      Array.prototype, 'items',
-      function items() {
-        return CreateArrayIterator(this, "key+value");
-      });
-    defineFunctionProperty(
-      Array.prototype, 'keys',
-      function keys() {
-        return CreateArrayIterator(this, "key");
-      });
-    defineFunctionProperty(
-      Array.prototype, 'values',
-      function values() {
-        return CreateArrayIterator(this, "value");
-      });
-    defineFunctionProperty(
-      Array.prototype, '@@iterator',
-      Array.prototype.items
-    );
 
-    function CreateArrayIterator(array, kind) {
-      return new ArrayIterator(array, 0, kind);
-    }
+    // 15.14.1 Abstract Operations For Map Objects
 
-    function ArrayIterator(object, nextIndex, kind) {
-      this.iteratedObject = object;
-      this.nextIndex = nextIndex;
-      this.iterationKind = kind;
-    }
-    ArrayIterator.prototype = {'@@toStringTag': 'Array Iterator'};
-    defineFunctionProperty(
-      ArrayIterator.prototype, 'next',
-      function() {
-        if (typeof this !== 'object') { throw new TypeError; }
-        var a = this.iteratedObject,
-            index = this.nextIndex,
-            itemKind = this.iterationKind,
-            lenValue = a.length,
-            len = ECMAScript.ToUint32(lenValue),
-            elementKey,
-            elementValue;
-        if (itemKind.indexOf("sparse") !== -1) {
-          var found = false;
-          while (!found && index < len) {
-            elementKey = String(index);
-            found = ECMAScript.HasProperty(a, elementKey);
-            if (!found) {
-              index += 1;
-            }
-          }
-        }
-        if (index >= len) {
-          this.nextIndex = Infinity;
-          throw global.StopIteration;
-        }
-        elementKey = String(index);
-        this.nextIndex = index + 1;
-        if (itemKind.indexOf("value") !== -1) {
-          elementValue = a[elementKey];
-        }
-        if (itemKind.indexOf("key+value") !== -1) {
-          return [elementKey, elementValue];
-        } else if (itemKind.indexOf("key") !== -1) {
-          return elementKey;
-        } else if (itemKind === "value") {
-          return elementValue;
-        }
-        throw new Error("Internal error");
-      });
-    defineFunctionProperty(
-      ArrayIterator.prototype, '@@iterator',
-      function() {
-        return this;
-      });
-  }());
+    function MapInitialisation(obj, iterable) {
+      if (typeof obj !== 'object') { throw new TypeError(); }
+      if ('_mapData' in obj) { throw new TypeError(); }
+      obj._mapData = { keys: [], values: [] };
 
-
-  //----------------------------------------
-  // Collections: Maps, Sets, and WeakMaps
-  //----------------------------------------
-
-  (function() {
-    /** @constructor */
-    function Map(iterable) {
-      if (!(this instanceof Map)) { return new Map(iterable); }
-
-      this._mapData = { keys: [], values: [] };
-
+      // TODO: Follow spec more closely here
+      var adder = obj['set'];
       if (iterable) {
         iterable = Object(iterable);
         var it = iterable['@@iterator'](); // or throw...
         try {
           while (true) {
             var next = it.next();
-            this.set(next[0], next[1]);
+            adder.call(obj, next[0], next[1]);
           }
         } catch (ex) {
           if (ex !== global.StopIteration) {
@@ -669,6 +670,15 @@
           }
         }
       }
+    }
+
+    // 15.14.3 The Map Constructor
+
+    /** @constructor */
+    function Map(iterable) {
+      if (!(this instanceof Map)) { return new Map(iterable); }
+
+      MapInitialisation(this, iterable);
 
       return this;
     }
@@ -685,7 +695,11 @@
       return -1;
     }
 
-    Map.prototype = {'@@toStringTag': 'Map'};
+    // 15.14.5 Properties of the Map Prototype Object
+
+    Map.prototype = {};
+
+    // 15.14.5.2
     defineFunctionProperty(
       Map.prototype, 'clear',
       function clear() {
@@ -693,6 +707,8 @@
         this._mapData.values.length = 0;
         if (this.size !== this._mapData.keys.length) { this.size = this._mapData.keys.length; }
       });
+
+    // 15.14.5.3
     defineFunctionProperty(
       Map.prototype, 'delete',
       function deleteFunction(key) {
@@ -703,6 +719,8 @@
         if (this.size !== this._mapData.keys.length) { this.size = this._mapData.keys.length; }
         return true;
       });
+
+    // 15.14.5.4
     defineFunctionProperty(
       Map.prototype, 'forEach',
       function forEach(callbackfn /*, thisArg*/) {
@@ -715,27 +733,37 @@
           callbackfn.call(thisArg, this._mapData.keys[i], this._mapData.values[i], m);
         }
       });
+
+    // 15.14.5.5
     defineFunctionProperty(
       Map.prototype, 'get',
       function get(key) {
         var i = indexOf(this._mapData, key);
         return i < 0 ? undefined : this._mapData.values[i];
       });
+
+    // 15.14.5.6
     defineFunctionProperty(
       Map.prototype, 'has',
       function has(key) {
         return indexOf(this._mapData, key) >= 0;
       });
+
+    // 15.14.5.7
     defineFunctionProperty(
       Map.prototype, 'items',
       function items() {
         return CreateMapIterator(Object(this), "key+value");
       });
+
+    // 15.14.5.8
     defineFunctionProperty(
       Map.prototype, 'keys',
       function keys() {
         return CreateMapIterator(Object(this), "key");
       });
+
+    // 15.14.5.9
     defineFunctionProperty(
       Map.prototype, 'set',
       function set(key, val) {
@@ -745,23 +773,35 @@
         this._mapData.values[i] = val;
         if (this.size !== this._mapData.keys.length) { this.size = this._mapData.keys.length; }
       });
+
+    // 15.14.5.10
     Object.defineProperty(
       Map.prototype, 'size', {
         get: function() {
           return this._mapData.keys.length;
         }
       });
+
+    // 15.14.5.11
     defineFunctionProperty(
       Map.prototype, 'values',
       function values() {
         return CreateMapIterator(Object(this), "value");
       });
+
+    // 15.14.5.12
     defineFunctionProperty(
       Map.prototype, '@@iterator',
       function() {
         return CreateMapIterator(Object(this), "key+value");
       });
 
+    // 15.14.5.13
+    Map.prototype['@@toStringTag'] = 'Map';
+
+    // 15.14.7 Properties of Map Instances
+
+    // 15.14.7.1
     function CreateMapIterator(map, kind) {
       map = Object(map);
       return new MapIterator(map, 0, kind);
@@ -773,7 +813,11 @@
       this._nextIndex = index;
       this._iterationKind = kind;
     }
-    MapIterator.prototype = {'@@toStringTag': 'Map Iterator'};
+
+    // 15.14.17.2
+    MapIterator.prototype = {};
+
+    // 15.14.17.2.2
     defineFunctionProperty(
       MapIterator.prototype, 'next',
       function() {
@@ -798,147 +842,23 @@
         }
         throw global.StopIteration;
       });
+
+    // 15.14.17.2.3
     defineFunctionProperty(
       MapIterator.prototype, '@@iterator',
       function() {
         return this;
       });
 
+    // 15.14.17.2.4
+    MapIterator.prototype['@@toStringTag'] = 'Map Iterator';
+
     global.Map = global.Map || Map;
   }());
 
-  (function() {
-    /** @constructor */
-    function Set(iterable) {
-      if (!(this instanceof Set)) { return new Set(iterable); }
-
-      this._setData = [];
-
-      if (iterable) {
-        iterable = Object(iterable);
-        var it = ECMAScript.HasProperty(iterable, "values") ? iterable.values() : iterable['@@iterator'](); // or throw...
-        try {
-          while (true) {
-            var next = it.next();
-            // Spec has next = ToObject(next) here
-            this.add(next);
-          }
-        } catch (ex) {
-          if (ex !== global.StopIteration) {
-            throw ex;
-          }
-        }
-      }
-
-      return this;
-    }
-
-    function indexOf(setData, key) {
-      var i;
-      if (key === key && key !== 0) {
-        return setData.indexOf(key);
-      }
-      // Slow case for NaN/+0/-0
-      for (i = 0; i < setData.length; i += 1) {
-        if (ECMAScript.SameValue(setData[i], key)) { return i; }
-      }
-      return -1;
-    }
-
-    Set.prototype = {'@@toStringTag': 'Set'};
-    defineFunctionProperty(
-      Set.prototype, 'add',
-      function add(key) {
-        var i = indexOf(this._setData, key);
-        if (i < 0) { i = this._setData.length; }
-        this._setData[i] = key;
-        if (this.size !== this._setData.length) { this.size = this._setData.length; }
-      });
-    defineFunctionProperty(
-      Set.prototype, 'clear',
-      function clear() {
-        this._setData = [];
-        if (this.size !== this._setData.length) { this.size = this._setData.length; }
-      });
-    defineFunctionProperty(
-      Set.prototype, 'delete',
-      function deleteFunction(key) {
-        var i = indexOf(this._setData, key);
-        if (i < 0) { return false; }
-        this._setData.splice(i, 1);
-        if (this.size !== this._setData.length) { this.size = this._setData.length; }
-        return true;
-      });
-    defineFunctionProperty(
-      Set.prototype, 'forEach',
-      function forEach(callbackfn/*, thisArg*/) {
-        var thisArg = arguments[1];
-        var s = Object(this);
-        if (!ECMAScript.IsCallable(callbackfn)) {
-          throw new TypeError("First argument to forEach is not callable.");
-        }
-        for (var i = 0; i < this._setData.length; ++i) {
-          callbackfn.call(thisArg, this._setData[i], s);
-        }
-      });
-    defineFunctionProperty(
-      Set.prototype, 'has',
-      function has(key) {
-        return indexOf(this._setData, key) !== -1;
-      });
-    Object.defineProperty(
-      Set.prototype, 'size', {
-        get: function() {
-          return this._setData.length;
-        }
-      });
-    defineFunctionProperty(
-      Set.prototype, 'values',
-      function values() {
-        return CreateSetIterator(Object(this));
-      });
-    defineFunctionProperty(
-      Set.prototype, '@@iterator',
-      function() {
-        return CreateSetIterator(Object(this));
-      });
-
-    function CreateSetIterator(set) {
-      set = Object(set);
-      return new SetIterator(set, 0);
-    }
-
-    /** @constructor */
-    function SetIterator(set, index) {
-      this.set = set;
-      this.nextIndex = index;
-    }
-    SetIterator.prototype = {'@@toStringTag': 'Set Iterator'};
-    defineFunctionProperty(
-      SetIterator.prototype, 'next',
-      function() {
-        if (typeof this !== 'object') { throw new TypeError; }
-        var s = this.set,
-            index = this.nextIndex,
-            entries = s._setData;
-        while (index < entries.length) {
-          var e = entries[index];
-          index = index += 1;
-          this.nextIndex = index;
-          if (e !== undefined) { // |empty| ?
-            return e;
-          }
-        }
-        throw global.StopIteration;
-      });
-    defineFunctionProperty(
-      SetIterator.prototype, '@@iterator',
-      function() {
-        return this;
-      });
-
-    global.Set = global.Set || Set;
-  }());
+  //----------------------------------------
+  // 15.15 WeakMap Objects
+  //----------------------------------------
 
   (function() {
     // Inspired by https://gist.github.com/1638059
@@ -984,12 +904,16 @@
       };
     }
 
+    // 15.15.3 The WeakMap Constructor
+
     /** @constructor */
     function WeakMap(iterable) {
       if (!(this instanceof WeakMap)) { return new WeakMap(iterable); }
 
       this._table = new EphemeronTable;
 
+      // 15.15.1 Abstract Operations For WeakMap Objects
+      // TODO: Extract, match spec
       if (iterable) {
         iterable = Object(iterable);
         var it = iterable['@@iterator'](); // or throw...
@@ -1008,30 +932,42 @@
       return this;
     }
 
-    WeakMap.prototype = {'@@toStringTag': 'WeakMap'};
+    WeakMap.prototype = {};
+
+    // 15.15.5 Properties of the WeakMap Prototype Object
+
+    // 15.15.5.2
     defineFunctionProperty(
       WeakMap.prototype, 'clear',
       function clear() {
         this._table.clear();
       });
+
+    // 15.15.5.3
     defineFunctionProperty(
       WeakMap.prototype, 'delete',
       function deleteFunction(key) {
         if (key !== Object(key)) { throw new TypeError("Expected object"); }
         this._table.remove(key);
       });
+
+    // 15.15.5.4
     defineFunctionProperty(
       WeakMap.prototype, 'get',
       function get(key, defaultValue) {
         if (key !== Object(key)) { throw new TypeError("Expected object"); }
         return this._table.get(key, defaultValue);
       });
+
+    // 15.15.5.5
     defineFunctionProperty(
       WeakMap.prototype, 'has',
       function has(key) {
         if (key !== Object(key)) { throw new TypeError("Expected object"); }
         return this._table.has(key);
       });
+
+    // 15.15.5.6
     defineFunctionProperty(
       WeakMap.prototype, 'set',
       function set(key, value) {
@@ -1039,7 +975,181 @@
         this._table.set(key, value);
       });
 
+    // 15.15.5.8
+    WeakMap.prototype['@@toStringTag'] = 'WeakMap';
+
     global.WeakMap = global.WeakMap || WeakMap;
+  }());
+
+  //----------------------------------------
+  // 15.16 Set Objects
+  //----------------------------------------
+
+  (function() {
+
+    // 15.16.3 The Set Constructor
+    /** @constructor */
+    function Set(iterable) {
+      if (!(this instanceof Set)) { return new Set(iterable); }
+
+      this._setData = [];
+
+      // 15.16.1 Abstract Operations For Set Objects
+      // TODO: Extract and match spec
+      if (iterable) {
+        iterable = Object(iterable);
+        var it = ECMAScript.HasProperty(iterable, "values") ? iterable.values() : iterable['@@iterator'](); // or throw...
+        try {
+          while (true) {
+            var next = it.next();
+            // Spec has next = ToObject(next) here
+            this.add(next);
+          }
+        } catch (ex) {
+          if (ex !== global.StopIteration) {
+            throw ex;
+          }
+        }
+      }
+
+      return this;
+    }
+
+    function indexOf(setData, key) {
+      var i;
+      if (key === key && key !== 0) {
+        return setData.indexOf(key);
+      }
+      // Slow case for NaN/+0/-0
+      for (i = 0; i < setData.length; i += 1) {
+        if (ECMAScript.SameValue(setData[i], key)) { return i; }
+      }
+      return -1;
+    }
+
+    Set.prototype = {};
+
+    // 15.16.5 Properties of the Set Prototype Object
+
+    // 15.16.5.2
+    defineFunctionProperty(
+      Set.prototype, 'add',
+      function add(key) {
+        var i = indexOf(this._setData, key);
+        if (i < 0) { i = this._setData.length; }
+        this._setData[i] = key;
+        if (this.size !== this._setData.length) { this.size = this._setData.length; }
+      });
+
+    // 15.16.5.3
+    defineFunctionProperty(
+      Set.prototype, 'clear',
+      function clear() {
+        this._setData = [];
+        if (this.size !== this._setData.length) { this.size = this._setData.length; }
+      });
+
+    // 15.16.5.4
+    defineFunctionProperty(
+      Set.prototype, 'delete',
+      function deleteFunction(key) {
+        var i = indexOf(this._setData, key);
+        if (i < 0) { return false; }
+        this._setData.splice(i, 1);
+        if (this.size !== this._setData.length) { this.size = this._setData.length; }
+        return true;
+      });
+
+    // 15.16.5.5
+    defineFunctionProperty(
+      Set.prototype, 'forEach',
+      function forEach(callbackfn/*, thisArg*/) {
+        var thisArg = arguments[1];
+        var s = Object(this);
+        if (!ECMAScript.IsCallable(callbackfn)) {
+          throw new TypeError("First argument to forEach is not callable.");
+        }
+        for (var i = 0; i < this._setData.length; ++i) {
+          callbackfn.call(thisArg, this._setData[i], s);
+        }
+      });
+
+    // 15.16.5.6
+    defineFunctionProperty(
+      Set.prototype, 'has',
+      function has(key) {
+        return indexOf(this._setData, key) !== -1;
+      });
+
+    // 15.16.5.7
+    Object.defineProperty(
+      Set.prototype, 'size', {
+        get: function() {
+          return this._setData.length;
+        }
+      });
+
+    // 15.16.5.8
+    defineFunctionProperty(
+      Set.prototype, 'values',
+      function values() {
+        return CreateSetIterator(Object(this));
+      });
+
+    // 15.16.5.9
+    defineFunctionProperty(
+      Set.prototype, '@@iterator',
+      function() {
+        return CreateSetIterator(Object(this));
+      });
+
+    // 15.16.5.10
+    Set.prototype['@@toStringTag'] = 'Set';
+
+    // 15.16.7 Set Iterator Object Structure
+
+    function CreateSetIterator(set) {
+      set = Object(set);
+      return new SetIterator(set, 0);
+    }
+
+    /** @constructor */
+    function SetIterator(set, index) {
+      this.set = set;
+      this.nextIndex = index;
+    }
+    SetIterator.prototype = {};
+
+    // 15.16.7.2.2
+    defineFunctionProperty(
+      SetIterator.prototype, 'next',
+      function() {
+        if (typeof this !== 'object') { throw new TypeError; }
+        var s = this.set,
+            index = this.nextIndex,
+            entries = s._setData;
+        while (index < entries.length) {
+          var e = entries[index];
+          index = index += 1;
+          this.nextIndex = index;
+          if (e !== undefined) { // |empty| ?
+            return e;
+          }
+        }
+        throw global.StopIteration;
+      });
+
+    // 15.16.7.2.3
+    defineFunctionProperty(
+      SetIterator.prototype, '@@iterator',
+      function() {
+        return this;
+      });
+
+    // 15.16.7.2.4
+    SetIterator.prototype['@@toStringTag'] = 'Set Iterator';
+
+    global.Set = global.Set || Set;
   }());
 
   //----------------------------------------------------------------------
