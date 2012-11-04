@@ -8,7 +8,6 @@
   "use strict";
 
   // Snapshot intrinsic functions
-
   var global_isNaN = global.isNaN,
       global_isFinite = global.isFinite,
       global_parseInt = global.parseInt,
@@ -105,10 +104,11 @@
   //
   //----------------------------------------------------------------------
 
-  // Object.prototype.toString
-  hook(Object.prototype, 'toString', function() {
-    return (this === Object(this) && '@@toStringTag' in this) ? '[object ' + this['@@toStringTag'] + ']' : (void 0);
-  });
+  // 15.2.4.2
+  hook(Object.prototype, 'toString',
+       function() {
+         return (this === Object(this) && '@@toStringTag' in this) ? '[object ' + this['@@toStringTag'] + ']' : (void 0);
+       });
 
   // NOTE: Since true iterators can't be polyfilled, this is a hack
   global.StopIteration = global.StopIteration || (function () {
@@ -366,7 +366,7 @@
           position = ECMAScript.ToInteger(pos),
           size = s.length;
       if (position < 0 || position >= size) {
-        return undefined;
+        return (void 0);
       }
       var first = s.charCodeAt(position);
       if (first < 0xD800 || first > 0xDBFF || position + 1 === size) {
@@ -474,6 +474,7 @@
 
   // 15.6.2 Function Properties of the Math Object
 
+  // 15.6.2.19
   defineFunctionProperty(
     Math, 'log10',
     function log10(x) {
@@ -481,6 +482,7 @@
       return log(x) * LOG10E;
     });
 
+  // 15.6.2.20
   defineFunctionProperty(
     Math, 'log2',
     function log2(x) {
@@ -488,6 +490,7 @@
       return log(x) * LOG2E;
     });
 
+  // 15.6.2.21
   defineFunctionProperty(
     Math, 'log1p',
     function log1p(x) {
@@ -504,6 +507,7 @@
       }
     });
 
+  // 15.6.2.22
   defineFunctionProperty(
     Math, 'expm1',
     function expm1(x) {
@@ -518,6 +522,7 @@
       }
     });
 
+  // 15.6.2.23
   defineFunctionProperty(
     Math, 'cosh',
     function cosh(x) {
@@ -525,6 +530,7 @@
       return (pow(E, x) + pow(E, -x)) / 2;
     });
 
+  // 15.6.2.24
   defineFunctionProperty(
     Math, 'sinh',
     function sinh(x) {
@@ -532,6 +538,7 @@
       return ECMAScript.SameValue(x, -0) ? x : (pow(E, x) - pow(E, -x)) / 2;
     });
 
+  // 15.6.2.25
   defineFunctionProperty(
     Math, 'tanh',
     function tanh(x) {
@@ -541,6 +548,7 @@
       return ECMAScript.SameValue(x, -0) ? x : (n === d) ? 1 : n / d; // Handle Infinity/Infinity
     });
 
+  // 15.6.2.26
   defineFunctionProperty(
     Math, 'acosh',
     function acosh(x) {
@@ -548,6 +556,7 @@
       return log(x + sqrt(x * x - 1));
     });
 
+  // 15.6.2.27
   defineFunctionProperty(
     Math, 'asinh',
     function asinh(x) {
@@ -559,6 +568,7 @@
       return (s === -x) ? log(0) : log(x + s);
     });
 
+  // 15.6.2.28
   defineFunctionProperty(
     Math, 'atanh',
     function atanh(x) {
@@ -566,34 +576,24 @@
       return (x === 0) ? x : log((1 + x) / (1 - x)) / 2;
     });
 
+  // 15.6.2.29
   defineFunctionProperty(
     Math, 'hypot',
     function hypot(x, y, z) {
       function isInfinite(x) { return x === Infinity || x === -Infinity; }
-      if (arguments.length < 3) {
-        x = Number(x);
-        y = Number(y);
-        if (isInfinite(x) || isInfinite(y)) {
-          return Infinity;
-        }
-        if (global_isNaN(x) || global_isNaN(y)) {
-          return NaN;
-        }
-        return sqrt(x*x + y*y);
-      } else {
-        x = Number(x);
-        y = Number(y);
-        z = Number(z);
-        if (isInfinite(x) || isInfinite(y) || isInfinite(z)) {
-          return Infinity;
-        }
-        if (global_isNaN(x) || global_isNaN(y) || global_isNaN(z)) {
-          return NaN;
-        }
-        return sqrt(x*x + y*y + z*z);
+      x = Number(x);
+      y = Number(y);
+      z = (z === (void 0)) ? 0 : Number(z);
+      if (isInfinite(x) || isInfinite(y) || isInfinite(z)) {
+        return Infinity;
       }
+      if (global_isNaN(x) || global_isNaN(y) || global_isNaN(z)) {
+        return NaN;
+      }
+      return sqrt(x*x + y*y + z*z);
     });
 
+  // 15.6.2.30
   defineFunctionProperty(
     Math, 'trunc',
     function trunc(x) {
@@ -602,6 +602,7 @@
         x < 0 ? ceil(x) : floor(x);
     });
 
+  // 15.6.2.31
   defineFunctionProperty(
     Math, 'sign',
     function sign(x) {
@@ -609,6 +610,7 @@
       return x < 0 ? -1 : x > 0 ? 1 : x;
     });
 
+  // 15.6.2.32
   defineFunctionProperty(
     Math, 'cbrt',
     function sign(x) {
@@ -723,7 +725,7 @@
       Map.prototype, 'get',
       function get(key) {
         var i = indexOf(this._mapData, key);
-        return i < 0 ? undefined : this._mapData.values[i];
+        return i < 0 ? (void 0) : this._mapData.values[i];
       });
 
     // 15.14.5.6
@@ -814,7 +816,7 @@
           var e = {key: entries.keys[index], value: entries.values[index]};
           index = index += 1;
           this._nextIndex = index;
-          if (e.key !== undefined) { // |empty| ?
+          if (e.key !== (void 0)) { // |empty| ?
             if (itemKind === "key") {
               return e.key;
             } else if (itemKind === "value") {
@@ -1139,7 +1141,7 @@
           var e = entries[index];
           index = index += 1;
           this.nextIndex = index;
-          if (e !== undefined) { // |empty| ?
+          if (e !== (void 0)) { // |empty| ?
             return e;
           }
         }
@@ -1187,17 +1189,6 @@
       return abs(difference) <= (tolerance || 0) ? 0 : difference < 0 ? -1 : 1;
     });
 
-
-  // Removed from latest ES6 drafts
-  if (false) {
-    defineFunctionProperty(
-      Object, 'isObject',
-      function isObject(o) {
-        var t = typeof o;
-        return t !== 'undefined' && t !== 'boolean' && t !== 'number' && t !== 'string' && o !== null;
-      });
-  }
-
   // http://wiki.ecmascript.org/doku.php?id=harmony:extended_object_api
   defineFunctionProperty(
     Object, 'getPropertyDescriptor',
@@ -1231,12 +1222,12 @@
     Array.prototype, 'pushAll',
     function pushAll(other, start, end) {
       other = Object(other);
-      if (typeof start === 'undefined') {
+      if (start === (void 0)) {
         start = 0;
       }
       start = ECMAScript.ToUint32(start);
       var otherLength = ECMAScript.ToUint32(other.length);
-      if (typeof end === 'undefined') {
+      if (end === (void 0)) {
         end = otherLength;
       }
       end = ECMAScript.ToUint32(end);
