@@ -271,7 +271,9 @@
     this.nextIndex = nextIndex;
     this.iterationKind = kind;
   }
-  ArrayIterator.prototype = {'@@toStringTag': 'Array Iterator'};
+  ArrayIterator.prototype = {};
+
+  // 15.4.6.2.2
   defineFunctionProperty(
     ArrayIterator.prototype, 'next',
     function() {
@@ -311,11 +313,16 @@
       }
       throw new Error("Internal error");
     });
+
+  // 15.4.6.2.3
   defineFunctionProperty(
     ArrayIterator.prototype, '@@iterator',
     function() {
       return this;
     });
+
+  // 15.4.6.2.4
+  ArrayIterator.prototype['@@toStringTag'] = 'Array Iterator';
 
   //----------------------------------------
   // 15.5 String Objects
