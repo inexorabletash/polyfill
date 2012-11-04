@@ -119,8 +119,10 @@
 
 
   //----------------------------------------
-  // Properties of the Object Constructor
+  // 15.2 Object Objects
   //----------------------------------------
+
+  // 15.2.3 Properties of the Object Constructor
 
   // TODO: Make sure these get added as functions, not just operators.
   defineFunctionProperty(
@@ -186,8 +188,10 @@
     });
 
   //----------------------------------------
-  // Properties of the Array Constructor
+  // 15.4 Array Objects
   //----------------------------------------
+
+  // 15.4.3 Properties of the Array Constructor
 
   defineFunctionProperty(
     Array, 'of',
@@ -234,9 +238,7 @@
       return a;
     });
 
-  //----------------------------------------
-  // Properties of the Array Prototype Object
-  //----------------------------------------
+  // 15.4.4 Properties of the Array Prototype Object
 
   defineFunctionProperty(
     Array.prototype, 'items',
@@ -258,9 +260,7 @@
     Array.prototype.items
     );
 
-  //----------------------------------------
-  // Array Iterator Object Structure
-  //----------------------------------------
+  // 15.4.6 Array Iterator Object Structure
 
   function CreateArrayIterator(array, kind) {
     return new ArrayIterator(array, 0, kind);
@@ -318,8 +318,10 @@
     });
 
   //----------------------------------------
-  // Properties of the String Constructor
+  // 15.5 String Objects
   //----------------------------------------
+
+  // 15.5.3 Properties of the String Constructor
 
   // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
   defineFunctionProperty(
@@ -348,9 +350,7 @@
       return elements.join('');
     });
 
-  //----------------------------------------
-  // Properties of the String Prototype Object
-  //----------------------------------------
+  // 15.5.4 Properties of the String Prototype Object
 
   defineFunctionProperty(
     String.prototype, 'repeat',
@@ -411,8 +411,10 @@
     });
 
   //----------------------------------------
-  // Properties of the Number Constructor
+  // 15.7 Number Objects
   //----------------------------------------
+
+  // 15.7.3 Properties of the Number Constructor
 
   defineValueProperty(
     Number, 'EPSILON',
@@ -472,9 +474,7 @@
       return ECMAScript.ToInteger(value);
     });
 
-  //----------------------------------------
-  // Properties of the Number Prototype Object
-  //----------------------------------------
+  // 15.7.4 Properties of the Number Prototype Object
 
   defineFunctionProperty(
     Number.prototype, 'clz',
@@ -491,8 +491,10 @@
     });
 
   //----------------------------------------
-  // Function Properties of the Math Object
+  // 15.8 The Math Object
   //----------------------------------------
+
+  // 15.6.2 Function Properties of the Math Object
 
   defineFunctionProperty(
     Math, 'log10',
@@ -881,26 +883,28 @@
         return v === o ? null : v;
       }
 
-      this.clear = function() {
-        secretKey = Object.create(null);
-      };
-      this.remove = function(key) {
-        var secrets = reveal(key);
-        if (secrets) {
-          delete secrets.value;
+      return {
+        clear: function() {
+          secretKey = Object.create(null);
+        },
+        remove: function(key) {
+          var secrets = reveal(key);
+          if (secrets) {
+            delete secrets.value;
+          }
+        },
+        get: function(key, defaultValue) {
+          var secrets = reveal(key);
+          return (secrets && ECMAScript.HasOwnProperty(secrets, 'value')) ? secrets.value : defaultValue;
+        },
+        has: function(key) {
+          var secrets = reveal(key);
+          return Boolean(secrets && ECMAScript.HasOwnProperty(secrets, 'value'));
+        },
+        set: function(key, value) {
+          var secrets = reveal(key) || conceal(key);
+          secrets.value = value;
         }
-      };
-      this.get = function(key, defaultValue) {
-        var secrets = reveal(key);
-        return (secrets && ECMAScript.HasOwnProperty(secrets, 'value')) ? secrets.value : defaultValue;
-      };
-      this.has = function(key) {
-        var secrets = reveal(key);
-        return Boolean(secrets && ECMAScript.HasOwnProperty(secrets, 'value'));
-      };
-      this.set = function(key, value) {
-        var secrets = reveal(key) || conceal(key);
-        secrets.value = value;
       };
     }
 
