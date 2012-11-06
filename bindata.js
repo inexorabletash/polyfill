@@ -1,6 +1,16 @@
 // http://wiki.ecmascript.org/doku.php?id=harmony:binary_data
 (function(global){
 
+  (function() {
+    var orig = Object.prototype.toString;
+    Object.prototype.toString = function toString() {
+      if (Object(this) === this && '__Class__' in this) {
+        return '[object ' + this.__Class__ + ']';
+      }
+      return orig.call(this, arguments);
+    };
+  }());
+
   // TODO: function Data()
   // TODO: .repeat()
   // TODO: .updateRef()
@@ -10,6 +20,7 @@
   // TODO: read/write into ArrayBuffer
   // TODO: int64/uint64
   // TODO: bytes vs. byteLength
+  // TODO: __Value__ as ArrayBufferView?
 
   // Intrinsic types
   [
@@ -25,23 +36,24 @@
     var proto = {};
 
     var t = function SomeNumericType(value) {
-      this.buffer = new Uint8Array(desc.byteLength).buffer;
+      this.__Value__ = new Uint8Array(desc.byteLength).buffer;
       if (value !== (void 0)) {
-        t.convert(value, this.buffer, 0);
+        t.__Convert__(value, this.__Value__, 0);
       }
     };
-    t.convert = function(value, buffer, offset) {
+    t.__Convert__ = function(value, buffer, offset) {
       (new DataView(buffer, offset))[desc.setter](0, value, true);
     };
-    t.reify = function(buffer, offset) {
+    t.__Reify__ = function(buffer, offset) {
       return (new DataView(buffer, offset))[desc.getter](0, true);
     };
 
     t.prototype = proto;
+    t.__Class__ = 'DataType';
     t.__DataType__ = name;
-    t.byteLength = desc.byteLength;
+    t.bytes = t.byteLength = desc.byteLength;
     t.prototype.valueOf = function() {
-      return t.reify(this.buffer, 0);
+      return t.__Reify__(this.__Value__, 0);
     };
 
     global[desc.name] = t;
@@ -54,17 +66,17 @@
 
     Object.keys(fields).forEach(function(name) {
       var type = fields[name];
-      if (!('byteLength' in type && 'convert' in type && 'reify' in type)) {
+      if (!('byteLength' in type && '__Convert__' in type && '__Reify__' in type)) {
         throw new TypeError();
       }
 
       (function(name, type, offset){
         Object.defineProperty(proto, name, {
           get: function() {
-            return type.reify(this.buffer, offset);
+            return type.__Reify__(this.__Value__, offset);
           },
           set: function(value) {
-            type.convert(value, this.buffer, offset);
+            type.__Convert__(value, this.__Value__, offset);
           }
         });
       }(name, type, byteLength));
@@ -72,36 +84,41 @@
     });
 
     var t = function SomeStructType(value) {
-      this.buffer = new Uint8Array(byteLength).buffer;
-      this.__DataType__ = t;
-      if (value !== (void 0)) {
-        t.convert(value, this.buffer, 0);
+      return t.__Construct__(value, this);
+    };
+    t.__Construct__ = function(val, s) {
+      s.__Value__ = new Uint8Array(byteLength).buffer;
+      s.__Class__ = 'Block';
+      s.__DataType__ = t;
+      if (val !== (void 0)) {
+        t.__Convert__(val, s.__Value__, 0);
       }
     };
-    t.convert = function(value, buffer, offset) {
+    t.__Convert__ = function(value, buffer, offset) {
       Object.keys(fields).forEach(function(name) {
         var type = fields[name];
-        type.convert(value[name], buffer, offset);
+        type.__Convert__(value[name], buffer, offset);
         offset += type.byteLength;
       });
     };
-    t.reify = function(buffer, offset) {
+    t.__Reify__ = function(buffer, offset) {
       var result = {};
       Object.keys(fields).forEach(function(name) {
         var type = fields[name];
-        result[name] = type.reify(buffer, offset);
+        result[name] = type.__Reify__(buffer, offset);
         offset += type.byteLength;
       });
       return result;
     };
 
     t.prototype = proto;
+    t.__Class__ = 'DataType';
     t.__DataType__ = 'struct';
     t.prototype.constructor = t;
     t.fields = fields; // TODO: copy/freeze
-    t.byteLength = byteLength;
+    t.bytes = t.byteLength = byteLength;
     t.prototype.valueOf = function() {
-      return t.reify(this.buffer, 0);
+      return t.__Reify__(this.__Value__, 0);
     };
 
     return t;
@@ -112,7 +129,7 @@
     var proto = {};
     length = length | 0;
 
-    if (!('byteLength' in type && 'convert' in type && 'reify' in type)) {
+    if (!('byteLength' in type && '__Convert__' in type && '__Reify__' in type)) {
       throw new TypeError();
     }
 
@@ -123,10 +140,10 @@
 
         Object.defineProperty(proto, index, {
           get: function() {
-            return type.reify(this.buffer, type.byteLength * index);
+            return type.__Reify__(this.__Value__, type.byteLength * index);
           },
           set: function(value) {
-            type.convert(value, this.buffer, type.byteLength * index);
+            type.__Convert__(value, this.__Value__, type.byteLength * index);
           }
         });
 
@@ -134,23 +151,27 @@
     }
 
     var t = function SomeArrayType(value) {
-      this.buffer = new Uint8Array(byteLength).buffer;
-      this.__DataType__ = t;
-      this.length = length;
-      if (value !== (void 0)) {
-        t.convert(value, this.buffer, 0);
+      t.__Construct__(value, this);
+    };
+    t.__Construct__ = function(val, a) {
+      a.__Class__ = 'Data';
+      a.__Value__ = new Uint8Array(byteLength).buffer;
+      a.__DataType__ = t;
+      a.length = length;
+      if (val !== (void 0)) {
+        t.__Convert__(val, a.__Value__, 0);
       }
     };
-    t.convert = function(value, buffer, offset) {
+    t.__Convert__ = function(value, buffer, offset) {
       for (var i = 0; i < length; ++i) {
-        type.convert(value[i], buffer, offset);
+        type.__Convert__(value[i], buffer, offset);
         offset += type.byteLength;
       };
     };
-    t.reify = function(buffer, offset) {
+    t.__Reify__ = function(buffer, offset) {
       var result = [];
       for (var i = 0; i < length; ++i) {
-        result[i] = type.reify(buffer, offset);
+        result[i] = type.__Reify__(buffer, offset);
         offset += type.byteLength;
       }
       return result;
@@ -158,14 +179,21 @@
 
     t.prototype = proto;
     t.prototype.forEach = Array.prototype.forEach;
+    t.__Class__ = 'DataType';
     t.__DataType__ = 'array';
+    t.__ElementType__ = type;
+    t.__Length__ = length;
     t.prototype.constructor = t;
-    // TODO: t.prototype.fill()
+    t.prototype.fill = function fill(val) {
+      for (var i = 0; i < t.__Length__; ++i) {
+        type.__Convert__(val, this.__Value__, i * t.__ElementType__.bytes);
+      }
+    };
     t.elementType = type;
-    t.length = length;
-    t.byteLength = byteLength;
+    t.length = length; // TODO: Fails because t is a Function
+    t.bytes = t.byteLength = byteLength;
     t.prototype.valueOf = function() {
-      return t.reify(this.buffer, 0);
+      return t.__Reify__(this.__Value__, 0);
     };
 
     return t;

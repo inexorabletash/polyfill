@@ -1,18 +1,92 @@
 <!DOCTYPE html>
 <title>Binary Data Polyfill</title>
 <script src="bindata.js"></script>
+<body>
+<style>
+div { font-family: monospace; white-space: pre; }
+</style>
 <script>
-var Point2D = new StructType({ x: uint32, y: uint32 });
-var Color = new StructType({ r: uint8, g: uint8, b: uint8 });
-var Pixel = new StructType({ point: Point2D, color: Color });
+function log(t) {
+  var e = document.createElement("div");
+  e.appendChild(document.createTextNode(t));
+  document.body.appendChild(e);
+}
+function separate() {
+  var e = document.createElement("hr");
+  document.body.appendChild(e);
+}
+function evalAndShow(_expr) {
+  var res = eval(_expr);
+  var json = JSON.stringify(res);
+  log(_expr + " = " + (json ? json : res === undefined ? "undefined" : Object.prototype.toString.call(res)));
+}
+function evalAndLog(_expr) {
+  var res = eval(_expr);
+  log(_expr);
+}
 
-var Triangle = new ArrayType(Pixel, 3);
+evalAndLog("Point2D = new StructType({ x: uint32, y: uint32 });");
+evalAndLog("Color = new StructType({ r: uint8, g: uint8, b: uint8 });");
+evalAndLog("Pixel = new StructType({ point: Point2D, color: Color });");
+log("\n");
+evalAndLog("Triangle = new ArrayType(Pixel, 3);");
+evalAndLog("t = new Triangle([{ point: { x:  0, y: 0 }, color: { r: 255, g: 255, b: 255 } }," + "\n" +
+           "                  { point: { x:  5, y: 5 }, color: { r: 128, g: 0,   b: 0   } }," + "\n" +
+           "                  { point: { x: 10, y: 0 }, color: { r: 0,   g: 0,   b: 128 } }]);");
 
-var t = new Triangle([{ point: { x:  0, y: 0 }, color: { r: 255, g: 255, b: 255 } },
-                      { point: { x:  5, y: 5 }, color: { r: 128, g: 0,   b: 0   } },
-                      { point: { x: 10, y: 0 }, color: { r: 0,   g: 0,   b: 128 } }]);
+separate();
 
-var A = new ArrayType(uint16, 4);
-var a = new A();
+evalAndLog("t = new ArrayType(uint8, 4)");
+evalAndShow("t.__Class__");
+evalAndShow("t.__proto__");
+evalAndShow("t.__DataType__");
+evalAndShow("t.__ElementType__");
+evalAndShow("t.__Length__");
+evalAndShow("t.__Convert__");
+evalAndShow("t.__IsSame__");
+evalAndShow("t.__Construct__");
+evalAndShow("t.__Reify__");
+evalAndShow("t.prototype");
+evalAndShow("t.prototype.__proto__");
+evalAndShow("t.prototype.constructor");
+evalAndShow("t.prototype.fill");
+evalAndShow("t.elementType");
+evalAndShow("t.length");
+evalAndShow("t.bytes");
+log("\n");
+evalAndLog("a = new t([1, 2.5, 300])");
+evalAndShow("a.__Class__")
+evalAndShow("a.__proto__")
+evalAndShow("a.__Value__")
+evalAndShow("a.__DataType__")
+evalAndShow("a.length")
+for (i = 0; i < t.__Length__; ++i) {
+  evalAndShow("a[" + i + "]");
+}
+
+separate();
+
+evalAndLog("t = new StructType({a: uint8, b: uint8})");
+evalAndShow("t.__Class__");
+evalAndShow("t.__proto__");
+evalAndShow("t.__DataType__");
+evalAndShow("t.__Convert__");
+evalAndShow("t.__IsSame__");
+evalAndShow("t.__Construct__");
+evalAndShow("t.__Reify__");
+evalAndShow("t.prototype.constructor");
+evalAndShow("t.fields");
+evalAndShow("t.bytes");
+log("\n");
+evalAndLog("s = new t({a: 2.5, b: -9})");
+evalAndShow("s.__Class__");
+evalAndShow("s.__proto__");
+evalAndShow("s.__Value__");
+evalAndShow("s.__DataType__");
+evalAndShow("s.constructor");
+Object.keys(t.fields).forEach(function(k) {
+  evalAndShow("s[" + JSON.stringify(k) + "]");
+});
 
 </script>
+</body>
