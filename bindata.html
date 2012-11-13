@@ -3,26 +3,58 @@
 <script src="bindata.js"></script>
 <body>
 <style>
+.pass { color: #00c000; font-weight: bold; }
+.fail { color: #c00000; font-weight: bold; }
 div { font-family: monospace; white-space: pre; }
 </style>
 <script>
-function log(t) {
+function log(t, className) {
   var e = document.createElement("div");
   e.appendChild(document.createTextNode(t));
+  if (className) {
+    e.className = className;
+  }
   document.body.appendChild(e);
 }
 function separate() {
   var e = document.createElement("hr");
   document.body.appendChild(e);
 }
+function stringify(value) {
+  if (typeof value === 'undefined') return "undefined";
+  if (typeof value === 'function') return "[function " + value.name + "]";
+  var json = JSON.stringify(value);
+  return json ? json : Object.prototype.toString.call(value);
+}
 function evalAndShow(_expr) {
-  var res = eval(_expr);
-  var json = JSON.stringify(res);
-  log(_expr + " = " + (json ? json : res === undefined ? "undefined" : Object.prototype.toString.call(res)));
+  try {
+    var res = eval(_expr);
+    var json = JSON.stringify(res);
+    log(_expr + " = " + stringify(res));
+  } catch (ex) {
+    log(_expr + " threw: " + ex, "fail");
+  }
 }
 function evalAndLog(_expr) {
-  var res = eval(_expr);
-  log(_expr);
+  try {
+    var res = eval(_expr);
+    log(_expr);
+  } catch (ex) {
+    log(_expr + " threw: " + ex, "fail");
+  }
+}
+function expect(_expr, _expected) {
+  try {
+    var res = eval(_expr);
+    if (res === _expected) {
+      var json = JSON.stringify(res);
+      log(_expr + " = " + stringify(res), "pass");
+    } else {
+      log(_expr + " = " + stringify(res) + " - expected: " + stringify(_expected), "fail");
+    }
+  } catch (ex) {
+    log(_expr + " threw: " + ex, "fail");
+  }
 }
 
 evalAndLog("Point2D = new StructType({ x: uint32, y: uint32 });");
@@ -36,12 +68,29 @@ evalAndLog("t = new Triangle([{ point: { x:  0, y: 0 }, color: { r: 255, g: 255,
 
 separate();
 
-evalAndLog("t = new ArrayType(uint8, 4)");
-evalAndShow("t.__Class__");
+evalAndLog("t = uint16");
+expect("Object.prototype.toString.call(t)", "[object DataType]");
+expect("t.__proto__", Function.prototype);
+expect("t.__DataType__", "uint16");
+evalAndShow("t.__Convert__");
+evalAndShow("t.__IsSame__");
+evalAndShow("t.__Cast__");
+evalAndShow("t.__CCast__");
+evalAndShow("t.__Call__");
+evalAndShow("t.__Reify__");
+expect("t.bytes", 2);
+log("\n");
+evalAndLog("n = new t(123.456)");
+// TODO: properties of n
+
+separate();
+
+evalAndLog("t = new ArrayType(uint16, 4)");
+expect("Object.prototype.toString.call(t)", "[object DataType]");
 evalAndShow("t.__proto__");
-evalAndShow("t.__DataType__");
+expect("t.__DataType__", "array");
 evalAndShow("t.__ElementType__");
-evalAndShow("t.__Length__");
+expect("t.__Length__", 4);
 evalAndShow("t.__Convert__");
 evalAndShow("t.__IsSame__");
 evalAndShow("t.__Construct__");
@@ -52,14 +101,14 @@ evalAndShow("t.prototype.constructor");
 evalAndShow("t.prototype.fill");
 evalAndShow("t.elementType");
 evalAndShow("t.length");
-evalAndShow("t.bytes");
+expect("t.bytes", 8);
 log("\n");
 evalAndLog("a = new t([1, 2.5, 300])");
 evalAndShow("a.__Class__")
 evalAndShow("a.__proto__")
 evalAndShow("a.__Value__")
 evalAndShow("a.__DataType__")
-evalAndShow("a.length")
+expect("a.length", 4)
 for (i = 0; i < t.__Length__; ++i) {
   evalAndShow("a[" + i + "]");
 }
@@ -67,16 +116,16 @@ for (i = 0; i < t.__Length__; ++i) {
 separate();
 
 evalAndLog("t = new StructType({a: uint8, b: uint8})");
-evalAndShow("t.__Class__");
+expect("Object.prototype.toString.call(t)", "[object DataType]");
 evalAndShow("t.__proto__");
-evalAndShow("t.__DataType__");
+expect("t.__DataType__", "struct");
 evalAndShow("t.__Convert__");
 evalAndShow("t.__IsSame__");
 evalAndShow("t.__Construct__");
 evalAndShow("t.__Reify__");
 evalAndShow("t.prototype.constructor");
 evalAndShow("t.fields");
-evalAndShow("t.bytes");
+expect("t.bytes", 2);
 log("\n");
 evalAndLog("s = new t({a: 2.5, b: -9})");
 evalAndShow("s.__Class__");
