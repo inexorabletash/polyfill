@@ -1174,68 +1174,116 @@
 
     var Reflect = {};
 
-    Reflect.getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-    Reflect.defineProperty = Object.defineProperty;
-    Reflect.getOwnPropertyNames = Object.getOwnPropertyNames;
-    Reflect.getPrototypeOf = Object.getPrototypeOf;
-    Reflect.deleteProperty = function(target,name) {
-      delete target[name];
-    };
-    Reflect.enumerate = function(target) {
-      target = Object(target);
-      return new PropertyIterator(target);
-    };
-    Reflect.freeze = function(target) {
-      try { Object.freeze(target); return true; } catch (e) { return false; }
-    };
-    Reflect.seal = function(target) {
-      try { Object.seal(target); return true; } catch (e) { return false; }
-    };
-    Reflect.preventExtensions = function(target) {
-      try { Object.preventExtensions(target); return true; } catch (e) { return false; }
-    };
-    Reflect.isFrozen = Object.isFrozen;
-    Reflect.isSealed = Object.isSealed;
-    Reflect.isExtensible = Object.isExtensible;
-    Reflect.has = function(target,name) {
-      return String(name) in Object(target);
-    };
-    Reflect.hasOwn = function(target,name) {
-      return Object(target).hasOwnProperty(String(name));
-    };
-    Reflect.keys = Object.keys;
-    Reflect.get = function(target,name,receiver) {
-      target = Object(target);
-      name = String(name);
-      receiver = (receiver === (void 0)) ? target : Object(receiver);
-      var desc = Object.getPropertyDescriptor(target, name);
-      if ('get' in desc) {
-        return Function.prototype.call.call(desc['get'], receiver);
-      }
-      return target[name];
-    };
-    Reflect.set = function(target,name,value,receiver) {
-      target = Object(target);
-      name = String(name);
-      receiver = (receiver === (void 0)) ? target : Object(receiver);
-      var desc = Object.getPropertyDescriptor(target, name);
-      if ('set' in desc) {
-        return Function.prototype.call.call(desc['set'], receiver, value);
-      }
-      return target[name] = value;
-    };
-    Reflect.apply = function(target,thisArg,args) {
-      return Function.prototype.apply.call(target, thisArg, args);
-    };
-    Reflect.construct = function(target, args) {
-      var a = arguments;
-      var s = "new target";
-      for (var i = 1; i < a.length; ++i) {
-        s += ((i === 1) ? '(' : ',') + 'a[' + i + ']';
-      }
-      s += ')';
-      return eval(s);
-    };
+    defineFunctionProperty(
+      Reflect, 'getOwnPropertyDescriptor',
+      Object.getOwnPropertyDescriptor);
+    defineFunctionProperty(
+      Reflect, 'defineProperty',
+      Object.defineProperty);
+    defineFunctionProperty(
+      Reflect, 'getOwnPropertyNames',
+      Object.getOwnPropertyNames);
+    defineFunctionProperty(
+      Reflect, 'getPrototypeOf',
+      Object.getPrototypeOf);
+    defineFunctionProperty(
+      Reflect, 'setPrototypeOf',
+      function(target, proto) {
+        target.__proto__ = proto;
+      });
+    defineFunctionProperty(
+      Reflect, 'deleteProperty',
+      function(target,name) {
+        delete target[name];
+      });
+    defineFunctionProperty(
+      Reflect, 'enumerate',
+      function(target) {
+        target = Object(target);
+        return new PropertyIterator(target);
+      });
+    defineFunctionProperty(
+      Reflect, 'freeze',
+      function(target) {
+        try { Object.freeze(target); return true; } catch (e) { return false; }
+      });
+    defineFunctionProperty(
+      Reflect, 'seal',
+      function(target) {
+        try { Object.seal(target); return true; } catch (e) { return false; }
+      });
+    defineFunctionProperty(
+      Reflect, 'preventExtensions',
+      function(target) {
+        try { Object.preventExtensions(target); return true; } catch (e) { return false; }
+      });
+    defineFunctionProperty(
+      Reflect, 'isFrozen',
+      Object.isFrozen);
+    defineFunctionProperty(
+      Reflect, 'isSealed',
+      Object.isSealed);
+    defineFunctionProperty(
+      Reflect, 'isExtensible',
+      Object.isExtensible);
+    defineFunctionProperty(
+      Reflect, 'has',
+      function(target,name) {
+        return String(name) in Object(target);
+      });
+    defineFunctionProperty(
+      Reflect, 'hasOwn',
+      function(target,name) {
+        return Object(target).hasOwnProperty(String(name));
+      });
+    defineFunctionProperty(
+      Reflect, 'instanceOf',
+      function(target, O) {
+        return target instanceof O;
+      });
+    defineFunctionProperty(
+      Reflect, 'keys',
+      Object.keys);
+    defineFunctionProperty(
+      Reflect, 'get',
+      function(target,name,receiver) {
+        target = Object(target);
+        name = String(name);
+        receiver = (receiver === (void 0)) ? target : Object(receiver);
+        var desc = Object.getPropertyDescriptor(target, name);
+        if ('get' in desc) {
+          return Function.prototype.call.call(desc['get'], receiver);
+        }
+        return target[name];
+      });
+    defineFunctionProperty(
+      Reflect, 'set',
+      function(target,name,value,receiver) {
+        target = Object(target);
+        name = String(name);
+        receiver = (receiver === (void 0)) ? target : Object(receiver);
+        var desc = Object.getPropertyDescriptor(target, name);
+        if ('set' in desc) {
+          return Function.prototype.call.call(desc['set'], receiver, value);
+        }
+        return target[name] = value;
+      });
+    defineFunctionProperty(
+      Reflect, 'apply',
+      function(target,thisArg,args) {
+        return Function.prototype.apply.call(target, thisArg, args);
+      });
+    defineFunctionProperty(
+      Reflect, 'construct',
+      function(target, args) {
+        var a = arguments;
+        var s = "new target";
+        for (var i = 1; i < a.length; ++i) {
+          s += ((i === 1) ? '(' : ',') + 'a[' + i + ']';
+        }
+        s += ')';
+        return eval(s);
+      });
 
     function Enumerate(obj, includePrototype, onlyEnumerable) {
       var proto = Object.getPrototypeOf(obj);
@@ -1429,6 +1477,7 @@
       });
   }());
 
+  // NOTE: Since true iterators can't be polyfilled, this is a hack
   function forOf(o, func) {
     o = Object(o);
     var it = o[iteratorSymbol]();
