@@ -104,16 +104,20 @@
   //
   //----------------------------------------------------------------------
 
+  var toStringTagSymbol = '@@toStringTag',
+      iteratorSymbol = '@@iterator';
+
   // 15.2.4.2
   hook(Object.prototype, 'toString',
        function() {
-         return (this === Object(this) && '@@toStringTag' in this) ? '[object ' + this['@@toStringTag'] + ']' : (void 0);
+         return (this === Object(this) && toStringTagSymbol in this) ? '[object ' + this[toStringTagSymbol] + ']' : (void 0);
        });
 
   // NOTE: Since true iterators can't be polyfilled, this is a hack
   global.StopIteration = global.StopIteration || (function () {
     function StopIterationClass() {}
-    StopIterationClass.prototype = {'@@toStringTag': 'StopIteration'};
+    StopIterationClass.prototype = {};
+    StopIterationClass.prototype[toStringTagSymbol] = 'StopIteration';
     return new StopIterationClass;
   }());
 
@@ -214,7 +218,7 @@
 
   // 15.4.4.26
   defineFunctionProperty(
-    Array.prototype, '@@iterator',
+    Array.prototype, iteratorSymbol,
     Array.prototype.items
     );
 
@@ -274,13 +278,13 @@
 
   // 15.4.6.2.3
   defineFunctionProperty(
-    ArrayIterator.prototype, '@@iterator',
+    ArrayIterator.prototype, iteratorSymbol,
     function() {
       return this;
     });
 
   // 15.4.6.2.4
-  ArrayIterator.prototype['@@toStringTag'] = 'Array Iterator';
+  ArrayIterator.prototype[toStringTagSymbol] = 'Array Iterator';
 
   //----------------------------------------
   // 15.5 String Objects
@@ -637,7 +641,7 @@
 
       if (iterable !== (void 0)) {
         iterable = Object(iterable);
-        var itr = iterable['@@iterator'](); // or throw...
+        var itr = iterable[iteratorSymbol](); // or throw...
         var adder = obj['set'];
         if (!ECMAScript.IsCallable(adder)) { throw new TypeError(); }
       }
@@ -777,13 +781,13 @@
 
     // 15.14.5.12
     defineFunctionProperty(
-      Map.prototype, '@@iterator',
+      Map.prototype, iteratorSymbol,
       function() {
         return CreateMapIterator(Object(this), "key+value");
       });
 
     // 15.14.5.13
-    Map.prototype['@@toStringTag'] = 'Map';
+    Map.prototype[toStringTagSymbol] = 'Map';
 
     // 15.14.7 Properties of Map Instances
 
@@ -831,13 +835,13 @@
 
     // 15.14.17.2.3
     defineFunctionProperty(
-      MapIterator.prototype, '@@iterator',
+      MapIterator.prototype, iteratorSymbol,
       function() {
         return this;
       });
 
     // 15.14.17.2.4
-    MapIterator.prototype['@@toStringTag'] = 'Map Iterator';
+    MapIterator.prototype[toStringTagSymbol] = 'Map Iterator';
 
     global.Map = global.Map || Map;
   }());
@@ -899,7 +903,7 @@
 
       if (iterable !== (void 0)) {
         iterable = Object(iterable);
-        var itr = iterable['@@iterator'](); // or throw...
+        var itr = iterable[iteratorSymbol](); // or throw...
         var adder = obj['set'];
         if (!ECMAScript.IsCallable(adder)) { throw new TypeError(); }
       }
@@ -975,7 +979,7 @@
       });
 
     // 15.15.5.8
-    WeakMap.prototype['@@toStringTag'] = 'WeakMap';
+    WeakMap.prototype[toStringTagSymbol] = 'WeakMap';
 
     global.WeakMap = global.WeakMap || WeakMap;
   }());
@@ -993,7 +997,7 @@
 
       if (iterable !== (void 0)) {
         iterable = Object(iterable);
-        var itr = ECMAScript.HasProperty(iterable, "values") ? iterable.values() : iterable['@@iterator'](); // or throw...
+        var itr = ECMAScript.HasProperty(iterable, "values") ? iterable.values() : iterable[iteratorSymbol](); // or throw...
         var adder = obj['add'];
         if (!ECMAScript.IsCallable(adder)) { throw new TypeError(); }
       }
@@ -1107,13 +1111,13 @@
 
     // 15.16.5.9
     defineFunctionProperty(
-      Set.prototype, '@@iterator',
+      Set.prototype, iteratorSymbol,
       function() {
         return CreateSetIterator(Object(this));
       });
 
     // 15.16.5.10
-    Set.prototype['@@toStringTag'] = 'Set';
+    Set.prototype[toStringTagSymbol] = 'Set';
 
     // 15.16.7 Set Iterator Object Structure
 
@@ -1150,15 +1154,142 @@
 
     // 15.16.7.2.3
     defineFunctionProperty(
-      SetIterator.prototype, '@@iterator',
+      SetIterator.prototype, iteratorSymbol,
       function() {
         return this;
       });
 
     // 15.16.7.2.4
-    SetIterator.prototype['@@toStringTag'] = 'Set Iterator';
+    SetIterator.prototype[toStringTagSymbol] = 'Set Iterator';
 
     global.Set = global.Set || Set;
+  }());
+
+
+  //----------------------------------------
+  // 15.17 The Reflect Module
+  //----------------------------------------
+
+  (function() {
+
+    var Reflect = {};
+
+    Reflect.getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+    Reflect.defineProperty = Object.defineProperty;
+    Reflect.getOwnPropertyNames = Object.getOwnPropertyNames;
+    Reflect.getPrototypeOf = Object.getPrototypeOf;
+    Reflect.deleteProperty = function(target,name) {
+      delete target[name];
+    };
+    Reflect.enumerate = function(target) {
+      target = Object(target);
+      return new PropertyIterator(target);
+    };
+    Reflect.freeze = function(target) {
+      try { Object.freeze(target); return true; } catch (e) { return false; }
+    };
+    Reflect.seal = function(target) {
+      try { Object.seal(target); return true; } catch (e) { return false; }
+    };
+    Reflect.preventExtensions = function(target) {
+      try { Object.preventExtensions(target); return true; } catch (e) { return false; }
+    };
+    Reflect.isFrozen = Object.isFrozen;
+    Reflect.isSealed = Object.isSealed;
+    Reflect.isExtensible = Object.isExtensible;
+    Reflect.has = function(target,name) {
+      return String(name) in Object(target);
+    };
+    Reflect.hasOwn = function(target,name) {
+      return Object(target).hasOwnProperty(String(name));
+    };
+    Reflect.keys = Object.keys;
+    Reflect.get = function(target,name,receiver) {
+      target = Object(target);
+      name = String(name);
+      receiver = (receiver === (void 0)) ? target : Object(receiver);
+      var desc = Object.getPropertyDescriptor(target, name);
+      if ('get' in desc) {
+        return Function.prototype.call.call(desc['get'], receiver);
+      }
+      return target[name];
+    };
+    Reflect.set = function(target,name,value,receiver) {
+      target = Object(target);
+      name = String(name);
+      receiver = (receiver === (void 0)) ? target : Object(receiver);
+      var desc = Object.getPropertyDescriptor(target, name);
+      if ('set' in desc) {
+        return Function.prototype.call.call(desc['set'], receiver, value);
+      }
+      return target[name] = value;
+    };
+    Reflect.apply = function(target,thisArg,args) {
+      return Function.prototype.apply.call(target, thisArg, args);
+    };
+    Reflect.construct = function(target, args) {
+      var a = arguments;
+      var s = "new target";
+      for (var i = 1; i < a.length; ++i) {
+        s += ((i === 1) ? '(' : ',') + 'a[' + i + ']';
+      }
+      s += ')';
+      return eval(s);
+    };
+
+    function Enumerate(obj, includePrototype, onlyEnumerable) {
+      var proto = Object.getPrototypeOf(obj);
+      var propList;
+      if (!includePrototype || proto === null) {
+        propList = [];
+      } else {
+        propList = Enumerate(proto, true, onlyEnumerable);
+      }
+      Object.keys(obj).forEach(function(name) {
+        var desc = Object.getOwnPropertyDescriptor(obj, name);
+        var index = propList.indexOf(name);
+        if (index !== -1) {
+          propList.splice(index, 1);
+        }
+        if (!onlyEnumerable || desc.enumerable) {
+          propList.push(name);
+        }
+      });
+      return propList;
+    }
+
+    function PropertyIterator(o) {
+      this.o = o;
+      this.nextIndex = 0;
+      this.propList = Enumerate(o);
+    }
+    PropertyIterator.prototype = {};
+
+    defineFunctionProperty(
+      PropertyIterator.prototype, 'next',
+      function() {
+        if (typeof this !== 'object') { throw new TypeError; }
+        var o = this.set,
+            index = this.nextIndex,
+            entries = this.propList;
+        while (index < entries.length) {
+          var e = entries[index];
+          index = index += 1;
+          this.nextIndex = index;
+          if (e !== (void 0)) { // |empty| ?
+            return e;
+          }
+        }
+        throw global.StopIteration;
+      });
+
+    defineFunctionProperty(
+      PropertyIterator.prototype, iteratorSymbol,
+      function() {
+        return this;
+      });
+
+    global.Reflect = global.Reflect || Reflect;
   }());
 
   //----------------------------------------------------------------------
@@ -1261,7 +1392,7 @@
   // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
   (function() {
     defineFunctionProperty(
-      String.prototype, '@@iterator',
+      String.prototype, iteratorSymbol,
       function items() {
         return CreateStringIterator(this);
       });
@@ -1275,7 +1406,8 @@
       this.iteratedObject = object;
       this.nextIndex = nextIndex;
     }
-    StringIterator.prototype = {'@@toStringTag': 'String Iterator'};
+    StringIterator.prototype = {};
+    StringIterator.prototype[toStringTagSymbol] = 'String Iterator';
     defineFunctionProperty(
       StringIterator.prototype, 'next',
       function() {
@@ -1291,10 +1423,26 @@
         return String.fromCodePoint(cp);
       });
     defineFunctionProperty(
-      StringIterator.prototype, '@@iterator',
+      StringIterator.prototype, iteratorSymbol,
       function() {
         return this;
       });
   }());
+
+  function forOf(o, func) {
+    o = Object(o);
+    var it = o[iteratorSymbol]();
+    try {
+      while (true) {
+        func(it.next());
+      }
+    } catch (ex) {
+      if (ex === global.StopIteration) {
+        return;
+      }
+      throw ex;
+    }
+  }
+  global.forOf = forOf; // Since for( ... of ... ) can't be shimmed w/o a transpiler.
 
 }(self));
