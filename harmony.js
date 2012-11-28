@@ -850,52 +850,52 @@
   // 15.15 WeakMap Objects
   //----------------------------------------
 
-  (function() {
-    // Inspired by https://gist.github.com/1638059
-    /** @constructor */
-    function EphemeronTable() {
-      var secretKey = Object.create(null);
+  // Inspired by https://gist.github.com/1638059
+  /** @constructor */
+  function EphemeronTable() {
+    var secretKey = Object.create(null);
 
-      function conceal(o) {
-        var oValueOf = o.valueOf, secrets = Object.create(null);
-        o.valueOf = (function(secretKey) {
-          return function (k) {
-            return (k === secretKey) ? secrets : oValueOf.apply(o, arguments);
-          };
-        }(secretKey));
-        return secrets;
-      }
-
-      function reveal(o) {
-        var v = o.valueOf(secretKey);
-        return v === o ? null : v;
-      }
-
-      return {
-        clear: function() {
-          secretKey = Object.create(null);
-        },
-        remove: function(key) {
-          var secrets = reveal(key);
-          if (secrets) {
-            delete secrets.value;
-          }
-        },
-        get: function(key, defaultValue) {
-          var secrets = reveal(key);
-          return (secrets && ECMAScript.HasOwnProperty(secrets, 'value')) ? secrets.value : defaultValue;
-        },
-        has: function(key) {
-          var secrets = reveal(key);
-          return Boolean(secrets && ECMAScript.HasOwnProperty(secrets, 'value'));
-        },
-        set: function(key, value) {
-          var secrets = reveal(key) || conceal(key);
-          secrets.value = value;
-        }
-      };
+    function conceal(o) {
+      var oValueOf = o.valueOf, secrets = Object.create(null);
+      o.valueOf = (function(secretKey) {
+        return function (k) {
+          return (k === secretKey) ? secrets : oValueOf.apply(o, arguments);
+        };
+      }(secretKey));
+      return secrets;
     }
 
+    function reveal(o) {
+      var v = o.valueOf(secretKey);
+      return v === o ? null : v;
+    }
+
+    return {
+      clear: function() {
+        secretKey = Object.create(null);
+      },
+      remove: function(key) {
+        var secrets = reveal(key);
+        if (secrets) {
+          delete secrets.value;
+        }
+      },
+      get: function(key, defaultValue) {
+        var secrets = reveal(key);
+        return (secrets && ECMAScript.HasOwnProperty(secrets, 'value')) ? secrets.value : defaultValue;
+      },
+      has: function(key) {
+        var secrets = reveal(key);
+        return Boolean(secrets && ECMAScript.HasOwnProperty(secrets, 'value'));
+      },
+      set: function(key, value) {
+        var secrets = reveal(key) || conceal(key);
+        secrets.value = value;
+      }
+    };
+  }
+
+  (function() {
     // 15.15.1 Abstract Operations For WeakMap Objects
     function WeakMapInitialisation(obj, iterable) {
       if (typeof obj !== 'object') { throw new TypeError(); }
@@ -1165,6 +1165,78 @@
     global.Set = global.Set || Set;
   }());
 
+  // WeakSet
+  (function() {
+
+    function WeakSetInitialisation(obj, iterable) {
+      if (typeof obj !== 'object') { throw new TypeError(); }
+      if ('_table' in obj) { throw new TypeError(); }
+
+      if (iterable !== (void 0)) {
+        iterable = Object(iterable);
+        var itr = ECMAScript.HasProperty(iterable, "values") ? iterable.values() : iterable[iteratorSymbol](); // or throw...
+        var adder = obj['add'];
+        if (!ECMAScript.IsCallable(adder)) { throw new TypeError(); }
+      }
+      obj._table = new EphemeronTable;
+      if (iterable === (void 0)) {
+        return obj;
+      }
+      while (true) {
+        try {
+          var next = itr.next();
+        } catch (ex) {
+          if (ex === global.StopIteration) {
+            return obj;
+          }
+          throw ex;
+        }
+        adder.call(obj, next);
+      }
+    }
+
+    /** @constructor */
+    function WeakSet(iterable) {
+      if (!(this instanceof WeakSet)) { return new WeakSet(iterable); }
+
+      WeakSetInitialisation(this, iterable);
+
+      return this;
+    }
+
+    WeakSet.prototype = {};
+
+    defineFunctionProperty(
+      WeakSet.prototype, 'add',
+      function add(key) {
+        if (key !== Object(key)) { throw new TypeError("Expected object"); }
+        this._table.set(key, true);
+      });
+
+    defineFunctionProperty(
+      WeakSet.prototype, 'clear',
+      function clear() {
+        this._table.clear();
+      });
+
+    defineFunctionProperty(
+      WeakSet.prototype, 'delete',
+      function deleteFunction(key) {
+        if (key !== Object(key)) { throw new TypeError("Expected object"); }
+        this._table.remove(key);
+      });
+
+    defineFunctionProperty(
+      WeakSet.prototype, 'has',
+      function has(key) {
+        if (key !== Object(key)) { throw new TypeError("Expected object"); }
+        return this._table.has(key);
+      });
+
+    WeakSet.prototype[toStringTagSymbol] = 'WeakSet';
+
+    global.WeakSet = global.WeakSet || WeakSet;
+  }());
 
   //----------------------------------------
   // 15.17 The Reflect Module

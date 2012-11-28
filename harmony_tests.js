@@ -550,6 +550,33 @@ test("WeakMap", function () {
   delete v;
 });
 
+test("WeakSet", function () {
+  set = new WeakSet();
+  x = {};
+  y = {};
+  assertFalse("set.has(x)");
+  assertFalse("set.has(y)");
+  set.add(x);
+  assertTrue("set.has(x)");
+  assertFalse("set.has(y)");
+  set['delete'](x);
+  assertFalse("set.has(x)");
+  assertFalse("set.has(y)");
+  set.add(x);
+  set.clear();
+  assertFalse("set.has(x)");
+  assertFalse("set.has(y)");
+
+  set = new WeakSet([x, y]);
+  assertTrue("set.has(x)");
+  assertTrue("set.has(y)");
+
+  delete set;
+  delete x;
+  delete y;
+});
+
+
 test("Proposed Number extras", function () {
   // Number.compare
   assertTrue("'compare' in Number");
