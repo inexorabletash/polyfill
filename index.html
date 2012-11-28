@@ -18,7 +18,6 @@ A more comprehensive list can be found at <a target="_other" href="https://githu
   <li><a href="#harmony">ECMAScript 6 / "Harmony"</a>
   <li><a href="#url">URL</a>
   <li><a href="#keyboard">Keyboard Events</a>
-  <li><a href="#timing">Timing control for script-based animations</a>
   <li><a href="#storage">Web Storage</a>
   <li><a href="#geo">Geolocation</a>
   <li><a href="#workers">Workers</a>
@@ -70,7 +69,13 @@ A more comprehensive list can be found at <a target="_other" href="https://githu
       <li><code><var>tokenList</var>.remove(<var>token</var>)</code>
       <li><code><var>tokenList</var>.toggle(<var>token</var>)</code>
     </ul>
-  <li><a target="_other" href="https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html">Efficient Script Yielding</a> ABANDONED DRAFT (shim)
+
+  <li><a target="_other" href="http://www.w3.org/TR/animation-timing/">W3C Timing control for script-based animations</a> (shim) - <a target="_other" href="raf.html">demo page</a>
+    <ul>
+      <li><code><var>id</var> = window.requestAnimationFrame()</code>
+      <li><code>window.cancelAnimationFrame(<var>id</var>)</code>
+    </ul>
+  <li><a target="_other" href="https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html">Efficient Script Yielding</a> (shim)
     <ul>
       <li><code><var>id</var> = setImmediate</code>
       <li><code>clearImmediate(<var>id</var>)</code>
@@ -182,6 +187,11 @@ A more comprehensive list can be found at <a target="_other" href="https://githu
         <code>contains()</code> <a href="https://mail.mozilla.org/pipermail/es-discuss/2011-December/019099.html">[ref]</a>
       <li>String prototype:
         <code>@@iterator()</code> <a href="http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html">[ref]</a>
+      <li>WeakSet (intrusive; modifies valueOf property of key):
+        <code>add()</code>,
+        <code>clear()</code>,
+        <code>delete()</code>,
+        <code>has()</code>,
     </ul>
 </ul>
 
@@ -213,13 +223,6 @@ A more comprehensive list can be found at <a target="_other" href="https://githu
 <li><code><var>keyboardEvent</var>.keyIdentifier</code>
 <li><code><var>keyboardEvent</var>.keyLocation</code>
 <li><code><var>keyboardEvent</var>.keyChar</code>
-</ul>
-
-<h2 id="timing">W3C Timing control for script-based animations (shim)</h2>
-<p><a target="_other" href="raf.js">script</a> - <a target="_other" href="raf.html">demo page</a> - <a target="_other" href="http://www.w3.org/TR/animation-timing/">spec</a>
-<ul>
-<li><code><var>id</var> = window.requestAnimationFrame()</code>
-<li><code>window.cancelAnimationFrame(<var>id</var>)</code>
 </ul>
 
 <h2 id="storage">W3C Web Storage (shim)</h2>

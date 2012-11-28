@@ -1,6 +1,8 @@
 // requestAnimationFrame polyfill
 // http://www.w3.org/TR/animation-timing/
 
+// NOTE: This has been integrated into polyfill.js
+
 (function (window) {
   "use strict";
 
