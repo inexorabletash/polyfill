@@ -1,7 +1,6 @@
 /*
- $LicenseInfo:firstyear=2010&license=mit$
-
  Copyright (c) 2010, Linden Research, Inc.
+ Copyright (c) 2012, Joshua Bell
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +23,7 @@
  */
 
 // Original can be found at:  https://bitbucket.org/lindenlab/llsd
-// Modifications by Joshua Bell inexorabletash@hotmail.com
+// Modifications by Joshua Bell inexorabletash@gmail.com
 //  * Restructure the creation of types and exporting to global namespace
 //  * Allow no arguments to DataView constructor
 //  * Work cross-frame with native arrays/shimmed DataView
