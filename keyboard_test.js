@@ -59,13 +59,13 @@ function select(event) {
 
 var target = document.getElementById('target');
 
-addEvent(document.documentElement, 'click',
+document.documentElement.addEventListener('click',
          function (e) {
            target.focus();
          });
 
 // Block Apps (context menu) key in IE
-addEvent(document.documentElement, 'contextmenu',
+document.documentElement.addEventListener('contextmenu',
          function (e) {
            return false;
          });
@@ -73,7 +73,7 @@ addEvent(document.documentElement, 'contextmenu',
 var lastKey = -1;
 
 // Workaround for Opera which doesn't allow cancelling Tab, IE/Apps
-addEvent(target, 'blur',
+target.addEventListener('blur',
          function (e) {
            if (lastKey === 0x09 || lastKey === 0x5D) {
              target.focus();
@@ -109,7 +109,7 @@ function show(selector, e) {
   elem.appendChild(document.createTextNode(s));
 }
 
-addEvent(target, 'keydown',
+target.addEventListener('keydown',
          function (e) {
            lastKey = e.keyCode;
 
@@ -128,7 +128,7 @@ addEvent(target, 'keydown',
            e.stopPropagation();
          });
 
-addEvent(target, 'keyup',
+target.addEventListener('keyup',
          function (e) {
            if (lastKey == e.keyCode) { lastKey = -1; }
            identifyKey(e);

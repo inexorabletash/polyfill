@@ -39,7 +39,22 @@ A more comprehensive list can be found at <a target="_other" href="https://githu
       <li><code><var>element</var> = document.querySelector(<var>selector</var>)</code>
       <li><code><var>elementArray</var> = document.querySelectorAll(<var>selector</var>)</code>
     </ul>
-  <li><a target="_other" href="http://www.w3.org/TR/DOM-Level-2-Events/">DOM Level 2 Events</a> (helper) - adapted from <a target="_other" href="http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html">QuirksMode</a>
+  <li><a target="_other" href="http://www.w3.org/TR/DOM-Level-2-Events/">DOM Level 2 Events</a> (shim for IE8)
+    <ul>
+      <li><code><var>EventTarget</var>.addEventListener(<var>event</var>, <var>handler</var>)</code>
+      <li><code><Var>EventTarget</var>.removeEventListener(<var>event</var>, <var>handler</var>)</code>
+      <li>Where <var>EventTarget</var> is window, document, or any element.
+      <li><code><var>Event</var>.target</code>
+      <li><code><var>Event</var>.currentTarget</code>
+      <li><code><var>Event</var>.eventPhase</code>
+      <li><code><var>Event</var>.bubbles</code>
+      <li><code><var>Event</var>.cancelable</code>
+      <li><code><var>Event</var>.timeStamp</code>
+      <li><code><var>Event</var>.defaultPrevented</code>
+      <li><code><var>Event</var>.stopPropagation()</code>
+      <li><code><var>Event</var>.cancelBubble()</code>
+    </ul>
+  <li><a target="_other" href="http://www.w3.org/TR/DOM-Level-2-Events/">DOM Level 2 Events</a> (helper for IE6/7) - adapted from <a target="_other" href="http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html">QuirksMode</a>
     <ul>
       <li><code>window.addEvent(<var>element</var>, <var>event</var>, <var>handler</var>)</code>
       <li><code>window.removeEvent(<var>element</var>, <var>event</var>, <var>handler</var>)</code>

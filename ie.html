@@ -10,6 +10,7 @@ var t = function(e) {
     currentTarget: (typeof ct) + String(ct),
     eventPhase:e.eventPhase,
     bubbles:e.bubbles,
+    cancelable:e.cancelable,
     timeStamp:e.timeStamp
   }));
 };
