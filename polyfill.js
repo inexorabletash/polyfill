@@ -79,8 +79,8 @@ if (typeof Object.create !== "function") {
     Object.defineProperty = function (o, prop, desc) {
       "use strict";
 
-      // In IE8 try built-in implementation for extending DOM prototypes.
-      if (orig) { try { return orig(o, prop, desc); } catch (e) { } };
+      // In IE8 try built-in implementation for defining properties on DOM prototypes.
+      if (orig) { try { return orig(o, prop, desc); } catch (e) {} }
 
       if (o !== Object(o)) { throw new TypeError("Object.defineProperty called on non-object"); }
       if (Object.prototype.__defineGetter__ && ('get' in desc)) {
@@ -1098,14 +1098,14 @@ if ('window' in this && 'document' in this) {
       window.getClassList = function (elem) { return elem.classList; };
     } else {
       window.getClassList = function (elem) { return new DOMTokenListShim(elem, 'className'); };
-      addToElementPrototype('classList', function() { return new DOMTokenListShim(this, 'className'); });
+      addToElementPrototype('classList', function() { return new DOMTokenListShim(this, 'className'); } );
     }
 
     if ('relList' in document.createElement('link')) {
       window.getRelList = function (elem) { return elem.relList; };
     } else {
       window.getRelList = function (elem) { return new DOMTokenListShim(elem, 'rel'); };
-      addToElementPrototype('relList', function() { return new DOMTokenListShim(this, 'rel'); });
+      addToElementPrototype('relList', function() { return new DOMTokenListShim(this, 'rel'); } );
     }
   }());
 }
