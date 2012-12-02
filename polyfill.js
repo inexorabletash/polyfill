@@ -72,22 +72,29 @@ if (typeof Object.create !== "function") {
 
 // ES 15.2.3.6 Object.defineProperty ( O, P, Attributes )
 // Partial support for most common case - getters, setters, and values
-if (!Object.defineProperty ||
-    !(function () { try { Object.defineProperty({}, 'x', {}); return true; } catch (e) { return false; } } ())) {
-  Object.defineProperty = function (o, prop, desc) {
-    "use strict";
-    if (o !== Object(o)) { throw new TypeError("Object.defineProperty called on non-object"); }
-    if (Object.prototype.__defineGetter__ && ('get' in desc)) {
-      Object.prototype.__defineGetter__.call(o, prop, desc.get);
-    }
-    if (Object.prototype.__defineSetter__ && ('set' in desc)) {
-      Object.prototype.__defineSetter__.call(o, prop, desc.set);
-    }
-    if ('value' in desc) {
-      o[prop] = desc.value;
-    }
-    return o;
-  };
+(function() {
+  if (!Object.defineProperty ||
+      !(function () { try { Object.defineProperty({}, 'x', {}); return true; } catch (e) { return false; } } ())) {
+    var orig = Object.defineProperty;
+    Object.defineProperty = function (o, prop, desc) {
+      "use strict";
+
+      // In IE8 try built-in implementation for extending DOM prototypes.
+      if (orig) { try { return orig(o, prop, desc); } catch (e) { } };
+
+      if (o !== Object(o)) { throw new TypeError("Object.defineProperty called on non-object"); }
+      if (Object.prototype.__defineGetter__ && ('get' in desc)) {
+        Object.prototype.__defineGetter__.call(o, prop, desc.get);
+      }
+      if (Object.prototype.__defineSetter__ && ('set' in desc)) {
+        Object.prototype.__defineSetter__.call(o, prop, desc.set);
+      }
+      if ('value' in desc) {
+        o[prop] = desc.value;
+      }
+      return o;
+    };
+  }
 }
 
 // ES 15.2.3.7 Object.defineProperties ( O, Properties )
@@ -554,7 +561,6 @@ if (!Date.prototype.toISOString) {
 //----------------------------------------------------------------------
 
 if ('window' in this && 'document' in this) {
-  /*jslint sloppy:true*/
 
   //----------------------------------------------------------------------
   //
@@ -693,7 +699,6 @@ if ('window' in this && 'document' in this) {
   //
   if (!document.querySelectorAll) {
     document.querySelectorAll = function (selectors) {
-      /*jslint nomen:true*/
       var style = document.createElement('style'), elements = [], element;
       document.documentElement.firstChild.appendChild(style);
       document._qsa = [];
@@ -729,7 +734,7 @@ if ('window' in this && 'document' in this) {
   //
   // DOM Enumerations (http://www.w3.org/TR/DOM-Level-2-Core/)
   //
-  window.Node = window.Node || function Node() { throw new Error("Illegal constructor"); };
+  window.Node = window.Node || function Node() { throw new TypeError("Illegal constructor"); };
   window.Node.ELEMENT_NODE = 1;
   window.Node.ATTRIBUTE_NODE = 2;
   window.Node.TEXT_NODE = 3;
@@ -743,7 +748,7 @@ if ('window' in this && 'document' in this) {
   window.Node.DOCUMENT_FRAGMENT_NODE = 11;
   window.Node.NOTATION_NODE = 12;
 
-  window.DOMException = window.DOMException || function DOMException() { throw new Error("Illegal constructor"); };
+  window.DOMException = window.DOMException || function DOMException() { throw new TypeError("Illegal constructor"); };
   window.DOMException.INDEX_SIZE_ERR = 1;
   window.DOMException.DOMSTRING_SIZE_ERR = 2;
   window.DOMException.HIERARCHY_REQUEST_ERR = 3;
@@ -899,7 +904,7 @@ if ('window' in this && 'document' in this) {
 
   }());
 
-  // Shim for DOM Events
+  // Shim for DOM Events for IE7-
   // http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html
   // Use addEvent(object, event, handler) instead of object.addEventListener(event, handler)
 
@@ -914,7 +919,7 @@ if ('window' in this && 'document' in this) {
         e.preventDefault = function () { e.returnValue = false; };
         e.stopPropagation = function () { e.cancelBubble = true; };
         e.target = e.srcElement;
-        e.timeStamp = new Date();
+        e.timeStamp = Number(new Date);
         obj["e" + type + fn].call(this, e);
       };
       obj.attachEvent("on" + type, obj[type + fn]);
@@ -938,11 +943,12 @@ if ('window' in this && 'document' in this) {
   //----------------------------------------------------------------------
 
   // Shim for http://www.whatwg.org/specs/web-apps/current-work/multipage/elements.html#dom-classlist
-  // Use getClassList(elem) instead of elem.classList() (unless on IE8+)
-  // Use getRelList(elem) instead of elem.relList() (unless on IE8+)
+  // Use getClassList(elem) instead of elem.classList() if IE7- support is needed
+  // Use getRelList(elem) instead of elem.relList() if IE7- support is needed
 
   (function () {
 
+    /** @constructor */
     function DOMTokenListShim(o, p) {
       function split(s) { return s.length ? s.split(/\s+/g) : []; }
 
@@ -1075,7 +1081,7 @@ if ('window' in this && 'document' in this) {
       } else {
         // If they are, shim in index getters (up to 100)
         for (var i = 0; i < 100; ++i) {
-          Object.defineProperty(this, i, {
+          Object.defineProperty(this, String(i), {
             get: (function(n) { return function () { return this.item(n); }; }(i))
           });
         }
@@ -1083,7 +1089,7 @@ if ('window' in this && 'document' in this) {
     }
 
     function addToElementPrototype(p, f) {
-      if (Element && Element.prototype && Object.defineProperty) {
+      if ('Element' in window && Element.prototype && Object.defineProperty) {
         Object.defineProperty(
           Element.prototype,
           p,
@@ -1115,7 +1121,6 @@ if ('window' in this && 'document' in this) {
 // Base64 utility methods (HTML5)
 //
 (function (global) {
-  /*jslint plusplus: true, bitwise: true*/
   var B64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
   global.atob = global.atob || function (input) {
     input = String(input);
