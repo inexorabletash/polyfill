@@ -95,7 +95,7 @@ if (typeof Object.create !== "function") {
       return o;
     };
   }
-}
+}());
 
 // ES 15.2.3.7 Object.defineProperties ( O, Properties )
 if (typeof Object.defineProperties !== "function") {
@@ -1090,29 +1090,22 @@ if ('window' in this && 'document' in this) {
 
     function addToElementPrototype(p, f) {
       if ('Element' in window && Element.prototype && Object.defineProperty) {
-        Object.defineProperty(
-          Element.prototype,
-          p,
-          {
-            get: function () { return f(this); }
-          });
+        Object.defineProperty(Element.prototype, p, { get: f });
       }
     }
 
     if ('classList' in document.createElement('span')) {
-      // Enable window.getClassList() for all browsers
       window.getClassList = function (elem) { return elem.classList; };
     } else {
       window.getClassList = function (elem) { return new DOMTokenListShim(elem, 'className'); };
-      addToElementPrototype('classList', window.getClassList);
+      addToElementPrototype('classList', function() { return new DOMTokenListShim(this, 'className'); });
     }
 
     if ('relList' in document.createElement('link')) {
-      // Enable window.getRelList() for all browsers
       window.getRelList = function (elem) { return elem.relList; };
     } else {
       window.getRelList = function (elem) { return new DOMTokenListShim(elem, 'rel'); };
-      addToElementPrototype('relList', window.getRelList);
+      addToElementPrototype('relList', function() { return new DOMTokenListShim(this, 'rel'); });
     }
   }());
 }
