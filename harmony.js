@@ -197,8 +197,8 @@
 
   // 15.4.4.23
   defineFunctionProperty(
-    Array.prototype, 'items',
-    function items() {
+    Array.prototype, 'entries',
+    function entries() {
       return CreateArrayIterator(this, "key+value");
     });
 
@@ -219,7 +219,7 @@
   // 15.4.4.26
   defineFunctionProperty(
     Array.prototype, iteratorSymbol,
-    Array.prototype.items
+    Array.prototype.entries
     );
 
   // 15.4.6 Array Iterator Object Structure
@@ -261,7 +261,7 @@
         this.nextIndex = Infinity;
         throw global.StopIteration;
       }
-      elementKey = String(index);
+      elementKey = index;
       this.nextIndex = index + 1;
       if (itemKind.indexOf("value") !== -1) {
         elementValue = a[elementKey];
@@ -741,8 +741,8 @@
 
     // 15.14.5.7
     defineFunctionProperty(
-      Map.prototype, 'items',
-      function items() {
+      Map.prototype, 'entries',
+      function entries() {
         return CreateMapIterator(Object(this), "key+value");
       });
 
@@ -1517,7 +1517,7 @@
   (function() {
     defineFunctionProperty(
       String.prototype, iteratorSymbol,
-      function items() {
+      function entries() {
         return CreateStringIterator(this);
       });
 

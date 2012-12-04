@@ -435,7 +435,7 @@ test("Map", 17, function () {
   assertEqual("map.size", 0);
   assertEqual("map.set(0, 0)", map);
 
-  var data = ["a", "b"], expected = [["0", "a"], ["1", "b"]], count = 0;
+  var data = ["a", "b"], expected = [[0, "a"], [1, "b"]], count = 0;
   map = new Map(data);
   map.forEach(function(k, v, m) {
     assertEqual("map", m);
@@ -669,7 +669,7 @@ test("Iterators", function () {
   m.set(1, 'a');
   m.set(2, 'b');
   m.set(3, 'c');
-  it = m.items();
+  it = m.entries();
   assertEqual("it.next().length", 2);
   assertEqual("it.next()[0]", 2);
   assertEqual("it.next()[1]", "c");
@@ -683,8 +683,8 @@ test("Iterators", function () {
 test("Branding", function() {
   assertEqual("String(new Map)", "[object Map]");
   assertEqual("Object.prototype.toString.call(new Map)", "[object Map]");
-  assertEqual("String((new Map).items())", "[object Map Iterator]");
-  assertEqual("Object.prototype.toString.call((new Map).items())", "[object Map Iterator]");
+  assertEqual("String((new Map).entries())", "[object Map Iterator]");
+  assertEqual("Object.prototype.toString.call((new Map).entries())", "[object Map Iterator]");
 
   assertEqual("String(new Set)", "[object Set]");
   assertEqual("Object.prototype.toString.call(new Set)", "[object Set]");
@@ -694,8 +694,8 @@ test("Branding", function() {
   assertEqual("String(new WeakMap)", "[object WeakMap]");
   assertEqual("Object.prototype.toString.call(new WeakMap)", "[object WeakMap]");
 
-  assertEqual("String([].items())", "[object Array Iterator]");
-  assertEqual("Object.prototype.toString.call([].items())", "[object Array Iterator]");
+  assertEqual("String([].entries())", "[object Array Iterator]");
+  assertEqual("Object.prototype.toString.call([].entries())", "[object Array Iterator]");
 
   // Make sure these aren't broken:
   assertEqual("Object.prototype.toString.call(undefined)", "[object Undefined]");
