@@ -416,7 +416,7 @@ test("Identity Testing", function () {
   }
 });
 
-test("Map", 16, function () {
+test("Map", 17, function () {
 
   map = new Map();
   assertFalse("map.has(-0)");
@@ -433,6 +433,7 @@ test("Map", 16, function () {
   map.clear();
   assertFalse("map.has(0)");
   assertEqual("map.size", 0);
+  assertEqual("map.set(0, 0)", map);
 
   var data = ["a", "b"], expected = [["0", "a"], ["1", "b"]], count = 0;
   map = new Map(data);
@@ -451,7 +452,7 @@ test("Map", 16, function () {
 
 });
 
-test("Set", 17, function () {
+test("Set", 18, function () {
   set = new Set();
   assertFalse("set.has(-0)");
   assertFalse("set.has(0)");
@@ -468,6 +469,7 @@ test("Set", 17, function () {
   set.clear();
   assertFalse("set.has(0)");
   assertEqual("set.size", 0);
+  assertEqual("set.add(0)", set);
 
   var data = [1, 2, 3], count = 0;
   set = new Set(data);
@@ -543,6 +545,8 @@ test("WeakMap", function () {
   assertFalse("wm1.has(x)");
   assertTrue("wm2.has(y)");
 
+  assertEqual("wm1.set(x, v)", wm1);
+
   delete wm1;
   delete wm2;
   delete x;
@@ -570,6 +574,8 @@ test("WeakSet", function () {
   set = new WeakSet([x, y]);
   assertTrue("set.has(x)");
   assertTrue("set.has(y)");
+
+  assertEqual("set.add(x)", set);
 
   delete set;
   delete x;

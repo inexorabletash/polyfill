@@ -762,6 +762,7 @@
         this._mapData.keys[i] = key;
         this._mapData.values[i] = val;
         if (this.size !== this._mapData.keys.length) { this.size = this._mapData.keys.length; }
+        return this;
       });
 
     // 15.14.5.10
@@ -976,6 +977,7 @@
       function set(key, value) {
         if (key !== Object(key)) { throw new TypeError("Expected object"); }
         this._table.set(key, value);
+        return this;
       });
 
     // 15.15.5.8
@@ -1052,6 +1054,7 @@
         if (i < 0) { i = this._setData.length; }
         this._setData[i] = key;
         if (this.size !== this._setData.length) { this.size = this._setData.length; }
+        return this;
       });
 
     // 15.16.5.3
@@ -1211,6 +1214,7 @@
       function add(key) {
         if (key !== Object(key)) { throw new TypeError("Expected object"); }
         this._table.set(key, true);
+        return this;
       });
 
     defineFunctionProperty(
