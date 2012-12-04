@@ -67,7 +67,7 @@
 
   function hook(o, p, f) {
     var op = o[p];
-    if (typeof op !== 'function') { throw new TypeError("Not a function"); }
+    if (typeof op !== 'function') { throw new TypeError('Not a function'); }
     o[p] = function() {
       var r = f.apply(this, arguments);
       return r !== (void 0) ? r : op.apply(this, arguments);
@@ -199,21 +199,21 @@
   defineFunctionProperty(
     Array.prototype, 'entries',
     function entries() {
-      return CreateArrayIterator(this, "key+value");
+      return CreateArrayIterator(this, 'key+value');
     });
 
   // 15.4.4.24
   defineFunctionProperty(
     Array.prototype, 'keys',
     function keys() {
-      return CreateArrayIterator(this, "key");
+      return CreateArrayIterator(this, 'key');
     });
 
   // 15.4.4.25
   defineFunctionProperty(
     Array.prototype, 'values',
     function values() {
-      return CreateArrayIterator(this, "value");
+      return CreateArrayIterator(this, 'value');
     });
 
   // 15.4.4.26
@@ -247,7 +247,7 @@
           len = ECMAScript.ToUint32(lenValue),
           elementKey,
           elementValue;
-      if (itemKind.indexOf("sparse") !== -1) {
+      if (itemKind.indexOf('sparse') !== -1) {
         var found = false;
         while (!found && index < len) {
           elementKey = String(index);
@@ -263,17 +263,17 @@
       }
       elementKey = index;
       this.nextIndex = index + 1;
-      if (itemKind.indexOf("value") !== -1) {
+      if (itemKind.indexOf('value') !== -1) {
         elementValue = a[elementKey];
       }
-      if (itemKind.indexOf("key+value") !== -1) {
+      if (itemKind.indexOf('key+value') !== -1) {
         return [elementKey, elementValue];
-      } else if (itemKind.indexOf("key") !== -1) {
+      } else if (itemKind.indexOf('key') !== -1) {
         return elementKey;
-      } else if (itemKind === "value") {
+      } else if (itemKind === 'value') {
         return elementValue;
       }
-      throw new Error("Internal error");
+      throw new Error('Internal error');
     });
 
   // 15.4.6.2.3
@@ -305,7 +305,7 @@
         var nextCP = Number(next);
         if (!ECMAScript.SameValue(nextCP, ECMAScript.ToInteger(nextCP)) ||
             nextCP < 0 || nextCP > 0x10FFFF) {
-          throw new RangeError("Invalid code point " + nextCP);
+          throw new RangeError('Invalid code point ' + nextCP);
         }
         if (nextCP < 0x10000) {
           elements.push(String.fromCharCode(nextCP));
@@ -717,7 +717,7 @@
         var thisArg = arguments[1];
         var m = Object(this);
         if (!ECMAScript.IsCallable(callbackfn)) {
-          throw new TypeError("First argument to forEach is not callable.");
+          throw new TypeError('First argument to forEach is not callable.');
         }
         for (var i = 0; i < this._mapData.keys.length; ++i) {
           callbackfn.call(thisArg, this._mapData.keys[i], this._mapData.values[i], m);
@@ -743,14 +743,14 @@
     defineFunctionProperty(
       Map.prototype, 'entries',
       function entries() {
-        return CreateMapIterator(Object(this), "key+value");
+        return CreateMapIterator(Object(this), 'key+value');
       });
 
     // 15.14.5.8
     defineFunctionProperty(
       Map.prototype, 'keys',
       function keys() {
-        return CreateMapIterator(Object(this), "key");
+        return CreateMapIterator(Object(this), 'key');
       });
 
     // 15.14.5.9
@@ -777,14 +777,14 @@
     defineFunctionProperty(
       Map.prototype, 'values',
       function values() {
-        return CreateMapIterator(Object(this), "value");
+        return CreateMapIterator(Object(this), 'value');
       });
 
     // 15.14.5.12
     defineFunctionProperty(
       Map.prototype, iteratorSymbol,
       function() {
-        return CreateMapIterator(Object(this), "key+value");
+        return CreateMapIterator(Object(this), 'key+value');
       });
 
     // 15.14.5.13
@@ -822,9 +822,9 @@
           index = index += 1;
           this._nextIndex = index;
           if (e.key !== (void 0)) { // |empty| ?
-            if (itemKind === "key") {
+            if (itemKind === 'key') {
               return e.key;
-            } else if (itemKind === "value") {
+            } else if (itemKind === 'value') {
               return e.value;
             } else {
               return [e.key, e.value];
@@ -951,7 +951,7 @@
     defineFunctionProperty(
       WeakMap.prototype, 'delete',
       function deleteFunction(key) {
-        if (key !== Object(key)) { throw new TypeError("Expected object"); }
+        if (key !== Object(key)) { throw new TypeError('Expected object'); }
         this._table.remove(key);
       });
 
@@ -959,7 +959,7 @@
     defineFunctionProperty(
       WeakMap.prototype, 'get',
       function get(key, defaultValue) {
-        if (key !== Object(key)) { throw new TypeError("Expected object"); }
+        if (key !== Object(key)) { throw new TypeError('Expected object'); }
         return this._table.get(key, defaultValue);
       });
 
@@ -967,7 +967,7 @@
     defineFunctionProperty(
       WeakMap.prototype, 'has',
       function has(key) {
-        if (key !== Object(key)) { throw new TypeError("Expected object"); }
+        if (key !== Object(key)) { throw new TypeError('Expected object'); }
         return this._table.has(key);
       });
 
@@ -975,7 +975,7 @@
     defineFunctionProperty(
       WeakMap.prototype, 'set',
       function set(key, value) {
-        if (key !== Object(key)) { throw new TypeError("Expected object"); }
+        if (key !== Object(key)) { throw new TypeError('Expected object'); }
         this._table.set(key, value);
         return this;
       });
@@ -999,7 +999,7 @@
 
       if (iterable !== (void 0)) {
         iterable = Object(iterable);
-        var itr = ECMAScript.HasProperty(iterable, "values") ? iterable.values() : iterable[iteratorSymbol](); // or throw...
+        var itr = ECMAScript.HasProperty(iterable, 'values') ? iterable.values() : iterable[iteratorSymbol](); // or throw...
         var adder = obj['add'];
         if (!ECMAScript.IsCallable(adder)) { throw new TypeError(); }
       }
@@ -1083,7 +1083,7 @@
         var thisArg = arguments[1];
         var s = Object(this);
         if (!ECMAScript.IsCallable(callbackfn)) {
-          throw new TypeError("First argument to forEach is not callable.");
+          throw new TypeError('First argument to forEach is not callable.');
         }
         for (var i = 0; i < this._setData.length; ++i) {
           callbackfn.call(thisArg, this._setData[i], s);
@@ -1177,7 +1177,7 @@
 
       if (iterable !== (void 0)) {
         iterable = Object(iterable);
-        var itr = ECMAScript.HasProperty(iterable, "values") ? iterable.values() : iterable[iteratorSymbol](); // or throw...
+        var itr = ECMAScript.HasProperty(iterable, 'values') ? iterable.values() : iterable[iteratorSymbol](); // or throw...
         var adder = obj['add'];
         if (!ECMAScript.IsCallable(adder)) { throw new TypeError(); }
       }
@@ -1212,7 +1212,7 @@
     defineFunctionProperty(
       WeakSet.prototype, 'add',
       function add(key) {
-        if (key !== Object(key)) { throw new TypeError("Expected object"); }
+        if (key !== Object(key)) { throw new TypeError('Expected object'); }
         this._table.set(key, true);
         return this;
       });
@@ -1226,14 +1226,14 @@
     defineFunctionProperty(
       WeakSet.prototype, 'delete',
       function deleteFunction(key) {
-        if (key !== Object(key)) { throw new TypeError("Expected object"); }
+        if (key !== Object(key)) { throw new TypeError('Expected object'); }
         this._table.remove(key);
       });
 
     defineFunctionProperty(
       WeakSet.prototype, 'has',
       function has(key) {
-        if (key !== Object(key)) { throw new TypeError("Expected object"); }
+        if (key !== Object(key)) { throw new TypeError('Expected object'); }
         return this._table.has(key);
       });
 
@@ -1353,7 +1353,7 @@
       Reflect, 'construct',
       function(target, args) {
         var a = arguments;
-        var s = "new target";
+        var s = 'new target';
         for (var i = 1; i < a.length; ++i) {
           s += ((i === 1) ? '(' : ',') + 'a[' + i + ']';
         }
@@ -1495,7 +1495,7 @@
       return;
     });
 
-  // es-discuss: DOMStringList replacement; may rename to "has"
+  // es-discuss: DOMStringList replacement; may rename to 'has'
   defineFunctionProperty(
     Array.prototype, 'contains',
     function contains(target) {
@@ -1504,7 +1504,7 @@
           len = ECMAScript.ToUint32(t.length),
           i;
       for (i = 0; i < len; i += 1) {
-        // eval("0 in [undefined]") == false in IE8-
+        // eval('0 in [undefined]') == false in IE8-
         if (/*i in t &&*/ ECMAScript.SameValue(t[i], target)) {
           return true;
         }
@@ -1551,6 +1551,74 @@
       function() {
         return this;
       });
+  }());
+
+  // https://mail.mozilla.org/pipermail/es-discuss/2012-December/026810.html
+  (function() {
+    function Dict() {
+      return Object.create(null);
+    }
+
+    defineFunctionProperty(
+      Dict, 'keys',
+      function keys(o) {
+        return CreateDictIterator(o, 'key');
+      });
+    defineFunctionProperty(
+      Dict, 'values',
+      function values(o) {
+        return CreateDictIterator(o, 'value');
+      });
+    defineFunctionProperty(
+      Dict, 'entries',
+      function entries(o) {
+        return CreateDictIterator(o, 'key+value');
+      });
+
+    function CreateDictIterator(string, kind) {
+      return new DictIterator(string, 0, kind);
+    }
+
+    /** @constructor */
+    function DictIterator(object, nextIndex, kind) {
+      this.iteratedObject = object;
+      this.nextIndex = nextIndex;
+      this.kind = kind;
+      // TODO: Use Enumerate()
+      this.propList = Object.keys(object);
+    }
+    DictIterator.prototype = {};
+    DictIterator.prototype[toStringTagSymbol] = 'Dict Iterator';
+    defineFunctionProperty(
+      DictIterator.prototype, 'next',
+      function() {
+        var o = Object(this.iteratedObject),
+            index = this.nextIndex,
+            entries = this.propList,
+            len = entries.length,
+            itemKind = this.kind;
+        while (index < len) {
+          var e = {key: entries[index], value: o[entries[index]]};
+          index = index += 1;
+          this.nextIndex = index;
+          if (e.key !== (void 0)) { // |empty| ?
+            if (itemKind === 'key') {
+              return e.key;
+            } else if (itemKind === 'value') {
+              return e.value;
+            } else {
+              return [e.key, e.value];
+            }
+          }
+        }
+        throw global.StopIteration;
+      });
+    defineFunctionProperty(
+      DictIterator.prototype, iteratorSymbol,
+      function() {
+        return this;
+      });
+    global.Dict = Dict;
   }());
 
   // NOTE: Since true iterators can't be polyfilled, this is a hack
