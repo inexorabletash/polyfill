@@ -103,8 +103,6 @@
 //  Win/IE - Apps moves focus even if cancelled; need explicit workaround to return focus, cancel menu
 //  Win/Chrome - Apps doesn't send keyup
 
-/*jslint browser: true*/
-
 window.KeyboardEvent = window.KeyboardEvent || function KeyboardEvent() { throw new TypeError("Illegal constructor"); };
 window.KeyboardEvent.DOM_KEY_LOCATION_STANDARD      = 0x00; // Default or unknown location
 window.KeyboardEvent.DOM_KEY_LOCATION_LEFT          = 0x01; // e.g. Left Alt key
@@ -206,7 +204,6 @@ window.KeyboardEvent.DOM_KEY_LOCATION_JOYSTICK      = 0x05;
     0x5C: { usb: 0x0700e7, keyIdentifier: 'Win', keyLocation: KeyboardEvent.DOM_KEY_LOCATION_RIGHT }, // Right Windows
     0x5D: { usb: 0x070065, keyIdentifier: 'Apps' }, // Context Menu
 
-    // TODO: Test in WebKit
     0x60: { usb: 0x070062, keyIdentifier: 'U+0040', keyName: '0', keyLocation: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD, keyChar: '0' },
     0x61: { usb: 0x070059, keyIdentifier: 'U+0041', keyName: '1', keyLocation: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD, keyChar: '1' },
     0x62: { usb: 0x07005a, keyIdentifier: 'U+0042', keyName: '2', keyLocation: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD, keyChar: '2' },
@@ -218,7 +215,6 @@ window.KeyboardEvent.DOM_KEY_LOCATION_JOYSTICK      = 0x05;
     0x68: { usb: 0x070060, keyIdentifier: 'U+0048', keyName: '8', keyLocation: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD, keyChar: '8' },
     0x69: { usb: 0x070061, keyIdentifier: 'U+0049', keyName: '9', keyLocation: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD, keyChar: '9' },
 
-    // TODO: Test in WebKit
     0x6A: { usb: 0x070055, keyIdentifier: 'Multiply', keyName: 'Multiply', keyLocation: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD, keyChar: '*' }, // or 'Asterisk' ?
     0x6B: { usb: 0x070057, keyIdentifier: 'Add', keyName: 'Add', keyLocation: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD, keyChar: '+' },
     0x6C: { usb: 0x070058, keyIdentifier: 'Separator', keyName: 'Separator', keyLocation: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD }, // ??? NumPad Enter ???
@@ -226,7 +222,6 @@ window.KeyboardEvent.DOM_KEY_LOCATION_JOYSTICK      = 0x05;
     0x6E: { usb: 0x070063, keyIdentifier: 'Decimal', keyName: 'Decimal', keyLocation: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD, keyChar: '.' },
     0x6F: { usb: 0x070054, keyIdentifier: 'Divide', keyName: 'Divide', keyLocation: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD, keyChar: '/' },
 
-    // TODO: Test in WebKit
     0x70: { usb: 0x07003a, keyIdentifier: 'F1' },
     0x71: { usb: 0x07003b, keyIdentifier: 'F2' },
     0x72: { usb: 0x07003c, keyIdentifier: 'F3' },
@@ -252,7 +247,6 @@ window.KeyboardEvent.DOM_KEY_LOCATION_JOYSTICK      = 0x05;
     0x86: { usb: 0x070072, keyIdentifier: 'F23' },
     0x87: { usb: 0x070073, keyIdentifier: 'F24' },
 
-    // TODO: Test in WebKit
     0x90: { usb: 0x070053, keyIdentifier: 'NumLock', keyLocation: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
     0x91: { usb: 0x070047, keyIdentifier: 'Scroll' },
 
