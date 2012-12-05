@@ -433,7 +433,7 @@ test("Map", 17, function () {
   map.clear();
   assertFalse("map.has(0)");
   assertEqual("map.size", 0);
-  assertEqual("map.set(0, 0)", map);
+  assertEqual("map.set('key', 'value')", 'value');
 
   var data = ["a", "b"], expected = [[0, "a"], [1, "b"]], count = 0;
   map = new Map(data);
@@ -469,7 +469,7 @@ test("Set", 18, function () {
   set.clear();
   assertFalse("set.has(0)");
   assertEqual("set.size", 0);
-  assertEqual("set.add(0)", set);
+  assertEqual("set.add('key')", 'key');
 
   var data = [1, 2, 3], count = 0;
   set = new Set(data);
@@ -545,7 +545,7 @@ test("WeakMap", function () {
   assertFalse("wm1.has(x)");
   assertTrue("wm2.has(y)");
 
-  assertEqual("wm1.set(x, v)", wm1);
+  assertEqual("wm1.set(x, v)", v);
 
   delete wm1;
   delete wm2;
@@ -575,7 +575,7 @@ test("WeakSet", function () {
   assertTrue("set.has(x)");
   assertTrue("set.has(y)");
 
-  assertEqual("set.add(x)", set);
+  assertEqual("set.add(x)", x);
 
   delete set;
   delete x;
