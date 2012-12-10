@@ -735,35 +735,35 @@ if ('window' in this && 'document' in this) {
   // DOM Enumerations (http://www.w3.org/TR/DOM-Level-2-Core/)
   //
   window.Node = window.Node || function Node() { throw new TypeError("Illegal constructor"); };
-  window.Node.ELEMENT_NODE = 1;
-  window.Node.ATTRIBUTE_NODE = 2;
-  window.Node.TEXT_NODE = 3;
-  window.Node.CDATA_SECTION_NODE = 4;
-  window.Node.ENTITY_REFERENCE_NODE = 5;
-  window.Node.ENTITY_NODE = 6;
-  window.Node.PROCESSING_INSTRUCTION_NODE = 7;
-  window.Node.COMMENT_NODE = 8;
-  window.Node.DOCUMENT_NODE = 9;
-  window.Node.DOCUMENT_TYPE_NODE = 10;
-  window.Node.DOCUMENT_FRAGMENT_NODE = 11;
-  window.Node.NOTATION_NODE = 12;
+  Node.ELEMENT_NODE = 1;
+  Node.ATTRIBUTE_NODE = 2;
+  Node.TEXT_NODE = 3;
+  Node.CDATA_SECTION_NODE = 4;
+  Node.ENTITY_REFERENCE_NODE = 5;
+  Node.ENTITY_NODE = 6;
+  Node.PROCESSING_INSTRUCTION_NODE = 7;
+  Node.COMMENT_NODE = 8;
+  Node.DOCUMENT_NODE = 9;
+  Node.DOCUMENT_TYPE_NODE = 10;
+  Node.DOCUMENT_FRAGMENT_NODE = 11;
+  Node.NOTATION_NODE = 12;
 
   window.DOMException = window.DOMException || function DOMException() { throw new TypeError("Illegal constructor"); };
-  window.DOMException.INDEX_SIZE_ERR = 1;
-  window.DOMException.DOMSTRING_SIZE_ERR = 2;
-  window.DOMException.HIERARCHY_REQUEST_ERR = 3;
-  window.DOMException.WRONG_DOCUMENT_ERR = 4;
-  window.DOMException.INVALID_CHARACTER_ERR = 5;
-  window.DOMException.NO_DATA_ALLOWED_ERR = 6;
-  window.DOMException.NO_MODIFICATION_ALLOWED_ERR = 7;
-  window.DOMException.NOT_FOUND_ERR = 8;
-  window.DOMException.NOT_SUPPORTED_ERR = 9;
-  window.DOMException.INUSE_ATTRIBUTE_ERR = 10;
-  window.DOMException.INVALID_STATE_ERR = 11;
-  window.DOMException.SYNTAX_ERR = 12;
-  window.DOMException.INVALID_MODIFICATION_ERR = 13;
-  window.DOMException.NAMESPACE_ERR = 14;
-  window.DOMException.INVALID_ACCESS_ERR = 15;
+  DOMException.INDEX_SIZE_ERR = 1;
+  DOMException.DOMSTRING_SIZE_ERR = 2;
+  DOMException.HIERARCHY_REQUEST_ERR = 3;
+  DOMException.WRONG_DOCUMENT_ERR = 4;
+  DOMException.INVALID_CHARACTER_ERR = 5;
+  DOMException.NO_DATA_ALLOWED_ERR = 6;
+  DOMException.NO_MODIFICATION_ALLOWED_ERR = 7;
+  DOMException.NOT_FOUND_ERR = 8;
+  DOMException.NOT_SUPPORTED_ERR = 9;
+  DOMException.INUSE_ATTRIBUTE_ERR = 10;
+  DOMException.INVALID_STATE_ERR = 11;
+  DOMException.SYNTAX_ERR = 12;
+  DOMException.INVALID_MODIFICATION_ERR = 13;
+  DOMException.NAMESPACE_ERR = 14;
+  DOMException.INVALID_ACCESS_ERR = 15;
 
   //
   // Events and EventTargets
