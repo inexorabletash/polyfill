@@ -665,11 +665,10 @@ if ('window' in this && 'document' in this) {
   // https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html
   (function () {
     function setImmediate(callback, args) {
-      var params = [callback, 0], i;
-      for (i = 1; i < arguments.length; i += 1) {
-        params.push(arguments[i]);
-      }
-      return window.setTimeout.apply(null, params);
+      var params = [].slice.call(arguments, 1), i;
+      return window.setTimeout(function() {
+        callback.apply(null, params);
+      }, 0);
     }
 
     function clearImmediate(handle) {
