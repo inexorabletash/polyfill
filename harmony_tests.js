@@ -716,3 +716,42 @@ test("Branding", function() {
   assertEqual("Object.prototype.toString.call(function(){})", "[object Function]");
   // etc.
 });
+
+test("Dict", function() {
+  d = new Dict();
+  assertEqual("Object.getPrototypeOf(d)", null);
+  d['a'] = 1;
+  d['b'] = 2;
+
+  it = Dict.keys(d);
+  assertEqual("it.next()", 'a');
+  assertEqual("it.next()", 'b');
+  assertThrows("it.next()");
+
+  it = Dict.values(d);
+  assertEqual("it.next()", 1);
+  assertEqual("it.next()", 2);
+  assertThrows("it.next()");
+
+  it = Dict.entries(d);
+  deepEqual(it.next(), ['a', 1]);
+  deepEqual(it.next(), ['b', 2]);
+  assertThrows("it.next()");
+
+  delete it;
+  delete d;
+});
+
+test("Symbol", function() {
+  s = new Symbol();
+  t = new Symbol();
+  o = {};
+  assertEqual("o[s] = 1", 1);
+  assertTrue("s in o");
+  assertFalse("t in o");
+  assertFalse("s === t");
+  assertEqual("o[s]", 1);
+  delete s;
+  delete t;
+  delete o;
+});

@@ -1618,8 +1618,19 @@
       function() {
         return this;
       });
-    global.Dict = Dict;
+    global.Dict = global.Dict || Dict;
   }());
+
+  // Not secure nor is obj[$symbol] hidden from Object.keys():
+  function Symbol() {
+    if (!(this instanceof Symbol)) return new Symbol;
+    function pad8(n) { return ('00000000' + n).slice(-8); }
+    function r() { return pad8((Math.random() * 0x100000000).toString(16)); }
+    var s = r() + '-' + r() + '-' + r() + '-' + r();
+    this.toString = function() { return s; };
+    return this;
+  }
+  global.Symbol = global.Symbol || Symbol;
 
   // NOTE: Since true iterators can't be polyfilled, this is a hack
   function forOf(o, func) {
