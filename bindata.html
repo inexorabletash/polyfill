@@ -66,7 +66,7 @@ evalAndLog("t = new Triangle([{ point: { x:  0, y: 0 }, color: { r: 255, g: 255,
            "                  { point: { x:  5, y: 5 }, color: { r: 128, g: 0,   b: 0   } }," + "\n" +
            "                  { point: { x: 10, y: 0 }, color: { r: 0,   g: 0,   b: 128 } }]);");
 
-separate();
+separate(); // ----------------------------------------------------------
 
 evalAndLog("t = uint16");
 expect("Object.prototype.toString.call(t)", "[object DataType]");
@@ -80,10 +80,10 @@ evalAndShow("t.__Call__");
 evalAndShow("t.__Reify__");
 expect("t.bytes", 2);
 log("\n");
-evalAndLog("n = new t(123.456)");
+evalAndLog("n = t(123.456)");
 // TODO: properties of n
 
-separate();
+separate(); // ----------------------------------------------------------
 
 evalAndLog("t = new ArrayType(uint16, 4)");
 expect("Object.prototype.toString.call(t)", "[object DataType]");
@@ -113,7 +113,7 @@ for (i = 0; i < t.__Length__; ++i) {
   evalAndShow("a[" + i + "]");
 }
 
-separate();
+separate(); // ----------------------------------------------------------
 
 evalAndLog("t = new StructType({a: uint8, b: uint8})");
 expect("Object.prototype.toString.call(t)", "[object DataType]");
