@@ -25,18 +25,24 @@
   function isBlockObject(v) { return '__View__' in Object(v); }
   function isBlockType(t) { return 'bytes' in t && '__Convert__' in t && '__Reify__' in t; }
 
+  var endianness = false;
+
   // Intrinsic types
   [
-    {name: 'int8', arrayType: Int8Array, getter: 'getInt8', setter: 'setInt8', bytes: 1 },
-    {name: 'int16', arrayType: Int16Array, getter: 'getInt16', setter: 'setInt16', bytes: 2 },
-    {name: 'int32', arrayType: Int32Array, getter: 'getInt32', setter: 'setInt32', bytes: 4 },
-    {name: 'uint8', arrayType: Uint8Array, getter: 'getUint8', setter: 'setUint8', bytes: 1 },
-    {name: 'uint16', arrayType: Uint16Array, getter: 'getUint16', setter: 'setUint16', bytes: 2 },
-    {name: 'uint32', arrayType: Uint32Array, getter: 'getUint32', setter: 'setUint32',bytes: 4 },
-    {name: 'float32', arrayType: Float32Array, getter: 'getFloat32', setter: 'setFloat32', bytes: 4 },
-    {name: 'float64', arrayType: Float64Array, getter: 'getFloat64', setter: 'setFloat64', bytes: 8 }
+    {name: 'int8', type: 'Int8' },
+    {name: 'int16', type: 'Int16' },
+    {name: 'int32', type: 'Int32' },
+    {name: 'uint8', type: 'Uint8' },
+    {name: 'uint16', type: 'Uint16' },
+    {name: 'uint32', type: 'Uint32' },
+    {name: 'float32', type: 'Float32' },
+    {name: 'float64', type: 'Float64' }
   ].forEach(function(desc) {
     var proto = {};
+    var arrayType = global[desc.type + 'Array'],
+        getter = 'get' + desc.type,
+        setter = 'set' + desc.type,
+        bytes = arrayType.BYTES_PER_ELEMENT;
 
     var t = function SomeNumericType(value) {
       if (this instanceof SomeNumericType) { throw new TypeError("Numeric types should have value semantics"); }
@@ -45,24 +51,24 @@
     };
     t.__Construct__ = function Construct() {
       var block = Object.create(proto);
-      block.__View__ = new desc.arrayType(1);
+      block.__View__ = new Uint8Array(bytes);
       return block;
     };
     t.__Convert__ = function Convert(value) {
       var block = t.__Construct__();
       var view = block.__View__;
-      (new desc.arrayType(view.buffer))[0] = value; // TODO: Not exercised by tests yet (?!?!)
+      (new DataView(view.buffer, 0, bytes))[setter](0, value, endianness); // TODO: Not exercised by tests yet (?!?!)
       return block;
     };
     t.__Reify__ = function Reify(block) {
       var view = block.__View__;
-      return (new desc.arrayType(view.buffer, view.byteOffset, 1))[0];
+      return (new DataView(view.buffer, view.byteOffset, bytes))[getter](0);
     };
 
     t.prototype = proto;
     t.__Class__ = 'DataType';
     t.__DataType__ = desc.name;
-    t.bytes = desc.bytes;
+    Object.defineProperty(t, 'bytes', { get: function() { return bytes; }});
     t.prototype.valueOf = function valueOf() {
       return t.__Reify__(this);
     };
@@ -155,7 +161,7 @@
     };
     t.elementType = type;
     t.length = length; // TODO: Fails because t is a Function
-    t.bytes = bytes;
+    Object.defineProperty(t, 'bytes', { get: function() { return bytes; }});
     t.prototype.valueOf = function valueOf() {
       return t.__Reify__(this);
     };

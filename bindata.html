@@ -3,9 +3,10 @@
 <script src="bindata.js"></script>
 <body>
 <style>
-.pass { color: #00c000; font-weight: bold; }
-.fail { color: #c00000; font-weight: bold; }
 div { font-family: monospace; white-space: pre; }
+div.pass { color: #00c000; font-weight: bold; }
+div.fail { color: #c00000; font-weight: bold; }
+body.fail { background-color: #ffc0c0; }
 </style>
 <script>
 function log(t, className) {
@@ -15,7 +16,11 @@ function log(t, className) {
     e.className = className;
   }
   document.body.appendChild(e);
+  if (className === 'fail') {
+    document.body.classList.add('fail');
+  }
 }
+
 function separate() {
   var e = document.createElement("hr");
   document.body.appendChild(e);
