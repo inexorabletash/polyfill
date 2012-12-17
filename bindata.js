@@ -62,7 +62,7 @@
     };
     t.__Reify__ = function Reify(block) {
       var view = block.__View__;
-      return (new DataView(view.buffer, view.byteOffset, bytes))[getter](0);
+      return (new DataView(view.buffer, view.byteOffset, bytes))[getter](0, endianness);
     };
 
     t.prototype = proto;
