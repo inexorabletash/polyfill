@@ -30,7 +30,7 @@ function evalAndShow(_expr) {
   try {
     var res = eval(_expr);
     var json = JSON.stringify(res);
-    log(_expr + " = " + stringify(res));
+    log(_expr + " == " + stringify(res));
   } catch (ex) {
     log(_expr + " threw: " + ex, "fail");
   }
@@ -48,9 +48,9 @@ function expect(_expr, _expected) {
     var res = eval(_expr);
     if (res === _expected) {
       var json = JSON.stringify(res);
-      log(_expr + " = " + stringify(res), "pass");
+      log(_expr + " == " + stringify(res), "pass");
     } else {
-      log(_expr + " = " + stringify(res) + " - expected: " + stringify(_expected), "fail");
+      log(_expr + " == " + stringify(res) + " - expected: " + stringify(_expected), "fail");
     }
   } catch (ex) {
     log(_expr + " threw: " + ex, "fail");
@@ -65,7 +65,21 @@ evalAndLog("Triangle = new ArrayType(Pixel, 3);");
 evalAndLog("t = new Triangle([{ point: { x:  0, y: 0 }, color: { r: 255, g: 255, b: 255 } }," + "\n" +
            "                  { point: { x:  5, y: 5 }, color: { r: 128, g: 0,   b: 0   } }," + "\n" +
            "                  { point: { x: 10, y: 0 }, color: { r: 0,   g: 0,   b: 128 } }]);");
-
+expect("t[0].point.x", 0);
+expect("t[0].point.y", 0);
+expect("t[0].color.r", 255);
+expect("t[0].color.g", 255);
+expect("t[0].color.b", 255);
+expect("t[1].point.x", 5);
+expect("t[1].point.y", 5);
+expect("t[1].color.r", 128);
+expect("t[1].color.g", 0);
+expect("t[1].color.b", 0);
+expect("t[2].point.x", 10);
+expect("t[2].point.y", 0);
+expect("t[2].color.r", 0);
+expect("t[2].color.g", 0);
+expect("t[2].color.b", 128);
 separate(); // ----------------------------------------------------------
 
 evalAndLog("t = uint16");

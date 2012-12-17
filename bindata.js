@@ -1,8 +1,6 @@
 // http://wiki.ecmascript.org/doku.php?id=harmony:binary_data
 (function(global){
 
-  var endianness = true;
-
   (function() {
     var orig = Object.prototype.toString;
     Object.prototype.toString = function toString() {
@@ -18,10 +16,10 @@
   // TODO: .updateRef()
   // TODO: .fill()
   // TODO: .subarray()
-  // TODO: .update()
-  // TODO: read/write into ArrayBuffer
-  // TODO: int64/uint64
-  // TODO: __Value__ as ArrayBufferView?
+  // TODO: Data.prototype.update()
+
+  // TODO: StructView(structType) / structView.setView(arrayInstance, index)
+  // TODO: arrayType.cursor()
 
   // "block" is defined as an object with a __View__ property (which is an ArrayBufferView)
   function isBlockObject(v) { return '__View__' in Object(v); }
@@ -29,14 +27,14 @@
 
   // Intrinsic types
   [
-    {name: 'int8', getter: 'getInt8', setter: 'setInt8', bytes: 1 },
-    {name: 'int16', getter: 'getInt16', setter: 'setInt16', bytes: 2 },
-    {name: 'int32', getter: 'getInt32', setter: 'setInt32', bytes: 4 },
-    {name: 'uint8', getter: 'getUint8', setter: 'setUint8', bytes: 1 },
-    {name: 'uint16', getter: 'getUint16', setter: 'setUint16', bytes: 2 },
-    {name: 'uint32', getter: 'getUint32', setter: 'setUint32',bytes: 4 },
-    {name: 'float32', getter: 'getFloat32', setter: 'setFloat32', bytes: 4 },
-    {name: 'float64', getter: 'getFloat64', setter: 'setFloat64', bytes: 8 }
+    {name: 'int8', arrayType: Int8Array, getter: 'getInt8', setter: 'setInt8', bytes: 1 },
+    {name: 'int16', arrayType: Int16Array, getter: 'getInt16', setter: 'setInt16', bytes: 2 },
+    {name: 'int32', arrayType: Int32Array, getter: 'getInt32', setter: 'setInt32', bytes: 4 },
+    {name: 'uint8', arrayType: Uint8Array, getter: 'getUint8', setter: 'setUint8', bytes: 1 },
+    {name: 'uint16', arrayType: Uint16Array, getter: 'getUint16', setter: 'setUint16', bytes: 2 },
+    {name: 'uint32', arrayType: Uint32Array, getter: 'getUint32', setter: 'setUint32',bytes: 4 },
+    {name: 'float32', arrayType: Float32Array, getter: 'getFloat32', setter: 'setFloat32', bytes: 4 },
+    {name: 'float64', arrayType: Float64Array, getter: 'getFloat64', setter: 'setFloat64', bytes: 8 }
   ].forEach(function(desc) {
     var proto = {};
 
@@ -47,17 +45,18 @@
     };
     t.__Construct__ = function Construct() {
       var block = Object.create(proto);
-      block.__View__ = new Uint8Array(desc.bytes);
+      block.__View__ = new desc.arrayType(1);
       return block;
     };
     t.__Convert__ = function Convert(value) {
       var block = t.__Construct__();
-      (new DataView(block.__View__.buffer))[desc.setter](0, value, endianness);
+      var view = block.__View__;
+      (new desc.arrayType(view.buffer))[0] = value; // TODO: Not exercised by tests yet (?!?!)
       return block;
     };
     t.__Reify__ = function Reify(block) {
       var view = block.__View__;
-      return (new DataView(view.buffer, view.byteOffset, view.byteLength))[desc.getter](0, endianness);
+      return (new desc.arrayType(view.buffer, view.byteOffset, 1))[0];
     };
 
     t.prototype = proto;
@@ -80,6 +79,8 @@
   }
 
   function ArrayType(type, length) {
+    if (!(this instanceof ArrayType)) { throw new TypeError("StructType cannot be called as a function."); }
+
     var proto = {};
     length = length | 0;
 
@@ -163,29 +164,45 @@
   }
 
   function StructType(fields) {
+    if (!(this instanceof StructType)) { throw new TypeError("StructType cannot be called as a function."); }
 
     var proto = {};
-    var bytes = 0;
 
-    // TODO: Define getter/setter (need to compute per-field offset)
+    var desc = {};
+    var bytes = 0;
     Object.keys(fields).forEach(function(name) {
       var type = fields[name];
       if (!isBlockType(type)) { throw new TypeError("Type for '" + name + "' is not a block type"); }
-
-      (function(name, type, offset){
-        Object.defineProperty(proto, name, {
-          get: function() {
-            var view = this.__View__;
-            return type.__Reify__({__View__: new Uint8Array(view.buffer, view.byteOffset + offset, type.bytes)});
-          },
-          set: function(value) {
-            var src = type.__Convert__(value).__View__;
-            var dst = this.__View__;
-            viewCopy(src, dst, offset, type.bytes);
-          }
-        });
-      }(name, type, bytes));
+      desc[name] = {
+        type: type,
+        offset: bytes
+      };
       bytes += type.bytes;
+    });
+
+    function getter(thisobj, key) {
+      if (!desc.hasOwnProperty(key)) { throw new Error("Invalid field access"); }
+      var field = desc[key];
+      var view = thisobj.__View__;
+      return field.type.__Reify__({__View__: new Uint8Array(view.buffer, view.byteOffset + field.offset, field.type.bytes)});
+    }
+    function setter(thisobj, key, value) {
+      if (!desc.hasOwnProperty(key)) { throw new Error("Invalid field access"); }
+      var field = desc[key];
+      var src = field.type.__Convert__(value).__View__;
+      var dst = thisobj.__View__;
+      viewCopy(src, dst, field.offset, field.type.bytes);
+    }
+
+    Object.keys(desc).forEach(function(name) {
+      Object.defineProperty(proto, name, {
+        get: function() {
+          return getter(this, name);
+        },
+        set: function(value) {
+          setter(this, name, value);
+        }
+      });
     });
 
     var t = function SomeStructType(value) {
@@ -201,19 +218,15 @@
     };
     t.__Convert__ = function Convert(value) {
       var block = t.__Construct__();
-      var offset = 0;
       Object.keys(fields).forEach(function(name) {
-        block[name] = value[name];
+        setter(block, name, value[name]);
       });
       return block;
     };
     t.__Reify__ = function Reify(block) {
       var result = {};
-      var view = block.__View__;
-      Object.keys(fields).forEach(function(name) {
-        var type = fields[name];
-        result[name] = type.__Reify__({__View__: new Uint8Array(view.buffer, view.byteOffset + offset, type.bytes)});
-        offset += type.bytes;
+      Object.keys(desc).forEach(function(name) {
+        result[name] = getter(block, name);
       });
       return result;
     };
@@ -222,8 +235,14 @@
     t.__Class__ = 'DataType';
     t.__DataType__ = 'struct';
     t.prototype.constructor = t;
-    t.fields = fields; // TODO: copy/freeze
-    t.bytes = bytes;
+    Object.defineProperty(t, 'fields', { get: function() {
+      var result = {};
+      Object.keys(desc).forEach(function(name) {
+        result[name] = desc[name].type;
+      });
+      return result;
+    }});
+    Object.defineProperty(t, 'bytes', { get: function() { return bytes; }});
     t.prototype.valueOf = function valueOf() {
       return t.__Reify__(this);
     };
