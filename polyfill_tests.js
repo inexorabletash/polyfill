@@ -1,5 +1,5 @@
 
-test("Web Standards Polyfills", 64, function () {
+test("Web Standards Polyfills - Misc", 9, function () {
 
   // document.head
   assertTrue("document.head != null");
@@ -13,12 +13,18 @@ test("Web Standards Polyfills", 64, function () {
   assertEqual("XMLHttpRequest.HEADERS_RECEIVED", 2);
   assertEqual("XMLHttpRequest.LOADING", 3);
   assertEqual("XMLHttpRequest.DONE", 4);
+});
+
+test("Web Standards Polyfills - base64 encoding", 4, function () {
 
   // window.atob() / window.btoa()
   assertEqual("window.btoa('')", '');
   assertEqual("window.atob('')", '');
   assertEqual("window.btoa('\\x00\\x01\\x02\\xfd\\xfe\\xff')", 'AAEC/f7/');
   assertEqual("window.atob('AAEC/f7/')", '\x00\x01\x02\xfd\xfe\xff');
+});
+
+test("Web Standards Polyfills - querySelector / getElementsByClassName", 22, function () {
 
   // document.querySelector()
   assertTrue("document.querySelector('#foof') === null");
@@ -47,6 +53,9 @@ test("Web Standards Polyfills", 64, function () {
   assertEqual("document.getElementsByClassName('alpha').length", 2);
   assertEqual("document.getElementsByClassName('beta').length", 2);
   assertEqual("document.getElementsByClassName('gamma').length", 0);
+});
+
+test("Web Standards Polyfills - Enumeration", 29, function () {
 
   // Node enumeration
   assertTrue("Node !== null");
@@ -82,7 +91,21 @@ test("Web Standards Polyfills", 64, function () {
   assertEqual("DOMException.INVALID_ACCESS_ERR", 15);
 });
 
-test("Web Standards Shims", 45, function () {
+test("Web Standards Polyfills - Element.dataset and data-* attributes", function () {
+
+  // dataset
+  if ('dataset' in document.getElementById('datadiv')) {
+    assertEqual("document.getElementById('datadiv').dataset.foo", "bar");
+    assertEqual("document.getElementById('datadiv').dataset.bar", "123");
+    assertEqual("document.getElementById('dataspan').dataset['123']", "blah");
+    assertTrue("!document.getElementById('dataspan').dataset['abc']");
+
+    document.getElementById('datadiv').dataset.foo = "new";
+    assertEqual("document.getElementById('datadiv').dataset.foo", "new");
+  }
+});
+
+test("Helpers - getClassList() and getRelList()", 45, function () {
 
   // getClassList()
   assertEqual("getClassList(document.getElementById('baz')).length", 4);
