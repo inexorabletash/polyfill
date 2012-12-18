@@ -97,6 +97,11 @@ going forward I will only target IE8 and later.
       <li><code><var>id</var> = setImmediate(<var>callback</var>, <var>args...</var>)</code>
       <li><code>clearImmediate(<var>id</var>)</code>
     </ul>
+  <li><code>dataset</code> and <code>data-*</code> attributes (shim)
+    <ul>
+      <li><code><var>str</var> = <var>element</var>.dataset[<var>key</var>]</code> - <em>yields <code>undefined</code> if data-<var>key</var> attribute not present</em>
+      <li><code><var>element</var>.dataset[<var>key</var>] = <var>str</var></code> - <em>fails unless data-<var>key</var> attribute already present</em>
+    </ul>
   <li><a target="_blank" href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String">JavaScript 1.X String Extras</a> (shim)
     <ul>
       <li>String prototype: <code>trimLeft</code>, <code>trimRight</code>, <code>quote</code>
