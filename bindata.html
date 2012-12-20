@@ -49,9 +49,11 @@ function evalAndLog(_expr) {
   }
 }
 function expect(_expr, _expected) {
+  if (arguments.length < 2) _expected = true;
   try {
     var res = eval(_expr);
-    if (res === _expected) {
+    // NOTE: Following test is explicitly == to verify valueOf() conversion.
+    if (res == _expected) {
       var json = JSON.stringify(res);
       log(_expr + " == " + stringify(res), "pass");
     } else {
@@ -85,6 +87,13 @@ expect("t[2].point.y", 0);
 expect("t[2].color.r", 0);
 expect("t[2].color.g", 0);
 expect("t[2].color.b", 128);
+expect("t.buffer instanceof ArrayBuffer");
+expect("t.byteOffset", 0);
+expect("t.byteLength", 33);
+evalAndLog("c = new Color({r: 1, g: 2, b: 3})");
+expect("c.r", 1);
+evalAndLog("c.update({r: 11, g: 22, b: 33})");
+expect("c.r", 11);
 separate(); // ----------------------------------------------------------
 
 evalAndLog("t = uint16");
@@ -98,8 +107,14 @@ evalAndShow("t.__CCast__");
 evalAndShow("t.__Call__");
 evalAndShow("t.__Reify__");
 expect("t.bytes", 2);
+
 log("\n");
+
 evalAndLog("n = t(123.456)");
+expect("n == 123");
+expect("n.buffer instanceof ArrayBuffer");
+expect("n.byteOffset", 0);
+expect("n.byteLength", 2);
 // TODO: properties of n
 
 separate(); // ----------------------------------------------------------
@@ -121,16 +136,22 @@ evalAndShow("t.prototype.fill");
 evalAndShow("t.elementType");
 evalAndShow("t.length");
 expect("t.bytes", 8);
+
 log("\n");
+
 evalAndLog("a = new t([1, 2.5, 300])");
 evalAndShow("a.__Class__")
 evalAndShow("a.__proto__")
 evalAndShow("a.__Value__")
 evalAndShow("a.__DataType__")
 expect("a.length", 4)
-for (i = 0; i < t.__Length__; ++i) {
-  evalAndShow("a[" + i + "]");
-}
+expect("a[0]", 1);
+expect("a[1]", 2);
+expect("a[2]", 300);
+expect("a[3]", 0);
+expect("a.buffer instanceof ArrayBuffer");
+expect("a.byteOffset", 0);
+expect("a.byteLength", 8);
 
 separate(); // ----------------------------------------------------------
 
@@ -145,16 +166,20 @@ evalAndShow("t.__Reify__");
 evalAndShow("t.prototype.constructor");
 evalAndShow("t.fields");
 expect("t.bytes", 2);
+
 log("\n");
+
 evalAndLog("s = new t({a: 2.5, b: -9})");
 evalAndShow("s.__Class__");
 evalAndShow("s.__proto__");
 evalAndShow("s.__Value__");
 evalAndShow("s.__DataType__");
 evalAndShow("s.constructor");
-Object.keys(t.fields).forEach(function(k) {
-  evalAndShow("s[" + JSON.stringify(k) + "]");
-});
+expect("s['a']", 2);
+expect("s['b']", 247);
+expect("s.buffer instanceof ArrayBuffer");
+expect("s.byteOffset", 0);
+expect("s.byteLength", 2);
 
 </script>
 </body>

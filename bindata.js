@@ -11,12 +11,32 @@
     };
   }());
 
-  // TODO: function Data()
+  // TODO: Use Type
+  function Type() { throw new TypeError(); }
+  global.Type = Type;
+
+  function Data() { throw new TypeError(); }
+  Data.prototype = {};
+  Object.defineProperties(Data.prototype, {
+    buffer: { get: function() { return this.__View__.buffer; }},
+    byteOffset: { get: function() { return this.__View__.byteOffset; }},
+    byteLength: { get: function() { return this.__View__.byteLength; }},
+    update: { value: function(val) {
+      if (this !== Object(this) || !(this instanceof Data)) { throw new TypeError(); }
+      var r = this.__DataType__.__Convert__(val);
+      viewCopy(r, this.__View__, 0, r.byteLength);
+    }},
+    valueOf: { value: function() {
+      if (this !== Object(this) || !(this instanceof Data)) { throw new TypeError(); }
+      return this.__DataType__.__Reify__(this);
+    }}
+  });
+  global.Data = Data;
+
   // TODO: .repeat()
   // TODO: .updateRef()
   // TODO: .fill()
   // TODO: .subarray()
-  // TODO: Data.prototype.update()
 
   // TODO: StructView(structType) / structView.setView(arrayInstance, index)
   // TODO: arrayType.cursor()
@@ -38,7 +58,7 @@
     {name: 'float32', type: 'Float32' },
     {name: 'float64', type: 'Float64' }
   ].forEach(function(desc) {
-    var proto = {};
+    var proto = Object.create(Data.prototype);
     var arrayType = global[desc.type + 'Array'],
         getter = 'get' + desc.type,
         setter = 'set' + desc.type,
@@ -52,6 +72,7 @@
     t.__Construct__ = function Construct() {
       var block = Object.create(proto);
       block.__View__ = new Uint8Array(bytes);
+      block.__DataType__ = t;
       return block;
     };
     t.__Convert__ = function Convert(value) {
@@ -69,9 +90,6 @@
     t.__Class__ = 'DataType';
     t.__DataType__ = desc.name;
     Object.defineProperty(t, 'bytes', { get: function() { return bytes; }});
-    t.prototype.valueOf = function valueOf() {
-      return t.__Reify__(this);
-    };
 
     global[desc.name] = t;
   });
@@ -85,9 +103,9 @@
   }
 
   function ArrayType(type, length) {
-    if (!(this instanceof ArrayType)) { throw new TypeError("StructType cannot be called as a function."); }
+    if (!(this instanceof ArrayType)) { throw new TypeError("ArrayType cannot be called as a function."); }
 
-    var proto = {};
+    var proto = Object.create(Data.prototype);
     length = length | 0;
 
     if (!isBlockType(type)) { throw new TypeError("Type is not a block type"); }
@@ -135,7 +153,7 @@
     t.__Convert__ = function Convert(value) {
       var block = t.__Construct__();
       for (var i = 0; i < length; ++i) {
-        setter(block, i, value[i]);
+        setter(block, i, value ? value[i] : void 0);
       };
       return block;
     };
@@ -162,9 +180,6 @@
     t.elementType = type;
     t.length = length; // TODO: Fails because t is a Function
     Object.defineProperty(t, 'bytes', { get: function() { return bytes; }});
-    t.prototype.valueOf = function valueOf() {
-      return t.__Reify__(this);
-    };
 
     return t;
   }
@@ -172,7 +187,7 @@
   function StructType(fields) {
     if (!(this instanceof StructType)) { throw new TypeError("StructType cannot be called as a function."); }
 
-    var proto = {};
+    var proto = Object.create(Data.prototype);
 
     var desc = {};
     var bytes = 0;
@@ -225,7 +240,7 @@
     t.__Convert__ = function Convert(value) {
       var block = t.__Construct__();
       Object.keys(fields).forEach(function(name) {
-        setter(block, name, value[name]);
+        setter(block, name, value ? value[name] : void 0);
       });
       return block;
     };
@@ -249,9 +264,6 @@
       return result;
     }});
     Object.defineProperty(t, 'bytes', { get: function() { return bytes; }});
-    t.prototype.valueOf = function valueOf() {
-      return t.__Reify__(this);
-    };
 
     return t;
   }
