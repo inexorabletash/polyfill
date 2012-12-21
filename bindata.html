@@ -94,6 +94,15 @@ evalAndLog("c = new Color({r: 1, g: 2, b: 3})");
 expect("c.r", 1);
 evalAndLog("c.update({r: 11, g: 22, b: 33})");
 expect("c.r", 11);
+
+expect("c instanceof Color");
+expect("c instanceof Data");
+expect("Color instanceof Type");
+
+expect("t instanceof Triangle");
+expect("t instanceof Data");
+expect("Triangle instanceof Type");
+
 separate(); // ----------------------------------------------------------
 
 evalAndLog("t = uint16");

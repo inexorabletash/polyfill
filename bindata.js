@@ -11,20 +11,16 @@
     };
   }());
 
-  // TODO: Use Type
-  function Type() { throw new TypeError(); }
-  global.Type = Type;
-
   function Data() { throw new TypeError(); }
   Data.prototype = {};
   Object.defineProperties(Data.prototype, {
-    buffer: { get: function() { return this.__View__.buffer; }},
-    byteOffset: { get: function() { return this.__View__.byteOffset; }},
-    byteLength: { get: function() { return this.__View__.byteLength; }},
+    buffer: { get: function() { return this.__Value__.buffer; }},
+    byteOffset: { get: function() { return this.__Value__.byteOffset; }},
+    byteLength: { get: function() { return this.__Value__.byteLength; }},
     update: { value: function(val) {
       if (this !== Object(this) || !(this instanceof Data)) { throw new TypeError(); }
       var r = this.__DataType__.__Convert__(val);
-      viewCopy(r, this.__View__, 0, r.byteLength);
+      viewCopy(r, this.__Value__, 0, r.byteLength);
     }},
     valueOf: { value: function() {
       if (this !== Object(this) || !(this instanceof Data)) { throw new TypeError(); }
@@ -32,6 +28,11 @@
     }}
   });
   global.Data = Data;
+
+  // TODO: Use Type
+  function Type() { throw new TypeError(); }
+  Type.prototype = Data;
+  global.Type = Type;
 
   // TODO: .repeat()
   // TODO: .updateRef()
@@ -41,8 +42,8 @@
   // TODO: StructView(structType) / structView.setView(arrayInstance, index)
   // TODO: arrayType.cursor()
 
-  // "block" is defined as an object with a __View__ property (which is an ArrayBufferView)
-  function isBlockObject(v) { return '__View__' in Object(v); }
+  // "block" is defined as an object with a __Value__ property (which is an ArrayBufferView)
+  function isBlockObject(v) { return '__Value__' in Object(v); }
   function isBlockType(t) { return 'bytes' in t && '__Convert__' in t && '__Reify__' in t; }
 
   var endianness = false;
@@ -71,22 +72,24 @@
     };
     t.__Construct__ = function Construct() {
       var block = Object.create(proto);
-      block.__View__ = new Uint8Array(bytes);
+      block.__Value__ = new Uint8Array(bytes);
       block.__DataType__ = t;
       return block;
     };
     t.__Convert__ = function Convert(value) {
       var block = t.__Construct__();
-      var view = block.__View__;
+      var view = block.__Value__;
       (new DataView(view.buffer, 0, bytes))[setter](0, value, endianness); // TODO: Not exercised by tests yet (?!?!)
       return block;
     };
     t.__Reify__ = function Reify(block) {
-      var view = block.__View__;
+      var view = block.__Value__;
       return (new DataView(view.buffer, view.byteOffset, bytes))[getter](0, endianness);
     };
 
+    //t.__proto__ = Type.prototype; // Needed for uint8 instanceof Type
     t.prototype = proto;
+    t.prototype.constructor = t;
     t.__Class__ = 'DataType';
     t.__DataType__ = desc.name;
     Object.defineProperty(t, 'bytes', { get: function() { return bytes; }});
@@ -113,13 +116,13 @@
     var bytes = type.bytes * length;
 
     function getter(thisobj, index) {
-      var view = thisobj.__View__;
+      var view = thisobj.__Value__;
       var offset = type.bytes * index;
-      return type.__Reify__({__View__: new Uint8Array(view.buffer, view.byteOffset + offset, type.bytes)});
+      return type.__Reify__({__Value__: new Uint8Array(view.buffer, view.byteOffset + offset, type.bytes)});
     }
     function setter(thisobj, index, value) {
-      var src = type.__Convert__(value).__View__;
-      var dst = thisobj.__View__;
+      var src = type.__Convert__(value).__Value__;
+      var dst = thisobj.__Value__;
       viewCopy(src, dst, type.bytes * index, type.bytes);
     }
 
@@ -145,7 +148,7 @@
     t.__Construct__ = function Construct() {
       var block = Object.create(proto);
       block.__Class__ = 'Data';
-      block.__View__ = new Uint8Array(bytes);
+      block.__Value__ = new Uint8Array(bytes);
       block.__DataType__ = t;
       block.length = length;
       return block;
@@ -165,13 +168,14 @@
       return result;
     };
 
-    t.prototype = proto;
-    t.prototype.forEach = Array.prototype.forEach;
     t.__Class__ = 'DataType';
+    t.__proto__ = ArrayType.prototype;
     t.__DataType__ = 'array';
     t.__ElementType__ = type;
-    t.__Length__ = length;
+    t.prototype = proto;
     t.prototype.constructor = t;
+    t.prototype.forEach = Array.prototype.forEach;
+    t.__Length__ = length;
     t.prototype.fill = function fill(value) {
       for (var i = 0; i < t.__Length__; ++i) {
         setter(this, i, value);
@@ -183,6 +187,8 @@
 
     return t;
   }
+  ArrayType.prototype = Object.create(Type.prototype);
+  ArrayType.prototype.constructor = ArrayType;
 
   function StructType(fields) {
     if (!(this instanceof StructType)) { throw new TypeError("StructType cannot be called as a function."); }
@@ -204,14 +210,14 @@
     function getter(thisobj, key) {
       if (!desc.hasOwnProperty(key)) { throw new Error("Invalid field access"); }
       var field = desc[key];
-      var view = thisobj.__View__;
-      return field.type.__Reify__({__View__: new Uint8Array(view.buffer, view.byteOffset + field.offset, field.type.bytes)});
+      var view = thisobj.__Value__;
+      return field.type.__Reify__({__Value__: new Uint8Array(view.buffer, view.byteOffset + field.offset, field.type.bytes)});
     }
     function setter(thisobj, key, value) {
       if (!desc.hasOwnProperty(key)) { throw new Error("Invalid field access"); }
       var field = desc[key];
-      var src = field.type.__Convert__(value).__View__;
-      var dst = thisobj.__View__;
+      var src = field.type.__Convert__(value).__Value__;
+      var dst = thisobj.__Value__;
       viewCopy(src, dst, field.offset, field.type.bytes);
     }
 
@@ -232,7 +238,7 @@
     };
     t.__Construct__ = function Construct() {
       var block = Object.create(proto);
-      block.__View__ = new Uint8Array(bytes);
+      block.__Value__ = new Uint8Array(bytes);
       block.__Class__ = 'Block';
       block.__DataType__ = t;
       return block;
@@ -253,9 +259,10 @@
     };
 
     t.prototype = proto;
+    t.prototype.constructor = t;
+    t.__proto__ = StructType.prototype;
     t.__Class__ = 'DataType';
     t.__DataType__ = 'struct';
-    t.prototype.constructor = t;
     Object.defineProperty(t, 'fields', { get: function() {
       var result = {};
       Object.keys(desc).forEach(function(name) {
@@ -267,6 +274,8 @@
 
     return t;
   }
+  StructType.prototype = Object.create(Type.prototype);
+  StructType.prototype.constructor = StructType;
 
   global.ArrayType = ArrayType;
   global.StructType = StructType;
