@@ -131,7 +131,7 @@ separate(); // ----------------------------------------------------------
 evalAndLog("t = new ArrayType(uint16, 4)");
 expect("Object.prototype.toString.call(t)", "[object DataType]");
 evalAndShow("t.__proto__");
-expect("t.__DataType__", "array");
+expect("t.__DataType__", "ArrayType");
 evalAndShow("t.__ElementType__");
 expect("t.__Length__", 4);
 evalAndShow("t.__Convert__");
@@ -167,7 +167,7 @@ separate(); // ----------------------------------------------------------
 evalAndLog("t = new StructType({a: uint8, b: uint8})");
 expect("Object.prototype.toString.call(t)", "[object DataType]");
 evalAndShow("t.__proto__");
-expect("t.__DataType__", "struct");
+expect("t.__DataType__", "StructType");
 evalAndShow("t.__Convert__");
 evalAndShow("t.__IsSame__");
 evalAndShow("t.__Construct__");

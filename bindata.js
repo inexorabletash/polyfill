@@ -1,6 +1,8 @@
 // http://wiki.ecmascript.org/doku.php?id=harmony:binary_data
 (function(global){
 
+  function ASSERT(c, m) { if (!c) { throw new Error(m); } }
+
   (function() {
     var orig = Object.prototype.toString;
     Object.prototype.toString = function toString() {
@@ -33,11 +35,6 @@
   Type.prototype = Data;
   global.Type = Type;
 
-  // TODO: .repeat()
-  // TODO: .updateRef()
-  // TODO: .fill()
-  // TODO: .subarray()
-
   // TODO: StructView(structType) / structView.setView(arrayInstance, index)
   // TODO: arrayType.cursor()
 
@@ -49,14 +46,14 @@
 
   // Intrinsic types
   [
-    {name: 'int8', type: 'Int8' },
-    {name: 'int16', type: 'Int16' },
-    {name: 'int32', type: 'Int32' },
-    {name: 'uint8', type: 'Uint8' },
-    {name: 'uint16', type: 'Uint16' },
-    {name: 'uint32', type: 'Uint32' },
-    {name: 'float32', type: 'Float32' },
-    {name: 'float64', type: 'Float64' }
+    {name: 'int8', type: 'Int8', domain: function(x) { return -0x80 <= x && x < 0x80; } },
+    {name: 'int16', type: 'Int16', domain: function(x) { return -0x8000 <= x && x < 0x8000; } },
+    {name: 'int32', type: 'Int32', domain: function(x) { return -0x80000000 <= x && x < 0x80000000; } },
+    {name: 'uint8', type: 'Uint8', domain: function(x) { return 0 <= x && x <= 0xff; } },
+    {name: 'uint16', type: 'Uint16', domain: function(x) { return 0 <= x && x <= 0xffff; } },
+    {name: 'uint32', type: 'Uint32', domain: function(x) { return 0 <= x && x <= 0xffffffff; } },
+    {name: 'float32', type: 'Float32', domain: function(x) { return true; } },
+    {name: 'float64', type: 'Float64', domain: function(x) { return true; } }
   ].forEach(function(desc) {
     var proto = Object.create(Data.prototype);
     var arrayType = global[desc.type + 'Array'],
@@ -75,15 +72,39 @@
       // TODO: boolean and other checks
       var block = Object.create(proto);
       block.__Value__ = new Uint8Array(bytes);
-      block.__DataType__ = t;
-      var view = block.__Value__;
-      (new DataView(view.buffer, 0, bytes))[setter](0, value, littleEndian);
+      block.__DataType__ = t; // TODO: Not in spec
+      if (value === true) {
+        value = 1;
+      } else if (value === false) {
+        value = 0;
+      } else if (typeof value === 'number' && desc.domain(value)) { // TODO: Update tests to account for this
+        // ok
+      } else {
+//        throw new TypeError("Value " + value + " not a " + desc.name);
+      }
+
+      (new DataView(block.__Value__.buffer, 0, bytes))[setter](0, value, littleEndian);
       return block;
     };
     t.__IsSame__ = function IsSame(u) {
       return t.__DataType__ === Object(u).__DataType__;
     };
-    // TODO: t.__Cast__
+    t.__Cast__ = function Cast(val) {
+      try {
+        var v = t.__Convert__(val);
+        return t.__Reify(v);
+      } catch (e) {}
+      if (val === Infinity || val === -Infinity || val !== val) {
+        return 0; // TODO: Per spec, but bogus for float types?
+      }
+      if (typeof val === 'number') {
+        return t.__CCast__(val);
+      }
+      if (typeof val === 'string' && val.match(/^-?(0[xX])?\d+$/)) { // TODO: Handle exponential notation?
+        return t.__CCast__(val); // TODO: should be uintk.__CCast__ ?
+      }
+      throw new TypeError("Cannot cast " + val + " to " + desc.name);
+    };
     // TODO: t.__CCast__
     // TODO: t.__Call__
     t.__Reify__ = function Reify(block) {
@@ -143,7 +164,10 @@
     }
 
     var t = function SomeArrayType(value) {
-      if (!(this instanceof SomeArrayType)) { throw new TypeError("objects have reference semantics"); }
+      if (!(this instanceof SomeArrayType)) {
+        var length = Number(value);
+        return new (new ArrayType(elementType, length)); // TODO: Return instance or type?
+      }
       var a = t.__Construct__();
       if (value !== void 0) {
         var r = t.__Convert__(value);
@@ -153,7 +177,7 @@
     };
     t.__Class__ = 'DataType';
     t.__proto__ = ArrayType.prototype;
-    t.__DataType__ = 'array';
+    t.__DataType__ = 'ArrayType';
     t.__ElementType__ = elementType;
     t.__Length__ = length;
     t.__Convert__ = function Convert(value) {
@@ -183,7 +207,6 @@
 
     t.prototype = proto;
     t.prototype.constructor = t;
-    // TODO: Not in spec?
     t.prototype.forEach = Array.prototype.forEach;
     t.prototype.fill = function fill(value) {
       for (var i = 0; i < t.__Length__; ++i) {
@@ -198,6 +221,10 @@
   }
   ArrayType.prototype = Object.create(Type.prototype);
   ArrayType.prototype.constructor = ArrayType;
+  // TODO: ArrayType.prototype.repeat
+  // TODO: ArrayType.prototype.prototype.forEach (indirection?)
+  // TODO: ArrayType.prototype.prototype.subarray (indirection?)
+
 
   function StructType(fields) {
     if (!(this instanceof StructType)) { throw new TypeError("StructType cannot be called as a function."); }
@@ -217,13 +244,11 @@
     });
 
     function getter(thisobj, key) {
-      if (!desc.hasOwnProperty(key)) { throw new Error("Invalid field access"); }
       var field = desc[key];
       var view = thisobj.__Value__;
       return field.type.__Reify__({__Value__: new Uint8Array(view.buffer, view.byteOffset + field.offset, field.type.bytes)});
     }
     function setter(thisobj, key, value) {
-      if (!desc.hasOwnProperty(key)) { throw new Error("Invalid field access"); }
       var field = desc[key];
       var src = field.type.__Convert__(value).__Value__;
       var dst = thisobj.__Value__;
@@ -247,7 +272,7 @@
     };
     t.__Class__ = 'DataType';
     t.__proto__ = StructType.prototype;
-    t.__DataType__ = 'struct';
+    t.__DataType__ = 'StructType';
     t.__Convert__ = function Convert(value) {
       var block = t.__Construct__();
       Object.keys(fields).forEach(function(name) {
