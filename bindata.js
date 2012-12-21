@@ -29,7 +29,6 @@
   });
   global.Data = Data;
 
-  // TODO: Use Type
   function Type() { throw new TypeError(); }
   Type.prototype = Data;
   global.Type = Type;
@@ -46,7 +45,7 @@
   function isBlockObject(v) { return '__Value__' in Object(v); }
   function isBlockType(t) { return 'bytes' in t && '__Convert__' in t && '__Reify__' in t; }
 
-  var endianness = false;
+  var littleEndian = true;
 
   // Intrinsic types
   [
@@ -78,7 +77,7 @@
       block.__Value__ = new Uint8Array(bytes);
       block.__DataType__ = t;
       var view = block.__Value__;
-      (new DataView(view.buffer, 0, bytes))[setter](0, value, endianness); // TODO: Not exercised by tests yet (?!?!)
+      (new DataView(view.buffer, 0, bytes))[setter](0, value, littleEndian);
       return block;
     };
     t.__IsSame__ = function IsSame(u) {
@@ -89,15 +88,12 @@
     // TODO: t.__Call__
     t.__Reify__ = function Reify(block) {
       var view = block.__Value__;
-      return (new DataView(view.buffer, view.byteOffset, bytes))[getter](0, endianness);
+      return (new DataView(view.buffer, view.byteOffset, bytes))[getter](0, littleEndian);
     };
 
-    // Not in spec:
-    t.__Class__ = 'DataType';
-    // Not in spec:
-    t.prototype = proto;
-    // Not in spec:
-    t.prototype.constructor = t;
+    t.__Class__ = 'DataType'; // Not in spec
+    t.prototype = proto; // Not in spec
+    t.prototype.constructor = t; // Not in spec
 
     Object.defineProperty(t, 'bytes', { get: function() { return bytes; }});
 
