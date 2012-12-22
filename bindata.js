@@ -61,15 +61,14 @@
         setter = 'set' + desc.type,
         bytes = arrayType.BYTES_PER_ELEMENT;
 
-    var t = function SomeNumericType(value) {
+    var t = function SomeNumericType(val) {
       if (this instanceof SomeNumericType) { throw new TypeError("Numeric types should have value semantics"); }
-      value = Number(value);
-      return t.__Convert__(value);
+      var x = t.__Cast__(val);
+      return t.__Reify__(x);
     };
     //t.__proto__ = Type.prototype; // Needed for uint8 instanceof Type, but contradicts spec?
     t.__DataType__ = desc.name;
     t.__Convert__ = function Convert(value) {
-      // TODO: boolean and other checks
       var block = Object.create(proto);
       block.__Value__ = new Uint8Array(bytes);
       block.__DataType__ = t; // TODO: Not in spec
@@ -78,9 +77,10 @@
       } else if (value === false) {
         value = 0;
       } else if (typeof value === 'number' && desc.domain(value)) { // TODO: Update tests to account for this
+        console.log("okay: " + value);
         // ok
       } else {
-//        throw new TypeError("Value " + value + " not a " + desc.name);
+        throw new TypeError("Value " + value + " is not a " + desc.name);
       }
 
       (new DataView(block.__Value__.buffer, 0, bytes))[setter](0, value, littleEndian);
@@ -90,8 +90,9 @@
       return t.__DataType__ === Object(u).__DataType__;
     };
     t.__Cast__ = function Cast(val) {
+      var v;
       try {
-        var v = t.__Convert__(val);
+        v = t.__Convert__(val);
         return t.__Reify(v);
       } catch (e) {}
       if (val === Infinity || val === -Infinity || val !== val) {
@@ -100,13 +101,18 @@
       if (typeof val === 'number') {
         return t.__CCast__(val);
       }
-      if (typeof val === 'string' && val.match(/^-?(0[xX])?\d+$/)) { // TODO: Handle exponential notation?
-        return t.__CCast__(val); // TODO: should be uintk.__CCast__ ?
+      if (typeof val === 'string' /*&& val.match(/^-?(0[xX])?\d+$/)*/) { // TODO: Handle exponential notation?
+        v = parseFloat(val);
+        return t.__CCast__(v); // TODO: should be uintk.__CCast__ ?
       }
       throw new TypeError("Cannot cast " + val + " to " + desc.name);
     };
-    // TODO: t.__CCast__
-    // TODO: t.__Call__
+    t.__CCast__ = function CCast(n) {
+      var a = new arrayType(1);
+      a[0] = n;
+      n = a[0];
+      return t.__Convert__(n);
+    };
     t.__Reify__ = function Reify(block) {
       var view = block.__Value__;
       return (new DataView(view.buffer, view.byteOffset, bytes))[getter](0, littleEndian);

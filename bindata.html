@@ -120,11 +120,11 @@ expect("t.bytes", 2);
 log("\n");
 
 evalAndLog("n = t(123.456)");
+expect("typeof n", "number");
 expect("n == 123");
-expect("n.buffer instanceof ArrayBuffer");
-expect("n.byteOffset", 0);
-expect("n.byteLength", 2);
-// TODO: properties of n
+//expect("n.buffer instanceof ArrayBuffer");
+//expect("n.byteOffset", 0);
+//expect("n.byteLength", 2);
 
 separate(); // ----------------------------------------------------------
 
@@ -148,7 +148,7 @@ expect("t.bytes", 8);
 
 log("\n");
 
-evalAndLog("a = new t([1, 2.5, 300])");
+evalAndLog("a = new t([1, 2, 300, 0])");
 evalAndShow("a.__Class__")
 evalAndShow("a.__proto__")
 evalAndShow("a.__Value__")
@@ -178,7 +178,7 @@ expect("t.bytes", 2);
 
 log("\n");
 
-evalAndLog("s = new t({a: 2.5, b: -9})");
+evalAndLog("s = new t({a: 2.5, b: 247})");
 evalAndShow("s.__Class__");
 evalAndShow("s.__proto__");
 evalAndShow("s.__Value__");
