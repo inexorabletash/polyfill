@@ -52,12 +52,11 @@ function expect(_expr, _expected) {
   if (arguments.length < 2) _expected = true;
   try {
     var res = eval(_expr);
-    // NOTE: Following test is explicitly == to verify valueOf() conversion.
-    if (res == _expected) {
+    if (res === _expected) {
       var json = JSON.stringify(res);
-      log(_expr + " == " + stringify(res), "pass");
+      log(_expr + " === " + stringify(res), "pass");
     } else {
-      log(_expr + " == " + stringify(res) + " - expected: " + stringify(_expected), "fail");
+      log(_expr + " === " + stringify(res) + " - expected: " + stringify(_expected), "fail");
     }
   } catch (ex) {
     log(_expr + " threw: " + ex, "fail");
@@ -113,7 +112,6 @@ evalAndShow("t.__Convert__");
 evalAndShow("t.__IsSame__");
 evalAndShow("t.__Cast__");
 evalAndShow("t.__CCast__");
-evalAndShow("t.__Call__");
 evalAndShow("t.__Reify__");
 expect("t.bytes", 2);
 
@@ -121,10 +119,7 @@ log("\n");
 
 evalAndLog("n = t(123.456)");
 expect("typeof n", "number");
-expect("n == 123");
-//expect("n.buffer instanceof ArrayBuffer");
-//expect("n.byteOffset", 0);
-//expect("n.byteLength", 2);
+expect("n", 123);
 
 separate(); // ----------------------------------------------------------
 

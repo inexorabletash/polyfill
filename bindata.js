@@ -23,10 +23,6 @@
       if (this !== Object(this) || !(this instanceof Data)) { throw new TypeError(); }
       var r = this.__DataType__.__Convert__(val);
       viewCopy(r, this.__Value__, 0, r.byteLength);
-    }},
-    valueOf: { value: function() {
-      if (this !== Object(this) || !(this instanceof Data)) { throw new TypeError(); }
-      return this.__DataType__.__Reify__(this);
     }}
   });
   global.Data = Data;
@@ -71,13 +67,11 @@
     t.__Convert__ = function Convert(value) {
       var block = Object.create(proto);
       block.__Value__ = new Uint8Array(bytes);
-      block.__DataType__ = t; // TODO: Not in spec
       if (value === true) {
         value = 1;
       } else if (value === false) {
         value = 0;
-      } else if (typeof value === 'number' && desc.domain(value)) { // TODO: Update tests to account for this
-        console.log("okay: " + value);
+      } else if (typeof value === 'number' && desc.domain(value)) {
         // ok
       } else {
         throw new TypeError("Value " + value + " is not a " + desc.name);
@@ -101,9 +95,13 @@
       if (typeof val === 'number') {
         return t.__CCast__(val);
       }
-      if (typeof val === 'string' /*&& val.match(/^-?(0[xX])?\d+$/)*/) { // TODO: Handle exponential notation?
+      if (typeof val === 'string' && val.match(/^-?0[Xx][0-9A-Fa-f]+$/)) {
+        v = parseInt(val.replace(/0[Xx]/, ''), 16);
+        return t.__CCast__(v);
+      }
+      if (typeof val === 'string' && val.match(/^[-+]?(\d+|\.\d+|\d+\.\d*)([eE][-+]?\d+)?$/)) {
         v = parseFloat(val);
-        return t.__CCast__(v); // TODO: should be uintk.__CCast__ ?
+        return t.__CCast__(v);
       }
       throw new TypeError("Cannot cast " + val + " to " + desc.name);
     };
@@ -118,9 +116,9 @@
       return (new DataView(view.buffer, view.byteOffset, bytes))[getter](0, littleEndian);
     };
 
-    t.__Class__ = 'DataType'; // Not in spec
-    t.prototype = proto; // Not in spec
-    t.prototype.constructor = t; // Not in spec
+    t.__Class__ = 'DataType'; // TODO: Not in spec?
+    t.prototype = proto; // TODO: Not in spec?
+    t.prototype.constructor = t; // TODO: Not in spec?
 
     Object.defineProperty(t, 'bytes', { get: function() { return bytes; }});
 
@@ -194,7 +192,12 @@
       };
       return block;
     };
-    // TODO: t.__IsSame__
+    t.__IsSame__ = function IsSame(u) {
+      u = Object(u);
+      return u.__DataType__ === 'ArrayType' &&
+        t.__ElementType__ === u.__ElementType__ &&
+        t.__Length__ === u.__Length___;
+    };
     t.__Construct__ = function Construct() {
       var block = Object.create(proto);
       block.__Class__ = 'Data';
@@ -215,6 +218,9 @@
     t.prototype.constructor = t;
     t.prototype.forEach = Array.prototype.forEach;
     t.prototype.fill = function fill(value) {
+      if (this !== Object(this) || this.__Class__ !== 'Data' || !(this.__DataType__.__IsSame__(t))) {
+        throw new TypeError();
+      }
       for (var i = 0; i < t.__Length__; ++i) {
         setter(this, i, value);
       }
@@ -286,7 +292,9 @@
       });
       return block;
     };
-    // TODO: t.__IsSame__
+    t.__IsSame__ = function IsSame(u) {
+      return t === u;
+    };
     t.__Construct__ = function Construct() {
       var block = Object.create(proto);
       block.__Value__ = new Uint8Array(bytes);
