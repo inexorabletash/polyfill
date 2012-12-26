@@ -185,5 +185,14 @@ expect("s.buffer instanceof ArrayBuffer");
 expect("s.byteOffset", 0);
 expect("s.byteLength", 2);
 
+separate(); // ----------------------------------------------------------
+
+S = new StructType({v: uint8});
+A = new ArrayType(S);
+a = new A(16);
+for (i = 0; i < 16; ++i) { a[i] = { v: i * 4 }; }
+p = new StructView(S);
+
+
 </script>
 </body>

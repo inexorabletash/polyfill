@@ -31,9 +31,6 @@
   Type.prototype = Data;
   global.Type = Type;
 
-  // TODO: StructView(structType) / structView.setView(arrayInstance, index)
-  // TODO: arrayType.cursor()
-
   // "block" is defined as an object with a __Value__ property (which is an ArrayBufferView)
   function isBlockObject(v) { return '__Value__' in Object(v); }
   function isBlockType(t) { return 'bytes' in t && '__Convert__' in t && '__Reify__' in t; }
@@ -168,16 +165,18 @@
     }
 
     var t = function SomeArrayType(value) {
-      if (!(this instanceof SomeArrayType)) {
+      if (!(this instanceof SomeArrayType)) { throw new TypeError("Cannot call as a function"); }
+      if (value === void 0 || Array.isArray(value)) {
+        var a = t.__Construct__();
+        if (value !== void 0) {
+          var r = t.__Convert__(value);
+          viewCopy(r.__Value__, a.__Value__, 0, bytes);
+        }
+        return a;
+      } else {
         var length = Number(value);
         return new (new ArrayType(elementType, length)); // TODO: Return instance or type?
       }
-      var a = t.__Construct__();
-      if (value !== void 0) {
-        var r = t.__Convert__(value);
-        viewCopy(r.__Value__, a.__Value__, 0, bytes);
-      }
-      return a;
     };
     t.__Class__ = 'DataType';
     t.__proto__ = ArrayType.prototype;
@@ -224,6 +223,19 @@
       for (var i = 0; i < t.__Length__; ++i) {
         setter(this, i, value);
       }
+    };
+    t.prototype.cursor = function cursor(fields) {
+      var view = new StructView(elementType);
+      var index = 0;
+      var array = this;
+      return {
+        'next': function() {
+          if (index >= array.length) { throw global.StopIteration; } // TODO: Real iterator
+          view.setView.apply(view, [array, index].concat(fields));
+          ++index;
+          return view;
+        }
+      };
     };
     Object.defineProperty(t, 'elementType', { get: function() { return elementType; }});
     t.length = length; // TODO: Fails because t is a Function
@@ -287,7 +299,7 @@
     t.__DataType__ = 'StructType';
     t.__Convert__ = function Convert(value) {
       var block = t.__Construct__();
-      Object.keys(fields).forEach(function(name) {
+      Object.keys(desc).forEach(function(name) {
         setter(block, name, value ? value[name] : void 0);
       });
       return block;
@@ -321,6 +333,9 @@
     }});
     Object.defineProperty(t, 'bytes', { get: function() { return bytes; }});
 
+    // For StructView
+    t.__Fields__ = desc;
+
     return t;
   }
   StructType.prototype = Object.create(Type.prototype);
@@ -328,4 +343,56 @@
 
   global.ArrayType = ArrayType;
   global.StructType = StructType;
+
+  function StructView(type) {
+    if (!(this instanceof StructView)) { throw new TypeError("StructView cannot be called as a function."); }
+    if (Object(type).__DataType__ !== 'StructType') { throw new TypeError("Type is not a StructType"); }
+
+    // TODO: fields in StructView.prototype.setView(array, index, [...fields])
+    // TODO: (Lazily) define as StructType.ViewType?
+
+    function getter(array, index, key) {
+      var field = type.__Fields__[key];
+      var view = array.__Value__;
+      return field.type.__Reify__({__Value__: new Uint8Array(view.buffer, view.byteOffset + type.bytes * index + field.offset, field.type.bytes)});
+    }
+    function setter(array, index, key, value) {
+      var field = type.__Fields__[key];
+      var src = field.type.__Convert__(value).__Value__;
+      var dst = array.__Value__;
+      viewCopy(src, dst, field.offset + type.bytes * index, field.type.bytes);
+    }
+
+    var that = this;
+    Object.keys(type.__Fields__).forEach(function(name) {
+      Object.defineProperty(that, name, {
+        get: function() {
+          if (!this.__Array__) throw new Error();
+          return getter(this.__Array__, this.__Index__, name);
+        },
+        set: function(value) {
+          if (!this.__Array__) throw new Error();
+          setter(this.__Array__, this.__Index__, name, value);
+        }
+      });
+    });
+
+    this.__DataType__ = type; // TODO: Not in spec.
+    Object.defineProperty(this, 'fields', { get: function() { return type.fields; }});
+    Object.defineProperty(this, 'bytes', { get: function() { return type.bytes; }});
+  }
+  StructView.prototype = {};
+  Object.defineProperty(StructView.prototype, 'setView', { value: function(array, index) {
+    if (!Object(array).__DataType__) { throw new TypeError(); }
+    if (Object(Object(array).__DataType__).__DataType__ !== 'ArrayType') { throw new TypeError(); }
+    if (Object(Object(array).__DataType__).__ElementType__ !== this.__DataType__) { throw new TypeError(); }
+
+    index = index >> 0;
+    if (index < 0 || index >= array.__Length__) { throw new RangeError(); }
+    this.__Array__ = array;
+    this.__Index__ = index;
+  }});
+
+  global.StructView = StructView;
+
 }(self));
