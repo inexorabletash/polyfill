@@ -92,12 +92,8 @@
       if (typeof val === 'number') {
         return t.__CCast__(val);
       }
-      if (typeof val === 'string' && val.match(/^-?0[Xx][0-9A-Fa-f]+$/)) {
-        v = parseInt(val.replace(/0[Xx]/, ''), 16);
-        return t.__CCast__(v);
-      }
-      if (typeof val === 'string' && val.match(/^[-+]?(\d+|\.\d+|\d+\.\d*)([eE][-+]?\d+)?$/)) {
-        v = parseFloat(val);
+      if (typeof val === 'string') {
+        v = Number(val);
         return t.__CCast__(v);
       }
       throw new TypeError("Cannot cast " + val + " to " + desc.name);
