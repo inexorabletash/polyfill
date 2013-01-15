@@ -104,8 +104,8 @@
   //
   //----------------------------------------------------------------------
 
-  var toStringTagSymbol = '@@toStringTag',
-      iteratorSymbol = '@@iterator';
+  var toStringTagSymbol = Symbol(),
+      iteratorSymbol = Symbol();
 
   // 15.2.4.2
   hook(Object.prototype, 'toString',
@@ -1553,24 +1553,33 @@
       });
   }());
 
+  // module "@dict"
   // https://mail.mozilla.org/pipermail/es-discuss/2012-December/026810.html
   (function() {
-    function Dict() {
-      return Object.create(null);
+    function dict(init) {
+      var dict = Object.create(null);
+      if (init) {
+        for (var key in init) {
+          if (Object.prototype.hasOwnProperty.call(init, key)) {
+            dict[key] = init[key];
+          }
+        }
+      }
+      return dict;
     }
 
     defineFunctionProperty(
-      Dict, 'keys',
+      global, 'keys',
       function keys(o) {
         return CreateDictIterator(o, 'key');
       });
     defineFunctionProperty(
-      Dict, 'values',
+      global, 'values',
       function values(o) {
         return CreateDictIterator(o, 'value');
       });
     defineFunctionProperty(
-      Dict, 'entries',
+      global, 'entries',
       function entries(o) {
         return CreateDictIterator(o, 'key+value');
       });
@@ -1618,9 +1627,10 @@
       function() {
         return this;
       });
-    global.Dict = global.Dict || Dict;
+    global.dict = global.dict || dict;
   }());
 
+  // module "@symbol"
   // Not secure nor is obj[$symbol] hidden from Object.keys():
   function Symbol() {
     if (!(this instanceof Symbol)) return new Symbol;
@@ -1630,7 +1640,11 @@
     this.toString = function() { return s; };
     return this;
   }
+  function isSymbol(s) {
+    return s instanceof Symbol;
+  }
   global.Symbol = global.Symbol || Symbol;
+  global.isSymbol = global.isSymbol || isSymbol;
 
   // NOTE: Since true iterators can't be polyfilled, this is a hack
   function forOf(o, func) {

@@ -718,22 +718,21 @@ test("Branding", function() {
 });
 
 test("Dict", function() {
-  d = new Dict();
+  d = dict({a: 1});
   assertEqual("Object.getPrototypeOf(d)", null);
-  d['a'] = 1;
   d['b'] = 2;
 
-  it = Dict.keys(d);
+  it = keys(d);
   assertEqual("it.next()", 'a');
   assertEqual("it.next()", 'b');
   assertThrows("it.next()");
 
-  it = Dict.values(d);
+  it = values(d);
   assertEqual("it.next()", 1);
   assertEqual("it.next()", 2);
   assertThrows("it.next()");
 
-  it = Dict.entries(d);
+  it = entries(d);
   deepEqual(it.next(), ['a', 1]);
   deepEqual(it.next(), ['b', 2]);
   assertThrows("it.next()");
