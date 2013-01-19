@@ -1422,14 +1422,12 @@
   //
   //----------------------------------------------------------------------
 
-  // TODO: Make sure these get added as functions, not just operators.
   defineFunctionProperty(
     Object, 'is',
     function is(x, y) {
       return ECMAScript.SameValue(x, y);
     });
 
-  // TODO: Make sure these get added as functions, not just operators.
   defineFunctionProperty(
     Object, 'isnt',
     function isnt(x, y) {

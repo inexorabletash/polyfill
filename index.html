@@ -14,6 +14,8 @@
 <p>I use these in various pages on this site; most are by me, or I have at least tweaked them.
 A more comprehensive list can be found at <a target="_blank" href="https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills">The All-In-One Entirely-Not-Alphabetical No-Bullshit Guide to HTML5 Fallbacks</a> by Paul Irish.
 
+<p>Note that my general approach to polyfills is not to produce 100% compliant behavior, but to provide a broad subset of functionality so that, where possible, cooperative code can be written to take advantage of new APIs. No assumptions should be made about security or edge cases. Unless otherwise stated, the code provided here is in the Public Domain; no attribution necessary, and no warranty given.
+
 <ul>
   <li><a href="#polyfill">Browser Compat &amp; ECMAScript 5</a>
   <li><a href="#harmony">ECMAScript 6 / "Harmony"</a>
@@ -29,19 +31,18 @@ A more comprehensive list can be found at <a target="_blank" href="https://githu
   <li><a href="#domexception">DOMException</a>
 </ul>
 
-
 <h2 id="polyfill">Browser Compat &amp; ECMAScript 5 Polyfill</h2>
 <p>Bundled together; nearly every page I create needs at least some of these. These will change over time, and
 going forward I will only target IE8 and later.
 <p><a target="_blank" href="polyfill.js">script</a> - <a target="_blank" href="polyfill.html">unit tests</a>
 <ul>
-  <li><a target="_blank" href="http://www.w3.org/TR/XMLHttpRequest/"><code>XMLHttpRequest</code></a> (shim for IE6-)
+  <li><a target="_blank" href="http://xhr.spec.whatwg.org/"><code>XMLHttpRequest</code></a> (shim for IE6-)
   <li><a target="_blank" href="http://www.w3.org/TR/selectors-api/">Selector API</a> (shim for IE7-) - adapted from <a target="_blank" href="http://ajaxian.com/archives/creating-a-queryselector-for-ie-that-runs-at-native-speed">Paul Young</a>
     <ul>
       <li><code><var>element</var> = document.querySelector(<var>selector</var>)</code>
       <li><code><var>elementArray</var> = document.querySelectorAll(<var>selector</var>)</code>
     </ul>
-  <li><a target="_blank" href="http://www.w3.org/TR/DOM-Level-2-Events/">DOM Level 2 Events</a> (shim for IE8)
+  <li><a target="_blank" href="http://dom.spec.whatwg.org/">DOM Events</a> (shim for IE8)
     <ul>
       <li><code><var>EventTarget</var>.addEventListener(<var>event</var>, <var>handler</var>)</code>
       <li><code><Var>EventTarget</var>.removeEventListener(<var>event</var>, <var>handler</var>)</code>
@@ -56,24 +57,24 @@ going forward I will only target IE8 and later.
       <li><code><var>Event</var>.stopPropagation()</code>
       <li><code><var>Event</var>.cancelBubble()</code>
     </ul>
-  <li><a target="_blank" href="http://www.w3.org/TR/DOM-Level-2-Events/">DOM Level 2 Events</a> (helper for IE7-) - adapted from <a target="_blank" href="http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html">QuirksMode</a>
+  <li><a target="_blank" href="http://dom.spec.whatwg.org/">DOM Events</a> (helper for IE7-) - adapted from <a target="_blank" href="http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html">QuirksMode</a>
     <ul>
       <li><code>window.addEvent(<var>element</var>, <var>event</var>, <var>handler</var>)</code>
       <li><code>window.removeEvent(<var>element</var>, <var>event</var>, <var>handler</var>)</code>
     </ul>
-  <li><a target="_blank" href="http://www.w3.org/TR/html5/dom.html">HTML5 DOM</a> (shim)
+  <li><a target="_blank" href="http://dom.spec.whatwg.org/">DOM Miscellany</a> (shim)
     <ul>
       <li><code>document.head</code>
       <li><code><var>elementArray</var> = document.getElementsByClassName(<var>classNames</var>)</code>
     </ul>
-  <li><a target="_blank" href="http://www.w3.org/TR/html5/webappapis.html#atob">HTML5 Web Application APIs</a> (shim for IE9-)
+  <li><a target="_blank" href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#atob">HTML Web Application APIs</a> (shim for IE9-)
     <ul>
       <li><code><var>encodedString</var> = window.btoa(<var>binaryString</var>)</code> - Base64 Encode
       <li><code><var>binaryString</var> = window.atob(<var>encodedString</var>)</code> - Base64 Decode
     </ul>
-  <li><a target="_blank" href="http://www.w3.org/TR/html5/common-dom-interfaces.html#domtokenlist">HTML5 Infrastructure</a> -
-      <a target="_blank" href="http://www.w3.org/TR/html5/elements.html#dom-classlist">classList</a>,
-      <a target="_blank" href="http://www.w3.org/TR/html5/semantics.html#dom-link-rellist">relList</a> (shim)
+  <li><a target="_blank" href="http://dom.spec.whatwg.org/#interface-domtokenlist">HTML5 Infrastructure</a> -
+      <a target="_blank" href="http://dom.spec.whatwg.org/#dom-element-classlist">classList</a>,
+      <a target="_blank" href="http://www.whatwg.org/specs/web-apps/current-work/#dom-link-rellist">relList</a> (shim)
     <ul>
       <li><code><var>tokenList</var> = window.getClassList(<var>element</var>)</code>
       <li><code><var>tokenList</var> = window.getRelList(<var>element</var>)</code>
@@ -97,7 +98,7 @@ going forward I will only target IE8 and later.
       <li><code><var>id</var> = setImmediate(<var>callback</var>, <var>args...</var>)</code>
       <li><code>clearImmediate(<var>id</var>)</code>
     </ul>
-  <li><code>dataset</code> and <code>data-*</code> attributes (shim)
+  <li><a target="_blank" href="http://www.whatwg.org/specs/web-apps/current-work/multipage/elements.html#embedding-custom-non-visible-data-with-the-data-*-attributes"><code>dataset</code> and <code>data-*</code> attributes</a> (shims for IE8+, not available in IE7-)
     <ul>
       <li><code><var>str</var> = <var>element</var>.dataset[<var>key</var>]</code> - <em>yields <code>undefined</code> if data-<var>key</var> attribute not present</em>
       <li><code><var>element</var>.dataset[<var>key</var>] = <var>str</var></code> - <em>fails unless data-<var>key</var> attribute already present</em>
@@ -119,14 +120,14 @@ going forward I will only target IE8 and later.
 </ul>
 
 <h2 id="harmony">ECMAScript 6 / "Harmony" (polyfill)</h2>
-<p>"Harmony" is the aspirational term for future iterations of ECMAScript (the standardized version of JavaScript). The standardization of ES6 is currently in progress. This will attempt to track the evolving spec, so may change at any time.
+<p>"Harmony" is the aspirational term for the future of ECMAScript (the standardized version of JavaScript) beyond ES5. The standardization of ES6 is currently in progress. This will attempt to track the evolving spec, so may change at any time.
 <p><a target="_blank" href="harmony.js">script</a> - <a target="_blank" href="harmony.html">unit tests</a> - <a target="_blank" href="http://wiki.ecmascript.org/doku.php?id=harmony:proposals">wiki</a>
 <ul>
   <li>In the <a target="_blank" href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6 Drafts</a>:
     <ul>
       <li>Object:
         <code>assign()</code>,
-        <code>is()</code> (as function, not operator),
+        <code>is()</code>,
         <code>isnt()</code> (ditto),
         <!-- <code>isObject()</code> -->
       <li>Number:
@@ -148,7 +149,6 @@ going forward I will only target IE8 and later.
         <code>startsWith()</code>,
         <code>endsWith()</code>,
         <code>contains()</code>,
-        <code>@@iterator()</code>
       <li>Math:
         <code>log10()</code>,
         <code>log2()</code>,
@@ -171,7 +171,6 @@ going forward I will only target IE8 and later.
         <code>items()</code>,
         <code>keys()</code>,
         <code>values()</code>,
-        <code>@@iterator()</code>
       <li>Map:
         <code>clear()</code>,
         <code>delete()</code>,
@@ -183,7 +182,6 @@ going forward I will only target IE8 and later.
         <code>set()</code>,
         <code>size</code>,
         <code>values()</code>,
-        <code>@@iterator()</code>
       <li>Set:
         <code>add()</code>,
         <code>clear()</code>,
@@ -192,7 +190,6 @@ going forward I will only target IE8 and later.
         <code>has()</code>,
         <code>size</code>,
         <code>values()</code>,
-        <code>@@iterator()</code>
       <li>WeakMap (intrusive; modifies valueOf property of key):
         <code>clear()</code>,
         <code>delete()</code>,
