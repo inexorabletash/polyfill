@@ -97,7 +97,7 @@ test("Web Standards Polyfills - Element.dataset and data-* attributes", function
   if ('dataset' in document.getElementById('datadiv')) {
     assertEqual("document.getElementById('datadiv').dataset.foo", "bar");
     assertEqual("document.getElementById('datadiv').dataset.bar", "123");
-    assertEqual("document.getElementById('dataspan').dataset['123']", "blah");
+    assertEqual("document.getElementById('dataspan').dataset['123']", "blah"); // Broken in Chrome 23!
     assertTrue("!document.getElementById('dataspan').dataset['abc']");
 
     document.getElementById('datadiv').dataset.foo = "new";

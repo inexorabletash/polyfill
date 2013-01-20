@@ -11,10 +11,12 @@
   <li>A <em>helper</em> helps write cross-browser code where a true API shim/polyfill is not possible.
 </ul>
 
+<p>Note that my general approach to polyfills is not to produce 100% compliant behavior, but to provide a broad subset of functionality so that, where possible, cooperative code can be written to take advantage of new APIs. No assumptions should be made about security or edge cases. It is preferrable to use a shim where it is possible to create one on supported browsers. If not possible, a helper should be used that lets the same code be used in all browsers.
+
 <p>I use these in various pages on this site; most are by me, or I have at least tweaked them.
 A more comprehensive list can be found at <a target="_blank" href="https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills">The All-In-One Entirely-Not-Alphabetical No-Bullshit Guide to HTML5 Fallbacks</a> by Paul Irish.
 
-<p>Note that my general approach to polyfills is not to produce 100% compliant behavior, but to provide a broad subset of functionality so that, where possible, cooperative code can be written to take advantage of new APIs. No assumptions should be made about security or edge cases. Unless otherwise stated, the code provided here is in the Public Domain; no attribution necessary, and no warranty given.
+<p>Unless otherwise stated, the code provided here is in the Public Domain; no attribution necessary, and no warranty given.
 
 <ul>
   <li><a href="#polyfill">Browser Compat &amp; ECMAScript 5</a>
@@ -42,11 +44,13 @@ going forward I will only target IE8 and later.
       <li><code><var>element</var> = document.querySelector(<var>selector</var>)</code>
       <li><code><var>elementArray</var> = document.querySelectorAll(<var>selector</var>)</code>
     </ul>
-  <li><a target="_blank" href="http://dom.spec.whatwg.org/">DOM Events</a> (shim for IE8)
+  <li><a target="_blank" href="http://dom.spec.whatwg.org/">DOM Events</a> (shim/helpers)
     <ul>
-      <li><code><var>EventTarget</var>.addEventListener(<var>event</var>, <var>handler</var>)</code>
-      <li><code><Var>EventTarget</var>.removeEventListener(<var>event</var>, <var>handler</var>)</code>
-      <li>Where <var>EventTarget</var> is <code>window</code>, <code>document</code>, or any element.
+      <li>Where <var>EventTarget</var> is <code>window</code>, <code>document</code>, or any element:
+      <li><code><var>EventTarget</var>.addEventListener(<var>event</var>, <var>handler</var>)</code> - <em>shim for IE8+</em>
+      <li><code><Var>EventTarget</var>.removeEventListener(<var>event</var>, <var>handler</var>)</code> - <em>shim for IE8+</em>
+      <li><code>window.addEvent(<var>EventTarget</var>, <var>event</var>, <var>handler</var>)</code> - <em>helper for IE7- support - adapted from <a target="_blank" href="http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html">QuirksMode</a></em>
+      <li><code>window.removeEvent(<var>EventTarget</var>, <var>event</var>, <var>handler</var>)</code> - <em>helper for IE7- support - adapted from <a target="_blank" href="http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html">QuirksMode</a></em>
       <li><code><var>Event</var>.target</code>
       <li><code><var>Event</var>.currentTarget</code>
       <li><code><var>Event</var>.eventPhase</code>
@@ -57,10 +61,8 @@ going forward I will only target IE8 and later.
       <li><code><var>Event</var>.stopPropagation()</code>
       <li><code><var>Event</var>.cancelBubble()</code>
     </ul>
-  <li><a target="_blank" href="http://dom.spec.whatwg.org/">DOM Events</a> (helper for IE7-) - adapted from <a target="_blank" href="http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html">QuirksMode</a>
+  <li><a target="_blank" href="http://dom.spec.whatwg.org/">DOM Events</a>
     <ul>
-      <li><code>window.addEvent(<var>element</var>, <var>event</var>, <var>handler</var>)</code>
-      <li><code>window.removeEvent(<var>element</var>, <var>event</var>, <var>handler</var>)</code>
     </ul>
   <li><a target="_blank" href="http://dom.spec.whatwg.org/">DOM Miscellany</a> (shim)
     <ul>
@@ -74,12 +76,12 @@ going forward I will only target IE8 and later.
     </ul>
   <li><a target="_blank" href="http://dom.spec.whatwg.org/#interface-domtokenlist">HTML5 Infrastructure</a> -
       <a target="_blank" href="http://dom.spec.whatwg.org/#dom-element-classlist">classList</a>,
-      <a target="_blank" href="http://www.whatwg.org/specs/web-apps/current-work/#dom-link-rellist">relList</a> (shim)
+      <a target="_blank" href="http://www.whatwg.org/specs/web-apps/current-work/#dom-link-rellist">relList</a> (shim/helpers)
     <ul>
-      <li><code><var>tokenList</var> = window.getClassList(<var>element</var>)</code>
-      <li><code><var>tokenList</var> = window.getRelList(<var>element</var>)</code>
-      <li><code><var>tokenList</var> = <var>elem</var>.classList</code> - <em>not available in IE7-, so use with caution</em>
-      <li><code><var>tokenList</var> = <var>elem</var>.relList</code> - <em>not available in IE7-, so use with caution</em>
+      <li><code><var>tokenList</var> = <var>elem</var>.classList</code> - <em>shim for IE8+</em>
+      <li><code><var>tokenList</var> = <var>elem</var>.relList</code> - <em>shim for IE8+</em>
+      <li><code><var>tokenList</var> = window.getClassList(<var>element</var>)</code> - <em>helper for IE7- support</em>
+      <li><code><var>tokenList</var> = window.getRelList(<var>element</var>)</code> - <em>helper for IE7- support</em>
       <li><code><var>tokenList</var>.length</code>
       <li><code><var>tokenList</var>.item(<var>index</var>)</code>
       <li><code><var>tokenList</var>.contains(<var>token</var>)</code>
@@ -171,6 +173,7 @@ going forward I will only target IE8 and later.
         <code>items()</code>,
         <code>keys()</code>,
         <code>values()</code>,
+        <code>@@iterator()</code>
       <li>Map:
         <code>clear()</code>,
         <code>delete()</code>,
@@ -182,6 +185,7 @@ going forward I will only target IE8 and later.
         <code>set()</code>,
         <code>size</code>,
         <code>values()</code>,
+        <code>@@iterator()</code>
       <li>Set:
         <code>add()</code>,
         <code>clear()</code>,
@@ -190,6 +194,7 @@ going forward I will only target IE8 and later.
         <code>has()</code>,
         <code>size</code>,
         <code>values()</code>,
+        <code>@@iterator()</code>
       <li>WeakMap (intrusive; modifies valueOf property of key):
         <code>clear()</code>,
         <code>delete()</code>,
@@ -225,6 +230,11 @@ going forward I will only target IE8 and later.
           <li>No security, just creates an object with a unique string representation.
         </ul>
     </ul>
+    <li>
+      Helpers:
+      <ul>
+        <li><code>forOf(<var>o</var>, function(<var>i</var>) { ... })</code> - since <code>for (i of o) { ... }</code> can't be polyfilled. Uses iterators, so works with arrays, maps, sets, and strings, via implicit <code>@@iterator</code> and explicit iterators returned by keys/values/entries methods and functions.
+      </ul>
 </ul>
 
 <h2 id="url">WHATWG URL API (shim)</h2>
