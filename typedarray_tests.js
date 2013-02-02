@@ -654,7 +654,7 @@ test('TypedArray setting', 8, function () {
 });
 
 
-test('TypedArray.subarray', 8, function () {
+test('TypedArray.subarray', 10, function () {
 
   var a = new Int32Array([1, 2, 3, 4, 5]);
   arrayEqual(a.subarray(3), [4, 5]);
@@ -665,6 +665,8 @@ test('TypedArray.subarray', 8, function () {
   arrayEqual(a.subarray(-2, -3), []);
   arrayEqual(a.subarray(4, 1), []);
   arrayEqual(a.subarray(-1, -4), []);
+  arrayEqual(a.subarray(1).subarray(1), [3, 4, 5]);
+  arrayEqual(a.subarray(1, 4).subarray(1, 2), [3]);
 });
 
 

@@ -497,7 +497,8 @@
           len = 0;
         }
 
-        return new this.constructor(this.buffer, start * this.BYTES_PER_ELEMENT, len);
+        return new this.constructor(
+          this.buffer, this.byteOffset + start * this.BYTES_PER_ELEMENT, len);
       };
 
       return ctor;
