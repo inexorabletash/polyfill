@@ -386,9 +386,28 @@ test("Identity Testing", function () {
 
 });
 
-test("Map", 17, function () {
+test("Map", 30, function () {
 
   map = new Map();
+  assertFalse("map.has(-0)");
+  assertFalse("map.has(0)");
+  map.set(0, 1234);
+  assertEqual("map.size", 1);
+  assertTrue("map.has(-0)");
+  assertTrue("map.has(0)");
+  assertEqual("map.get(0)", 1234);
+  assertEqual("map.get(-0)", 1234);
+  map['delete'](-0);
+  assertFalse("map.has(-0)");
+  assertFalse("map.has(0)");
+  map.set(-0, 1234);
+  map.clear();
+  assertFalse("map.has(0)");
+  assertFalse("map.has(-0)");
+  assertEqual("map.size", 0);
+  assertEqual("map.set('key', 'value')", 'value');
+
+  map = new Map(undefined, "is");
   assertFalse("map.has(-0)");
   assertFalse("map.has(0)");
   map.set(0, 1234);
@@ -422,8 +441,27 @@ test("Map", 17, function () {
 
 });
 
-test("Set", 18, function () {
+test("Set", 30, function () {
+
   set = new Set();
+  assertFalse("set.has(-0)");
+  assertFalse("set.has(0)");
+  assertEqual("set.size", 0);
+  set.add(0);
+  assertTrue("set.has(-0)");
+  assertTrue("set.has(0)");
+  assertEqual("set.size", 1);
+  set['delete'](-0);
+  assertFalse("set.has(-0)");
+  assertFalse("set.has(0)");
+  assertEqual("set.size", 0);
+  set.add(-0);
+  set.clear();
+  assertFalse("set.has(0)");
+  assertEqual("set.size", 0);
+  assertEqual("set.add('key')", 'key');
+
+  set = new Set(undefined, "is");
   assertFalse("set.has(-0)");
   assertFalse("set.has(0)");
   assertEqual("set.size", 0);

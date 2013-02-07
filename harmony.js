@@ -635,7 +635,7 @@
 
     // 15.14.1 Abstract Operations For Map Objects
 
-    function MapInitialisation(obj, iterable) {
+    function MapInitialisation(obj, iterable, comparator) {
       if (typeof obj !== 'object') { throw new TypeError(); }
       if ('_mapData' in obj) { throw new TypeError(); }
 
@@ -646,6 +646,8 @@
         if (!ECMAScript.IsCallable(adder)) { throw new TypeError(); }
       }
       obj._mapData = { keys: [], values: [] };
+      obj._mapComparator = (String(comparator) === 'is') ? Object.is : Map.defaultComparator;
+
       if (iterable === (void 0)) {
         return obj;
       }
@@ -665,25 +667,30 @@
     // 15.14.3 The Map Constructor
 
     /** @constructor */
-    function Map(iterable) {
-      if (!(this instanceof Map)) { return new Map(iterable); }
+    function Map(iterable, comparator) {
+      if (!(this instanceof Map)) { return new Map(iterable, comparator); }
 
-      MapInitialisation(this, iterable);
+      MapInitialisation(this, iterable, comparator);
 
       return this;
     }
 
-    function indexOf(mapData, key) {
+    function indexOf(mapComparator, mapData, key) {
       var i;
+      // NOTE: Assumed invariant over all supported comparators
       if (key === key && key !== 0) {
         return mapData.keys.indexOf(key);
       }
       // Slow case for NaN/+0/-0
       for (i = 0; i < mapData.keys.length; i += 1) {
-        if (ECMAScript.SameValue(mapData.keys[i], key)) { return i; }
+        if (mapComparator(mapData.keys[i], key)) { return i; }
       }
       return -1;
     }
+
+    Map.defaultComparator = function defaultComparator(a, b) {
+      return a === b;
+    };
 
     // 15.14.5 Properties of the Map Prototype Object
 
@@ -702,7 +709,7 @@
     defineFunctionProperty(
       Map.prototype, 'delete',
       function deleteFunction(key) {
-        var i = indexOf(this._mapData, key);
+        var i = indexOf(this._mapComparator, this._mapData, key);
         if (i < 0) { return false; }
         this._mapData.keys.splice(i, 1);
         this._mapData.values.splice(i, 1);
@@ -728,7 +735,7 @@
     defineFunctionProperty(
       Map.prototype, 'get',
       function get(key) {
-        var i = indexOf(this._mapData, key);
+        var i = indexOf(this._mapComparator, this._mapData, key);
         return i < 0 ? (void 0) : this._mapData.values[i];
       });
 
@@ -736,7 +743,7 @@
     defineFunctionProperty(
       Map.prototype, 'has',
       function has(key) {
-        return indexOf(this._mapData, key) >= 0;
+        return indexOf(this._mapComparator, this._mapData, key) >= 0;
       });
 
     // 15.14.5.7
@@ -757,7 +764,7 @@
     defineFunctionProperty(
       Map.prototype, 'set',
       function set(key, val) {
-        var i = indexOf(this._mapData, key);
+        var i = indexOf(this._mapComparator, this._mapData, key);
         if (i < 0) { i = this._mapData.keys.length; }
         this._mapData.keys[i] = key;
         this._mapData.values[i] = val;
@@ -993,7 +1000,7 @@
   (function() {
 
     // 15.16.1 Abstract Operations For Set Objects
-    function SetInitialisation(obj, iterable) {
+    function SetInitialisation(obj, iterable, comparator) {
       if (typeof obj !== 'object') { throw new TypeError(); }
       if ('_setData' in obj) { throw new TypeError(); }
 
@@ -1004,6 +1011,7 @@
         if (!ECMAScript.IsCallable(adder)) { throw new TypeError(); }
       }
       obj._setData = [];
+      obj._setComparator = (String(comparator) === 'is') ? Object.is : Set.defaultComparator;
       if (iterable === (void 0)) {
         return obj;
       }
@@ -1022,35 +1030,40 @@
 
     // 15.16.3 The Set Constructor
     /** @constructor */
-    function Set(iterable) {
-      if (!(this instanceof Set)) { return new Set(iterable); }
+    function Set(iterable, comparator) {
+      if (!(this instanceof Set)) { return new Set(iterable, comparator); }
 
-      SetInitialisation(this, iterable);
+      SetInitialisation(this, iterable, comparator);
 
       return this;
     }
 
-    function indexOf(setData, key) {
+    function indexOf(setComparator, setData, key) {
       var i;
+      // NOTE: Assumed invariant over all supported comparators
       if (key === key && key !== 0) {
         return setData.indexOf(key);
       }
       // Slow case for NaN/+0/-0
       for (i = 0; i < setData.length; i += 1) {
-        if (ECMAScript.SameValue(setData[i], key)) { return i; }
+        if (setComparator(setData[i], key)) { return i; }
       }
       return -1;
     }
 
-    Set.prototype = {};
+    Set.defaultComparator = function defaultComparator(a, b) {
+      return a === b;
+    };
 
     // 15.16.5 Properties of the Set Prototype Object
+
+    Set.prototype = {};
 
     // 15.16.5.2
     defineFunctionProperty(
       Set.prototype, 'add',
       function add(key) {
-        var i = indexOf(this._setData, key);
+        var i = indexOf(this._setComparator, this._setData, key);
         if (i < 0) { i = this._setData.length; }
         this._setData[i] = key;
         if (this.size !== this._setData.length) { this.size = this._setData.length; }
@@ -1069,7 +1082,7 @@
     defineFunctionProperty(
       Set.prototype, 'delete',
       function deleteFunction(key) {
-        var i = indexOf(this._setData, key);
+        var i = indexOf(this._setComparator, this._setData, key);
         if (i < 0) { return false; }
         this._setData.splice(i, 1);
         if (this.size !== this._setData.length) { this.size = this._setData.length; }
@@ -1094,7 +1107,7 @@
     defineFunctionProperty(
       Set.prototype, 'has',
       function has(key) {
-        return indexOf(this._setData, key) !== -1;
+        return indexOf(this._setComparator, this._setData, key) !== -1;
       });
 
     // 15.16.5.7
