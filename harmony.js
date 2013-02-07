@@ -450,8 +450,8 @@
 
   // 15.7.3.14
   defineFunctionProperty(
-    Number, 'toInt',
-    function toInt(value) {
+    Number, 'toInteger',
+    function toInteger(value) {
       return ECMAScript.ToInteger(value);
     });
 
@@ -1426,12 +1426,6 @@
     Object, 'is',
     function is(x, y) {
       return ECMAScript.SameValue(x, y);
-    });
-
-  defineFunctionProperty(
-    Object, 'isnt',
-    function isnt(x, y) {
-      return !ECMAScript.SameValue(x, y);
     });
 
   // http://wiki.ecmascript.org/doku.php?id=strawman:number_compare

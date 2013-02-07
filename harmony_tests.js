@@ -232,16 +232,16 @@ test("Approved Number extras", function () {
   assertFalse("Number.isInteger(-1.1)");
   assertFalse("Number.isInteger(+1.1)");
 
-  // Number.toInt
-  assertEqual("Number.toInt('')", 0);
-  assertEqual("Number.toInt(NaN)", 0);
-  assertEqual("Number.toInt(-Infinity)", -Infinity);
-  assertEqual("Number.toInt(+Infinity)", Infinity);
-  assertEqual("Number.toInt(0)", 0);
-  assertEqual("Number.toInt(-1)", -1);
-  assertEqual("Number.toInt(+1)", 1);
-  assertEqual("Number.toInt(-1.1)", -1);
-  assertEqual("Number.toInt(+1.1)", 1);
+  // Number.toInteger
+  assertEqual("Number.toInteger('')", 0);
+  assertEqual("Number.toInteger(NaN)", 0);
+  assertEqual("Number.toInteger(-Infinity)", -Infinity);
+  assertEqual("Number.toInteger(+Infinity)", Infinity);
+  assertEqual("Number.toInteger(0)", 0);
+  assertEqual("Number.toInteger(-1)", -1);
+  assertEqual("Number.toInteger(+1)", 1);
+  assertEqual("Number.toInteger(-1.1)", -1);
+  assertEqual("Number.toInteger(+1.1)", 1);
 });
 
 test("Approved Number.prototype extras", function () {
@@ -375,10 +375,8 @@ test("Identity Testing", function () {
     for (j = 0; j < examples.length; j += 1) {
       if (i === j) {
         assertTrue("Object.is(" + examples[i] + "," + examples[j] + ")");
-        assertFalse("Object.isnt(" + examples[i] + "," + examples[j] + ")");
       } else {
         assertFalse("Object.is(" + examples[i] + "," + examples[j] + ")");
-        assertTrue("Object.isnt(" + examples[i] + "," + examples[j] + ")");
       }
     }
   }
@@ -386,34 +384,6 @@ test("Identity Testing", function () {
   delete testobj1;
   delete testobj2;
 
-  // Removed from latest ES6 drafts
-  // Object.isObject
-  if (false) {
-    assertEqual("typeof Object.isObject", "function");
-    assertEqual("Object.isObject.length", 1);
-    assertTrue("Object.isObject({})");
-    assertTrue("Object.isObject([])");
-    assertTrue("Object.isObject(/(?:)/)");
-    assertTrue("Object.isObject(function () {})");
-    assertTrue("Object.isObject(new Object)");
-    assertTrue("Object.isObject(new Array)");
-    assertTrue("Object.isObject(new RegExp)");
-    assertTrue("Object.isObject(new Date)");
-    assertTrue("Object.isObject(new Number(1))");
-    assertTrue("Object.isObject(new String('a'))");
-    assertTrue("Object.isObject(new Boolean(true))");
-    assertTrue("Object.isObject(new Function())");
-    assertTrue("Object.isObject(Object)");
-    assertTrue("Object.isObject(Math)");
-    assertTrue("Object.isObject(JSON)");
-    assertFalse("Object.isObject(null)");
-    assertFalse("Object.isObject(undefined)");
-    assertFalse("Object.isObject()");
-    assertFalse("Object.isObject(1)");
-    assertFalse("Object.isObject('a')");
-    assertFalse("Object.isObject(true)");
-    assertFalse("Object.isObject(false)");
-  }
 });
 
 test("Map", 17, function () {

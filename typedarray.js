@@ -28,6 +28,7 @@
 //  * Allow no arguments to DataView constructor
 //  * Work cross-frame with native arrays/shimmed DataView
 //  * Corrected Object.defineProperty shim for IE8
+//  * Correct offset when taking subarray of subarray
 
 // ES3/ES5 implementation of the Krhonos TypedArray Working Draft (work in progress):
 //   Ref: https://cvs.khronos.org/svn/repos/registry/trunk/public/webgl/doc/spec/TypedArray-spec.html
