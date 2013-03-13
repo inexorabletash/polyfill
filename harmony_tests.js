@@ -333,7 +333,7 @@ test("Approved Array extras", function () {
 
   assertTrue("'from' in Array");
   assertEqual("typeof Array.from", 'function');
-  assertEqual("Array.from.length", 1);
+  assertEqual("Array.from.length", 1); // TODO: Verify
   assertEqual("Array.from(1,2,3).length", 0);
   assertEqual("Array.from([1,2,3]).length", 3);
   deepEqual(Array.from([1, 2, 3]), [1, 2, 3]);
@@ -342,6 +342,7 @@ test("Approved Array extras", function () {
   deepEqual(Array.from({length: 0, 0: 'a'}), []);
   deepEqual(Array.from({length: 1, 0: 'a'}), ['a']);
   deepEqual(Array.from({length: 2, 1: 'a'}), [(void 0), 'a']);
+  deepEqual(Array.from([1,2,3], function(x) { return x * x; }), [1, 4, 9]);
 });
 
 test("Identity Testing", function () {

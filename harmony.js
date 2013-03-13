@@ -59,6 +59,25 @@
         default:
           return x === y;
         }
+      },
+      SameValueZero: function (x, y) {
+        if (typeof x !== typeof y) {
+          return false;
+        }
+        switch (typeof x) {
+        case 'undefined':
+          return true;
+        case 'null':
+          return true;
+        case 'number':
+          if (global_isNaN(x) && global_isNaN(y)) { return true; }
+          return x === y;
+        case 'boolean':
+        case 'string':
+        case 'object':
+        default:
+          return x === y;
+        }
       }
     };
   }());
@@ -129,6 +148,20 @@
   // 15.2.3 Properties of the Object Constructor
 
   // 15.2.3.15
+  // TODO: Object.getOwnPropertyKeys vs. Object.keys
+  defineFunctionProperty(
+    Object, 'getOwnPropertyKeys',
+    Object.keys
+  );
+
+  // 15.2.3.16
+  defineFunctionProperty(
+    Object, 'is',
+    function is(x, y) {
+      return ECMAScript.SameValue(x, y);
+    });
+
+  // 15.2.3.17
   defineFunctionProperty(
     Object, 'assign',
     function assign(target, source) {
@@ -139,6 +172,21 @@
       });
       return target;
     });
+
+
+  // 15.2.3.18
+  defineFunctionProperty(
+    Object, 'mixin',
+    function mixin(target, source) {
+      target = Object(target);
+      source = Object(source);
+      Object.keys(source).forEach(function(key) {
+        var desc = Object.getOwnPropertyDescriptor(source, key);
+        Object.defineProperty(target, key, desc);
+      });
+      return target;
+    });
+
 
   //----------------------------------------
   // 15.4 Array Objects
@@ -174,6 +222,9 @@
   defineFunctionProperty(
     Array, 'from',
     function from(arrayLike) {
+      var mapfn = arguments[1];
+      var thisArg = arguments[2];
+
       var items = Object(arrayLike);
       var lenValue = items.length;
       var len = ECMAScript.ToUint32(lenValue);
@@ -186,7 +237,11 @@
       }
       var k = 0;
       while (k < len) {
-        a[k] = items[k];
+        var item = items[k];
+        if (mapfn) {
+          item = mapfn.call(thisArg, item);
+        }
+        a[k] = item;
         k += 1;
       }
       a.length = len;
@@ -646,7 +701,8 @@
         if (!ECMAScript.IsCallable(adder)) { throw new TypeError(); }
       }
       obj._mapData = { keys: [], values: [] };
-      obj._mapComparator = (String(comparator) === 'is') ? Object.is : Map.defaultComparator;
+      if (comparator !== (void 0) && comparator !== "is") { throw new TypeError(); }
+      obj._mapComparator = (comparator === 'is') ? Object.is : Map.defaultComparator;
 
       if (iterable === (void 0)) {
         return obj;
@@ -688,9 +744,7 @@
       return -1;
     }
 
-    Map.defaultComparator = function defaultComparator(a, b) {
-      return a === b;
-    };
+    Map.defaultComparator = ECMAScript.SameValueZero;
 
     // 15.14.5 Properties of the Map Prototype Object
 
@@ -1011,7 +1065,8 @@
         if (!ECMAScript.IsCallable(adder)) { throw new TypeError(); }
       }
       obj._setData = [];
-      obj._setComparator = (String(comparator) === 'is') ? Object.is : Set.defaultComparator;
+      if (comparator !== (void 0) && comparator !== "is") { throw new TypeError(); }
+      obj._setComparator = (comparator === 'is') ? Object.is : Set.defaultComparator;
       if (iterable === (void 0)) {
         return obj;
       }
@@ -1051,9 +1106,7 @@
       return -1;
     }
 
-    Set.defaultComparator = function defaultComparator(a, b) {
-      return a === b;
-    };
+    Set.defaultComparator = ECMAScript.SameValueZero;
 
     // 15.16.5 Properties of the Set Prototype Object
 
@@ -1434,12 +1487,6 @@
   // ECMAScript Strawman Proposals
   //
   //----------------------------------------------------------------------
-
-  defineFunctionProperty(
-    Object, 'is',
-    function is(x, y) {
-      return ECMAScript.SameValue(x, y);
-    });
 
   // http://wiki.ecmascript.org/doku.php?id=strawman:number_compare
   defineFunctionProperty(
