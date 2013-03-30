@@ -599,7 +599,7 @@ if ('window' in this && 'document' in this) {
   // http://www.w3.org/TR/animation-timing/
   (function() {
     var TARGET_FPS = 60,
-        requests = {},
+        requests = Object.create(null),
         raf_handle = 1,
         timeout_handle = -1;
 
@@ -608,19 +608,17 @@ if ('window' in this && 'document' in this) {
     }
 
     function onFrameTimer() {
-      var cur_requests = requests, id, request;
+      var cur_requests = requests;
 
       requests = Object.create(null);
       timeout_handle = -1;
 
-      for (id in cur_requests) {
-        if (Object.prototype.hasOwnProperty.call(cur_requests, id)) {
-          request = cur_requests[id];
-          if (!request.element || isVisible(request.element)) {
-            request.callback(Date.now());
-          }
+      Object.keys(cur_requests).forEach(function(id) {
+        var request = cur_requests[id];
+        if (!request.element || isVisible(request.element)) {
+          request.callback(Date.now());
         }
-      }
+      });
     }
 
     function requestAnimationFrame(callback, element) {
