@@ -56,12 +56,12 @@ if (typeof Object.getOwnPropertyNames !== "function") {
 if (typeof Object.create !== "function") {
   Object.create = function (prototype, properties) {
     "use strict";
-    if (prototype !== Object(prototype)) { throw new TypeError(); }
+    if (typeof prototype !== "object") { throw new TypeError(); }
     /** @constructor */
     function Ctor() {}
     Ctor.prototype = prototype;
     var o = new Ctor();
-    o.constructor = Ctor;
+    if (prototype) { o.constructor = Ctor; }
     if (arguments.length > 1) {
       if (properties !== Object(properties)) { throw new TypeError(); }
       Object.defineProperties(o, properties);
