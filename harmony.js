@@ -682,6 +682,17 @@
       return r + (r * (t-r) / (2*r + t));
     });
 
+  // from https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Math/imul
+  defineFunctionProperty(
+    Math, 'imul',
+    function imul(a, b) {
+      var ah  = (a >>> 16) & 0xffff;
+      var al = a & 0xffff;
+      var bh  = (b >>> 16) & 0xffff;
+      var bl = b & 0xffff;
+      return ((al * bl) + (((ah * bl + al * bh) << 16) >>> 0)|0);
+    });
+
   //----------------------------------------
   // 15.14 Map Objects
   //----------------------------------------
