@@ -17,18 +17,12 @@ if (is_mac) {
 
   toArray(document.querySelectorAll('.Win')).forEach(
     function (e) {
-      var cl = getClassList(e);
-      cl.remove('Win');
-      cl.add('Meta');
       e.innerHTML = '&#x2318;';
     });
-  toArray(document.querySelectorAll('.Apps')).forEach(
-    function (e) {
-      e.style.visibility = 'hidden';
-    });
+
 } else if (is_cros) {
 
-  toArray(document.querySelectorAll('.Win,.Apps')).forEach(
+  toArray(document.querySelectorAll('.Win,.Context')).forEach(
     function (e) {
       e.style.visibility = 'hidden';
     });
@@ -45,16 +39,20 @@ function ancestorHasClass(node, className) {
 }
 
 function select(event) {
-  var id = event.keyName;
-  if (!RegExp('^[A-Za-z]').test(id)) {
-    id = 'k' + id;
-  }
+  var id = event.code;
+  console.log("id: " + id);
+  return toArray(document.querySelectorAll('.' + id));
 
+  // Can't override |location| on KeyboardEvent in some browsers, so it
+  // may be wrong, e.g. NumLock in moz-mac
+
+  /*
   if (event.keyLocation === KeyboardEvent.DOM_KEY_LOCATION_NUMPAD) {
     return toArray(document.querySelectorAll('.numpad .' + id));
   } else {
-    return toArray(document.querySelectorAll('.standard .' + id));
-  }
+   return toArray(document.querySelectorAll('.standard .' + id));
+   }
+   */
 }
 
 var target = document.getElementById('target');
@@ -81,16 +79,26 @@ target.addEventListener('blur',
            lastKey = -1;
          });
 
+function hex(x, w) {
+  if (!w) { w = 2; }
+  return '0x' + ((new Array(w+1).join('0') + Number(x).toString(16)).slice(-w));
+}
+
 function show(selector, e) {
   var elem = document.querySelector(selector),
       data = {
+        code: e.code,
+        location: e.location,
+        cap: e.queryKeyCap ? e.queryKeyCap(e.code) : undefined,
+        key: e.key,
+        char: e.char,
         keyChar: e.keyChar,
-        keyCode: e.keyCode,
+        keyCode: hex(e.keyCode),
         keyIdentifier: e.keyIdentifier,
         keyLocation: e.keyLocation,
         keyName: e.keyName,
-        usbUsage: e.usbUsage !== undefined ? "0x" + Number(e.usbUsage).toString(16) : undefined,
-        which: e.which,
+        usbUsage: e.usbUsage !== undefined ? hex(e.usbUsage, 6) : undefined,
+        which: hex(e.which),
         altKey: e.altKey,
         charCode: e.charCode,
         ctrlKey: e.ctrlKey,
@@ -104,42 +112,63 @@ function show(selector, e) {
   var s = Object.keys(data).filter(function(k){
     return typeof data[k] !== 'undefined';
   }).map(function(k){
-    return k + ": " + data[k];
-  }).join(", ");
-  elem.appendChild(document.createTextNode(s));
+    return k + ": " + data[k] + "\n";
+  });
+  elem.appendChild(document.createTextNode(s.join('')));
 }
 
-target.addEventListener('keydown',
-         function (e) {
-           lastKey = e.keyCode;
+target.addEventListener(
+  'keydown',
+  function (e) {
+    lastKey = e.keyCode;
 
-           show('#eventdata', e);
+    show('#eventdata', e);
+    identifyKey(e);
+    show('#identifydata', e);
 
-           identifyKey(e);
+    select(e).forEach(
+      function (elem) {
+        elem.style.backgroundColor = 'red';
+      });
 
-           show('#identifydata', e);
+    e.preventDefault();
+    e.stopPropagation();
+  });
 
-           select(e).forEach(
-             function (elem) {
-               elem.style.backgroundColor = 'red';
-             });
+target.addEventListener(
+  'keyup',
+  function (e) {
 
-           e.preventDefault();
-           e.stopPropagation();
-         });
+    if (lastKey == e.keyCode) { lastKey = -1; }
 
-target.addEventListener('keyup',
-         function (e) {
-           if (lastKey == e.keyCode) { lastKey = -1; }
-           identifyKey(e);
+    show('#eventdata', e);
+    identifyKey(e);
+    show('#identifydata', e);
 
-           select(e).forEach(
-             function (elem) {
-               elem.style.backgroundColor = '#aaaaaa';
-             });
+    select(e).forEach(
+      function (elem) {
+        elem.style.backgroundColor = '#ffaaaa';
+        setTimeout(function() {
+          elem.style.backgroundColor = '#aaaaaa';
+        }, 200);
+      });
 
-           e.preventDefault();
-           e.stopPropagation();
-         });
+    e.preventDefault();
+    e.stopPropagation();
+  });
+
+target.addEventListener(
+  'keypress',
+  function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  });
+
+target.addEventListener(
+  'contextmenu',
+  function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  });
 
 target.focus();
