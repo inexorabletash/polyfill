@@ -1,8 +1,7 @@
-Unless otherwise stated, the code provided here is in the Public Domain; no attribution necessary, and no warranty given.
+Unless otherwise stated, the code provided here is in the **Public Domain**; no attribution necessary, and no warranty given.
 
 
-Typed Arrays - typesarray.js
-----------------------------
+### Typed Arrays - typedarray.js
 Copyright (C) 2010 Linden Research, Inc.
 Originally published at: https://bitbucket.org/lindenlab/llsd/
 
