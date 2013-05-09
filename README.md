@@ -18,7 +18,7 @@ ECMAScript 5 & Browser Compat
 Bundled together; nearly every page I create needs at least some of these. These will change over time, 
 and going forward I will only target IE8 and later.
 
-* ECMAScript 5 Object, Function, String and Date extras
+* [ECMAScript 5](http://www.ecma-international.org/publications/standards/Ecma-262.htm) Object, Function, String and Date extras
   * Object: `getPrototypeOf`, `getOwnPropertyNames`, `create`, `defineProperty`, `defineProperties`, `keys`
   * Function prototype: `bind`
   * Array: `isArray`
@@ -48,10 +48,10 @@ and going forward I will only target IE8 and later.
 * [DOM Miscellany](http://dom.spec.whatwg.org/)
   * `document.head`
   * `elementArray = document.getElementsByClassName(classNames)`
-* HTML Web Application APIs (shim for IE9-)
+* [HTML Web Application APIs](http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#atob) (for IE9-)
   * `encodedString = window.btoa(binaryString)` - Base64 Encode
   * `binaryString = window.atob(encodedString)` - Base64 Decode
-* HTML5 Infrastructure - `classList`, `relList`
+* [HTML5 Infrastructure](http://dom.spec.whatwg.org/#interface-domtokenlist) - `classList`[spec](http://dom.spec.whatwg.org/#dom-element-classlist), `relList`[spec](http://www.whatwg.org/specs/web-apps/current-work/#dom-link-rellist)
   * `tokenList = elem.classList` - for IE8+
   * `tokenList = elem.relList` - for IE8+
   * `tokenList = window.getClassList(element)` - helper for IE7- support
@@ -62,16 +62,16 @@ and going forward I will only target IE8 and later.
   * `tokenList.add(token)`
   * `tokenList.remove(token)`
   * `tokenList.toggle(token)`
-* W3C Timing control for script-based animations - [demo page](http://calormen.com/polyfill/raf.html)
+* [W3C Timing control for script-based animations](http://www.w3.org/TR/animation-timing/) - [demo page](http://calormen.com/polyfill/raf.html)
   * `id = window.requestAnimationFrame()`
   * `window.cancelAnimationFrame(id)`
-* Efficient Script Yielding
+* [Efficient Script Yielding](https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html)
   * `id = setImmediate(callback, args...)`
   * `clearImmediate(id)`
-* `dataset` and `data-*` attributes (for IE8+, not available in IE7-)
+* `dataset` and `data-*` attributes [spec](http://www.whatwg.org/specs/web-apps/current-work/multipage/elements.html#embedding-custom-non-visible-data-with-the-data-*-attributes) (for IE8+, not available in IE7-)
   * `str = element.dataset[key]` - yields undefined if data-key attribute not present
   * `element.dataset[key] = str` - fails unless data-key attribute already present
-* JavaScript 1.X String Extras
+* [JavaScript 1.X String Extras](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String)
   * String prototype: `trimLeft`, `trimRight`, `quote`
 
 
@@ -84,7 +84,7 @@ ECMAScript 6 / "Harmony" (polyfill)
 The standardization of ES6 is currently in progress.  
 This will attempt to track the evolving spec, so may change at any time.
 
-In the ES6 Drafts:
+In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts):
 * Object: `assign()`, `is()`
 * Number: `EPILON`, `MAX_INTEGER`, `parseInt()`, `parseFloat()`, `isFinite()`, `isNaN()`, `isInteger()`, `toInteger()`
 * Number prototype: `clz()`
@@ -99,8 +99,8 @@ In the ES6 Drafts:
 
 Not yet approved:
 * Number: `compare()`
-* Array prototype: `pushAll()`, `contains()` [ref]
-* String prototype: `@@iterator()` [ref]
+* Array prototype: `pushAll()`, `contains()` [ref](https://mail.mozilla.org/pipermail/es-discuss/2011-December/019099.html)
+* String prototype: `@@iterator()` [ref](http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html)
 * Dict: `keys(dict)`, `values(dict)`, `entries(dict)`
   * `dict()` is shortcut for `Object.create(null)`
 * Symbol: `Symbol`, `isSymbol`
