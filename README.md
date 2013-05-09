@@ -38,38 +38,38 @@ Bundled together; nearly every page I create needs at least some of these. These
   * `document.head`
   * `elementArray = document.getElementsByClassName(classNames)`
 * HTML Web Application APIs (shim for IE9-)
-  * encodedString = window.btoa(binaryString) - Base64 Encode
-  * binaryString = window.atob(encodedString) - Base64 Decode
-* HTML5 Infrastructure - classList, relList (shim/helpers)
-  * tokenList = elem.classList - shim for IE8+
-  * tokenList = elem.relList - shim for IE8+
-  * tokenList = window.getClassList(element) - helper for IE7- support
-  * tokenList = window.getRelList(element) - helper for IE7- support
-  * tokenList.length
-  * tokenList.item(index)
-  * tokenList.contains(token)
-  * tokenList.add(token)
-  * tokenList.remove(token)
-  * tokenList.toggle(token)
+  * `encodedString = window.btoa(binaryString)` - Base64 Encode
+  * `binaryString = window.atob(encodedString)` - Base64 Decode
+* HTML5 Infrastructure - `classList`, `relList` (shim/helpers)
+  * `tokenList = elem.classList` - shim for IE8+
+  * `tokenList = elem.relList` - shim for IE8+
+  * `tokenList = window.getClassList(element)` - helper for IE7- support
+  * `tokenList = window.getRelList(element)` - helper for IE7- support
+  * `tokenList.length`
+  * `tokenList.item(index)`
+  * `tokenList.contains(token)`
+  * `tokenList.add(token)`
+  * `tokenList.remove(token)`
+  * `tokenList.toggle(token)`
 * W3C Timing control for script-based animations (shim) - demo page
-  * id = window.requestAnimationFrame()
-  * window.cancelAnimationFrame(id)
+  * `id = window.requestAnimationFrame()`
+  * `window.cancelAnimationFrame(id)`
 * Efficient Script Yielding (shim)
-  * id = setImmediate(callback, args...)
-  * clearImmediate(id)
-* dataset and data-* attributes (shims for IE8+, not available in IE7-)
-  * str = element.dataset[key] - yields undefined if data-key attribute not present
-  * element.dataset[key] = str - fails unless data-key attribute already present
+  * `id = setImmediate(callback, args...)`
+  * `clearImmediate(id)`
+* `dataset` and `data-*` attributes (shims for IE8+, not available in IE7-)
+  * `str = element.dataset[key]` - yields undefined if data-key attribute not present
+  * `element.dataset[key] = str` - fails unless data-key attribute already present
 * JavaScript 1.X String Extras (shim)
-  * String prototype: trimLeft, trimRight, quote
+  * String prototype: `trimLeft`, `trimRight`, `quote`
 * ECMAScript 5 Object, Function, String and Date extras (shim)
-  * Object: getPrototypeOf, getOwnPropertyNames, create, defineProperty, defineProperties, keys
-  * Function prototype: bind
-  * Array: isArray
-  * Array prototype: indexOf, lastIndexOf, every, some, forEach, map, filter, reduce, reduceRight
-  * String prototype: trim
-  * Date: now
-  * Date prototype: toISOString
+  * Object: `getPrototypeOf`, `getOwnPropertyNames`, `create`, `defineProperty`, `defineProperties`, `keys`
+  * Function prototype: `bind`
+  * Array: `isArray`
+  * Array prototype: `indexOf`, `lastIndexOf`, `every`, `some`, `forEach`, `map`, `filter`, `reduce`, `reduceRight`
+  * String prototype: `trim`
+  * Date: `now`
+  * Date prototype: `toISOString`
 
 ECMAScript 6 / "Harmony" (polyfill)
 -----------------------------------
@@ -78,28 +78,29 @@ ECMAScript 6 / "Harmony" (polyfill)
 script - unit tests - wiki
 
 In the ES6 Drafts:
-* Object: assign(), is()
-* Number: EPILON, MAX_INTEGER, parseInt(), parseFloat(), isFinite(), isNaN(), isInteger(), toInteger()
-* Number prototype: clz(),
-* String: fromCodePoint()
-* String.prototype: codePointAt() repeat(), startsWith(), endsWith(), contains(),
-* Math: log10(), log2(), log1p(), expm1(), cosh(), sinh(), tanh(), acosh(), asinh(), atanh(), hypot(), trunc(), sign(), cbrt() imul()
-* Array: of(), from()
-* Array prototype: items(), keys(), values(), @@iterator()
-* Map: clear(), delete(), forEach(), get(), has(), items(), keys(), set(), size, values(), @@iterator()
-* Set: add(), clear(), delete(), forEach(), has(), size, values(), @@iterator()
-* WeakMap (intrusive; modifies valueOf property of key): clear(), delete(), get(), has(), set()
+* Object: `assign()`, `is()`
+* Number: `EPILON`, `MAX_INTEGER`, `parseInt()`, `parseFloat()`, `isFinite()`, `isNaN()`, `isInteger()`, `toInteger()`
+* Number prototype: `clz()`
+* String: `fromCodePoint()`
+* String.prototype: `codePointAt()`, `repeat()`, `startsWith()`, `endsWith()`, `contains()`
+* Math: `log10()`, `log2()`, `log1p()`, `expm1()`, `cosh()`, `sinh()`, `tanh()`, `acosh()`, `asinh()`, `atanh()`, `hypot()`, `trunc()`, `sign()`, `cbrt()`, `imul()`
+* Array: `of()`, `from()`
+* Array prototype: `items()`, `keys()`, `values()`, `@@iterator()`
+* Map: `clear()`, `delete()`, `forEach()`, `get()`, `has()`, `items()`, `keys()`, `set()`, `size`, `values()`, `@@iterator()`
+* Set: `add()`, `clear()`, `delete()`, `forEach()`, `has()`, `size`, `values()`, `@@iterator()`
+* WeakMap (intrusive; modifies valueOf property of key): `clear()`, `delete()`, `get()`, `has()`, `set()`
 Not yet approved:
-* Number: compare()
-* Array prototype: pushAll(), contains() [ref]
-* String prototype: @@iterator() [ref]
-* WeakSet (intrusive; modifies valueOf property of key): add(), clear(), delete(), has(),
-* Dict: keys(dict), values(dict) entries(dict)
-* dict() is shortcut for Object.create(null).
-* Symbol Symbol, isSymbol
+* Number: `compare()`
+* Array prototype: `pushAll()`, `contains()` [ref]
+* String prototype: `@@iterator()` [ref]
+* Dict: `keys(dict)`, `values(dict)`, `entries(dict)`
+  * `dict()` is shortcut for `Object.create(null)`
+* Symbol: `Symbol`, `isSymbol`
   * No security, just creates an object with a unique string representation.
 Helpers:
-* forOf(o, function(i) { ... }) - since for (i of o) { ... } can't be polyfilled. Uses iterators, so works with arrays, maps, sets, and strings, via implicit @@iterator and explicit iterators returned by keys/values/entries methods and functions.
+* `forOf(o, function(i) { ... })` - since `for (i of o) { ... }` can't be polyfilled. Uses iterators, so works with arrays, maps, sets, and strings, via implicit @@iterator and explicit iterators returned by keys/values/entries methods and functions.
+
+*NOTE: Uses old StopIteration iterator style. Need to update to latest TC39 consensus design.*
 
 WHATWG URL API (shim)
 ---------------------
