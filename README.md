@@ -108,6 +108,14 @@ Helpers:
 
 *NOTE: Uses old StopIteration iterator style. Need to update to latest TC39 consensus design.*
 
+Binary Data
+-----------
+[script](https://github.com/inexorabletash/polyfill/blob/master/bindata.js) -
+[tests](http://calormen.com/polyfill/bindata.html)
+
+Proposed for ES6 - http://wiki.ecmascript.org/doku.php?id=harmony:binary_data
+
+
 WHATWG URL API (shim)
 ---------------------
 [script](https://github.com/inexorabletash/polyfill/blob/master/url.js) -
