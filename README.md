@@ -76,7 +76,7 @@ and going forward I will only target IE8 and later.
 
 ECMAScript 6 / "Harmony" (polyfill)
 -----------------------------------
-[script](https://github.com/inexorabletash/polyfill/edit/master/harmony.js) - 
+[script](https://github.com/inexorabletash/polyfill/blob/master/harmony.js) - 
 [unit tests](http://calormen.com/polyfill/harmony.html)
 
 "Harmony" is the aspirational term for the future of ECMAScript (the standardized version of JavaScript) beyond ES5. 
@@ -110,7 +110,7 @@ Helpers:
 
 WHATWG URL API (shim)
 ---------------------
-[script](https://github.com/inexorabletash/polyfill/edit/master/url.js) -
+[script](https://github.com/inexorabletash/polyfill/blob/master/url.js) -
 [unit tests](http://calormen.com/polyfill/url.html) -
 [draft spec](http://url.spec.whatwg.org/) - See script for cross-browser quirks
 
@@ -135,7 +135,7 @@ URL objects have properties:
 
 W3C Keyboard Events (helper)
 ----------------------------
-[script](https://github.com/inexorabletash/polyfill/edit/master/keyboard.js) - 
+[script](https://github.com/inexorabletash/polyfill/blob/master/keyboard.js) - 
 [interactive test](http://calormen.com/polyfill/keyboard.html) - 
 [draft spec](https://dvcs.w3.org/hg/d4e/raw-file/tip/source_respec.htm#keyboard-events)
 
@@ -167,7 +167,7 @@ adapted from [Remy Sharp](https://gist.github.com/350433)
 
 W3C Geolocation API (Level 1) (shim)
 ------------------------------------
-[script](https://github.com/inexorabletash/polyfill/edit/master/geo.js) - 
+[script](https://github.com/inexorabletash/polyfill/blob/master/geo.js) - 
 [demo page](http://calormen.com/polyfill/geo.html) - 
 [spec](http://dev.w3.org/geo/api/spec-source) - 
 uses [freegeoip.net](http://freegeoip.net/)
@@ -176,15 +176,17 @@ uses [freegeoip.net](http://freegeoip.net/)
     watchId = navigator.geolocation.watchPosition(successCallback, errorCallback, options);
     navigator.geolocation.clearWatch(watchId);
 
+
 W3C Workers (shim)
 ------------------
-[script](https://github.com/inexorabletash/polyfill/edit/master/workers.js) - 
+[script](https://github.com/inexorabletash/polyfill/blob/master/workers.js) - 
 [spec](http://dev.w3.org/html5/workers/) - 
 just for kicks; you probably don't want to use this
 
+
 Cookie API (shim)
 -----------------
-[script](https://github.com/inexorabletash/polyfill/edit/master/cookie.js) - 
+[script](https://github.com/inexorabletash/polyfill/blob/master/cookie.js) - 
 Adam Barth's [Cookie API proposal](https://docs.google.com/Doc?docid=0AZpchfQ5mBrEZGQ0cDh3YzRfMTRmdHFma21kMg&hl=en&pli=1) -
 abandoned
 
@@ -199,7 +201,7 @@ abandoned
 
 Console (shim)
 --------------
-[script](https://github.com/inexorabletash/polyfill/edit/master/console.js) - 
+[script](https://github.com/inexorabletash/polyfill/blob/master/console.js) - 
 [unit tests](http://calormen.com/polyfill/console.html) - 
 *de facto* standard in modern browsers
 
@@ -214,15 +216,16 @@ Console (shim)
 
 sprintf (other)
 ---------------
-[script](https://github.com/inexorabletash/polyfill/edit/master/sprintf.js) - 
+[script](https://github.com/inexorabletash/polyfill/blob/master/sprintf.js) - 
 [unit tests](http://calormen.com/polyfill/sprintf.html) - 
 used for a few C-to-JavaScript porting projects
 
     var str = sprintf("Foo %s bar %d", "hello", 123);
 
+
 Khronos Typed Arrays (polyfill)
 -------------------------------
-[script](https://github.com/inexorabletash/polyfill/edit/master/typedarray.js) - 
+[script](https://github.com/inexorabletash/polyfill/blob/master/typedarray.js) - 
 [unit tests](http://calormen.com/polyfill/typedarray.html) - 
 [spec](http://www.khronos.org/registry/typedarray/specs/latest/)
 
