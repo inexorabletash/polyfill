@@ -1,5 +1,5 @@
-polyfill - JavaScript Polyfills, Prollyfills, Shims and More
-------------------------------------------------------------
+polyfill - JavaScript Polyfills, Shims and More
+===============================================
 
 * A *shim* lets you write the same code across all browsers by implementing a new API in downlevel browsers.
 * A *polyfill* is a shim or collection of shims (and a catchy name).
@@ -11,9 +11,12 @@ Note that my general approach to polyfills is not to produce 100% compliant beha
 I use these in various pages on my sites; most are by me, or I have at least tweaked them. A more comprehensive list can be found at [The All-In-One Entirely-Not-Alphabetical No-Bullshit Guide to HTML5 Fallbacks](https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills) by Paul Irish.
 
 Browser Compat & ECMAScript 5 Polyfill
-======================================
-Bundled together; nearly every page I create needs at least some of these. These will change over time, and going forward I will only target IE8 and later.
+--------------------------------------
+[script](https://github.com/inexorabletash/polyfill/blob/master/polyfill.js) - 
+[tests](http://calormen.com/polyfill/polyfill.html)
 
+Bundled together; nearly every page I create needs at least some of these. These will change over time, 
+and going forward I will only target IE8 and later.
 
 * [`XMLHttpRequest`](http://xhr.spec.whatwg.org/) (shim for IE6-)
 * [Selector API](http://www.w3.org/TR/selectors-api/) (shim for IE7-) - adapted from [Paul Young](http://ajaxian.com/archives/creating-a-queryselector-for-ie-that-runs-at-native-speed)
@@ -73,9 +76,12 @@ Bundled together; nearly every page I create needs at least some of these. These
 
 ECMAScript 6 / "Harmony" (polyfill)
 -----------------------------------
-"Harmony" is the aspirational term for the future of ECMAScript (the standardized version of JavaScript) beyond ES5. The standardization of ES6 is currently in progress. This will attempt to track the evolving spec, so may change at any time.
+[script](https://github.com/inexorabletash/polyfill/edit/master/harmony.js) - 
+[unit tests](http://calormen.com/polyfill/harmony.html)
 
-script - unit tests - wiki
+"Harmony" is the aspirational term for the future of ECMAScript (the standardized version of JavaScript) beyond ES5. 
+The standardization of ES6 is currently in progress.  
+This will attempt to track the evolving spec, so may change at any time.
 
 In the ES6 Drafts:
 * Object: `assign()`, `is()`
@@ -104,7 +110,9 @@ Helpers:
 
 WHATWG URL API (shim)
 ---------------------
-script - unit tests - draft spec - See script for cross-browser quirks
+[script](https://github.com/inexorabletash/polyfill/edit/master/url.js) -
+[unit tests](http://calormen.com/polyfill/url.html) -
+[draft spec](http://url.spec.whatwg.org/) - See script for cross-browser quirks
 
     url = new URL(url, base)
     value = url.getParameter(name)
@@ -127,7 +135,9 @@ URL objects have properties:
 
 W3C Keyboard Events (helper)
 ----------------------------
-script - interactive test - draft spec
+[script](https://github.com/inexorabletash/polyfill/edit/master/keyboard.js) - 
+[interactive test](http://calormen.com/polyfill/keyboard.html) - 
+[draft spec](https://dvcs.w3.org/hg/d4e/raw-file/tip/source_respec.htm#keyboard-events)
 
     // In your keydown/keyup handler, call:
     window.identifyKey(keyboardEvent); 
@@ -141,7 +151,9 @@ script - interactive test - draft spec
 
 W3C Web Storage (shim)
 ----------------------
-script - spec - adapted from Remy Sharp
+[script](http://calormen.com/polyfill/storage.js) - 
+[spec](http://dev.w3.org/html5/webstorage/) - 
+adapted from [Remy Sharp](https://gist.github.com/350433)
 
     storage = window.localStorage
     storage = window.sessionStorage
@@ -155,7 +167,10 @@ script - spec - adapted from Remy Sharp
 
 W3C Geolocation API (Level 1) (shim)
 ------------------------------------
-script - demo page - spec - uses freegeoip.net
+[script](https://github.com/inexorabletash/polyfill/edit/master/geo.js) - 
+[demo page](http://calormen.com/polyfill/geo.html) - 
+[spec](http://dev.w3.org/geo/api/spec-source) - 
+uses [freegeoip.net](http://freegeoip.net/)
 
     navigator.geolocation.getCurrentPosition(successCallback, errorCallback, options);
     watchId = navigator.geolocation.watchPosition(successCallback, errorCallback, options);
@@ -163,11 +178,15 @@ script - demo page - spec - uses freegeoip.net
 
 W3C Workers (shim)
 ------------------
-script - spec - just for kicks; you probably don't want to use this
+[script](https://github.com/inexorabletash/polyfill/edit/master/workers.js) - 
+[spec](http://dev.w3.org/html5/workers/) - 
+just for kicks; you probably don't want to use this
 
 Cookie API (shim)
 -----------------
-script - Adam Barth's Cookie API proposal - abandoned
+[script](https://github.com/inexorabletash/polyfill/edit/master/cookie.js) - 
+Adam Barth's [Cookie API proposal](https://docs.google.com/Doc?docid=0AZpchfQ5mBrEZGQ0cDh3YzRfMTRmdHFma21kMg&hl=en&pli=1) -
+abandoned
 
     cookie = document.getCookie(name, callback);
     alert(cookie.name);
@@ -180,7 +199,9 @@ script - Adam Barth's Cookie API proposal - abandoned
 
 Console (shim)
 --------------
-script - unit tests - de facto standard in modern browsers
+[script](https://github.com/inexorabletash/polyfill/edit/master/console.js) - 
+[unit tests](http://calormen.com/polyfill/console.html) - 
+*de facto* standard in modern browsers
 
     console.log(messageObject, arguments...); // and variations: debug, info, warn, error
     console.assert(assertion, messageObject, arguments...);
@@ -193,22 +214,31 @@ script - unit tests - de facto standard in modern browsers
 
 sprintf (other)
 ---------------
-script - unit tests - used for a few C-to-JavaScript porting projects
+[script](https://github.com/inexorabletash/polyfill/edit/master/sprintf.js) - 
+[unit tests](http://calormen.com/polyfill/sprintf.html) - 
+used for a few C-to-JavaScript porting projects
+
+    var str = sprintf("Foo %s bar %d", "hello", 123);
 
 Khronos Typed Arrays (polyfill)
 -------------------------------
-script - unit tests - spec - Copyright © 2010 Linden Research, Inc. - MIT License. original - At my previous place of employment I was doing work on binary file serialization/parsing in JavaScript and Typed Arrays were an appropriate fit, but had not yet been widely implemented. - the DataView implementation will also polyfill an otherwise native implementation, if necessary.
+[script](https://github.com/inexorabletash/polyfill/edit/master/typedarray.js) - 
+[unit tests](http://calormen.com/polyfill/typedarray.html) - 
+[spec](http://www.khronos.org/registry/typedarray/specs/latest/)
 
 * `ArrayBuffer`
 * `Uint8Array`, `Int8Array, `Uint16Array`, `Int16Array`, `Uint32Array`, `Int32Array`, `Float32Array`, `Float64Array`
 * `DataView`
 
-
 DOMException (helper)
 ---------------------
-script - demo page - creates a native DOMException of the specified type if possible, otherwise a similar looking object. Useful when implementing other polyfills.
+[script](https://github.com/inexorabletash/polyfill/edit/master/domexception.js) - 
+[demo page](http://calormen.com/polyfill/domexception.html) - 
 
-exception = DOMException.create(code)
+Creates a native DOMException of the specified type if possible,
+otherwise a similar looking object. Useful when implementing other polyfills.
+
+    exception = DOMException.create(code)
 
 
 
