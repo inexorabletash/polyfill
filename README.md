@@ -10,22 +10,30 @@ Note that my general approach to polyfills is not to produce 100% compliant beha
 
 I use these in various pages on my sites; most are by me, or I have at least tweaked them. A more comprehensive list can be found at [The All-In-One Entirely-Not-Alphabetical No-Bullshit Guide to HTML5 Fallbacks](https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills) by Paul Irish.
 
-Browser Compat & ECMAScript 5 Polyfill
---------------------------------------
+ECMAScript 5 & Browser Compat
+-----------------------------
 [script](https://github.com/inexorabletash/polyfill/blob/master/polyfill.js) - 
 [tests](http://calormen.com/polyfill/polyfill.html)
 
 Bundled together; nearly every page I create needs at least some of these. These will change over time, 
 and going forward I will only target IE8 and later.
 
-* [`XMLHttpRequest`](http://xhr.spec.whatwg.org/) (shim for IE6-)
-* [Selector API](http://www.w3.org/TR/selectors-api/) (shim for IE7-) - adapted from [Paul Young](http://ajaxian.com/archives/creating-a-queryselector-for-ie-that-runs-at-native-speed)
+* ECMAScript 5 Object, Function, String and Date extras
+  * Object: `getPrototypeOf`, `getOwnPropertyNames`, `create`, `defineProperty`, `defineProperties`, `keys`
+  * Function prototype: `bind`
+  * Array: `isArray`
+  * Array prototype: `indexOf`, `lastIndexOf`, `every`, `some`, `forEach`, `map`, `filter`, `reduce`, `reduceRight`
+  * String prototype: `trim`
+  * Date: `now`
+  * Date prototype: `toISOString`
+* [`XMLHttpRequest`](http://xhr.spec.whatwg.org/) (for IE6-)
+* [Selector API](http://www.w3.org/TR/selectors-api/) (for IE7-) - adapted from [Paul Young](http://ajaxian.com/archives/creating-a-queryselector-for-ie-that-runs-at-native-speed)
   * `element = document.querySelector(selector)`
   * `elementArray = document.querySelectorAll(selector)`
-* [DOM Events](http://dom.spec.whatwg.org/) (shim/helpers)
+* [DOM Events](http://dom.spec.whatwg.org/)
   * Where `EventTarget` is `window`, `document`, or any element:
-  * `EventTarget.addEventListener(event, handler)` - shim for IE8+
-  * `EventTarget.removeEventListener(event, handler)` - shim for IE8+
+  * `EventTarget.addEventListener(event, handler)` - for IE8+
+  * `EventTarget.removeEventListener(event, handler)` - for IE8+
   * `window.addEvent(EventTarget, event, handler)` - helper for IE7- support - adapted from [QuirksMode](http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html)
   * `window.removeEvent(EventTarget, event, handler)` - helper for IE7- support - adapted from [QuirksMode](http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html)
   * `Event.target`
@@ -37,15 +45,15 @@ and going forward I will only target IE8 and later.
   * `Event.defaultPrevented`
   * `Event.stopPropagation()`
   * `Event.cancelBubble()`
-* [DOM Miscellany](http://dom.spec.whatwg.org/) (shim)
+* [DOM Miscellany](http://dom.spec.whatwg.org/)
   * `document.head`
   * `elementArray = document.getElementsByClassName(classNames)`
 * HTML Web Application APIs (shim for IE9-)
   * `encodedString = window.btoa(binaryString)` - Base64 Encode
   * `binaryString = window.atob(encodedString)` - Base64 Decode
-* HTML5 Infrastructure - `classList`, `relList` (shim/helpers)
-  * `tokenList = elem.classList` - shim for IE8+
-  * `tokenList = elem.relList` - shim for IE8+
+* HTML5 Infrastructure - `classList`, `relList`
+  * `tokenList = elem.classList` - for IE8+
+  * `tokenList = elem.relList` - for IE8+
   * `tokenList = window.getClassList(element)` - helper for IE7- support
   * `tokenList = window.getRelList(element)` - helper for IE7- support
   * `tokenList.length`
@@ -54,25 +62,18 @@ and going forward I will only target IE8 and later.
   * `tokenList.add(token)`
   * `tokenList.remove(token)`
   * `tokenList.toggle(token)`
-* W3C Timing control for script-based animations (shim) - demo page
+* W3C Timing control for script-based animations - [demo page](http://calormen.com/polyfill/raf.html)
   * `id = window.requestAnimationFrame()`
   * `window.cancelAnimationFrame(id)`
-* Efficient Script Yielding (shim)
+* Efficient Script Yielding
   * `id = setImmediate(callback, args...)`
   * `clearImmediate(id)`
-* `dataset` and `data-*` attributes (shims for IE8+, not available in IE7-)
+* `dataset` and `data-*` attributes (for IE8+, not available in IE7-)
   * `str = element.dataset[key]` - yields undefined if data-key attribute not present
   * `element.dataset[key] = str` - fails unless data-key attribute already present
-* JavaScript 1.X String Extras (shim)
+* JavaScript 1.X String Extras
   * String prototype: `trimLeft`, `trimRight`, `quote`
-* ECMAScript 5 Object, Function, String and Date extras (shim)
-  * Object: `getPrototypeOf`, `getOwnPropertyNames`, `create`, `defineProperty`, `defineProperties`, `keys`
-  * Function prototype: `bind`
-  * Array: `isArray`
-  * Array prototype: `indexOf`, `lastIndexOf`, `every`, `some`, `forEach`, `map`, `filter`, `reduce`, `reduceRight`
-  * String prototype: `trim`
-  * Date: `now`
-  * Date prototype: `toISOString`
+
 
 ECMAScript 6 / "Harmony" (polyfill)
 -----------------------------------
@@ -95,6 +96,7 @@ In the ES6 Drafts:
 * Map: `clear()`, `delete()`, `forEach()`, `get()`, `has()`, `items()`, `keys()`, `set()`, `size`, `values()`, `@@iterator()`
 * Set: `add()`, `clear()`, `delete()`, `forEach()`, `has()`, `size`, `values()`, `@@iterator()`
 * WeakMap (intrusive; modifies valueOf property of key): `clear()`, `delete()`, `get()`, `has()`, `set()`
+
 Not yet approved:
 * Number: `compare()`
 * Array prototype: `pushAll()`, `contains()` [ref]
@@ -103,21 +105,33 @@ Not yet approved:
   * `dict()` is shortcut for `Object.create(null)`
 * Symbol: `Symbol`, `isSymbol`
   * No security, just creates an object with a unique string representation.
+
 Helpers:
 * `forOf(o, function(i) { ... })` - since `for (i of o) { ... }` can't be polyfilled. Uses iterators, so works with arrays, maps, sets, and strings, via implicit @@iterator and explicit iterators returned by keys/values/entries methods and functions.
 
 *NOTE: Uses old StopIteration iterator style. Need to update to latest TC39 consensus design.*
 
-Binary Data
------------
+### Binary Data
+
 [script](https://github.com/inexorabletash/polyfill/blob/master/bindata.js) -
 [tests](http://calormen.com/polyfill/bindata.html)
 
 Proposed for ES6 - http://wiki.ecmascript.org/doku.php?id=harmony:binary_data
 
 
-WHATWG URL API (shim)
----------------------
+Typed Arrays (polyfill)
+-----------------------
+[script](https://github.com/inexorabletash/polyfill/blob/master/typedarray.js) - 
+[unit tests](http://calormen.com/polyfill/typedarray.html) - 
+[spec](http://www.khronos.org/registry/typedarray/specs/latest/)
+
+* `ArrayBuffer`
+* `Uint8Array`, `Int8Array, `Uint16Array`, `Int16Array`, `Uint32Array`, `Int32Array`, `Float32Array`, `Float64Array`
+* `DataView`
+
+
+WHATWG URL API
+--------------
 [script](https://github.com/inexorabletash/polyfill/blob/master/url.js) -
 [unit tests](http://calormen.com/polyfill/url.html) -
 [draft spec](http://url.spec.whatwg.org/) - See script for cross-browser quirks
@@ -157,8 +171,9 @@ W3C Keyboard Events (helper)
     // You can get a label for the key using:
     KeyboardEvent.queryKeyCap(code);
 
-W3C Web Storage (shim)
-----------------------
+
+W3C Web Storage
+---------------
 [script](http://calormen.com/polyfill/storage.js) - 
 [spec](http://dev.w3.org/html5/webstorage/) - 
 adapted from [Remy Sharp](https://gist.github.com/350433)
@@ -173,8 +188,8 @@ adapted from [Remy Sharp](https://gist.github.com/350433)
     storage.length
 
 
-W3C Geolocation API (Level 1) (shim)
-------------------------------------
+W3C Geolocation API
+-------------------
 [script](https://github.com/inexorabletash/polyfill/blob/master/geo.js) - 
 [demo page](http://calormen.com/polyfill/geo.html) - 
 [spec](http://www.w3.org/TR/geolocation-API/) - 
@@ -185,15 +200,30 @@ uses [freegeoip.net](http://freegeoip.net/)
     navigator.geolocation.clearWatch(watchId);
 
 
-W3C Workers (shim)
-------------------
+W3C Workers
+-----------
 [script](https://github.com/inexorabletash/polyfill/blob/master/workers.js) - 
 [spec](http://dev.w3.org/html5/workers/) - 
 just for kicks; you probably don't want to use this
 
 
-Cookie API (shim)
------------------
+Console
+-------
+[script](https://github.com/inexorabletash/polyfill/blob/master/console.js) - 
+[unit tests](http://calormen.com/polyfill/console.html) - 
+*de facto* standard in modern browsers based on [FireBug Console API](http://getfirebug.com/wiki/index.php/Console_API)
+
+    console.log(messageObject, arguments...); // and variations: debug, info, warn, error
+    console.assert(assertion, messageObject, arguments...);
+    console.count(name);
+    console.time(name); console.timeEnd(name);
+    console.group(name); console.groupEnd();
+    console.trace();
+    console.clear();
+
+
+Cookie API
+----------
 [script](https://github.com/inexorabletash/polyfill/blob/master/cookie.js) - 
 Adam Barth's [Cookie API proposal](https://docs.google.com/Doc?docid=0AZpchfQ5mBrEZGQ0cDh3YzRfMTRmdHFma21kMg&hl=en&pli=1) -
 abandoned
@@ -207,40 +237,6 @@ abandoned
     document.deleteCookie(name, errorCallback);
 
 
-Console (shim)
---------------
-[script](https://github.com/inexorabletash/polyfill/blob/master/console.js) - 
-[unit tests](http://calormen.com/polyfill/console.html) - 
-*de facto* standard in modern browsers
-
-    console.log(messageObject, arguments...); // and variations: debug, info, warn, error
-    console.assert(assertion, messageObject, arguments...);
-    console.count(name);
-    console.time(name); console.timeEnd(name);
-    console.group(name); console.groupEnd();
-    console.trace();
-    console.clear();
-
-
-sprintf (other)
----------------
-[script](https://github.com/inexorabletash/polyfill/blob/master/sprintf.js) - 
-[unit tests](http://calormen.com/polyfill/sprintf.html) - 
-used for a few C-to-JavaScript porting projects
-
-    var str = sprintf("Foo %s bar %d", "hello", 123);
-
-
-Khronos Typed Arrays (polyfill)
--------------------------------
-[script](https://github.com/inexorabletash/polyfill/blob/master/typedarray.js) - 
-[unit tests](http://calormen.com/polyfill/typedarray.html) - 
-[spec](http://www.khronos.org/registry/typedarray/specs/latest/)
-
-* `ArrayBuffer`
-* `Uint8Array`, `Int8Array, `Uint16Array`, `Int16Array`, `Uint32Array`, `Int32Array`, `Float32Array`, `Float64Array`
-* `DataView`
-
 DOMException (helper)
 ---------------------
 [script](https://github.com/inexorabletash/polyfill/edit/master/domexception.js) - 
@@ -252,4 +248,11 @@ otherwise a similar looking object. Useful when implementing other polyfills.
     exception = DOMException.create(code)
 
 
+sprintf (other)
+---------------
+[script](https://github.com/inexorabletash/polyfill/blob/master/sprintf.js) - 
+[unit tests](http://calormen.com/polyfill/sprintf.html) - 
+used for a few C-to-JavaScript porting projects
+
+    var str = sprintf("Foo %s bar %d", "hello", 123);
 
