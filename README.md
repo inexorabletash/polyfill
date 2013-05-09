@@ -169,7 +169,7 @@ W3C Geolocation API (Level 1) (shim)
 ------------------------------------
 [script](https://github.com/inexorabletash/polyfill/blob/master/geo.js) - 
 [demo page](http://calormen.com/polyfill/geo.html) - 
-[spec](http://dev.w3.org/geo/api/spec-source) - 
+[spec](http://www.w3.org/TR/geolocation-API/) - 
 uses [freegeoip.net](http://freegeoip.net/)
 
     navigator.geolocation.getCurrentPosition(successCallback, errorCallback, options);
