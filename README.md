@@ -12,10 +12,10 @@ I use these in various pages on my sites; most are by me, or I have at least twe
 
 ECMAScript 5 & Browser Compat
 -----------------------------
-[script](https://github.com/inexorabletash/polyfill/blob/master/polyfill.js) - 
+[script](polyfill.js) -
 [unit tests](http://calormen.com/polyfill/tests/polyfill.html)
 
-Bundled together; nearly every page I create needs at least some of these. These will change over time, 
+Bundled together; nearly every page I create needs at least some of these. These will change over time,
 and going forward I will only target IE8 and later.
 
 * [ECMAScript 5](http://www.ecma-international.org/publications/standards/Ecma-262.htm) Object, Function, String and Date extras
@@ -77,11 +77,11 @@ and going forward I will only target IE8 and later.
 
 ECMAScript 6 / "Harmony" (polyfill)
 -----------------------------------
-[script](https://github.com/inexorabletash/polyfill/blob/master/harmony.js) - 
+[script](harmony.js) -
 [unit tests](http://calormen.com/polyfill/tests/harmony.html)
 
-"Harmony" is the aspirational term for the future of ECMAScript (the standardized version of JavaScript) beyond ES5. 
-The standardization of ES6 is currently in progress.  
+"Harmony" is the aspirational term for the future of ECMAScript (the standardized version of JavaScript) beyond ES5.
+The standardization of ES6 is currently in progress.
 This will attempt to track the evolving spec, so may change at any time.
 
 In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts):
@@ -113,7 +113,7 @@ Helpers:
 
 ### Binary Data
 
-[script](https://github.com/inexorabletash/polyfill/blob/master/bindata.js) -
+[script](bindata.js) -
 [demo page](http://calormen.com/polyfill/demos/bindata.html)
 
 Proposed for ES6 - http://wiki.ecmascript.org/doku.php?id=harmony:binary_data
@@ -121,8 +121,8 @@ Proposed for ES6 - http://wiki.ecmascript.org/doku.php?id=harmony:binary_data
 
 Typed Arrays (polyfill)
 -----------------------
-[script](https://github.com/inexorabletash/polyfill/blob/master/typedarray.js) - 
-[unit tests](http://calormen.com/polyfill/tests/typedarray.html) - 
+[script](typedarray.js) -
+[unit tests](http://calormen.com/polyfill/tests/typedarray.html) -
 [spec](http://www.khronos.org/registry/typedarray/specs/latest/)
 
 * `ArrayBuffer`
@@ -132,7 +132,7 @@ Typed Arrays (polyfill)
 
 WHATWG URL API
 --------------
-[script](https://github.com/inexorabletash/polyfill/blob/master/url.js) -
+[script](url.js) -
 [unit tests](http://calormen.com/polyfill/tests/url.html) -
 [draft spec](http://url.spec.whatwg.org/) - See script for cross-browser quirks
 
@@ -157,13 +157,13 @@ URL objects have properties:
 
 W3C Keyboard Events (helper)
 ----------------------------
-[script](https://github.com/inexorabletash/polyfill/blob/master/keyboard.js) - 
-[demo page](http://calormen.com/polyfill/demos/keyboard.html) - 
+[script](keyboard.js) -
+[demo page](http://calormen.com/polyfill/demos/keyboard.html) -
 [draft spec](https://dvcs.w3.org/hg/d4e/raw-file/tip/source_respec.htm#keyboard-events)
 
     // In your keydown/keyup handler, call:
-    window.identifyKey(keyboardEvent); 
-    
+    window.identifyKey(keyboardEvent);
+
     // This adds the following properties to keyboardEvent:
     keyboardEvent.code
     keyboardEvent.location
@@ -174,8 +174,8 @@ W3C Keyboard Events (helper)
 
 W3C Web Storage
 ---------------
-[script](https://github.com/inexorabletash/polyfill/blob/master/storage.js) - 
-[spec](http://dev.w3.org/html5/webstorage/) - 
+[script](storage.js) -
+[spec](http://dev.w3.org/html5/webstorage/) -
 adapted from [Remy Sharp](https://gist.github.com/350433)
 
     storage = window.localStorage
@@ -190,9 +190,9 @@ adapted from [Remy Sharp](https://gist.github.com/350433)
 
 W3C Geolocation API
 -------------------
-[script](https://github.com/inexorabletash/polyfill/blob/master/geo.js) - 
-[demo page](http://calormen.com/polyfill/demos/geo.html) - 
-[spec](http://www.w3.org/TR/geolocation-API/) - 
+[script](geo.js) -
+[demo page](http://calormen.com/polyfill/demos/geo.html) -
+[spec](http://www.w3.org/TR/geolocation-API/) -
 uses [freegeoip.net](http://freegeoip.net/)
 
     navigator.geolocation.getCurrentPosition(successCallback, errorCallback, options);
@@ -202,15 +202,15 @@ uses [freegeoip.net](http://freegeoip.net/)
 
 W3C Workers
 -----------
-[script](https://github.com/inexorabletash/polyfill/blob/master/workers.js) - 
-[spec](http://dev.w3.org/html5/workers/) - 
+[script](workers.js) -
+[spec](http://dev.w3.org/html5/workers/) -
 just for kicks; you probably don't want to use this
 
 
 Console
 -------
-[script](https://github.com/inexorabletash/polyfill/blob/master/console.js) - 
-[unit tests](http://calormen.com/polyfill/tests/console.html) - 
+[script](console.js) -
+[unit tests](http://calormen.com/polyfill/tests/console.html) -
 *de facto* standard in modern browsers based on [FireBug Console API](http://getfirebug.com/wiki/index.php/Console_API)
 
     console.log(messageObject, arguments...); // and variations: debug, info, warn, error
@@ -224,14 +224,14 @@ Console
 
 Cookie API
 ----------
-[script](https://github.com/inexorabletash/polyfill/blob/master/cookie.js) - 
+[script](cookie.js) -
 Adam Barth's [Cookie API proposal](https://docs.google.com/Doc?docid=0AZpchfQ5mBrEZGQ0cDh3YzRfMTRmdHFma21kMg&hl=en&pli=1) -
 abandoned
 
     cookie = document.getCookie(name, callback);
     alert(cookie.name);
     alert(cookie.value);
-    
+
     cookieArray = document.getAllCookies(callback);
     document.setCookie(cookie, errorCallback);
     document.deleteCookie(name, errorCallback);
@@ -239,8 +239,8 @@ abandoned
 
 DOMException (helper)
 ---------------------
-[script](https://github.com/inexorabletash/polyfill/edit/master/domexception.js) - 
-[demo page](http://calormen.com/polyfill/demos/domexception.html) - 
+[script](https://github.com/inexorabletash/polyfill/edit/master/domexception.js) -
+[demo page](http://calormen.com/polyfill/demos/domexception.html) -
 
 Creates a native DOMException of the specified type if possible,
 otherwise a similar looking object. Useful when implementing other polyfills.
@@ -250,9 +250,8 @@ otherwise a similar looking object. Useful when implementing other polyfills.
 
 sprintf (other)
 ---------------
-[script](https://github.com/inexorabletash/polyfill/blob/master/sprintf.js) - 
-[unit tests](http://calormen.com/polyfill/tests/sprintf.html) - 
+[script](sprintf.js) -
+[unit tests](http://calormen.com/polyfill/tests/sprintf.html) -
 used for a few C-to-JavaScript porting projects
 
     var str = sprintf("Foo %s bar %d", "hello", 123);
-
