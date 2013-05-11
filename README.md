@@ -126,7 +126,7 @@ Typed Arrays (polyfill)
 [spec](http://www.khronos.org/registry/typedarray/specs/latest/)
 
 * `ArrayBuffer`
-* `Uint8Array`, `Int8Array, `Uint16Array`, `Int16Array`, `Uint32Array`, `Int32Array`, `Float32Array`, `Float64Array`
+* `Uint8Array`, `Int8Array`, `Uint16Array`, `Int16Array`, `Uint32Array`, `Int32Array`, `Float32Array`, `Float64Array`
 * `DataView`
 
 
@@ -136,12 +136,14 @@ WHATWG URL API
 [unit tests](http://calormen.com/polyfill/tests/url.html) -
 [draft spec](http://url.spec.whatwg.org/) - See script for cross-browser quirks
 
-    url = new URL(url, base)
-    value = url.getParameter(name)
-    valueArray = url.getParameterAll(name)
-    url.appendParameter(name, valueOrValues)
-    url.clearParameter(name)
-    nameArray = url.parameterNames
+```javascript
+var url = new URL(url, base)
+value = url.getParameter(name)
+valueArray = url.getParameterAll(name)
+url.appendParameter(name, valueOrValues)
+url.clearParameter(name)
+nameArray = url.parameterNames
+```
 
 URL objects have properties:
 * `protocol`
@@ -161,16 +163,17 @@ W3C Keyboard Events (helper)
 [demo page](http://calormen.com/polyfill/demos/keyboard.html) -
 [draft spec](https://dvcs.w3.org/hg/d4e/raw-file/tip/source_respec.htm#keyboard-events)
 
-    // In your keydown/keyup handler, call:
-    window.identifyKey(keyboardEvent);
+```javascript
+// In your keydown/keyup handler, call:
+window.identifyKey(keyboardEvent);
 
-    // This adds the following properties to keyboardEvent:
-    keyboardEvent.code
-    keyboardEvent.location
+// This adds the following properties to keyboardEvent:
+keyboardEvent.code
+keyboardEvent.location
 
-    // You can get a label for the key using:
-    KeyboardEvent.queryKeyCap(code);
-
+// You can get a label for the key using:
+KeyboardEvent.queryKeyCap(code);
+```
 
 W3C Web Storage
 ---------------
@@ -178,15 +181,16 @@ W3C Web Storage
 [spec](http://dev.w3.org/html5/webstorage/) -
 adapted from [Remy Sharp](https://gist.github.com/350433)
 
-    storage = window.localStorage
-    storage = window.sessionStorage
-    storage.clear()
-    valueString = storage.getItem(keyString)
-    valueString = storage.key(index)
-    storage.removeItem(keyString)
-    storage.setItem(keyString, valueString)
-    storage.length
-
+```javascript
+storage = window.localStorage
+storage = window.sessionStorage
+storage.clear()
+valueString = storage.getItem(keyString)
+valueString = storage.key(index)
+storage.removeItem(keyString)
+storage.setItem(keyString, valueString)
+storage.length
+````
 
 W3C Geolocation API
 -------------------
@@ -195,10 +199,11 @@ W3C Geolocation API
 [spec](http://www.w3.org/TR/geolocation-API/) -
 uses [freegeoip.net](http://freegeoip.net/)
 
-    navigator.geolocation.getCurrentPosition(successCallback, errorCallback, options);
-    watchId = navigator.geolocation.watchPosition(successCallback, errorCallback, options);
-    navigator.geolocation.clearWatch(watchId);
-
+```javascript
+navigator.geolocation.getCurrentPosition(successCallback, errorCallback, options);
+var watchId = navigator.geolocation.watchPosition(successCallback, errorCallback, options);
+navigator.geolocation.clearWatch(watchId);
+```
 
 W3C Workers
 -----------
@@ -213,14 +218,15 @@ Console
 [unit tests](http://calormen.com/polyfill/tests/console.html) -
 *de facto* standard in modern browsers based on [FireBug Console API](http://getfirebug.com/wiki/index.php/Console_API)
 
-    console.log(messageObject, arguments...); // and variations: debug, info, warn, error
-    console.assert(assertion, messageObject, arguments...);
-    console.count(name);
-    console.time(name); console.timeEnd(name);
-    console.group(name); console.groupEnd();
-    console.trace();
-    console.clear();
-
+```javascript
+console.log(messageObject, arguments...); // and variations: debug, info, warn, error
+console.assert(assertion, messageObject, arguments...);
+console.count(name);
+console.time(name); console.timeEnd(name);
+console.group(name); console.groupEnd();
+console.trace();
+console.clear();
+```
 
 Cookie API
 ----------
@@ -228,14 +234,15 @@ Cookie API
 Adam Barth's [Cookie API proposal](https://docs.google.com/Doc?docid=0AZpchfQ5mBrEZGQ0cDh3YzRfMTRmdHFma21kMg&hl=en&pli=1) -
 abandoned
 
-    cookie = document.getCookie(name, callback);
-    alert(cookie.name);
-    alert(cookie.value);
+```javascript
+var cookie = document.getCookie(name, callback);
+alert(cookie.name);
+alert(cookie.value);
 
-    cookieArray = document.getAllCookies(callback);
-    document.setCookie(cookie, errorCallback);
-    document.deleteCookie(name, errorCallback);
-
+var cookieArray = document.getAllCookies(callback);
+document.setCookie(cookie, errorCallback);
+document.deleteCookie(name, errorCallback);
+```
 
 DOMException (helper)
 ---------------------
@@ -245,8 +252,9 @@ DOMException (helper)
 Creates a native DOMException of the specified type if possible,
 otherwise a similar looking object. Useful when implementing other polyfills.
 
-    exception = DOMException.create(code)
-
+```javascript
+exception = DOMException.create(code)
+```
 
 sprintf (other)
 ---------------
@@ -254,4 +262,6 @@ sprintf (other)
 [unit tests](http://calormen.com/polyfill/tests/sprintf.html) -
 used for a few C-to-JavaScript porting projects
 
-    var str = sprintf("Foo %s bar %d", "hello", 123);
+```javascript
+var str = sprintf("Foo %s bar %d", "hello", 123);
+```
