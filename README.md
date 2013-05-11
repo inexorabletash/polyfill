@@ -137,12 +137,12 @@ WHATWG URL API
 [draft spec](http://url.spec.whatwg.org/) - See script for cross-browser quirks
 
 ```javascript
-var url = new URL(url, base)
-value = url.getParameter(name)
-valueArray = url.getParameterAll(name)
-url.appendParameter(name, valueOrValues)
-url.clearParameter(name)
-nameArray = url.parameterNames
+var url = new URL(url, base);
+var value = url.getParameter(name);
+var valueArray = url.getParameterAll(name);
+url.appendParameter(name, valueOrValues);
+url.clearParameter(name);
+var nameArray = url.parameterNames;
 ```
 
 URL objects have properties:
