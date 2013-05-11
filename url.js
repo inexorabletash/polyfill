@@ -15,6 +15,22 @@
 (function () {
   "use strict";
 
+  var OVERRIDE = (function() {
+    if (!('URL' in window))
+      return true;
+    if (typeof window.URL !== 'function')
+      return true;
+    try {
+      var url = new window.URL;
+      return !('protocol' in URL);
+    } catch (e) {
+      return true;
+    }
+  }());
+
+  if (!OVERRIDE)
+    return;
+
   // Detect for ES5 getter/setter support
   var ES5_GET_SET = (Object.defineProperties && (function () {
     var o = {}; Object.defineProperties(o, {p: {'get': function () { return true; }}}); return o.p; }()));
@@ -127,141 +143,145 @@
     }
   };
 
-  // NOTE: Firefox has a global URL object defined, overridden here
-  if (typeof window.URL !== 'function') {
-    window.URL = function URL(url, baseURL) {
+  var origURL = window.URL;
+  window.URL = function URL(url, baseURL) {
 
-      var doc, base, anchor;
-      if (baseURL) {
-        // Use another document/base tag/anchor for relative URL resolution, if possible
-        if (document.implementation && document.implementation.createHTMLDocument) {
-          doc = document.implementation.createHTMLDocument("");
-        } else if (document.implementation && document.implementation.createDocument) {
-          doc = document.implementation.createElement('http://www.w3.org/1999/xhtml', 'html', null);
-          doc.documentElement.appendChild(doc.createElement('head'));
-          doc.documentElement.appendChild(doc.createElement('body'));
-        } else if (window.ActiveXObject) {
-          doc = new ActiveXObject("htmlfile");
-          doc.write("<head></head><body></body>");
-          doc.close();
-        }
-
-        if (!doc) {
-          throw new Error("baseURL not supported");
-        }
-
-        base = doc.createElement("base");
-        base.href = baseURL;
-        doc.getElementsByTagName("head")[0].appendChild(base);
-        anchor = doc.createElement("a");
-        anchor.href = url;
-        url = anchor.href;
+    var doc, base, anchor;
+    if (baseURL) {
+      // Use another document/base tag/anchor for relative URL resolution, if possible
+      if (document.implementation && document.implementation.createHTMLDocument) {
+        doc = document.implementation.createHTMLDocument("");
+      } else if (document.implementation && document.implementation.createDocument) {
+        doc = document.implementation.createElement('http://www.w3.org/1999/xhtml', 'html', null);
+        doc.documentElement.appendChild(doc.createElement('head'));
+        doc.documentElement.appendChild(doc.createElement('body'));
+      } else if (window.ActiveXObject) {
+        doc = new ActiveXObject("htmlfile");
+        doc.write("<head></head><body></body>");
+        doc.close();
       }
 
-      // Use an actual HTMLAnchorElement instance since the semantics
-      // are pretty close.
-      anchor = document.createElement('a');
-      anchor.href = url || "";
-
-      if (ES5_GET_SET) {
-        // Use ES5 getters/setters to provide full API if supported, wrapping anchor
-        // functionality
-
-        // Allow calling as function or constructor
-        if (!(this instanceof URL)) { return new URL(url); }
-
-        Object.defineProperties(this, {
-          protocol: {
-            get: function () { return anchor.protocol; },
-            set: function (v) { anchor.protocol = v; }
-          },
-          host: {
-            get: function () { return anchor.host; },
-            set: function (v) { anchor.host = v; }
-          },
-          hostname: {
-            get: function () { return anchor.hostname; },
-            set: function (v) { anchor.hostname = v; }
-          },
-          port: {
-            get: function () { return anchor.port; },
-            set: function (v) { anchor.port = v; }
-          },
-          pathname: {
-            get: function () { return anchor.pathname; },
-            set: function (v) { anchor.pathname = v; }
-          },
-          search: {
-            get: function () { return anchor.search; },
-            set: function (v) { anchor.search = v; tidy(anchor); }
-          },
-          hash: {
-            get: function () { return anchor.hash; },
-            set: function (v) { anchor.hash = v; tidy(anchor); }
-          },
-          filename: {
-            get: function () { return this.pathname.replace(/^[\u0000-\uffff]*\//, ''); }
-          },
-          origin: {
-            get: function () { return anchor.origin; } // TODO: Shim if undefined
-          },
-          parameterNames: {
-            get: function () {
-              return collectParameters(this.search.substring(1)).map(
-                function (parameter) {
-                  return parameter[0];
-                });
-            }
-          },
-          href: {
-            get: function () { return anchor.href; },
-            set: function (v) { anchor.href = v; tidy(anchor); }
-          }
-        });
-
-        return this;
-
-      } else {
-        // If no ES5 getter/setter support, return the anchor tag itself, augmented with additional properties
-
-        // Initial sync of extension attributes
-        update(anchor);
-
-        // Keep extension attributes synced on change, if possible
-        if (anchor.addEventListener) {
-          anchor.addEventListener(
-            'DOMAttrModified',
-            function(e) {
-              if (e.attrName === 'href') {
-                update(e.target);
-              }
-            },
-            false);
-        } else if (anchor.attachEvent) {
-          anchor.attachEvent(
-            'onpropertychange',
-            function(e) {
-              if (e.propertyName === 'href') {
-                update(anchor);
-              }
-            });
-          // Must be member of document to observe changes
-          anchor.style.display = 'none';
-          document.appendChild(anchor);
-        }
-
-        // Add URL API methods
-        anchor.getParameter = prototype.getParameter;
-        anchor.getParameterAll = prototype.getParameterAll;
-        anchor.appendParameter = function appendParameter(name, value) { prototype.appendParameter.call(anchor, name, value); update(anchor); };
-        anchor.clearParameter = function clearParameter(name) { prototype.clearParameter.call(anchor, name); update(anchor); };
-
-        return anchor;
+      if (!doc) {
+        throw new Error("baseURL not supported");
       }
-    };
+
+      base = doc.createElement("base");
+      base.href = baseURL;
+      doc.getElementsByTagName("head")[0].appendChild(base);
+      anchor = doc.createElement("a");
+      anchor.href = url;
+      url = anchor.href;
+    }
+
+    // Use an actual HTMLAnchorElement instance since the semantics
+    // are pretty close.
+    anchor = document.createElement('a');
+    anchor.href = url || "";
 
     if (ES5_GET_SET) {
-      URL.prototype = prototype;
+      // Use ES5 getters/setters to provide full API if supported, wrapping anchor
+      // functionality
+
+      // Allow calling as function or constructor
+      if (!(this instanceof URL)) { return new URL(url); }
+
+      Object.defineProperties(this, {
+        protocol: {
+          get: function () { return anchor.protocol; },
+          set: function (v) { anchor.protocol = v; }
+        },
+        host: {
+          get: function () { return anchor.host; },
+          set: function (v) { anchor.host = v; }
+        },
+        hostname: {
+          get: function () { return anchor.hostname; },
+          set: function (v) { anchor.hostname = v; }
+        },
+        port: {
+          get: function () { return anchor.port; },
+          set: function (v) { anchor.port = v; }
+        },
+        pathname: {
+          get: function () { return anchor.pathname; },
+          set: function (v) { anchor.pathname = v; }
+        },
+        search: {
+          get: function () { return anchor.search; },
+          set: function (v) { anchor.search = v; tidy(anchor); }
+        },
+        hash: {
+          get: function () { return anchor.hash; },
+          set: function (v) { anchor.hash = v; tidy(anchor); }
+        },
+        filename: {
+          get: function () { return this.pathname.replace(/^[\u0000-\uffff]*\//, ''); }
+        },
+        origin: {
+          get: function () { return anchor.origin; } // TODO: Shim if undefined
+        },
+        parameterNames: {
+          get: function () {
+            return collectParameters(this.search.substring(1)).map(
+              function (parameter) {
+                return parameter[0];
+              });
+          }
+        },
+        href: {
+          get: function () { return anchor.href; },
+          set: function (v) { anchor.href = v; tidy(anchor); }
+        }
+      });
+
+      return this;
+
+    } else {
+      // If no ES5 getter/setter support, return the anchor tag itself, augmented with additional properties
+
+      // Initial sync of extension attributes
+      update(anchor);
+
+      // Keep extension attributes synced on change, if possible
+      if (anchor.addEventListener) {
+        anchor.addEventListener(
+          'DOMAttrModified',
+          function(e) {
+            if (e.attrName === 'href') {
+              update(e.target);
+            }
+          },
+          false);
+      } else if (anchor.attachEvent) {
+        anchor.attachEvent(
+          'onpropertychange',
+          function(e) {
+            if (e.propertyName === 'href') {
+              update(anchor);
+            }
+          });
+        // Must be member of document to observe changes
+        anchor.style.display = 'none';
+        document.appendChild(anchor);
+      }
+
+      // Add URL API methods
+      anchor.getParameter = prototype.getParameter;
+      anchor.getParameterAll = prototype.getParameterAll;
+      anchor.appendParameter = function appendParameter(name, value) { prototype.appendParameter.call(anchor, name, value); update(anchor); };
+      anchor.clearParameter = function clearParameter(name) { prototype.clearParameter.call(anchor, name); update(anchor); };
+
+      return anchor;
+    }
+  };
+
+  if (ES5_GET_SET) {
+    URL.prototype = prototype;
+  }
+
+  if (origURL) {
+    for (var i in origURL) {
+      window.URL[i] = origURL[i];
     }
   }
 
