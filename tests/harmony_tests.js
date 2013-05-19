@@ -387,7 +387,7 @@ test("Identity Testing", function () {
 
 });
 
-test("Map", 30, function () {
+test("Map", 31, function () {
 
   map = new Map();
   assertFalse("map.has(-0)");
@@ -438,11 +438,28 @@ test("Map", 30, function () {
     delete self.v;
   });
 
+  // Verify |empty| behavior
+  map = new Map();
+  map.set('a', 1);
+  map.set('b', 2);
+  map.set('c', 3);
+  map.set('d', 4);
+  var keys = [];
+  var iterator = map.keys();
+  keys.push(iterator.next());
+  map["delete"]('a');
+  map["delete"]('b');
+  map["delete"]('c');
+  map.set('e');
+  keys.push(iterator.next());
+  keys.push(iterator.next());
+  assertEqual('JSON.stringify(["a","d","e"])', JSON.stringify(keys));
+
   delete map;
 
 });
 
-test("Set", 30, function () {
+test("Set", 31, function () {
 
   set = new Set();
   assertFalse("set.has(-0)");
@@ -489,6 +506,23 @@ test("Set", 30, function () {
     delete self.i;
     ++count;
   });
+
+  // Verify |empty| behavior
+  set = new Set();
+  set.add('a');
+  set.add('b');
+  set.add('c');
+  set.add('d');
+  var keys = [];
+  var iterator = set.values();
+  keys.push(iterator.next());
+  set["delete"]('a');
+  set["delete"]('b');
+  set["delete"]('c');
+  set.add('e');
+  keys.push(iterator.next());
+  keys.push(iterator.next());
+  assertEqual('JSON.stringify(["a","d","e"])', JSON.stringify(keys));
 
   delete set;
 });

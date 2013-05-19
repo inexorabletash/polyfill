@@ -697,6 +697,8 @@
   // 15.14 Map Objects
   //----------------------------------------
 
+  var empty = Object.create(null);
+
   (function() {
 
     // 15.14.1 Abstract Operations For Map Objects
@@ -767,7 +769,6 @@
       function clear() {
         this._mapData.keys.length = 0;
         this._mapData.values.length = 0;
-        if (this.size !== this._mapData.keys.length) { this.size = this._mapData.keys.length; }
       });
 
     // 15.14.5.3
@@ -776,9 +777,8 @@
       function deleteFunction(key) {
         var i = indexOf(this._mapComparator, this._mapData, key);
         if (i < 0) { return false; }
-        this._mapData.keys.splice(i, 1);
-        this._mapData.values.splice(i, 1);
-        if (this.size !== this._mapData.keys.length) { this.size = this._mapData.keys.length; }
+        this._mapData.keys[i] = empty;
+        this._mapData.values[i] = empty;
         return true;
       });
 
@@ -833,7 +833,6 @@
         if (i < 0) { i = this._mapData.keys.length; }
         this._mapData.keys[i] = key;
         this._mapData.values[i] = val;
-        if (this.size !== this._mapData.keys.length) { this.size = this._mapData.keys.length; }
         return val;
       });
 
@@ -841,7 +840,13 @@
     Object.defineProperty(
       Map.prototype, 'size', {
         get: function() {
-          return this._mapData.keys.length;
+          var entries = this._mapData;
+          var count = 0;
+          for (var i = 0; i < entries.keys.length; ++i) {
+            if (entries.keys[i] !== empty)
+              count = count + 1;
+          }
+          return count;
         }
       });
 
@@ -893,7 +898,7 @@
           var e = {key: entries.keys[index], value: entries.values[index]};
           index = index += 1;
           this._nextIndex = index;
-          if (e.key !== (void 0)) { // |empty| ?
+          if (e.key !== empty) {
             if (itemKind === 'key') {
               return e.key;
             } else if (itemKind === 'value') {
@@ -1130,7 +1135,6 @@
         var i = indexOf(this._setComparator, this._setData, key);
         if (i < 0) { i = this._setData.length; }
         this._setData[i] = key;
-        if (this.size !== this._setData.length) { this.size = this._setData.length; }
         return key;
       });
 
@@ -1139,7 +1143,6 @@
       Set.prototype, 'clear',
       function clear() {
         this._setData = [];
-        if (this.size !== this._setData.length) { this.size = this._setData.length; }
       });
 
     // 15.16.5.4
@@ -1148,8 +1151,7 @@
       function deleteFunction(key) {
         var i = indexOf(this._setComparator, this._setData, key);
         if (i < 0) { return false; }
-        this._setData.splice(i, 1);
-        if (this.size !== this._setData.length) { this.size = this._setData.length; }
+        this._setData[i] = empty;
         return true;
       });
 
@@ -1178,7 +1180,13 @@
     Object.defineProperty(
       Set.prototype, 'size', {
         get: function() {
-          return this._setData.length;
+          var entries = this._setData;
+          var count = 0;
+          for (var i = 0; i < entries.length; ++i) {
+            if (entries[i] !== empty)
+              count = count + 1;
+          }
+          return count;
         }
       });
 
@@ -1225,7 +1233,7 @@
           var e = entries[index];
           index = index += 1;
           this.nextIndex = index;
-          if (e !== (void 0)) { // |empty| ?
+          if (e !== empty) {
             return e;
           }
         }
@@ -1477,7 +1485,7 @@
           var e = entries[index];
           index = index += 1;
           this.nextIndex = index;
-          if (e !== (void 0)) { // |empty| ?
+          if (e !== empty) {
             return e;
           }
         }
@@ -1673,7 +1681,7 @@
           var e = {key: entries[index], value: o[entries[index]]};
           index = index += 1;
           this.nextIndex = index;
-          if (e.key !== (void 0)) { // |empty| ?
+          if (e.key !== empty) {
             if (itemKind === 'key') {
               return e.key;
             } else if (itemKind === 'value') {
