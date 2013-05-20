@@ -1,5 +1,5 @@
 
-test("Approved Math extras", 155, function () {
+test("Approved Math extras", function () {
   var EPSILON = 1e-5;
 
   // log10(x)
@@ -190,6 +190,13 @@ test("Approved Math extras", 155, function () {
   assertEqual("Math.cbrt(1)", 1);
   assertEqual("Math.cbrt(-27)", -3);
   assertEqual("Math.cbrt(27)", 3);
+
+  // imul(x,y)
+  assertEqual("Math.imul(0,0)", 0);
+  assertEqual("Math.imul(123,456)", 56088);
+  assertEqual("Math.imul(-123,456)", -56088);
+  assertEqual("Math.imul(123,-456)", -56088);
+  assertEqual("Math.imul(0x01234567, 0xfedcba98)", 602016552);
 });
 
 test("Approved Number extras", function () {
@@ -345,6 +352,20 @@ test("Approved Array extras", function () {
   deepEqual(Array.from([1,2,3], function(x) { return x * x; }), [1, 4, 9]);
 });
 
+test("Array.prototype.find/findIndex", function() {
+  array = ["a", "b", NaN];
+
+  assertEqual("array.find(function(v) { return v === 'a'; })", "a");
+  assertEqual("array.find(function(v) { return v !== v; })", NaN);
+  assertEqual("array.find(function(v) { return v === 'z'; })", undefined);
+
+  assertEqual("array.findIndex(function(v) { return v === 'a'; })", 0);
+  assertEqual("array.findIndex(function(v) { return v !== v; })", 2);
+  assertEqual("array.findIndex(function(v) { return v === 'z'; })", -1);
+
+  delete array;
+});
+
 test("Identity Testing", function () {
 
   testobj1 = {};
@@ -387,7 +408,7 @@ test("Identity Testing", function () {
 
 });
 
-test("Map", 31, function () {
+test("Map", function () {
 
   map = new Map();
   assertFalse("map.has(-0)");
@@ -437,6 +458,7 @@ test("Map", 31, function () {
     delete self.k;
     delete self.v;
   });
+  ok(3, count);
 
   // Verify |empty| behavior
   map = new Map();
@@ -446,20 +468,20 @@ test("Map", 31, function () {
   map.set('d', 4);
   var keys = [];
   var iterator = map.keys();
-  keys.push(iterator.next());
+  keys.push(iterator.next().value);
   map["delete"]('a');
   map["delete"]('b');
   map["delete"]('c');
   map.set('e');
-  keys.push(iterator.next());
-  keys.push(iterator.next());
+  keys.push(iterator.next().value);
+  keys.push(iterator.next().value);
   assertEqual('JSON.stringify(["a","d","e"])', JSON.stringify(keys));
 
   delete map;
 
 });
 
-test("Set", 31, function () {
+test("Set", function () {
 
   set = new Set();
   assertFalse("set.has(-0)");
@@ -506,6 +528,7 @@ test("Set", 31, function () {
     delete self.i;
     ++count;
   });
+  ok(3, count);
 
   // Verify |empty| behavior
   set = new Set();
@@ -515,13 +538,13 @@ test("Set", 31, function () {
   set.add('d');
   var keys = [];
   var iterator = set.values();
-  keys.push(iterator.next());
+  keys.push(iterator.next().value);
   set["delete"]('a');
   set["delete"]('b');
   set["delete"]('c');
   set.add('e');
-  keys.push(iterator.next());
-  keys.push(iterator.next());
+  keys.push(iterator.next().value);
+  keys.push(iterator.next().value);
   assertEqual('JSON.stringify(["a","d","e"])', JSON.stringify(keys));
 
   delete set;
@@ -703,20 +726,20 @@ test("Iterators", function () {
   assertFalse("s.has('Z')");
   assertEqual("s.size", 3);
   it = s.values();
-  assertEqual("it.next()", 'A');
-  assertEqual("it.next()", 'B');
-  assertEqual("it.next()", 'C');
-  assertThrows("it.next()");
+  assertEqual("it.next().value", 'A');
+  assertEqual("it.next().value", 'B');
+  assertEqual("it.next().value", 'C');
+  assertTrue("it.next().done");
 
   m = Map();
   m.set(1, 'a');
   m.set(2, 'b');
   m.set(3, 'c');
   it = m.entries();
-  assertEqual("it.next().length", 2);
-  assertEqual("it.next()[0]", 2);
-  assertEqual("it.next()[1]", "c");
-  assertThrows("it.next()");
+  assertEqual("it.next().value.length", 2);
+  assertEqual("it.next().value[0]", 2);
+  assertEqual("it.next().value[1]", "c");
+  assertTrue("it.next().done");
 
   delete s;
   delete m;
@@ -766,19 +789,19 @@ test("Dict", function() {
   d['b'] = 2;
 
   it = keys(d);
-  assertEqual("it.next()", 'a');
-  assertEqual("it.next()", 'b');
-  assertThrows("it.next()");
+  assertEqual("it.next().value", 'a');
+  assertEqual("it.next().value", 'b');
+  assertTrue("it.next().done");
 
   it = values(d);
-  assertEqual("it.next()", 1);
-  assertEqual("it.next()", 2);
-  assertThrows("it.next()");
+  assertEqual("it.next().value", 1);
+  assertEqual("it.next().value", 2);
+  assertTrue("it.next().done");
 
   it = entries(d);
-  deepEqual(it.next(), ['a', 1]);
-  deepEqual(it.next(), ['b', 2]);
-  assertThrows("it.next()");
+  deepEqual(it.next().value, ['a', 1]);
+  deepEqual(it.next().value, ['b', 2]);
+  assertTrue("it.next().done");
 
   delete it;
   delete d;

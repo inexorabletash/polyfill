@@ -6,90 +6,22 @@
 
 (function (global) {
   "use strict";
-
-  // Snapshot intrinsic functions
-  var global_isNaN = global.isNaN,
-      global_isFinite = global.isFinite,
-      global_parseInt = global.parseInt,
-      global_parseFloat = global.parseFloat;
-
-  var E = Math.E,
-      LOG10E = Math.LOG10E,
-      LOG2E = Math.LOG2E,
-      abs = Math.abs,
-      ceil = Math.ceil,
-      exp = Math.exp,
-      floor = Math.floor,
-      log = Math.log,
-      pow = Math.pow,
-      sqrt = Math.sqrt;
-
-  // Approximations of internal ECMAScript functions
-  var ECMAScript = (function () {
-    var ophop = Object.prototype.hasOwnProperty;
-    return {
-      HasProperty: function (o, p) { return p in o; },
-      HasOwnProperty: function (o, p) { return ophop.call(o, p); },
-      IsCallable: function (o) { return typeof o === 'function'; },
-      IsConstructor: function (o) { return typeof o === 'function'; }, // TODO: Define
-      ToInteger: function (n) {
-        n = Number(n);
-        if (global_isNaN(n)) { return 0; }
-        if (n === 0 || n === Infinity || n === -Infinity) { return n; }
-        return ((n < 0) ? -1 : 1) * floor(abs(n));
-      },
-      ToInt32: function (v) { return v >> 0; },
-      ToUint32: function (v) { return v >>> 0; },
-      SameValue: function (x, y) {
-        if (typeof x !== typeof y) {
-          return false;
-        }
-        switch (typeof x) {
-        case 'undefined':
-          return true;
-        case 'null':
-          return true;
-        case 'number':
-          if (global_isNaN(x) && global_isNaN(y)) { return true; }
-          if (x === 0 && y === 0) { return 1/x === 1/y; }
-          return x === y;
-        case 'boolean':
-        case 'string':
-        case 'object':
-        default:
-          return x === y;
-        }
-      },
-      SameValueZero: function (x, y) {
-        if (typeof x !== typeof y) {
-          return false;
-        }
-        switch (typeof x) {
-        case 'undefined':
-          return true;
-        case 'null':
-          return true;
-        case 'number':
-          if (global_isNaN(x) && global_isNaN(y)) { return true; }
-          return x === y;
-        case 'boolean':
-        case 'string':
-        case 'object':
-        default:
-          return x === y;
-        }
-      }
-    };
-  }());
+  var undefined = (void 0); // Paranoia
 
   // Helpers
+
+  function assert(c) {
+    if (!c) {
+      throw new Error("Internal assertion failure");
+    }
+  }
 
   function hook(o, p, f) {
     var op = o[p];
     if (typeof op !== 'function') { throw new TypeError('Not a function'); }
     o[p] = function() {
       var r = f.apply(this, arguments);
-      return r !== (void 0) ? r : op.apply(this, arguments);
+      return r !== undefined ? r : op.apply(this, arguments);
     };
   }
 
@@ -116,6 +48,27 @@
   }
 
 
+
+  // Snapshot intrinsic functions
+  var global_isNaN = global.isNaN,
+      global_isFinite = global.isFinite,
+      global_parseInt = global.parseInt,
+      global_parseFloat = global.parseFloat;
+
+  var E = Math.E,
+      LOG10E = Math.LOG10E,
+      LOG2E = Math.LOG2E,
+      abs = Math.abs,
+      ceil = Math.ceil,
+      exp = Math.exp,
+      floor = Math.floor,
+      log = Math.log,
+      pow = Math.pow,
+      sqrt = Math.sqrt;
+
+  // These are used for implementing the polyfills, but not exported.
+  var abstractOperation = {};
+
   //----------------------------------------------------------------------
   //
   // ECMAScript 6 Draft
@@ -123,29 +76,144 @@
   //
   //----------------------------------------------------------------------
 
-  var toStringTagSymbol = Symbol(),
-      iteratorSymbol = Symbol();
+  //----------------------------------------
+  // 8 Types
+  //----------------------------------------
 
-  // 15.2.4.2
-  hook(Object.prototype, 'toString',
-       function() {
-         return (this === Object(this) && toStringTagSymbol in this) ? '[object ' + this[toStringTagSymbol] + ']' : (void 0);
-       });
+  // shorthand
+  function Type(v) { return v === null ? 'null' : typeof v; };
 
-  // NOTE: Since true iterators can't be polyfilled, this is a hack
-  global.StopIteration = global.StopIteration || (function () {
-    function StopIterationClass() {}
-    StopIterationClass.prototype = {};
-    StopIterationClass.prototype[toStringTagSymbol] = 'StopIteration';
-    return new StopIterationClass;
+  // 8.1.7.2 Object Internal Methods
+  abstractOperation.HasOwnProperty = (function() {
+    var ophop = Object.prototype.hasOwnProperty;
+    return function (o, p) { return ophop.call(o, p); };
   }());
 
+  // 8.3.14
+  abstractOperation.ObjectCreate =  (function() {
+    var oc = Object.create;
+    return function(p, idl) { return oc(p, idl); };
+  }());
+
+  //----------------------------------------
+  // 9 Abstract Operations
+  //----------------------------------------
+
+  //----------------------------------------
+  // 9.2 Type Conversion and Testing
+  //----------------------------------------
+
+  // 9.1.2 ToBoolean - just use Boolean()
+  // 9.1.3 ToNumber - just use Number()
+
+  // 9.1.4
+  abstractOperation.ToInteger = function (n) {
+    n = Number(n);
+    if (global_isNaN(n)) { return 0; }
+    if (n === 0 || n === Infinity || n === -Infinity) { return n; }
+    return ((n < 0) ? -1 : 1) * floor(abs(n));
+  };
+
+  // 9.1.5
+  abstractOperation.ToInt32 = function (v) { return v >> 0; };
+
+  // 9.1.6
+  abstractOperation.ToUint32 = function (v) { return v >>> 0; };
+
+  // 9.1.7
+  abstractOperation.ToUint16 = function (v) { return (v >>> 0) & 0xFFFF; };
+
+  // 9.1.8 ToString - just use String()
+  // 9.1.9 ToObject - just use Object()
+
+  // 9.1.10 ToPropertyKey - TODO: consider for Symbol polyfill
+
+  //----------------------------------------
+  // 9.2 Testing and Comparison Operations
+  //----------------------------------------
+
+  // 9.2.1 CheckObjectCoercible - TODO: needed?
+
+  // 9.2.2
+  abstractOperation.IsCallable = function (o) { return typeof o === 'function'; };
+
+  // 9.2.3
+  abstractOperation.SameValue = function (x, y) {
+    if (typeof x !== typeof y) {
+      return false;
+    }
+    switch (typeof x) {
+    case 'undefined':
+      return true;
+    case 'null':
+      return true;
+    case 'number':
+      if (global_isNaN(x) && global_isNaN(y)) { return true; }
+      if (x === 0 && y === 0) { return 1/x === 1/y; }
+      return x === y;
+    case 'boolean':
+    case 'string':
+    case 'object':
+    default:
+      return x === y;
+    }
+  };
+
+  // 9.2.4
+  abstractOperation.SameValueZero = function (x, y) {
+    if (typeof x !== typeof y) {
+      return false;
+    }
+    switch (typeof x) {
+    case 'undefined':
+      return true;
+    case 'null':
+      return true;
+    case 'number':
+      if (global_isNaN(x) && global_isNaN(y)) { return true; }
+      return x === y;
+    case 'boolean':
+    case 'string':
+    case 'object':
+    default:
+      return x === y;
+    }
+  };
+
+  // 9.2.5
+  abstractOperation.IsConstructor = function (o) { return typeof o === 'function'; };
+
+  // 9.2.6 IsPropertyKey - TODO: Consider for Symbol() polyfill
+
+  //----------------------------------------
+  // 9.3 Operations on Object
+  //----------------------------------------
+
+  // 9.3.1 Get - just use o.p or o[p]
+  // 9.3.2 Put - just use o.p = v or o[p] = v
+
+  // 9.3.6
+  abstractOperation.HasProperty = function (o, p) { return p in o; };
+
+  var $$toStringTag = Symbol(),
+      $$iterator = Symbol();
 
   //----------------------------------------
   // 15.2 Object Objects
   //----------------------------------------
 
   // 15.2.3 Properties of the Object Constructor
+
+  // 15.2.3.2
+  defineFunctionProperty(
+    Object, 'setPrototypeOf',
+    function setPrototypeOf(o, proto) {
+      if (Type(o) !== 'object') { throw new TypeError(); }
+      if (Type(proto) !== 'object' && Type(proto) !== 'null') { throw new TypeError(); }
+      o.__proto__ = proto;
+      return o;
+    }
+  );
 
   // 15.2.3.15
   // TODO: Object.getOwnPropertyKeys vs. Object.keys
@@ -158,7 +226,7 @@
   defineFunctionProperty(
     Object, 'is',
     function is(x, y) {
-      return ECMAScript.SameValue(x, y);
+      return abstractOperation.SameValue(x, y);
     });
 
   // 15.2.3.17
@@ -173,7 +241,6 @@
       return target;
     });
 
-
   // 15.2.3.18
   defineFunctionProperty(
     Object, 'mixin',
@@ -187,22 +254,33 @@
       return target;
     });
 
+  // 15.2.4 Properties of the Object Prototype Object
+
+  // 15.2.4.2
+  hook(Object.prototype, 'toString',
+       function() {
+         if (this === Object(this) && $$toStringTag in this) {
+           return '[object ' + this[$$toStringTag] + ']';
+         }
+         return undefined;
+       });
+
 
   //----------------------------------------
   // 15.4 Array Objects
   //----------------------------------------
 
-  // 15.4.3 Properties of the Array Constructor
+  // 15.4.2 Properties of the Array Constructor
 
-  // 15.4.3.3
+  // 15.4.2.3
   defineFunctionProperty(
     Array, 'of',
     function of() {
       var items = arguments;
       var lenValue = items.length;
-      var len = ECMAScript.ToUint32(lenValue);
+      var len = abstractOperation.ToUint32(lenValue);
       var c = this, a;
-      if (ECMAScript.IsConstructor(c)) {
+      if (abstractOperation.IsConstructor(c)) {
         a = new c(len);
         a = Object(a);
       } else {
@@ -218,7 +296,7 @@
       return Array.from(arguments);
     });
 
-  // 15.4.3.4
+  // 15.4.2.4
   defineFunctionProperty(
     Array, 'from',
     function from(arrayLike) {
@@ -227,9 +305,9 @@
 
       var items = Object(arrayLike);
       var lenValue = items.length;
-      var len = ECMAScript.ToUint32(lenValue);
+      var len = abstractOperation.ToUint32(lenValue);
       var c = this, a;
-      if (ECMAScript.IsConstructor(c)) {
+      if (abstractOperation.IsConstructor(c)) {
         a = new c(len);
         a = Object(a);
       } else {
@@ -248,32 +326,82 @@
       return a;
     });
 
-  // 15.4.4 Properties of the Array Prototype Object
+  // 15.4.3 Properties of the Array Prototype Object
 
-  // 15.4.4.23
+  // 15.4.3.23
+  defineFunctionProperty(
+    Array.prototype, 'find',
+    function find(predicate) {
+      var o = Object(this);
+      var lenValue = o["length"];
+      var len = abstractOperation.ToInteger(lenValue);
+      if (!abstractOperation.IsCallable(predicate)) { throw new TypeError(); }
+      var t = arguments.length > 1 ? arguments[1] : undefined;
+      var k = 0;
+      while (k < len) {
+        var pk = String(k);
+        var kPresent = abstractOperation.HasProperty(o, pk);
+        if (kPresent) {
+          var kValue = o[pk];
+          var testResult = predicate.call(t, kValue, k, o);
+          if (Boolean(testResult)) {
+            return kValue;
+          }
+        }
+        ++k;
+      }
+      return undefined;
+    });
+
+  // 15.4.3.25
+  defineFunctionProperty(
+    Array.prototype, 'findIndex',
+    function findIndex(predicate) {
+      var o = Object(this);
+      var lenValue = o["length"];
+      var len = abstractOperation.ToInteger(lenValue);
+      if (!abstractOperation.IsCallable(predicate)) { throw new TypeError(); }
+      var t = arguments.length > 1 ? arguments[1] : undefined;
+      var k = 0;
+      while (k < len) {
+        var pk = String(k);
+        var kPresent = abstractOperation.HasProperty(o, pk);
+        if (kPresent) {
+          var kValue = o[pk];
+          var testResult = predicate.call(t, kValue, k, o);
+          if (Boolean(testResult)) {
+            return k;
+          }
+        }
+        ++k;
+      }
+      return -1;
+    });
+
+  // 15.4.3.25
   defineFunctionProperty(
     Array.prototype, 'entries',
     function entries() {
       return CreateArrayIterator(this, 'key+value');
     });
 
-  // 15.4.4.24
+  // 15.4.4.26
   defineFunctionProperty(
     Array.prototype, 'keys',
     function keys() {
       return CreateArrayIterator(this, 'key');
     });
 
-  // 15.4.4.25
+  // 15.4.4.27
   defineFunctionProperty(
     Array.prototype, 'values',
     function values() {
       return CreateArrayIterator(this, 'value');
     });
 
-  // 15.4.4.26
+  // 15.4.4.28
   defineFunctionProperty(
-    Array.prototype, iteratorSymbol,
+    Array.prototype, $$iterator,
     Array.prototype.entries
     );
 
@@ -299,14 +427,14 @@
           index = this.nextIndex,
           itemKind = this.iterationKind,
           lenValue = a.length,
-          len = ECMAScript.ToUint32(lenValue),
+          len = abstractOperation.ToUint32(lenValue),
           elementKey,
           elementValue;
       if (itemKind.indexOf('sparse') !== -1) {
         var found = false;
         while (!found && index < len) {
           elementKey = String(index);
-          found = ECMAScript.HasProperty(a, elementKey);
+          found = abstractOperation.HasProperty(a, elementKey);
           if (!found) {
             index += 1;
           }
@@ -314,7 +442,7 @@
       }
       if (index >= len) {
         this.nextIndex = Infinity;
-        throw global.StopIteration;
+        return abstractOperation.CreateItrResultObject(undefined, true);
       }
       elementKey = index;
       this.nextIndex = index + 1;
@@ -322,24 +450,24 @@
         elementValue = a[elementKey];
       }
       if (itemKind.indexOf('key+value') !== -1) {
-        return [elementKey, elementValue];
+        return abstractOperation.CreateItrResultObject([elementKey, elementValue], false);
       } else if (itemKind.indexOf('key') !== -1) {
-        return elementKey;
+        return abstractOperation.CreateItrResultObject(elementKey, false);
       } else if (itemKind === 'value') {
-        return elementValue;
+        return abstractOperation.CreateItrResultObject(elementValue, false);
       }
       throw new Error('Internal error');
     });
 
   // 15.4.6.2.3
   defineFunctionProperty(
-    ArrayIterator.prototype, iteratorSymbol,
+    ArrayIterator.prototype, $$iterator,
     function() {
       return this;
     });
 
   // 15.4.6.2.4
-  ArrayIterator.prototype[toStringTagSymbol] = 'Array Iterator';
+  ArrayIterator.prototype[$$toStringTag] = 'Array Iterator';
 
   //----------------------------------------
   // 15.5 String Objects
@@ -358,7 +486,7 @@
       while (nextIndex < length) {
         var next = codePoints[nextIndex];
         var nextCP = Number(next);
-        if (!ECMAScript.SameValue(nextCP, ECMAScript.ToInteger(nextCP)) ||
+        if (!abstractOperation.SameValue(nextCP, abstractOperation.ToInteger(nextCP)) ||
             nextCP < 0 || nextCP > 0x10FFFF) {
           throw new RangeError('Invalid code point ' + nextCP);
         }
@@ -381,13 +509,13 @@
     String.prototype, 'repeat',
     function repeat(count) {
       // var string = '' + this;
-      // count = ECMAScript.ToInteger(count);
+      // count = abstractOperation.ToInteger(count);
       // var result = ';
       // while (--count >= 0) {
       //     result += string;
       // }
       // return result;
-      count = ECMAScript.ToInteger(count);
+      count = abstractOperation.ToInteger(count);
       var a = [];
       a.length = count + 1;
       return a.join(String(this));
@@ -422,10 +550,10 @@
     String.prototype, 'codePointAt',
     function codePointAt(pos) {
       var s = String(this),
-          position = ECMAScript.ToInteger(pos),
+          position = abstractOperation.ToInteger(pos),
           size = s.length;
       if (position < 0 || position >= size) {
-        return (void 0);
+        return undefined;
       }
       var first = s.charCodeAt(position);
       if (first < 0xD800 || first > 0xDBFF || position + 1 === size) {
@@ -496,7 +624,7 @@
       if (typeof number !== 'number') {
         return false;
       }
-      var integer = ECMAScript.ToInteger(number);
+      var integer = abstractOperation.ToInteger(number);
       if (integer !== number) {
         return false;
       }
@@ -507,7 +635,7 @@
   defineFunctionProperty(
     Number, 'toInteger',
     function toInteger(value) {
-      return ECMAScript.ToInteger(value);
+      return abstractOperation.ToInteger(value);
     });
 
   // 15.7.4 Properties of the Number Prototype Object
@@ -521,7 +649,7 @@
         (x & 0x08 ? 4 : x & 0x04 ? 5 : x & 0x02 ? 6 : x & 0x01 ? 7 : 8);
       }
       var x = Number(this);
-      x = ECMAScript.ToUint32(x);
+      x = abstractOperation.ToUint32(x);
       return x & 0xff000000 ? clz8(x >> 24) :
         x & 0xff0000 ? clz8(x >> 16) + 8 :
         x & 0xff00 ? clz8(x >> 8) + 16 : clz8(x) + 24;
@@ -531,9 +659,9 @@
   // 15.8 The Math Object
   //----------------------------------------
 
-  // 15.6.2 Function Properties of the Math Object
+  // 15.8.2 Function Properties of the Math Object
 
-  // 15.6.2.19
+  // 15.8.2.19
   defineFunctionProperty(
     Math, 'log10',
     function log10(x) {
@@ -541,7 +669,7 @@
       return log(x) * LOG10E;
     });
 
-  // 15.6.2.20
+  // 15.8.2.20
   defineFunctionProperty(
     Math, 'log2',
     function log2(x) {
@@ -549,7 +677,7 @@
       return log(x) * LOG2E;
     });
 
-  // 15.6.2.21
+  // 15.8.2.21
   defineFunctionProperty(
     Math, 'log1p',
     function log1p(x) {
@@ -557,7 +685,7 @@
       // from: http://www.johndcook.com/cpp_expm1.html
       if (x < -1) {
         return NaN;
-      } else if (ECMAScript.SameValue(x, -0)) {
+      } else if (abstractOperation.SameValue(x, -0)) {
         return -0;
       } else if (abs(x) > 1e-4) {
         return log(1 + x);
@@ -566,13 +694,13 @@
       }
     });
 
-  // 15.6.2.22
+  // 15.8.2.22
   defineFunctionProperty(
     Math, 'expm1',
     function expm1(x) {
       x = Number(x);
       // from: http://www.johndcook.com/cpp_log1p.html
-      if (ECMAScript.SameValue(x, -0)) {
+      if (abstractOperation.SameValue(x, -0)) {
         return -0;
       } else if (abs(x) < 1e-5) {
         return x + 0.5 * x * x; // two terms of Taylor expansion
@@ -581,7 +709,7 @@
       }
     });
 
-  // 15.6.2.23
+  // 15.8.2.23
   defineFunctionProperty(
     Math, 'cosh',
     function cosh(x) {
@@ -589,25 +717,25 @@
       return (pow(E, x) + pow(E, -x)) / 2;
     });
 
-  // 15.6.2.24
+  // 15.8.2.24
   defineFunctionProperty(
     Math, 'sinh',
     function sinh(x) {
       x = Number(x);
-      return ECMAScript.SameValue(x, -0) ? x : (pow(E, x) - pow(E, -x)) / 2;
+      return abstractOperation.SameValue(x, -0) ? x : (pow(E, x) - pow(E, -x)) / 2;
     });
 
-  // 15.6.2.25
+  // 15.8.2.25
   defineFunctionProperty(
     Math, 'tanh',
     function tanh(x) {
       x = Number(x);
       var n = pow(E, 2 * x) - 1,
           d = pow(E, 2 * x) + 1;
-      return ECMAScript.SameValue(x, -0) ? x : (n === d) ? 1 : n / d; // Handle Infinity/Infinity
+      return abstractOperation.SameValue(x, -0) ? x : (n === d) ? 1 : n / d; // Handle Infinity/Infinity
     });
 
-  // 15.6.2.26
+  // 15.8.2.26
   defineFunctionProperty(
     Math, 'acosh',
     function acosh(x) {
@@ -615,19 +743,19 @@
       return log(x + sqrt(x * x - 1));
     });
 
-  // 15.6.2.27
+  // 15.8.2.27
   defineFunctionProperty(
     Math, 'asinh',
     function asinh(x) {
       x = Number(x);
-      if (ECMAScript.SameValue(x, -0)) {
+      if (abstractOperation.SameValue(x, -0)) {
         return x;
       }
       var s = sqrt(x * x + 1);
       return (s === -x) ? log(0) : log(x + s);
     });
 
-  // 15.6.2.28
+  // 15.8.2.28
   defineFunctionProperty(
     Math, 'atanh',
     function atanh(x) {
@@ -635,14 +763,14 @@
       return (x === 0) ? x : log((1 + x) / (1 - x)) / 2;
     });
 
-  // 15.6.2.29
+  // 15.8.2.29
   defineFunctionProperty(
     Math, 'hypot',
     function hypot(x, y, z) {
       function isInfinite(x) { return x === Infinity || x === -Infinity; }
       x = Number(x);
       y = Number(y);
-      z = (z === (void 0)) ? 0 : Number(z);
+      z = (z === undefined) ? 0 : Number(z);
       if (isInfinite(x) || isInfinite(y) || isInfinite(z)) {
         return Infinity;
       }
@@ -652,7 +780,7 @@
       return sqrt(x*x + y*y + z*z);
     });
 
-  // 15.6.2.30
+  // 15.8.2.30
   defineFunctionProperty(
     Math, 'trunc',
     function trunc(x) {
@@ -661,7 +789,7 @@
         x < 0 ? ceil(x) : floor(x);
     });
 
-  // 15.6.2.31
+  // 15.8.2.31
   defineFunctionProperty(
     Math, 'sign',
     function sign(x) {
@@ -669,7 +797,7 @@
       return x < 0 ? -1 : x > 0 ? 1 : x;
     });
 
-  // 15.6.2.32
+  // 15.8.2.32
   defineFunctionProperty(
     Math, 'cbrt',
     function sign(x) {
@@ -682,10 +810,13 @@
       return r + (r * (t-r) / (2*r + t));
     });
 
-  // from https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Math/imul
+  // 15.8.2.33
   defineFunctionProperty(
     Math, 'imul',
-    function imul(a, b) {
+    function imul(x, y) {
+      var a = abstractOperation.ToUint32(x);
+      var b = abstractOperation.ToUint32(y);
+      // (slow but accurate)
       var ah  = (a >>> 16) & 0xffff;
       var al = a & 0xffff;
       var bh  = (b >>> 16) & 0xffff;
@@ -697,7 +828,7 @@
   // 15.14 Map Objects
   //----------------------------------------
 
-  var empty = Object.create(null);
+  var empty = abstractOperation.ObjectCreate(null);
 
   (function() {
 
@@ -707,29 +838,24 @@
       if (typeof obj !== 'object') { throw new TypeError(); }
       if ('_mapData' in obj) { throw new TypeError(); }
 
-      if (iterable !== (void 0)) {
+      if (iterable !== undefined) {
         iterable = Object(iterable);
-        var itr = iterable[iteratorSymbol](); // or throw...
+        var itr = iterable[$$iterator](); // or throw...
         var adder = obj['set'];
-        if (!ECMAScript.IsCallable(adder)) { throw new TypeError(); }
+        if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
       }
       obj._mapData = { keys: [], values: [] };
-      if (comparator !== (void 0) && comparator !== "is") { throw new TypeError(); }
+      if (comparator !== undefined && comparator !== "is") { throw new TypeError(); }
       obj._mapComparator = (comparator === 'is') ? Object.is : Map.defaultComparator;
 
-      if (iterable === (void 0)) {
+      if (iterable === undefined) {
         return obj;
       }
       while (true) {
-        try {
-          var next = itr.next();
-        } catch (ex) {
-          if (ex === global.StopIteration) {
-            return obj;
-          }
-          throw ex;
-        }
-        adder.call(obj, next[0], next[1]);
+        var result = itr.next();
+        if (abstractOperation.IteratorComplete(result))
+          return obj;
+        adder.call(obj, result.value[0], result.value[1]);
       }
     }
 
@@ -757,7 +883,7 @@
       return -1;
     }
 
-    Map.defaultComparator = ECMAScript.SameValueZero;
+    Map.defaultComparator = abstractOperation.SameValueZero;
 
     // 15.14.5 Properties of the Map Prototype Object
 
@@ -788,7 +914,7 @@
       function forEach(callbackfn /*, thisArg*/) {
         var thisArg = arguments[1];
         var m = Object(this);
-        if (!ECMAScript.IsCallable(callbackfn)) {
+        if (!abstractOperation.IsCallable(callbackfn)) {
           throw new TypeError('First argument to forEach is not callable.');
         }
         for (var i = 0; i < this._mapData.keys.length; ++i) {
@@ -801,7 +927,7 @@
       Map.prototype, 'get',
       function get(key) {
         var i = indexOf(this._mapComparator, this._mapData, key);
-        return i < 0 ? (void 0) : this._mapData.values[i];
+        return i < 0 ? undefined : this._mapData.values[i];
       });
 
     // 15.14.5.6
@@ -859,13 +985,13 @@
 
     // 15.14.5.12
     defineFunctionProperty(
-      Map.prototype, iteratorSymbol,
+      Map.prototype, $$iterator,
       function() {
         return CreateMapIterator(Object(this), 'key+value');
       });
 
     // 15.14.5.13
-    Map.prototype[toStringTagSymbol] = 'Map';
+    Map.prototype[$$toStringTag] = 'Map';
 
     // 15.14.7 Properties of Map Instances
 
@@ -900,26 +1026,26 @@
           this._nextIndex = index;
           if (e.key !== empty) {
             if (itemKind === 'key') {
-              return e.key;
+              return abstractOperation.CreateItrResultObject(e.key, false);
             } else if (itemKind === 'value') {
-              return e.value;
+              return abstractOperation.CreateItrResultObject(e.value, false);
             } else {
-              return [e.key, e.value];
+              return abstractOperation.CreateItrResultObject([e.key, e.value], false);
             }
           }
         }
-        throw global.StopIteration;
+        return abstractOperation.CreateItrResultObject(undefined, true);
       });
 
     // 15.14.17.2.3
     defineFunctionProperty(
-      MapIterator.prototype, iteratorSymbol,
+      MapIterator.prototype, $$iterator,
       function() {
         return this;
       });
 
     // 15.14.17.2.4
-    MapIterator.prototype[toStringTagSymbol] = 'Map Iterator';
+    MapIterator.prototype[$$toStringTag] = 'Map Iterator';
 
     global.Map = global.Map || Map;
   }());
@@ -931,10 +1057,10 @@
   // Inspired by https://gist.github.com/1638059
   /** @constructor */
   function EphemeronTable() {
-    var secretKey = Object.create(null);
+    var secretKey = abstractOperation.ObjectCreate(null);
 
     function conceal(o) {
-      var oValueOf = o.valueOf, secrets = Object.create(null);
+      var oValueOf = o.valueOf, secrets = abstractOperation.ObjectCreate(null);
       o.valueOf = (function(secretKey) {
         return function (k) {
           return (k === secretKey) ? secrets : oValueOf.apply(o, arguments);
@@ -950,7 +1076,7 @@
 
     return {
       clear: function() {
-        secretKey = Object.create(null);
+        secretKey = abstractOperation.ObjectCreate(null);
       },
       remove: function(key) {
         var secrets = reveal(key);
@@ -960,11 +1086,11 @@
       },
       get: function(key, defaultValue) {
         var secrets = reveal(key);
-        return (secrets && ECMAScript.HasOwnProperty(secrets, 'value')) ? secrets.value : defaultValue;
+        return (secrets && abstractOperation.HasOwnProperty(secrets, 'value')) ? secrets.value : defaultValue;
       },
       has: function(key) {
         var secrets = reveal(key);
-        return Boolean(secrets && ECMAScript.HasOwnProperty(secrets, 'value'));
+        return Boolean(secrets && abstractOperation.HasOwnProperty(secrets, 'value'));
       },
       set: function(key, value) {
         var secrets = reveal(key) || conceal(key);
@@ -979,26 +1105,21 @@
       if (typeof obj !== 'object') { throw new TypeError(); }
       if ('_table' in obj) { throw new TypeError(); }
 
-      if (iterable !== (void 0)) {
+      if (iterable !== undefined) {
         iterable = Object(iterable);
-        var itr = iterable[iteratorSymbol](); // or throw...
+        var itr = iterable[$$iterator](); // or throw...
         var adder = obj['set'];
-        if (!ECMAScript.IsCallable(adder)) { throw new TypeError(); }
+        if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
       }
       obj._table = new EphemeronTable;
-      if (iterable === (void 0)) {
+      if (iterable === undefined) {
         return obj;
       }
       while (true) {
-        try {
-          var next = itr.next();
-        } catch (ex) {
-          if (ex === global.StopIteration) {
-            return obj;
-          }
-          throw ex;
-        }
-        adder.call(obj, next[0], next[1]);
+        var result = itr.next();
+        if (abstractOperation.IteratorComplete(result))
+          return obj;
+        adder.call(obj, result.value[0], result.value[1]);
       }
     }
 
@@ -1058,7 +1179,7 @@
       });
 
     // 15.15.5.8
-    WeakMap.prototype[toStringTagSymbol] = 'WeakMap';
+    WeakMap.prototype[$$toStringTag] = 'WeakMap';
 
     global.WeakMap = global.WeakMap || WeakMap;
   }());
@@ -1074,28 +1195,23 @@
       if (typeof obj !== 'object') { throw new TypeError(); }
       if ('_setData' in obj) { throw new TypeError(); }
 
-      if (iterable !== (void 0)) {
+      if (iterable !== undefined) {
         iterable = Object(iterable);
-        var itr = ECMAScript.HasProperty(iterable, 'values') ? iterable.values() : iterable[iteratorSymbol](); // or throw...
+        var itr = abstractOperation.HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
         var adder = obj['add'];
-        if (!ECMAScript.IsCallable(adder)) { throw new TypeError(); }
+        if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
       }
       obj._setData = [];
-      if (comparator !== (void 0) && comparator !== "is") { throw new TypeError(); }
+      if (comparator !== undefined && comparator !== "is") { throw new TypeError(); }
       obj._setComparator = (comparator === 'is') ? Object.is : Set.defaultComparator;
-      if (iterable === (void 0)) {
+      if (iterable === undefined) {
         return obj;
       }
       while (true) {
-        try {
-          var next = itr.next();
-        } catch (ex) {
-          if (ex === global.StopIteration) {
-            return obj;
-          }
-          throw ex;
-        }
-        adder.call(obj, next);
+        var result = itr.next();
+        if (abstractOperation.IteratorComplete(result))
+          return obj;
+        adder.call(obj, result.value);
       }
     }
 
@@ -1122,7 +1238,7 @@
       return -1;
     }
 
-    Set.defaultComparator = ECMAScript.SameValueZero;
+    Set.defaultComparator = abstractOperation.SameValueZero;
 
     // 15.16.5 Properties of the Set Prototype Object
 
@@ -1161,7 +1277,7 @@
       function forEach(callbackfn/*, thisArg*/) {
         var thisArg = arguments[1];
         var s = Object(this);
-        if (!ECMAScript.IsCallable(callbackfn)) {
+        if (!abstractOperation.IsCallable(callbackfn)) {
           throw new TypeError('First argument to forEach is not callable.');
         }
         for (var i = 0; i < this._setData.length; ++i) {
@@ -1199,13 +1315,13 @@
 
     // 15.16.5.9
     defineFunctionProperty(
-      Set.prototype, iteratorSymbol,
+      Set.prototype, $$iterator,
       function() {
         return CreateSetIterator(Object(this));
       });
 
     // 15.16.5.10
-    Set.prototype[toStringTagSymbol] = 'Set';
+    Set.prototype[$$toStringTag] = 'Set';
 
     // 15.16.7 Set Iterator Object Structure
 
@@ -1234,21 +1350,21 @@
           index = index += 1;
           this.nextIndex = index;
           if (e !== empty) {
-            return e;
+            return abstractOperation.CreateItrResultObject(e, false);
           }
         }
-        throw global.StopIteration;
+        return abstractOperation.CreateItrResultObject(undefined, true);
       });
 
     // 15.16.7.2.3
     defineFunctionProperty(
-      SetIterator.prototype, iteratorSymbol,
+      SetIterator.prototype, $$iterator,
       function() {
         return this;
       });
 
     // 15.16.7.2.4
-    SetIterator.prototype[toStringTagSymbol] = 'Set Iterator';
+    SetIterator.prototype[$$toStringTag] = 'Set Iterator';
 
     global.Set = global.Set || Set;
   }());
@@ -1260,26 +1376,21 @@
       if (typeof obj !== 'object') { throw new TypeError(); }
       if ('_table' in obj) { throw new TypeError(); }
 
-      if (iterable !== (void 0)) {
+      if (iterable !== undefined) {
         iterable = Object(iterable);
-        var itr = ECMAScript.HasProperty(iterable, 'values') ? iterable.values() : iterable[iteratorSymbol](); // or throw...
+        var itr = abstractOperation.HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
         var adder = obj['add'];
-        if (!ECMAScript.IsCallable(adder)) { throw new TypeError(); }
+        if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
       }
       obj._table = new EphemeronTable;
-      if (iterable === (void 0)) {
+      if (iterable === undefined) {
         return obj;
       }
       while (true) {
-        try {
-          var next = itr.next();
-        } catch (ex) {
-          if (ex === global.StopIteration) {
-            return obj;
-          }
-          throw ex;
-        }
-        adder.call(obj, next);
+        var result = itr.next();
+        if (abstractOperation.IteratorComplete(result))
+          return obj;
+        adder.call(obj, result.value);
       }
     }
 
@@ -1322,7 +1433,7 @@
         return this._table.has(key);
       });
 
-    WeakSet.prototype[toStringTagSymbol] = 'WeakSet';
+    WeakSet.prototype[$$toStringTag] = 'WeakSet';
 
     global.WeakSet = global.WeakSet || WeakSet;
   }());
@@ -1410,7 +1521,7 @@
       function(target,name,receiver) {
         target = Object(target);
         name = String(name);
-        receiver = (receiver === (void 0)) ? target : Object(receiver);
+        receiver = (receiver === undefined) ? target : Object(receiver);
         var desc = Object.getPropertyDescriptor(target, name);
         if ('get' in desc) {
           return Function.prototype.call.call(desc['get'], receiver);
@@ -1422,7 +1533,7 @@
       function(target,name,value,receiver) {
         target = Object(target);
         name = String(name);
-        receiver = (receiver === (void 0)) ? target : Object(receiver);
+        receiver = (receiver === undefined) ? target : Object(receiver);
         var desc = Object.getPropertyDescriptor(target, name);
         if ('set' in desc) {
           return Function.prototype.call.call(desc['set'], receiver, value);
@@ -1486,20 +1597,40 @@
           index = index += 1;
           this.nextIndex = index;
           if (e !== empty) {
-            return e;
+            return abstractOperation.CreateItrResultObject(e, false);
           }
         }
-        throw global.StopIteration;
+        return abstractOperation.CreateItrResultObject(undefined, true);
       });
 
     defineFunctionProperty(
-      PropertyIterator.prototype, iteratorSymbol,
+      PropertyIterator.prototype, $$iterator,
       function() {
         return this;
       });
 
     global.Reflect = global.Reflect || Reflect;
   }());
+
+  //----------------------------------------
+  // 15.19 The "std:iteration" Module
+  //----------------------------------------
+
+  // 15.19.4.3.4
+  abstractOperation.CreateItrResultObject = function(value, done) {
+    assert(Type(done) === 'boolean');
+    var obj = {};
+    obj["value"] = value;
+    obj["done"] = done;
+    return obj;
+  };
+
+  // 15.19.4.3.5
+  abstractOperation.IteratorComplete = function(itrResult) {
+    assert(Type(itrResult) === 'object');
+    assert(Object(itrResult) === itrResult);
+    return Boolean(itrResult.done);
+  };
 
   //----------------------------------------------------------------------
   //
@@ -1526,14 +1657,14 @@
         }
         o = Object.getPrototypeOf(o);
       } while (o);
-      return (void 0);
+      return undefined;
     });
 
   // http://wiki.ecmascript.org/doku.php?id=harmony:extended_object_api
   defineFunctionProperty(
     Object, 'getPropertyNames',
     function getPropertyNames(o) {
-      var names = Object.create(null);
+      var names = abstractOperation.ObjectCreate(null);
       do {
         Object.getOwnPropertyNames(o).forEach(function(name) {
           names[name] = true;
@@ -1548,17 +1679,17 @@
     Array.prototype, 'pushAll',
     function pushAll(other, start, end) {
       other = Object(other);
-      if (start === (void 0)) {
+      if (start === undefined) {
         start = 0;
       }
-      start = ECMAScript.ToUint32(start);
-      var otherLength = ECMAScript.ToUint32(other.length);
-      if (end === (void 0)) {
+      start = abstractOperation.ToUint32(start);
+      var otherLength = abstractOperation.ToUint32(other.length);
+      if (end === undefined) {
         end = otherLength;
       }
-      end = ECMAScript.ToUint32(end);
+      end = abstractOperation.ToUint32(end);
       var self = Object(this);
-      var length = ECMAScript.ToUint32(self.length);
+      var length = abstractOperation.ToUint32(self.length);
       for (var i = 0, j = length; i < end; i++, j++) {
         self[j] = other[i];
       }
@@ -1572,11 +1703,11 @@
     function contains(target) {
       if (this === void 0 || this === null) { throw new TypeError(); }
       var t = Object(this),
-          len = ECMAScript.ToUint32(t.length),
+          len = abstractOperation.ToUint32(t.length),
           i;
       for (i = 0; i < len; i += 1) {
         // eval('0 in [undefined]') == false in IE8-
-        if (/*i in t &&*/ ECMAScript.SameValue(t[i], target)) {
+        if (/*i in t &&*/ abstractOperation.SameValue(t[i], target)) {
           return true;
         }
       }
@@ -1587,7 +1718,7 @@
   // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
   (function() {
     defineFunctionProperty(
-      String.prototype, iteratorSymbol,
+      String.prototype, $$iterator,
       function entries() {
         return CreateStringIterator(this);
       });
@@ -1602,7 +1733,7 @@
       this.nextIndex = nextIndex;
     }
     StringIterator.prototype = {};
-    StringIterator.prototype[toStringTagSymbol] = 'String Iterator';
+    StringIterator.prototype[$$toStringTag] = 'String Iterator';
     defineFunctionProperty(
       StringIterator.prototype, 'next',
       function() {
@@ -1611,14 +1742,14 @@
             len = s.length;
         if (index >= len) {
           this.nextIndex = Infinity;
-          throw global.StopIteration;
+          return abstractOperation.CreateItrResultObject(undefined, true);
         }
         var cp = s.codePointAt(index);
         this.nextIndex += cp > 0xFFFF ? 2 : 1;
-        return String.fromCodePoint(cp);
+        return abstractOperation.CreateItrResultObject(String.fromCodePoint(cp), false);
       });
     defineFunctionProperty(
-      StringIterator.prototype, iteratorSymbol,
+      StringIterator.prototype, $$iterator,
       function() {
         return this;
       });
@@ -1628,7 +1759,7 @@
   // https://mail.mozilla.org/pipermail/es-discuss/2012-December/026810.html
   (function() {
     function dict(init) {
-      var dict = Object.create(null);
+      var dict = abstractOperation.ObjectCreate(null);
       if (init) {
         for (var key in init) {
           if (Object.prototype.hasOwnProperty.call(init, key)) {
@@ -1668,7 +1799,7 @@
       this.propList = Object.keys(object);
     }
     DictIterator.prototype = {};
-    DictIterator.prototype[toStringTagSymbol] = 'Dict Iterator';
+    DictIterator.prototype[$$toStringTag] = 'Dict Iterator';
     defineFunctionProperty(
       DictIterator.prototype, 'next',
       function() {
@@ -1683,18 +1814,18 @@
           this.nextIndex = index;
           if (e.key !== empty) {
             if (itemKind === 'key') {
-              return e.key;
+              return abstractOperation.CreateItrResultObject(e.key, false);
             } else if (itemKind === 'value') {
-              return e.value;
+              return abstractOperation.CreateItrResultObject(e.value, false);
             } else {
-              return [e.key, e.value];
+              return abstractOperation.CreateItrResultObject([e.key, e.value], false);
             }
           }
         }
-        throw global.StopIteration;
+        return abstractOperation.CreateItrResultObject(undefined, true);
       });
     defineFunctionProperty(
-      DictIterator.prototype, iteratorSymbol,
+      DictIterator.prototype, $$iterator,
       function() {
         return this;
       });
@@ -1707,29 +1838,22 @@
     if (!(this instanceof Symbol)) return new Symbol;
     function pad8(n) { return ('00000000' + n).slice(-8); }
     function r() { return pad8((Math.random() * 0x100000000).toString(16)); }
-    var s = r() + '-' + r() + '-' + r() + '-' + r();
-    this.toString = function() { return s; };
+    var __private__ = r() + '-' + r() + '-' + r() + '-' + r();
+    this.toString = function() { return __private__; };
     return this;
   }
-  function isSymbol(s) {
-    return s instanceof Symbol;
-  }
   global.Symbol = global.Symbol || Symbol;
-  global.isSymbol = global.isSymbol || isSymbol;
 
   // NOTE: Since true iterators can't be polyfilled, this is a hack
   function forOf(o, func) {
     o = Object(o);
-    var it = o[iteratorSymbol]();
-    try {
-      while (true) {
-        func(it.next());
-      }
-    } catch (ex) {
-      if (ex === global.StopIteration) {
+    var it = o[$$iterator]();
+    while (true) {
+      var result = it.next();
+      if (abstractOperation.IteratorComplete(result)) {
         return;
       }
-      throw ex;
+      func(result.value);
     }
   }
   global.forOf = forOf; // Since for( ... of ... ) can't be shimmed w/o a transpiler.

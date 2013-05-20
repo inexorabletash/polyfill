@@ -85,15 +85,15 @@ The standardization of ES6 is currently in progress.
 This will attempt to track the evolving spec, so may change at any time.
 
 In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts):
-* Object: `assign()`, `is()`
+* Object: `assign()`, `is()`, `setPrototypeOf()`
 * Number: `EPILON`, `MAX_INTEGER`, `parseInt()`, `parseFloat()`, `isFinite()`, `isNaN()`, `isInteger()`, `toInteger()`
 * Number prototype: `clz()`
 * String: `fromCodePoint()`
 * String.prototype: `codePointAt()`, `repeat()`, `startsWith()`, `endsWith()`, `contains()`
 * Math: `log10()`, `log2()`, `log1p()`, `expm1()`, `cosh()`, `sinh()`, `tanh()`, `acosh()`, `asinh()`, `atanh()`, `hypot()`, `trunc()`, `sign()`, `cbrt()`, `imul()`
 * Array: `of()`, `from()`
-* Array prototype: `items()`, `keys()`, `values()`, `@@iterator()`
-* Map: `clear()`, `delete()`, `forEach()`, `get()`, `has()`, `items()`, `keys()`, `set()`, `size`, `values()`, `@@iterator()`
+* Array prototype: `find()`, `findIndex()`, `entries()`, `keys()`, `values()`, `@@iterator()`
+* Map: `clear()`, `delete()`, `forEach()`, `get()`, `has()`, `entries()`, `keys()`, `set()`, `size`, `values()`, `@@iterator()`
 * Set: `add()`, `clear()`, `delete()`, `forEach()`, `has()`, `size`, `values()`, `@@iterator()`
 * WeakMap (intrusive; modifies valueOf property of key): `clear()`, `delete()`, `get()`, `has()`, `set()`
 
@@ -103,13 +103,11 @@ Not yet approved:
 * String prototype: `@@iterator()` [ref](http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html)
 * Dict: `keys(dict)`, `values(dict)`, `entries(dict)`
   * `dict()` is shortcut for `Object.create(null)`
-* Symbol: `Symbol`, `isSymbol`
-  * No security, just creates an object with a unique string representation.
+* Symbol: `Symbol`
+  * No security, just creates an object with a unique string representation. `typeof` will incorrectly report `"object"`
 
 Helpers:
 * `forOf(o, function(i) { ... })` - since `for (i of o) { ... }` can't be polyfilled. Uses iterators, so works with arrays, maps, sets, and strings, via implicit @@iterator and explicit iterators returned by keys/values/entries methods and functions.
-
-*NOTE: Uses old StopIteration iterator style. Need to update to latest TC39 consensus design.*
 
 ### Binary Data
 
