@@ -3,7 +3,7 @@ polyfill - JavaScript Polyfills, Shims and More
 
 * A *shim* lets you write the same code across all browsers by implementing a new API in downlevel browsers.
 * A *polyfill* is a shim or collection of shims (and a catchy name).
-* A *prollfill* is a shim for a proposed API
+* A *prollyfill* is a shim for a proposed API
 * A *helper* helps write cross-browser code where a true API shim/polyfill is not possible.
 
 Note that my general approach to polyfills is not to produce 100% compliant behavior, but to provide a broad subset of functionality so that, where possible, cooperative code can be written to take advantage of new APIs. No assumptions should be made about security or edge cases. It is preferrable to use a shim where it is possible to create one on supported browsers. If not possible, a helper should be used that lets the same code be used in all browsers.
