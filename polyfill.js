@@ -728,6 +728,14 @@ if ('window' in this && 'document' in this) {
     };
   }
 
+  // Fix for IE8-'s Element.getBoundingClientRect()
+  if ('TextRectangle' in this && !('width' in TextRectangle.prototype)) {
+    Object.defineProperties(TextRectangle.prototype, {
+      'width': { get: function() { return this.right - this.left; } },
+      'height': { get: function() { return this.bottom - this.top; } }
+    });
+  }
+
   //
   // DOM Enumerations (http://www.w3.org/TR/DOM-Level-2-Core/)
   //
