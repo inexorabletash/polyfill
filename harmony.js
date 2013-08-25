@@ -970,40 +970,42 @@
 
   (function() {
 
-    // 15.14.1 Abstract Operations For Map Objects
 
-    function MapInitialisation(obj, iterable, comparator) {
-      if (typeof obj !== 'object') { throw new TypeError(); }
-      if ('_mapData' in obj) { throw new TypeError(); }
+    // 15.14.1 The Map Constructor
+
+    /** @constructor */
+    function Map(iterable, comparator) {
+      var map = this;
+
+      if (typeof map !== 'object') { throw new TypeError(); }
+      if ('_mapData' in map) { throw new TypeError(); }
 
       if (iterable !== undefined) {
         iterable = Object(iterable);
         var itr = iterable[$$iterator](); // or throw...
-        var adder = obj['set'];
+        var adder = map['set'];
         if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
       }
-      obj._mapData = { keys: [], values: [] };
+      map._mapData = { keys: [], values: [] };
       if (comparator !== undefined && comparator !== "is") { throw new TypeError(); }
-      obj._mapComparator = (comparator === 'is') ? Object.is : Map.defaultComparator;
+      map._mapComparator = (comparator === 'is') ? Object.is : Map.defaultComparator;
 
       if (iterable === undefined) {
-        return obj;
+        return map;
       }
       while (true) {
-        var result = itr.next();
-        if (abstractOperation.IteratorComplete(result))
-          return obj;
-        adder.call(obj, result.value[0], result.value[1]);
+        var next = itr.next();
+        var done = abstractOperation.IteratorComplete(next);
+        if (done)
+          return map;
+        var nextItem = abstractOperation.IteratorValue(next);
+        if (typeof nextItem !== 'object') { throw new TypeError(); }
+        var k = nextItem[0];
+        var v = nextItem[1];
+        adder.call(map, k, v);
       }
-    }
 
-    // 15.14.3 The Map Constructor
-
-    /** @constructor */
-    function Map(iterable, comparator) {
-      MapInitialisation(this, iterable, comparator);
-
-      return this;
+      return map;
     }
 
     function indexOf(mapComparator, mapData, key) {
@@ -1236,36 +1238,38 @@
   }
 
   (function() {
-    // 15.15.1 Abstract Operations For WeakMap Objects
-    function WeakMapInitialisation(obj, iterable) {
-      if (typeof obj !== 'object') { throw new TypeError(); }
-      if ('_table' in obj) { throw new TypeError(); }
-
-      if (iterable !== undefined) {
-        iterable = Object(iterable);
-        var itr = iterable[$$iterator](); // or throw...
-        var adder = obj['set'];
-        if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
-      }
-      obj._table = new EphemeronTable;
-      if (iterable === undefined) {
-        return obj;
-      }
-      while (true) {
-        var result = itr.next();
-        if (abstractOperation.IteratorComplete(result))
-          return obj;
-        adder.call(obj, result.value[0], result.value[1]);
-      }
-    }
-
     // 15.15.3 The WeakMap Constructor
 
     /** @constructor */
     function WeakMap(iterable) {
-      WeakMapInitialisation(this, iterable);
+      var map = this;
 
-      return this;
+     if (typeof map !== 'object') { throw new TypeError(); }
+      if ('_table' in map) { throw new TypeError(); }
+
+      if (iterable !== undefined) {
+        iterable = Object(iterable);
+        var itr = iterable[$$iterator](); // or throw...
+        var adder = map['set'];
+        if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
+      }
+      map._table = new EphemeronTable;
+      if (iterable === undefined) {
+        return map;
+      }
+      while (true) {
+        var next = itr.next();
+        var done = abstractOperation.IteratorComplete(next);
+        if (done)
+          return map;
+        var nextValue = abstractOperation.IteratorValue(next);
+        if (typeof nextValue !== 'object') { throw new TypeError(); }
+        var k = nextValue[0];
+        var vk = nextValue[1];
+        adder.call(map, k, v);
+      }
+
+      return map;
     }
 
     WeakMap.prototype = {};
@@ -1324,37 +1328,36 @@
 
   (function() {
 
-    // 15.16.1 Abstract Operations For Set Objects
-    function SetInitialisation(obj, iterable, comparator) {
-      if (typeof obj !== 'object') { throw new TypeError(); }
-      if ('_setData' in obj) { throw new TypeError(); }
+    // 15.16.3 The Set Constructor
+    /** @constructor */
+    function Set(iterable, comparator) {
+      var set = this;
+
+      if (typeof set !== 'object') { throw new TypeError(); }
+      if ('_setData' in set) { throw new TypeError(); }
 
       if (iterable !== undefined) {
         iterable = Object(iterable);
         var itr = abstractOperation.HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
-        var adder = obj['add'];
+        var adder = set['add'];
         if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
       }
-      obj._setData = [];
+      set._setData = [];
       if (comparator !== undefined && comparator !== "is") { throw new TypeError(); }
-      obj._setComparator = (comparator === 'is') ? Object.is : Set.defaultComparator;
+      set._setComparator = (comparator === 'is') ? Object.is : Set.defaultComparator;
       if (iterable === undefined) {
-        return obj;
+        return set;
       }
       while (true) {
-        var result = itr.next();
-        if (abstractOperation.IteratorComplete(result))
-          return obj;
-        adder.call(obj, result.value);
+        var next = itr.next();
+        var done = abstractOperation.IteratorComplete(next);
+        if (done)
+          return set;
+        var nextValue = abstractOperation.IteratorValue(next);
+        adder.call(set, nextValue);
       }
-    }
 
-    // 15.16.3 The Set Constructor
-    /** @constructor */
-    function Set(iterable, comparator) {
-      SetInitialisation(this, iterable, comparator);
-
-      return this;
+      return set;
     }
 
     function indexOf(setComparator, setData, key) {
@@ -1504,33 +1507,33 @@
   // WeakSet
   (function() {
 
-    function WeakSetInitialisation(obj, iterable) {
-      if (typeof obj !== 'object') { throw new TypeError(); }
-      if ('_table' in obj) { throw new TypeError(); }
+    /** @constructor */
+    function WeakSet(iterable) {
+      var set = this;
+
+      if (typeof set !== 'object') { throw new TypeError(); }
+      if ('_table' in set) { throw new TypeError(); }
 
       if (iterable !== undefined) {
         iterable = Object(iterable);
         var itr = abstractOperation.HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
-        var adder = obj['add'];
+        var adder = set['add'];
         if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
       }
-      obj._table = new EphemeronTable;
+      set._table = new EphemeronTable;
       if (iterable === undefined) {
-        return obj;
+        return set;
       }
       while (true) {
-        var result = itr.next();
-        if (abstractOperation.IteratorComplete(result))
-          return obj;
-        adder.call(obj, result.value);
+        var next = itr.next();
+        var done = abstractOperation.IteratorComplete(next);
+        if (done)
+          return set;
+        var nextValue = abstractOperation.IteratorValue(next);
+        adder.call(set, nextValue);
       }
-    }
 
-    /** @constructor */
-    function WeakSet(iterable) {
-      WeakSetInitialisation(this, iterable);
-
-      return this;
+      return set;
     }
 
     WeakSet.prototype = {};
@@ -1755,11 +1758,16 @@
     return obj;
   };
 
-  // 15.19.4.3.5
+  // 15.19.4.3.7
   abstractOperation.IteratorComplete = function(itrResult) {
     assert(Type(itrResult) === 'object');
-    assert(Object(itrResult) === itrResult);
     return Boolean(itrResult.done);
+  };
+
+  // 15.19.4.3.8
+  abstractOperation.IteratorValue = function(itrResult) {
+    assert(Type(itrResult) === 'object');
+    return itrResult.value;
   };
 
   //----------------------------------------------------------------------
@@ -1983,7 +1991,7 @@
       if (abstractOperation.IteratorComplete(result)) {
         return;
       }
-      func(result.value);
+      func(abstractOperation.IteratorValue(result));
     }
   }
   global.forOf = forOf; // Since for( ... of ... ) can't be shimmed w/o a transpiler.
