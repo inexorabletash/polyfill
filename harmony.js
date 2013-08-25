@@ -440,7 +440,7 @@
       else
         k = min(relativeStart, len);
       var relativeEnd;
-      if (end === (void 0))
+      if (end === undefined)
         relativeEnd = len;
       else
         relativeEnd = abstractOperation.ToInteger(end);
@@ -480,7 +480,7 @@
       else
         from = min(relativeStart, len);
       var relativeEnd;
-      if (end === (void 0))
+      if (end === undefined)
         relativeEnd = len;
       else
         relativeEnd = abstractOperation.ToInteger(end);
@@ -1831,7 +1831,7 @@
   defineFunctionProperty(
     Array.prototype,
     function contains(target) {
-      if (this === void 0 || this === null) { throw new TypeError(); }
+      if (this === undefined || this === null) { throw new TypeError(); }
       var t = Object(this),
           len = abstractOperation.ToUint32(t.length),
           i;
