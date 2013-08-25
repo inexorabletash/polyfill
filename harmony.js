@@ -25,7 +25,7 @@
     };
   }
 
-  function defineFunctionProperty(o, p, f) {
+  function defineNamedFunctionProperty(o, p, f) {
     if (!(p in o)) {
       Object.defineProperty(o, p, {
         value: f,
@@ -34,6 +34,10 @@
         writable: true
       });
     }
+  }
+
+  function defineFunctionProperty(o, f) {
+    return defineNamedFunctionProperty(o, f.name, f);
   }
 
   function defineValueProperty(o, p, c) {
@@ -217,7 +221,7 @@
 
   // 15.2.3.2
   defineFunctionProperty(
-    Object, 'setPrototypeOf',
+    Object,
     function setPrototypeOf(o, proto) {
       if (Type(o) !== 'object') { throw new TypeError(); }
       if (Type(proto) !== 'object' && Type(proto) !== 'null') { throw new TypeError(); }
@@ -229,20 +233,22 @@
   // 15.2.3.15
   // TODO: Object.getOwnPropertyKeys vs. Object.keys
   defineFunctionProperty(
-    Object, 'getOwnPropertyKeys',
-    Object.keys
+    Object,
+    function getOwnPropertyKeys(o) {
+      return Object.keys(o);
+    }
   );
 
   // 15.2.3.16
   defineFunctionProperty(
-    Object, 'is',
+    Object,
     function is(x, y) {
       return abstractOperation.SameValue(x, y);
     });
 
   // 15.2.3.17
   defineFunctionProperty(
-    Object, 'assign',
+    Object,
     function assign(target, source) {
       target = Object(target);
       source = Object(source);
@@ -254,7 +260,7 @@
 
   // 15.2.3.18
   defineFunctionProperty(
-    Object, 'mixin',
+    Object,
     function mixin(target, source) {
       target = Object(target);
       source = Object(source);
@@ -285,7 +291,7 @@
 
   // 15.4.2.3
   defineFunctionProperty(
-    Array, 'of',
+    Array,
     function of() {
       var items = arguments;
       var lenValue = items.length;
@@ -309,7 +315,7 @@
 
   // 15.4.2.4
   defineFunctionProperty(
-    Array, 'from',
+    Array,
     function from(arrayLike) {
       var mapfn = arguments[1];
       var thisArg = arguments[2];
@@ -341,7 +347,7 @@
 
   // 15.4.3.23
   defineFunctionProperty(
-    Array.prototype, 'find',
+    Array.prototype,
     function find(predicate) {
       var o = Object(this);
       var lenValue = o["length"];
@@ -366,7 +372,7 @@
 
   // 15.4.3.25
   defineFunctionProperty(
-    Array.prototype, 'findIndex',
+    Array.prototype,
     function findIndex(predicate) {
       var o = Object(this);
       var lenValue = o["length"];
@@ -391,34 +397,34 @@
 
   // 15.4.3.25
   defineFunctionProperty(
-    Array.prototype, 'entries',
+    Array.prototype,
     function entries() {
       return CreateArrayIterator(this, 'key+value');
     });
 
   // 15.4.4.26
   defineFunctionProperty(
-    Array.prototype, 'keys',
+    Array.prototype,
     function keys() {
       return CreateArrayIterator(this, 'key');
     });
 
   // 15.4.4.27
   defineFunctionProperty(
-    Array.prototype, 'values',
+    Array.prototype,
     function values() {
       return CreateArrayIterator(this, 'value');
     });
 
   // 15.4.4.28
-  defineFunctionProperty(
+  defineNamedFunctionProperty(
     Array.prototype, $$iterator,
     Array.prototype.entries
     );
 
   // 15.4.3.30
   defineFunctionProperty(
-    Array.prototype, 'fill',
+    Array.prototype,
     function fill(value/*, start, end*/) {
       var start = arguments[1],
           end = arguments[2];
@@ -453,7 +459,7 @@
 
   // 15.4.3.31
   defineFunctionProperty(
-    Array.prototype, 'copyWithin',
+    Array.prototype,
     function copyWithin(target, start/*, end*/) {
       var end = arguments[2];
 
@@ -524,8 +530,8 @@
 
   // 15.4.6.2.2
   defineFunctionProperty(
-    ArrayIterator.prototype, 'next',
-    function() {
+    ArrayIterator.prototype,
+    function next() {
       if (typeof this !== 'object') { throw new TypeError; }
       var a = this.iteratedObject,
           index = this.nextIndex,
@@ -564,7 +570,7 @@
     });
 
   // 15.4.6.2.3
-  defineFunctionProperty(
+  defineNamedFunctionProperty(
     ArrayIterator.prototype, $$iterator,
     function() {
       return this;
@@ -581,7 +587,7 @@
 
   // 15.5.3.3
   defineFunctionProperty(
-    String, 'fromCodePoint',
+    String,
     function fromCodePoint(/*...codePoints*/) {
       var codePoints = arguments,
           length = codePoints.length,
@@ -610,7 +616,7 @@
 
   // 15.5.4.21
   defineFunctionProperty(
-    String.prototype, 'repeat',
+    String.prototype,
     function repeat(count) {
       // var string = '' + this;
       // count = abstractOperation.ToInteger(count);
@@ -627,7 +633,7 @@
 
   // 15.5.4.22
   defineFunctionProperty(
-    String.prototype, 'startsWith',
+    String.prototype,
     function startsWith(s) {
       s = String(s);
       return String(this).substring(0, s.length) === s;
@@ -635,7 +641,7 @@
 
   // 15.5.4.23
   defineFunctionProperty(
-    String.prototype, 'endsWith',
+    String.prototype,
     function endsWith(s) {
       s = String(s);
       var t = String(this);
@@ -644,14 +650,14 @@
 
   // 15.5.4.24
   defineFunctionProperty(
-    String.prototype, 'contains',
+    String.prototype,
     function contains(searchString, position) {
       return String(this).indexOf(searchString, position) !== -1;
     });
 
   // 15.5.4.25
   defineFunctionProperty(
-    String.prototype, 'codePointAt',
+    String.prototype,
     function codePointAt(pos) {
       var s = String(this),
           position = abstractOperation.ToInteger(pos),
@@ -695,35 +701,34 @@
   // 15.7.2.9
   defineFunctionProperty(
     Number,
-    'parseInt',
     function parseInt(string) {
       return global_parseInt(string);
     });
 
   // 15.7.2.10
   defineFunctionProperty(
-    Number, 'parseFloat',
+    Number,
     function parseFloat(string) {
       return global_parseFloat(string);
     });
 
   // 15.7.2.11
   defineFunctionProperty(
-    Number, 'isNaN',
+    Number,
     function isNaN(value) {
       return typeof value === 'number' && global_isNaN(value);
     });
 
   // 15.7.2.12
   defineFunctionProperty(
-    Number, 'isFinite',
+    Number,
     function isFinite(value) {
       return typeof value === 'number' && global_isFinite(value);
     });
 
   // 15.7.2.13
   defineFunctionProperty(
-    Number, 'isInteger',
+    Number,
     function isInteger(number) {
       if (typeof number !== 'number') {
         return false;
@@ -740,7 +745,7 @@
 
   // 15.7.2.14
   defineFunctionProperty(
-    Number, 'isSafeInteger',
+    Number,
     function isSafeInteger(number) {
       if (typeof number !== 'number') {
         return false;
@@ -762,7 +767,7 @@
 
   // 15.7.4.8
   defineFunctionProperty(
-    Number.prototype, 'clz',
+    Number.prototype,
     function clz() {
       function clz8(x) {
         return (x & 0xf0) ? (x & 0x80 ? 0 : x & 0x40 ? 1 : x & 0x20 ? 2 : 3) :
@@ -783,7 +788,7 @@
 
   // 15.8.2.19
   defineFunctionProperty(
-    Math, 'log10',
+    Math,
     function log10(x) {
       x = Number(x);
       return log(x) * LOG10E;
@@ -791,7 +796,7 @@
 
   // 15.8.2.20
   defineFunctionProperty(
-    Math, 'log2',
+    Math,
     function log2(x) {
       x = Number(x);
       return log(x) * LOG2E;
@@ -799,7 +804,7 @@
 
   // 15.8.2.21
   defineFunctionProperty(
-    Math, 'log1p',
+    Math,
     function log1p(x) {
       x = Number(x);
       // from: http://www.johndcook.com/cpp_expm1.html
@@ -816,7 +821,7 @@
 
   // 15.8.2.22
   defineFunctionProperty(
-    Math, 'expm1',
+    Math,
     function expm1(x) {
       x = Number(x);
       // from: http://www.johndcook.com/cpp_log1p.html
@@ -831,7 +836,7 @@
 
   // 15.8.2.23
   defineFunctionProperty(
-    Math, 'cosh',
+    Math,
     function cosh(x) {
       x = Number(x);
       return (pow(E, x) + pow(E, -x)) / 2;
@@ -839,7 +844,7 @@
 
   // 15.8.2.24
   defineFunctionProperty(
-    Math, 'sinh',
+    Math,
     function sinh(x) {
       x = Number(x);
       return abstractOperation.SameValue(x, -0) ? x : (pow(E, x) - pow(E, -x)) / 2;
@@ -847,7 +852,7 @@
 
   // 15.8.2.25
   defineFunctionProperty(
-    Math, 'tanh',
+    Math,
     function tanh(x) {
       x = Number(x);
       var n = pow(E, 2 * x) - 1,
@@ -857,7 +862,7 @@
 
   // 15.8.2.26
   defineFunctionProperty(
-    Math, 'acosh',
+    Math,
     function acosh(x) {
       x = Number(x);
       return log(x + sqrt(x * x - 1));
@@ -865,7 +870,7 @@
 
   // 15.8.2.27
   defineFunctionProperty(
-    Math, 'asinh',
+    Math,
     function asinh(x) {
       x = Number(x);
       if (abstractOperation.SameValue(x, -0)) {
@@ -877,7 +882,7 @@
 
   // 15.8.2.28
   defineFunctionProperty(
-    Math, 'atanh',
+    Math,
     function atanh(x) {
       x = Number(x);
       return (x === 0) ? x : log((1 + x) / (1 - x)) / 2;
@@ -885,7 +890,7 @@
 
   // 15.8.2.29
   defineFunctionProperty(
-    Math, 'hypot',
+    Math,
     function hypot(x, y, z) {
       function isInfinite(x) { return x === Infinity || x === -Infinity; }
       x = Number(x);
@@ -902,7 +907,7 @@
 
   // 15.8.2.30
   defineFunctionProperty(
-    Math, 'trunc',
+    Math,
     function trunc(x) {
       x = Number(x);
       return global_isNaN(x) ? NaN :
@@ -911,7 +916,7 @@
 
   // 15.8.2.31
   defineFunctionProperty(
-    Math, 'sign',
+    Math,
     function sign(x) {
       x = Number(x);
       return x < 0 ? -1 : x > 0 ? 1 : x;
@@ -919,8 +924,8 @@
 
   // 15.8.2.32
   defineFunctionProperty(
-    Math, 'cbrt',
-    function sign(x) {
+    Math,
+    function cbrt(x) {
       x = Number(x);
       if (global_isNaN(x/x)) {
         return x;
@@ -932,7 +937,7 @@
 
   // 15.8.2.33
   defineFunctionProperty(
-    Math, 'imul',
+    Math,
     function imul(x, y) {
       var a = abstractOperation.ToUint32(x);
       var b = abstractOperation.ToUint32(y);
@@ -946,8 +951,8 @@
 
   // 15.8.2.34
   defineFunctionProperty(
-    Math, 'roundFloat',
-    function roundFloat(x) {
+    Math,
+    function roundFloat32(x) {
       if (global_isNaN(x)) {
         return NaN;
       }
@@ -1022,14 +1027,14 @@
 
     // 15.14.5.2
     defineFunctionProperty(
-      Map.prototype, 'clear',
+      Map.prototype,
       function clear() {
         this._mapData.keys.length = 0;
         this._mapData.values.length = 0;
       });
 
     // 15.14.5.3
-    defineFunctionProperty(
+    defineNamedFunctionProperty(
       Map.prototype, 'delete',
       function deleteFunction(key) {
         var i = indexOf(this._mapComparator, this._mapData, key);
@@ -1041,7 +1046,7 @@
 
     // 15.14.5.4
     defineFunctionProperty(
-      Map.prototype, 'forEach',
+      Map.prototype,
       function forEach(callbackfn /*, thisArg*/) {
         var thisArg = arguments[1];
         var m = Object(this);
@@ -1055,7 +1060,7 @@
 
     // 15.14.5.5
     defineFunctionProperty(
-      Map.prototype, 'get',
+      Map.prototype,
       function get(key) {
         var i = indexOf(this._mapComparator, this._mapData, key);
         return i < 0 ? undefined : this._mapData.values[i];
@@ -1063,28 +1068,28 @@
 
     // 15.14.5.6
     defineFunctionProperty(
-      Map.prototype, 'has',
+      Map.prototype,
       function has(key) {
         return indexOf(this._mapComparator, this._mapData, key) >= 0;
       });
 
     // 15.14.5.7
     defineFunctionProperty(
-      Map.prototype, 'entries',
+      Map.prototype,
       function entries() {
         return CreateMapIterator(Object(this), 'key+value');
       });
 
     // 15.14.5.8
     defineFunctionProperty(
-      Map.prototype, 'keys',
+      Map.prototype,
       function keys() {
         return CreateMapIterator(Object(this), 'key');
       });
 
     // 15.14.5.9
     defineFunctionProperty(
-      Map.prototype, 'set',
+      Map.prototype,
       function set(key, val) {
         var i = indexOf(this._mapComparator, this._mapData, key);
         if (i < 0) { i = this._mapData.keys.length; }
@@ -1109,13 +1114,13 @@
 
     // 15.14.5.11
     defineFunctionProperty(
-      Map.prototype, 'values',
+      Map.prototype,
       function values() {
         return CreateMapIterator(Object(this), 'value');
       });
 
     // 15.14.5.12
-    defineFunctionProperty(
+    defineNamedFunctionProperty(
       Map.prototype, $$iterator,
       function() {
         return CreateMapIterator(Object(this), 'key+value');
@@ -1144,8 +1149,8 @@
 
     // 15.14.17.2.2
     defineFunctionProperty(
-      MapIterator.prototype, 'next',
-      function() {
+      MapIterator.prototype,
+      function next() {
         if (typeof this !== 'object') { throw new TypeError(); }
         var m = this._iterationObject,
             index = this._nextIndex,
@@ -1169,7 +1174,7 @@
       });
 
     // 15.14.17.2.3
-    defineFunctionProperty(
+    defineNamedFunctionProperty(
       MapIterator.prototype, $$iterator,
       function() {
         return this;
@@ -1269,13 +1274,13 @@
 
     // 15.15.5.2
     defineFunctionProperty(
-      WeakMap.prototype, 'clear',
+      WeakMap.prototype,
       function clear() {
         this._table.clear();
       });
 
     // 15.15.5.3
-    defineFunctionProperty(
+    defineNamedFunctionProperty(
       WeakMap.prototype, 'delete',
       function deleteFunction(key) {
         if (key !== Object(key)) { throw new TypeError('Expected object'); }
@@ -1284,7 +1289,7 @@
 
     // 15.15.5.4
     defineFunctionProperty(
-      WeakMap.prototype, 'get',
+      WeakMap.prototype,
       function get(key, defaultValue) {
         if (key !== Object(key)) { throw new TypeError('Expected object'); }
         return this._table.get(key, defaultValue);
@@ -1292,7 +1297,7 @@
 
     // 15.15.5.5
     defineFunctionProperty(
-      WeakMap.prototype, 'has',
+      WeakMap.prototype,
       function has(key) {
         if (key !== Object(key)) { throw new TypeError('Expected object'); }
         return this._table.has(key);
@@ -1300,7 +1305,7 @@
 
     // 15.15.5.6
     defineFunctionProperty(
-      WeakMap.prototype, 'set',
+      WeakMap.prototype,
       function set(key, value) {
         if (key !== Object(key)) { throw new TypeError('Expected object'); }
         this._table.set(key, value);
@@ -1373,7 +1378,7 @@
 
     // 15.16.5.2
     defineFunctionProperty(
-      Set.prototype, 'add',
+      Set.prototype,
       function add(key) {
         var i = indexOf(this._setComparator, this._setData, key);
         if (i < 0) { i = this._setData.length; }
@@ -1383,13 +1388,13 @@
 
     // 15.16.5.3
     defineFunctionProperty(
-      Set.prototype, 'clear',
+      Set.prototype,
       function clear() {
         this._setData = [];
       });
 
     // 15.16.5.4
-    defineFunctionProperty(
+    defineNamedFunctionProperty(
       Set.prototype, 'delete',
       function deleteFunction(key) {
         var i = indexOf(this._setComparator, this._setData, key);
@@ -1400,7 +1405,7 @@
 
     // 15.16.5.5
     defineFunctionProperty(
-      Set.prototype, 'forEach',
+      Set.prototype,
       function forEach(callbackfn/*, thisArg*/) {
         var thisArg = arguments[1];
         var s = Object(this);
@@ -1414,7 +1419,7 @@
 
     // 15.16.5.6
     defineFunctionProperty(
-      Set.prototype, 'has',
+      Set.prototype,
       function has(key) {
         return indexOf(this._setComparator, this._setData, key) !== -1;
       });
@@ -1435,13 +1440,13 @@
 
     // 15.16.5.8
     defineFunctionProperty(
-      Set.prototype, 'values',
+      Set.prototype,
       function values() {
         return CreateSetIterator(Object(this));
       });
 
     // 15.16.5.9
-    defineFunctionProperty(
+    defineNamedFunctionProperty(
       Set.prototype, $$iterator,
       function() {
         return CreateSetIterator(Object(this));
@@ -1466,8 +1471,8 @@
 
     // 15.16.7.2.2
     defineFunctionProperty(
-      SetIterator.prototype, 'next',
-      function() {
+      SetIterator.prototype,
+      function next() {
         if (typeof this !== 'object') { throw new TypeError; }
         var s = this.set,
             index = this.nextIndex,
@@ -1484,7 +1489,7 @@
       });
 
     // 15.16.7.2.3
-    defineFunctionProperty(
+    defineNamedFunctionProperty(
       SetIterator.prototype, $$iterator,
       function() {
         return this;
@@ -1531,7 +1536,7 @@
     WeakSet.prototype = {};
 
     defineFunctionProperty(
-      WeakSet.prototype, 'add',
+      WeakSet.prototype,
       function add(key) {
         if (key !== Object(key)) { throw new TypeError('Expected object'); }
         this._table.set(key, true);
@@ -1539,12 +1544,12 @@
       });
 
     defineFunctionProperty(
-      WeakSet.prototype, 'clear',
+      WeakSet.prototype,
       function clear() {
         this._table.clear();
       });
 
-    defineFunctionProperty(
+    defineNamedFunctionProperty(
       WeakSet.prototype, 'delete',
       function deleteFunction(key) {
         if (key !== Object(key)) { throw new TypeError('Expected object'); }
@@ -1552,7 +1557,7 @@
       });
 
     defineFunctionProperty(
-      WeakSet.prototype, 'has',
+      WeakSet.prototype,
       function has(key) {
         if (key !== Object(key)) { throw new TypeError('Expected object'); }
         return this._table.has(key);
@@ -1571,79 +1576,79 @@
 
     var Reflect = {};
 
-    defineFunctionProperty(
+    defineNamedFunctionProperty(
       Reflect, 'getOwnPropertyDescriptor',
       Object.getOwnPropertyDescriptor);
-    defineFunctionProperty(
+    defineNamedFunctionProperty(
       Reflect, 'defineProperty',
       Object.defineProperty);
-    defineFunctionProperty(
+    defineNamedFunctionProperty(
       Reflect, 'getOwnPropertyNames',
       Object.getOwnPropertyNames);
-    defineFunctionProperty(
+    defineNamedFunctionProperty(
       Reflect, 'getPrototypeOf',
       Object.getPrototypeOf);
     defineFunctionProperty(
-      Reflect, 'setPrototypeOf',
-      function(target, proto) {
+      Reflect,
+      function setPrototypeOf(target, proto) {
         target.__proto__ = proto;
       });
     defineFunctionProperty(
-      Reflect, 'deleteProperty',
-      function(target,name) {
+      Reflect,
+      function deleteProperty(target,name) {
         delete target[name];
       });
     defineFunctionProperty(
-      Reflect, 'enumerate',
-      function(target) {
+      Reflect,
+      function enumerate(target) {
         target = Object(target);
         return new PropertyIterator(target);
       });
     defineFunctionProperty(
-      Reflect, 'freeze',
-      function(target) {
+      Reflect,
+      function freeze(target) {
         try { Object.freeze(target); return true; } catch (e) { return false; }
       });
     defineFunctionProperty(
-      Reflect, 'seal',
-      function(target) {
+      Reflect,
+      function seal(target) {
         try { Object.seal(target); return true; } catch (e) { return false; }
       });
     defineFunctionProperty(
-      Reflect, 'preventExtensions',
-      function(target) {
+      Reflect,
+      function preventExtensions(target) {
         try { Object.preventExtensions(target); return true; } catch (e) { return false; }
       });
     defineFunctionProperty(
-      Reflect, 'isFrozen',
+      Reflect,
       Object.isFrozen);
     defineFunctionProperty(
-      Reflect, 'isSealed',
+      Reflect,
       Object.isSealed);
     defineFunctionProperty(
-      Reflect, 'isExtensible',
+      Reflect,
       Object.isExtensible);
     defineFunctionProperty(
-      Reflect, 'has',
-      function(target,name) {
+      Reflect,
+      function has(target,name) {
         return String(name) in Object(target);
       });
     defineFunctionProperty(
-      Reflect, 'hasOwn',
-      function(target,name) {
+      Reflect,
+      function hasOwn(target,name) {
         return Object(target).hasOwnProperty(String(name));
       });
     defineFunctionProperty(
-      Reflect, 'instanceOf',
-      function(target, O) {
+      Reflect,
+      function instanceOf(target, O) {
         return target instanceof O;
       });
     defineFunctionProperty(
-      Reflect, 'keys',
+      Reflect,
       Object.keys);
     defineFunctionProperty(
-      Reflect, 'get',
-      function(target,name,receiver) {
+      Reflect,
+      function get(target,name,receiver) {
         target = Object(target);
         name = String(name);
         receiver = (receiver === undefined) ? target : Object(receiver);
@@ -1654,8 +1659,8 @@
         return target[name];
       });
     defineFunctionProperty(
-      Reflect, 'set',
-      function(target,name,value,receiver) {
+      Reflect,
+      function set(target,name,value,receiver) {
         target = Object(target);
         name = String(name);
         receiver = (receiver === undefined) ? target : Object(receiver);
@@ -1666,13 +1671,13 @@
         return target[name] = value;
       });
     defineFunctionProperty(
-      Reflect, 'apply',
-      function(target,thisArg,args) {
+      Reflect,
+      function apply(target,thisArg,args) {
         return Function.prototype.apply.call(target, thisArg, args);
       });
     defineFunctionProperty(
-      Reflect, 'construct',
-      function(target, args) {
+      Reflect,
+      function construct(target, args) {
         var a = arguments;
         var s = 'new target';
         for (var i = 1; i < a.length; ++i) {
@@ -1711,8 +1716,8 @@
     PropertyIterator.prototype = {};
 
     defineFunctionProperty(
-      PropertyIterator.prototype, 'next',
-      function() {
+      PropertyIterator.prototype,
+      function next() {
         if (typeof this !== 'object') { throw new TypeError; }
         var o = this.set,
             index = this.nextIndex,
@@ -1728,7 +1733,7 @@
         return abstractOperation.CreateItrResultObject(undefined, true);
       });
 
-    defineFunctionProperty(
+    defineNamedFunctionProperty(
       PropertyIterator.prototype, $$iterator,
       function() {
         return this;
@@ -1765,7 +1770,7 @@
 
   // http://wiki.ecmascript.org/doku.php?id=strawman:number_compare
   defineFunctionProperty(
-    Number, 'compare',
+    Number,
     function compare(first, second, tolerance) {
       var difference = first - second;
       return abs(difference) <= (tolerance || 0) ? 0 : difference < 0 ? -1 : 1;
@@ -1773,7 +1778,7 @@
 
   // http://wiki.ecmascript.org/doku.php?id=harmony:extended_object_api
   defineFunctionProperty(
-    Object, 'getPropertyDescriptor',
+    Object,
     function getPropertyDescriptor(o, p) {
       do {
         var desc = Object.getOwnPropertyDescriptor(o, p);
@@ -1787,7 +1792,7 @@
 
   // http://wiki.ecmascript.org/doku.php?id=harmony:extended_object_api
   defineFunctionProperty(
-    Object, 'getPropertyNames',
+    Object,
     function getPropertyNames(o) {
       var names = abstractOperation.ObjectCreate(null);
       do {
@@ -1801,7 +1806,7 @@
 
   // http://wiki.ecmascript.org/doku.php?id=strawman:array.prototype.pushall
   defineFunctionProperty(
-    Array.prototype, 'pushAll',
+    Array.prototype,
     function pushAll(other, start, end) {
       other = Object(other);
       if (start === undefined) {
@@ -1824,7 +1829,7 @@
 
   // es-discuss: DOMStringList replacement; may rename to 'has'
   defineFunctionProperty(
-    Array.prototype, 'contains',
+    Array.prototype,
     function contains(target) {
       if (this === void 0 || this === null) { throw new TypeError(); }
       var t = Object(this),
@@ -1842,7 +1847,7 @@
 
   // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
   (function() {
-    defineFunctionProperty(
+    defineNamedFunctionProperty(
       String.prototype, $$iterator,
       function entries() {
         return CreateStringIterator(this);
@@ -1860,8 +1865,8 @@
     StringIterator.prototype = {};
     StringIterator.prototype[$$toStringTag] = 'String Iterator';
     defineFunctionProperty(
-      StringIterator.prototype, 'next',
-      function() {
+      StringIterator.prototype,
+      function next() {
         var s = String(this.iteratedObject),
             index = this.nextIndex,
             len = s.length;
@@ -1873,7 +1878,7 @@
         this.nextIndex += cp > 0xFFFF ? 2 : 1;
         return abstractOperation.CreateItrResultObject(String.fromCodePoint(cp), false);
       });
-    defineFunctionProperty(
+    defineNamedFunctionProperty(
       StringIterator.prototype, $$iterator,
       function() {
         return this;
@@ -1896,17 +1901,17 @@
     }
 
     defineFunctionProperty(
-      global, 'keys',
+      global,
       function keys(o) {
         return CreateDictIterator(o, 'key');
       });
     defineFunctionProperty(
-      global, 'values',
+      global,
       function values(o) {
         return CreateDictIterator(o, 'value');
       });
     defineFunctionProperty(
-      global, 'entries',
+      global,
       function entries(o) {
         return CreateDictIterator(o, 'key+value');
       });
@@ -1926,8 +1931,8 @@
     DictIterator.prototype = {};
     DictIterator.prototype[$$toStringTag] = 'Dict Iterator';
     defineFunctionProperty(
-      DictIterator.prototype, 'next',
-      function() {
+      DictIterator.prototype,
+      function next() {
         var o = Object(this.iteratedObject),
             index = this.nextIndex,
             entries = this.propList,
@@ -1949,7 +1954,7 @@
         }
         return abstractOperation.CreateItrResultObject(undefined, true);
       });
-    defineFunctionProperty(
+    defineNamedFunctionProperty(
       DictIterator.prototype, $$iterator,
       function() {
         return this;
