@@ -206,10 +206,10 @@ test("Approved Number extras", function () {
   assertTrue("(1 + Number.EPSILON) !== 1");
   assertFalse("(1 + Number.EPSILON/2) !== 1");
 
-  // Number.MAX_INTEGER
-  assertTrue("'MAX_INTEGER' in Number");
-  assertEqual("typeof Number.MAX_INTEGER", 'number');
-  assertFalse("(Number.MAX_INTEGER + 2) > (Number.MAX_INTEGER + 1)");
+  // Number.MAX_SAFE_INTEGER
+  assertTrue("'MAX_SAFE_INTEGER' in Number");
+  assertEqual("typeof Number.MAX_SAFE_INTEGER", 'number');
+  assertFalse("(Number.MAX_SAFE_INTEGER + 2) > (Number.MAX_SAFE_INTEGER + 1)");
 
   // TODO: Number.parseInt
   // TODO: Number.parseFloat
@@ -239,16 +239,20 @@ test("Approved Number extras", function () {
   assertFalse("Number.isInteger(-1.1)");
   assertFalse("Number.isInteger(+1.1)");
 
-  // Number.toInteger
-  assertEqual("Number.toInteger('')", 0);
-  assertEqual("Number.toInteger(NaN)", 0);
-  assertEqual("Number.toInteger(-Infinity)", -Infinity);
-  assertEqual("Number.toInteger(+Infinity)", Infinity);
-  assertEqual("Number.toInteger(0)", 0);
-  assertEqual("Number.toInteger(-1)", -1);
-  assertEqual("Number.toInteger(+1)", 1);
-  assertEqual("Number.toInteger(-1.1)", -1);
-  assertEqual("Number.toInteger(+1.1)", 1);
+  // Number.isSafeInteger
+  assertFalse("Number.isSafeInteger('')", 0);
+  assertFalse("Number.isSafeInteger(NaN)", 0);
+  assertFalse("Number.isSafeInteger(-Infinity)", -Infinity);
+  assertFalse("Number.isSafeInteger(+Infinity)", Infinity);
+  assertTrue("Number.isSafeInteger(0)", 0);
+  assertTrue("Number.isSafeInteger(-1)", -1);
+  assertTrue("Number.isSafeInteger(+1)", 1);
+  assertFalse("Number.isSafeInteger(-1.1)", -1);
+  assertFalse("Number.isSafeInteger(+1.1)", 1);
+  assertTrue("Number.isSafeInteger(Math.pow(2,53)-1)", 1);
+  assertTrue("Number.isSafeInteger(-Math.pow(2,53)+1)", 1);
+  assertFalse("Number.isSafeInteger(Math.pow(2,53))", 1);
+  assertFalse("Number.isSafeInteger(-Math.pow(2,53))", 1);
 });
 
 test("Approved Number.prototype extras", function () {
@@ -350,6 +354,19 @@ test("Approved Array extras", function () {
   deepEqual(Array.from({length: 1, 0: 'a'}), ['a']);
   deepEqual(Array.from({length: 2, 1: 'a'}), [(void 0), 'a']);
   deepEqual(Array.from([1,2,3], function(x) { return x * x; }), [1, 4, 9]);
+
+  deepEqual([1,2,3,4].fill(5), [5,5,5,5]);
+  deepEqual([1,2,3,4].fill(5, 1), [1,5,5,5]);
+  deepEqual([1,2,3,4].fill(5, 1, 3), [1,5,5,4]);
+  deepEqual([1,2,3,4].fill(5, -3), [1,5,5,5]);
+  deepEqual([1,2,3,4].fill(5, -3, -1), [1,5,5,4]);
+  assertEqual("Array.prototype.fill.length", 1);
+
+  deepEqual([0,1,2,3,4].copyWithin(3, 0, 2), [0,1,2,0,1]);
+  deepEqual([0,1,2,3,4].copyWithin(0, 3), [3,4,2,3,4]);
+  deepEqual([0,1,2,3,4].copyWithin(0, 2, 5), [2,3,4,3,4]);
+  deepEqual([0,1,2,3,4].copyWithin(2, 0, 3), [0,1,0,1,2]);
+  assertEqual("Array.prototype.copyWithin.length", 2);
 });
 
 test("Array.prototype.find/findIndex", function() {
@@ -479,6 +496,7 @@ test("Map", function () {
 
   delete map;
 
+  assertThrows('Map()');
 });
 
 test("Set", function () {
@@ -548,6 +566,8 @@ test("Set", function () {
   assertEqual('JSON.stringify(["a","d","e"])', JSON.stringify(keys));
 
   delete set;
+
+  assertThrows('Set()');
 });
 
 test("WeakMap", function () {
@@ -618,6 +638,8 @@ test("WeakMap", function () {
   delete x;
   delete y;
   delete v;
+
+  assertThrows('WeakMap()');
 });
 
 test("WeakSet", function () {
@@ -646,8 +668,9 @@ test("WeakSet", function () {
   delete set;
   delete x;
   delete y;
-});
 
+  assertThrows('WeakSet()');
+});
 
 test("Proposed Number extras", function () {
   // Number.compare
@@ -721,7 +744,7 @@ test("Proposed Unicode support String extras", function () {
 });
 
 test("Iterators", function () {
-  s = Set("ABC");
+  s = new Set("ABC");
   assertTrue("s.has('A')");
   assertFalse("s.has('Z')");
   assertEqual("s.size", 3);
@@ -731,7 +754,7 @@ test("Iterators", function () {
   assertEqual("it.next().value", 'C');
   assertTrue("it.next().done");
 
-  m = Map();
+  m = new Map();
   m.set(1, 'a');
   m.set(2, 'b');
   m.set(3, 'c');

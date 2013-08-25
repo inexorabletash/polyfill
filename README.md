@@ -86,13 +86,13 @@ This will attempt to track the evolving spec, so may change at any time.
 
 In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts):
 * Object: `assign()`, `is()`, `setPrototypeOf()`
-* Number: `EPILON`, `MAX_INTEGER`, `parseInt()`, `parseFloat()`, `isFinite()`, `isNaN()`, `isInteger()`, `toInteger()`
+* Number: `EPILON`, `MAX_SAFE_INTEGER`, `parseInt()`, `parseFloat()`, `isFinite()`, `isNaN()`, `isInteger()`, `isSafeInteger()`
 * Number prototype: `clz()`
 * String: `fromCodePoint()`
 * String.prototype: `codePointAt()`, `repeat()`, `startsWith()`, `endsWith()`, `contains()`
 * Math: `log10()`, `log2()`, `log1p()`, `expm1()`, `cosh()`, `sinh()`, `tanh()`, `acosh()`, `asinh()`, `atanh()`, `hypot()`, `trunc()`, `sign()`, `cbrt()`, `imul()`
 * Array: `of()`, `from()`
-* Array prototype: `find()`, `findIndex()`, `entries()`, `keys()`, `values()`, `@@iterator()`
+* Array prototype: `find()`, `findIndex()`, `entries()`, `keys()`, `values()`, `@@iterator()`, `fill`, `copyWithin`
 * Map: `clear()`, `delete()`, `forEach()`, `get()`, `has()`, `entries()`, `keys()`, `set()`, `size`, `values()`, `@@iterator()`
 * Set: `add()`, `clear()`, `delete()`, `forEach()`, `has()`, `size`, `values()`, `@@iterator()`
 * WeakMap (intrusive; modifies valueOf property of key): `clear()`, `delete()`, `get()`, `has()`, `set()`

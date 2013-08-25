@@ -63,6 +63,8 @@
       exp = Math.exp,
       floor = Math.floor,
       log = Math.log,
+      max = Math.max,
+      min = Math.min,
       pow = Math.pow,
       sqrt = Math.sqrt;
 
@@ -127,6 +129,15 @@
   // 9.1.9 ToObject - just use Object()
 
   // 9.1.10 ToPropertyKey - TODO: consider for Symbol polyfill
+
+  // 9.1.11
+  abstractOperation.ToLength = function(v) {
+    var len = abstractOperation.ToInteger(v);
+    if (len <= 0) {
+      return 0;
+    }
+    return min(len, 0x20000000000000 - 1); // 2^53-1
+  };
 
   //----------------------------------------
   // 9.2 Testing and Comparison Operations
@@ -405,6 +416,99 @@
     Array.prototype.entries
     );
 
+  // 15.4.3.30
+  defineFunctionProperty(
+    Array.prototype, 'fill',
+    function fill(value/*, start, end*/) {
+      var start = arguments[1],
+          end = arguments[2];
+
+      var o = Object(this);
+      var lenVal = o["length"];
+      var len = abstractOperation.ToLength(lenVal);
+      len = max(len, 0);
+      var relativeStart = abstractOperation.ToInteger(start);
+      var k;
+      if (relativeStart < 0)
+        k = max((len + relativeStart), 0);
+      else
+        k = min(relativeStart, len);
+      var relativeEnd;
+      if (end === (void 0))
+        relativeEnd = len;
+      else
+        relativeEnd = abstractOperation.ToInteger(end);
+      var final;
+      if (relativeEnd < 0)
+        final = max((len + relativeEnd), 0);
+      else
+        final = min(relativeEnd, len);
+      while (k < final) {
+        var pk = String(k);
+        o[pk] = value;
+        k += 1;
+      }
+      return o;
+    });
+
+  // 15.4.3.31
+  defineFunctionProperty(
+    Array.prototype, 'copyWithin',
+    function copyWithin(target, start/*, end*/) {
+      var end = arguments[2];
+
+      var o = Object(this);
+      var lenVal = o["length"];
+      var len = abstractOperation.ToLength(lenVal);
+      len = max(len, 0);
+      var relativeTarget = abstractOperation.ToInteger(target);
+      var to;
+      if (relativeTarget < 0)
+        to = max(len + relativeTarget, 0);
+      else
+        to = min(relativeTarget, len);
+      var relativeStart = abstractOperation.ToInteger(start);
+      var from;
+      if (relativeStart < 0)
+        from = max(len + relativeStart, 0);
+      else
+        from = min(relativeStart, len);
+      var relativeEnd;
+      if (end === (void 0))
+        relativeEnd = len;
+      else
+        relativeEnd = abstractOperation.ToInteger(end);
+      var final;
+      if (relativeEnd < 0)
+        final = max(len + relativeEnd, 0);
+      else
+        final = min(relativeEnd, len);
+      var count = min(final - from, len - to);
+      var direction;
+      if (from < to && to < from + count) {
+        direction = -1;
+        from = from + count - 1;
+        to = to + count - 1;
+      } else {
+        direction = 1;
+      }
+      while (count > 0) {
+        var fromKey = String(from);
+        var toKey = String(to);
+        var fromPresent = abstractOperation.HasProperty(o, fromKey);
+        if (fromPresent) {
+          var fromVal = o[fromKey];
+          o[toKey] = fromVal;
+        } else {
+          delete o[toKey];
+        }
+        from = from + direction;
+        to = to + direction;
+        count = count - 1;
+      }
+      return o;
+    });
+
   // 15.4.6 Array Iterator Object Structure
 
   function CreateArrayIterator(array, kind) {
@@ -570,9 +674,9 @@
   // 15.7 Number Objects
   //----------------------------------------
 
-  // 15.7.3 Properties of the Number Constructor
+  // 15.7.2 Properties of the Number Constructor
 
-  // 15.7.3.7
+  // 15.7.2.7
   defineValueProperty(
     Number, 'EPSILON',
     (function () {
@@ -583,12 +687,12 @@
       return result;
     }()));
 
-  // 15.7.3.8
+  // 15.7.2.8
   defineValueProperty(
-    Number, 'MAX_INTEGER',
-    9007199254740991); // 2^53 - 1
+    Number, 'MAX_SAFE_INTEGER',
+    0x20000000000000 - 1); // 2^53-1
 
-  // 15.7.3.9
+  // 15.7.2.9
   defineFunctionProperty(
     Number,
     'parseInt',
@@ -596,32 +700,35 @@
       return global_parseInt(string);
     });
 
-  // 15.7.3.10
+  // 15.7.2.10
   defineFunctionProperty(
     Number, 'parseFloat',
     function parseFloat(string) {
       return global_parseFloat(string);
     });
 
-  // 15.7.3.11
+  // 15.7.2.11
   defineFunctionProperty(
     Number, 'isNaN',
     function isNaN(value) {
       return typeof value === 'number' && global_isNaN(value);
     });
 
-  // 15.7.3.12
+  // 15.7.2.12
   defineFunctionProperty(
     Number, 'isFinite',
     function isFinite(value) {
       return typeof value === 'number' && global_isFinite(value);
     });
 
-  // 15.7.3.13
+  // 15.7.2.13
   defineFunctionProperty(
     Number, 'isInteger',
     function isInteger(number) {
       if (typeof number !== 'number') {
+        return false;
+      }
+      if (global_isNaN(number) || number === +Infinity || number === -Infinity) {
         return false;
       }
       var integer = abstractOperation.ToInteger(number);
@@ -631,11 +738,24 @@
       return true;
     });
 
-  // 15.7.3.14
+  // 15.7.2.14
   defineFunctionProperty(
-    Number, 'toInteger',
-    function toInteger(value) {
-      return abstractOperation.ToInteger(value);
+    Number, 'isSafeInteger',
+    function isSafeInteger(number) {
+      if (typeof number !== 'number') {
+        return false;
+      }
+      if (number !== number || number === +Infinity || number === -Infinity) {
+        return false;
+      }
+      var integer = abstractOperation.ToInteger(number);
+      if (integer !== number) {
+        return false;
+      }
+      if (abs(integer) <= (0x20000000000000 - 1)) { // 2^53-1
+        return true;
+      }
+      return false;
     });
 
   // 15.7.4 Properties of the Number Prototype Object
@@ -824,6 +944,19 @@
       return ((al * bl) + (((ah * bl + al * bh) << 16) >>> 0)|0);
     });
 
+  // 15.8.2.34
+  defineFunctionProperty(
+    Math, 'roundFloat',
+    function roundFloat(x) {
+      if (global_isNaN(x)) {
+        return NaN;
+      }
+      if (1/x === +Infinity || 1/x === -Infinity || x === +Infinity || x === -Infinity) {
+        return x;
+      }
+      return (new Float32Array([x]))[0];
+    });
+
   //----------------------------------------
   // 15.14 Map Objects
   //----------------------------------------
@@ -863,8 +996,6 @@
 
     /** @constructor */
     function Map(iterable, comparator) {
-      if (!(this instanceof Map)) { return new Map(iterable, comparator); }
-
       MapInitialisation(this, iterable, comparator);
 
       return this;
@@ -1127,8 +1258,6 @@
 
     /** @constructor */
     function WeakMap(iterable) {
-      if (!(this instanceof WeakMap)) { return new WeakMap(iterable); }
-
       WeakMapInitialisation(this, iterable);
 
       return this;
@@ -1218,8 +1347,6 @@
     // 15.16.3 The Set Constructor
     /** @constructor */
     function Set(iterable, comparator) {
-      if (!(this instanceof Set)) { return new Set(iterable, comparator); }
-
       SetInitialisation(this, iterable, comparator);
 
       return this;
@@ -1396,8 +1523,6 @@
 
     /** @constructor */
     function WeakSet(iterable) {
-      if (!(this instanceof WeakSet)) { return new WeakSet(iterable); }
-
       WeakSetInitialisation(this, iterable);
 
       return this;
