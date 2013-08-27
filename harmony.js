@@ -26,6 +26,9 @@
   }
 
   function defineFunctionProperty(o, p, f) {
+    // Sanity check that functions are appropriately named (where possible)
+    if ('name' in f && !(p instanceof Symbol) && f.name !== p && f.name !== p + "Function")
+      throw new Error(f.name + " !== " + p);
     if (!(p in o)) {
       Object.defineProperty(o, p, {
         value: f,
@@ -230,7 +233,7 @@
   // TODO: Object.getOwnPropertyKeys vs. Object.keys
   defineFunctionProperty(
     Object, 'getOwnPropertyKeys',
-    Object.keys
+    function getOwnPropertyKeys(o) { return Object.keys(o); }
   );
 
   // 15.2.3.16
@@ -525,7 +528,7 @@
   // 15.4.6.2.2
   defineFunctionProperty(
     ArrayIterator.prototype, 'next',
-    function() {
+    function next() {
       if (typeof this !== 'object') { throw new TypeError; }
       var a = this.iteratedObject,
           index = this.nextIndex,
@@ -920,7 +923,7 @@
   // 15.8.2.32
   defineFunctionProperty(
     Math, 'cbrt',
-    function sign(x) {
+    function cbrt(x) {
       x = Number(x);
       if (global_isNaN(x/x)) {
         return x;
@@ -1147,7 +1150,7 @@
     // 15.14.17.2.2
     defineFunctionProperty(
       MapIterator.prototype, 'next',
-      function() {
+      function next() {
         if (typeof this !== 'object') { throw new TypeError(); }
         var m = this._iterationObject,
             index = this._nextIndex,
@@ -1470,7 +1473,7 @@
     // 15.16.7.2.2
     defineFunctionProperty(
       SetIterator.prototype, 'next',
-      function() {
+      function next() {
         if (typeof this !== 'object') { throw new TypeError; }
         var s = this.set,
             index = this.nextIndex,
@@ -1588,33 +1591,33 @@
       Object.getPrototypeOf);
     defineFunctionProperty(
       Reflect, 'setPrototypeOf',
-      function(target, proto) {
+      function setPrototypeOf(target, proto) {
         target.__proto__ = proto;
       });
     defineFunctionProperty(
       Reflect, 'deleteProperty',
-      function(target,name) {
+      function deleteProperty(target,name) {
         delete target[name];
       });
     defineFunctionProperty(
       Reflect, 'enumerate',
-      function(target) {
+      function enumerate(target) {
         target = Object(target);
         return new PropertyIterator(target);
       });
     defineFunctionProperty(
       Reflect, 'freeze',
-      function(target) {
+      function freeze(target) {
         try { Object.freeze(target); return true; } catch (e) { return false; }
       });
     defineFunctionProperty(
       Reflect, 'seal',
-      function(target) {
+      function seal(target) {
         try { Object.seal(target); return true; } catch (e) { return false; }
       });
     defineFunctionProperty(
       Reflect, 'preventExtensions',
-      function(target) {
+      function preventExtensions(target) {
         try { Object.preventExtensions(target); return true; } catch (e) { return false; }
       });
     defineFunctionProperty(
@@ -1628,17 +1631,17 @@
       Object.isExtensible);
     defineFunctionProperty(
       Reflect, 'has',
-      function(target,name) {
+      function has(target,name) {
         return String(name) in Object(target);
       });
     defineFunctionProperty(
       Reflect, 'hasOwn',
-      function(target,name) {
+      function hasOwn(target,name) {
         return Object(target).hasOwnProperty(String(name));
       });
     defineFunctionProperty(
       Reflect, 'instanceOf',
-      function(target, O) {
+      function instanceOf(target, O) {
         return target instanceof O;
       });
     defineFunctionProperty(
@@ -1646,7 +1649,7 @@
       Object.keys);
     defineFunctionProperty(
       Reflect, 'get',
-      function(target,name,receiver) {
+      function get(target,name,receiver) {
         target = Object(target);
         name = String(name);
         receiver = (receiver === undefined) ? target : Object(receiver);
@@ -1658,7 +1661,7 @@
       });
     defineFunctionProperty(
       Reflect, 'set',
-      function(target,name,value,receiver) {
+      function set(target,name,value,receiver) {
         target = Object(target);
         name = String(name);
         receiver = (receiver === undefined) ? target : Object(receiver);
@@ -1670,12 +1673,12 @@
       });
     defineFunctionProperty(
       Reflect, 'apply',
-      function(target,thisArg,args) {
+      function apply(target,thisArg,args) {
         return Function.prototype.apply.call(target, thisArg, args);
       });
     defineFunctionProperty(
       Reflect, 'construct',
-      function(target, args) {
+      function construct(target, args) {
         var a = arguments;
         var s = 'new target';
         for (var i = 1; i < a.length; ++i) {
@@ -1715,7 +1718,7 @@
 
     defineFunctionProperty(
       PropertyIterator.prototype, 'next',
-      function() {
+      function next() {
         if (typeof this !== 'object') { throw new TypeError; }
         var o = this.set,
             index = this.nextIndex,
@@ -1869,7 +1872,7 @@
     StringIterator.prototype[$$toStringTag] = 'String Iterator';
     defineFunctionProperty(
       StringIterator.prototype, 'next',
-      function() {
+      function next() {
         var s = String(this.iteratedObject),
             index = this.nextIndex,
             len = s.length;
@@ -1935,7 +1938,7 @@
     DictIterator.prototype[$$toStringTag] = 'Dict Iterator';
     defineFunctionProperty(
       DictIterator.prototype, 'next',
-      function() {
+      function next() {
         var o = Object(this.iteratedObject),
             index = this.nextIndex,
             entries = this.propList,
