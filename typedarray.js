@@ -192,7 +192,11 @@
       s = v < 0;
       v = abs(v);
 
-      if (v >= pow(2, 1 - bias)) {
+      if (v >= pow(2, 1 + bias)) {
+        // Overflow
+        e = (1 << bias) - 1;
+        f = 0;
+      } else if (v >= pow(2, 1 - bias)) {
         // Normalized
         ln = min(floor(log(v) / LN2), bias);
         e = ln + bias;

@@ -304,6 +304,8 @@ test('IEEE754 single precision parsing', function () {
 
   stricterEqual(fromBytes([0xff, 0x7f, 0xff, 0xff]), -3.4028234663852886E+38, '-Normalized');
   stricterEqual(fromBytes([0x80, 0x80, 0x00, 0x00]), -1.1754943508222875E-38, '-Normalized');
+  stricterEqual(fromBytes([0xff, 0x7f, 0xff, 0xff]), -3.4028234663852886E+38, '-Normalized');
+  stricterEqual(fromBytes([0x80, 0x80, 0x00, 0x00]), -1.1754943508222875E-38, '-Normalized');
 
   // TODO: Denormalized values fail on Safari on iOS/ARM
   stricterEqual(fromBytes([0x80, 0x7f, 0xff, 0xff]), -1.1754942106924411E-38, '-Denormalized');
@@ -329,7 +331,7 @@ test('IEEE754 single precision parsing', function () {
 });
 
 
-test('IEEE754 single precision formatting', 13, function () {
+test('IEEE754 single precision formatting', 15, function () {
 
   function toBytes(v) {
     var uint8 = new Uint8Array(4), dv = new DataView(uint8.buffer);
@@ -342,6 +344,7 @@ test('IEEE754 single precision formatting', 13, function () {
   }
 
   deepEqual(toBytes(-Infinity), [0xff, 0x80, 0x00, 0x00], '-Infinity');
+  deepEqual(toBytes(-3.402824E+38), [0xff, 0x80, 0x00, 0x00], '-Overflow');
 
   deepEqual(toBytes(-3.4028234663852886E+38), [0xff, 0x7f, 0xff, 0xff], '-Normalized');
   deepEqual(toBytes(-1.1754943508222875E-38), [0x80, 0x80, 0x00, 0x00], '-Normalized');
@@ -360,6 +363,7 @@ test('IEEE754 single precision formatting', 13, function () {
   deepEqual(toBytes(1.1754943508222875E-38), [0x00, 0x80, 0x00, 0x00], '+Normalized');
   deepEqual(toBytes(3.4028234663852886E+38), [0x7f, 0x7f, 0xff, 0xff], '+Normalized');
 
+  deepEqual(toBytes(+3.402824E+38), [0x7f, 0x80, 0x00, 0x00], '+Overflow');
   deepEqual(toBytes(+Infinity), [0x7f, 0x80, 0x00, 0x00], '+Infinity');
 
   // Allow any NaN pattern (exponent all 1's, fraction non-zero)
