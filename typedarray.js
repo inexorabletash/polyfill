@@ -22,20 +22,16 @@
  $/LicenseInfo$
  */
 
-// Original can be found at:  https://bitbucket.org/lindenlab/llsd
+// Original can be found at:
+//   https://bitbucket.org/lindenlab/llsd
 // Modifications by Joshua Bell inexorabletash@gmail.com
-//  * Restructure the creation of types and exporting to global namespace
-//  * Allow no arguments to DataView constructor
-//  * Work cross-frame with native arrays/shimmed DataView
-//  * Corrected Object.defineProperty shim for IE8
-//  * Correct offset when taking subarray of subarray
+//   https://github.com/inexorabletash/polyfill
 
-// ES3/ES5 implementation of the Krhonos TypedArray Working Draft (work in progress):
-//   Ref: https://cvs.khronos.org/svn/repos/registry/trunk/public/webgl/doc/spec/TypedArray-spec.html
+// ES3/ES5 implementation of the Krhonos Typed Array Specification
+//   Ref: http://www.khronos.org/registry/typedarray/specs/latest/
 //   Date: 2011-02-01
 //
 // Variations:
-//  * Float/Double -> Float32/Float64, per WebGL-Public mailing list conversations (post 5/17)
 //  * Allows typed_array.get/set() as alias for subscripts (typed_array[])
 
 
@@ -183,28 +179,35 @@
     if (v !== v) {
       // NaN
       // http://dev.w3.org/2006/webapi/WebIDL/#es-type-mapping
-      e = (1 << bias) - 1; f = pow(2, fbits - 1); s = 0;
+      e = (1 << ebits) - 1; f = pow(2, fbits - 1); s = 0;
     } else if (v === Infinity || v === -Infinity) {
-      e = (1 << bias) - 1; f = 0; s = (v < 0) ? 1 : 0;
+      e = (1 << ebits) - 1; f = 0; s = (v < 0) ? 1 : 0;
     } else if (v === 0) {
       e = 0; f = 0; s = (1 / v === -Infinity) ? 1 : 0;
     } else {
       s = v < 0;
       v = abs(v);
 
-      if (v >= pow(2, 1 + bias)) {
-        // Overflow
-        e = (1 << bias) - 1;
-        f = 0;
-      } else if (v >= pow(2, 1 - bias)) {
-        // Normalized
-        ln = min(floor(log(v) / LN2), bias);
-        e = ln + bias;
-        f = round(v * pow(2, fbits - ln) - pow(2, fbits));
+      if (v >= pow(2, 1 - bias)) {
+        e = min(floor(log(v) / LN2), 1023);
+        f = round(v / pow(2, e) * pow(2, fbits));
+        if (f / pow(2, fbits) >= 2) {
+          e = e + 1;
+          f = 1;
+        }
+        if (e > bias) {
+          // Overflow
+          e = (1 << ebits) - 1;
+          f = 0;
+        } else {
+          // Normal
+          e = e + bias;
+          f = f - pow(2, fbits);
+        }
       } else {
-        // Denormalized
+        // Subnormal
         e = 0;
-        f = round(v / pow(2, 1 - bias - fbits));
+        f = floor(v / pow(2, 1 - bias - fbits));
       }
     }
 

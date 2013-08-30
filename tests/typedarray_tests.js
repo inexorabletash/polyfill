@@ -284,7 +284,7 @@ test('signed/unsigned conversions', 11, function () {
 });
 
 
-test('IEEE754 single precision parsing', function () {
+test('IEEE754 single precision unpacking', function () {
 
   function fromBytes(bytes) {
     var uint8 = new Uint8Array(bytes),
@@ -331,7 +331,7 @@ test('IEEE754 single precision parsing', function () {
 });
 
 
-test('IEEE754 single precision formatting', 15, function () {
+test('IEEE754 single precision packing', function () {
 
   function toBytes(v) {
     var uint8 = new Uint8Array(4), dv = new DataView(uint8.buffer);
@@ -344,6 +344,8 @@ test('IEEE754 single precision formatting', 15, function () {
   }
 
   deepEqual(toBytes(-Infinity), [0xff, 0x80, 0x00, 0x00], '-Infinity');
+
+  deepEqual(toBytes(-3.4028235677973366e+38), [0xff, 0x80, 0x00, 0x00], '-Overflow');
   deepEqual(toBytes(-3.402824E+38), [0xff, 0x80, 0x00, 0x00], '-Overflow');
 
   deepEqual(toBytes(-3.4028234663852886E+38), [0xff, 0x7f, 0xff, 0xff], '-Normalized');
@@ -353,8 +355,12 @@ test('IEEE754 single precision formatting', 15, function () {
   deepEqual(toBytes(-1.1754942106924411E-38), [0x80, 0x7f, 0xff, 0xff], '-Denormalized');
   deepEqual(toBytes(-1.4012984643248170E-45), [0x80, 0x00, 0x00, 0x01], '-Denormalized');
 
+  deepEqual(toBytes(-7.006492321624085e-46), [0x80, 0x00, 0x00, 0x00], '-Underflow');
+
   deepEqual(toBytes(-0), [0x80, 0x00, 0x00, 0x00], '-0');
   deepEqual(toBytes(0), [0x00, 0x00, 0x00, 0x00], '+0');
+
+  deepEqual(toBytes(7.006492321624085e-46), [0x00, 0x00, 0x00, 0x00], '+Underflow');
 
   // TODO: Denormalized values fail on Safari iOS/ARM
   deepEqual(toBytes(1.4012984643248170E-45), [0x00, 0x00, 0x00, 0x01], '+Denormalized');
@@ -363,6 +369,7 @@ test('IEEE754 single precision formatting', 15, function () {
   deepEqual(toBytes(1.1754943508222875E-38), [0x00, 0x80, 0x00, 0x00], '+Normalized');
   deepEqual(toBytes(3.4028234663852886E+38), [0x7f, 0x7f, 0xff, 0xff], '+Normalized');
 
+  deepEqual(toBytes(+3.402824E+38), [0x7f, 0x80, 0x00, 0x00], '+Overflow');
   deepEqual(toBytes(+3.402824E+38), [0x7f, 0x80, 0x00, 0x00], '+Overflow');
   deepEqual(toBytes(+Infinity), [0x7f, 0x80, 0x00, 0x00], '+Infinity');
 
@@ -375,7 +382,7 @@ test('IEEE754 single precision formatting', 15, function () {
 });
 
 
-test('IEEE754 double precision parsing', function () {
+test('IEEE754 double precision unpacking', function () {
 
   function fromBytes(bytes) {
     var uint8 = new Uint8Array(bytes),
@@ -420,7 +427,7 @@ test('IEEE754 double precision parsing', function () {
 });
 
 
-test('IEEE754 double precision formatting', 13, function () {
+test('IEEE754 double precision packing', function () {
 
   function toBytes(v) {
     var uint8 = new Uint8Array(8),
