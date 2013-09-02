@@ -175,6 +175,15 @@
         s, e, f, ln,
         i, bits, str, bytes;
 
+    function roundToEven(n) {
+      var w = floor(n), f = n - w;
+      if (f < 0.5)
+        return w;
+      if (f > 0.5)
+        return w + 1;
+      return w % 2 ? w + 1 : w;
+    }
+
     // Compute sign, exponent, fraction
     if (v !== v) {
       // NaN
@@ -190,7 +199,7 @@
 
       if (v >= pow(2, 1 - bias)) {
         e = min(floor(log(v) / LN2), 1023);
-        f = round(v / pow(2, e) * pow(2, fbits));
+        f = roundToEven(v / pow(2, e) * pow(2, fbits));
         if (f / pow(2, fbits) >= 2) {
           e = e + 1;
           f = 1;
@@ -207,7 +216,7 @@
       } else {
         // Subnormal
         e = 0;
-        f = floor(v / pow(2, 1 - bias - fbits));
+        f = roundToEven(v / pow(2, 1 - bias - fbits));
       }
     }
 
