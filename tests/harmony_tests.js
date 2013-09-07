@@ -211,6 +211,11 @@ test("Approved Number extras", function () {
   assertEqual("typeof Number.MAX_SAFE_INTEGER", 'number');
   assertFalse("(Number.MAX_SAFE_INTEGER + 2) > (Number.MAX_SAFE_INTEGER + 1)");
 
+  // Number.MIN_SAFE_INTEGER
+  assertTrue("'MIN_SAFE_INTEGER' in Number");
+  assertEqual("typeof Number.MIN_SAFE_INTEGER", 'number');
+  assertEqual("Number.MIN_SAFE_INTEGER", -Number.MAX_SAFE_INTEGER);
+
   // TODO: Number.parseInt
   // TODO: Number.parseFloat
 

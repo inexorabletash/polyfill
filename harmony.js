@@ -695,6 +695,10 @@
     Number, 'MAX_SAFE_INTEGER',
     0x20000000000000 - 1); // 2^53-1
 
+  defineValueProperty(
+    Number, 'MIN_SAFE_INTEGER',
+    -0x20000000000000 + 1); // -2^53+1
+
   // 15.7.2.9
   defineFunctionProperty(
     Number,
