@@ -1370,14 +1370,14 @@
   }
 
   // 22.1.5.2 The Array Iterator Prototype
-  ArrayIterator.prototype = {};
+  ArrayIterator.prototype = new function $ArrayIteratorPrototype$() {};
 
   // 22.1.5.2.1 ArrayIterator.prototype.constructor
   // 22.1.5.2.2 ArrayIterator.prototype.next( )
   defineFunctionProperty(
     ArrayIterator.prototype, 'next',
     function next() {
-      if (typeof this !== 'object') { throw new TypeError; }
+      if (Type(this) !== 'object') { throw new TypeError; }
       var a = this.iteratedObject,
           index = this.nextIndex,
           itemKind = this.iterationKind,
@@ -1422,7 +1422,7 @@
     });
 
   // 22.1.5.2.4 ArrayIterator.prototype.@@toStringTag
-  ArrayIterator.prototype[$$toStringTag] = 'Array Iterator';
+  defineValueProperty(ArrayIterator.prototype, $$toStringTag, 'Array Iterator');
 
   // 22.1.5.3 Properties of Array Iterator Instances
 
@@ -1504,10 +1504,13 @@
 
     // 23.1.1.1 Map (iterable = undefined , comparator = undefined )
     /** @constructor */
-    function Map(iterable, comparator) {
+    function Map() {
+      var iterable = arguments[0];
+      var comparator = arguments[1];
+
       var map = this;
 
-      if (typeof map !== 'object') { throw new TypeError(); }
+      if (Type(map) !== 'object') { throw new TypeError(); }
       if ('__MapData__' in map) { throw new TypeError(); }
 
       if (iterable !== undefined) {
@@ -1529,7 +1532,7 @@
         if (done)
           return map;
         var nextItem = abstractOperation.IteratorValue(next);
-        if (typeof nextItem !== 'object') { throw new TypeError(); }
+        if (Type(nextItem) !== 'object') throw new TypeError();
         var k = nextItem[0];
         var v = nextItem[1];
         adder.call(map, k, v);
@@ -1554,7 +1557,7 @@
     // 23.1.1.2 new Map ( ... argumentsList )
     // 23.1.2 Properties of the Map Constructor
     // 23.1.2.1 Map.prototype
-    Map.prototype = {};
+    Map.prototype = new function $MapPrototype$() {};
 
     // 23.1.2.2 Map[ @@create ] ( )
     // 23.1.3 Properties of the Map Prototype Object
@@ -1715,7 +1718,7 @@
       });
 
     // 23.1.3.13 Map.prototype [ @@toStringTag ]
-    Map.prototype[$$toStringTag] = 'Map';
+    defineValueProperty(Map.prototype, $$toStringTag, 'Map');
 
     // 23.1.4 Properties of Map Instances
     // 23.1.5 Map Iterator Object Structure
@@ -1733,14 +1736,14 @@
     }
 
     // 23.1.5.2 The Map Iterator Prototype
-    MapIterator.prototype = {};
+    MapIterator.prototype = new function $MapIteratorPrototype$() {};
 
     // 23.1.5.2.1 MapIterator.prototype.constructor
     // 23.1.5.2.2 MapIterator.prototype.next( )
     defineFunctionProperty(
       MapIterator.prototype, 'next',
       function next() {
-        if (typeof this !== 'object') { throw new TypeError(); }
+        if (Type(this) !== 'object') { throw new TypeError(); }
         var m = this._iterationObject,
             index = this._nextIndex,
             itemKind = this._iterationKind,
@@ -1770,7 +1773,7 @@
       });
 
     // 23.1.5.2.4 MapIterator.prototype [ @@toStringTag ]
-    MapIterator.prototype[$$toStringTag] = 'Map Iterator';
+    defineValueProperty(MapIterator.prototype, $$toStringTag, 'Map Iterator');
 
     // 23.1.5.3 Properties of Map Iterator Instances
     global.Map = global.Map || Map;
@@ -1786,10 +1789,13 @@
     // 23.2.1.1 Set (iterable = undefined, comparator = undefined )
 
     /** @constructor */
-    function Set(iterable, comparator) {
+    function Set() {
+      var iterable = arguments[0];
+      var comparator = arguments[1];
+
       var set = this;
 
-      if (typeof set !== 'object') { throw new TypeError(); }
+      if (Type(set) !== 'object') { throw new TypeError(); }
       if ('__SetData__' in set) { throw new TypeError(); }
 
       if (iterable !== undefined) {
@@ -1833,7 +1839,7 @@
     // 23.2.2 Properties of the Set Constructor
 
     // 23.2.2.1 Set.prototype
-    Set.prototype = {};
+    Set.prototype = new function $SetPrototype$() {};
 
     // 23.2.2.2 Set[ @@create ] ( )
     // 23.2.3 Properties of the Set Prototype Object
@@ -1970,7 +1976,7 @@
       });
 
     // 23.2.3.12 Set.prototype [ @@toStringTag ]
-    Set.prototype[$$toStringTag] = 'Set';
+    defineValueProperty(Set.prototype, $$toStringTag, 'Set');
 
     // 23.2.4 Properties of Set Instances
     // 23.2.5 Set Iterator Object Structure
@@ -1987,14 +1993,14 @@
     }
 
     // 23.2.5.2 The Set Iterator Prototype
-    SetIterator.prototype = {};
+    SetIterator.prototype = new function $SetIteratorPrototype$() {};
 
     // 23.2.5.2.1 SetIterator.prototype.constructor
     // 23.2.5.2.2 SetIterator.prototype.next( )
     defineFunctionProperty(
       SetIterator.prototype, 'next',
       function next() {
-        if (typeof this !== 'object') { throw new TypeError; }
+        if (Type(this) !== 'object') { throw new TypeError; }
         var s = this.set,
             index = this.nextIndex,
             entries = s.__SetData__;
@@ -2017,7 +2023,7 @@
       });
 
     // 23.2.5.2.4 SetIterator.prototype.@@toStringTag
-    SetIterator.prototype[$$toStringTag] = 'Set Iterator';
+    defineValueProperty(SetIterator.prototype, $$toStringTag, 'Set Iterator');
 
     // 23.2.5.3 Properties of Set Iterator Instances
 
@@ -2035,10 +2041,12 @@
     // 23.3.1 The WeakMap Constructor
     // 23.3.1.1 WeakMap (iterable = undefined )
    /** @constructor */
-    function WeakMap(iterable) {
+    function WeakMap() {
+      var iterable = arguments[0];
+
       var map = this;
 
-     if (typeof map !== 'object') { throw new TypeError(); }
+     if (Type(map) !== 'object') { throw new TypeError(); }
       if ('_table' in map) { throw new TypeError(); }
 
       if (iterable !== undefined) {
@@ -2057,7 +2065,7 @@
         if (done)
           return map;
         var nextValue = abstractOperation.IteratorValue(next);
-        if (typeof nextValue !== 'object') { throw new TypeError(); }
+        if (Type(nextValue) !== 'object') { throw new TypeError(); }
         var k = nextValue[0];
         var vk = nextValue[1];
         adder.call(map, k, v);
@@ -2069,7 +2077,7 @@
     // 23.3.1.2 new WeakMap ( ... argumentsList )
     // 23.3.2 Properties of the WeakMap Constructor
     // 23.3.2.1 WeakMap.prototype
-    WeakMap.prototype = {};
+    WeakMap.prototype = new function $WeakMapPrototype$() {};
 
     // 23.3.2.2 WeakMap[ @@create ] ( )
     // 23.3.3 Properties of the WeakMap Prototype Object
@@ -2117,7 +2125,7 @@
       });
 
     // 23.3.3.7 WeakMap.prototype [ @@toStringTag ]
-    WeakMap.prototype[$$toStringTag] = 'WeakMap';
+    defineValueProperty(WeakMap.prototype, $$toStringTag, 'WeakMap');
 
     // 23.3.4 Properties of WeakMap Instances
 
@@ -2134,10 +2142,12 @@
     // 23.4.1 The WeakSet Constructor
     // 23.4.1.1 WeakSet (iterable = undefined)
     /** @constructor */
-    function WeakSet(iterable) {
+    function WeakSet() {
+      var iterable = arguments[0];
+
       var set = this;
 
-      if (typeof set !== 'object') { throw new TypeError(); }
+      if (Type(set) !== 'object') { throw new TypeError(); }
       if ('_table' in set) { throw new TypeError(); }
 
       if (iterable !== undefined) {
@@ -2165,7 +2175,7 @@
     // 23.4.1.2 new WeakSet ( ... argumentsList)
     // 23.4.2 Properties of the WeakSet Constructor
     // 23.4.2.1 WeakSet.prototype
-    WeakSet.prototype = {};
+    WeakSet.prototype = new function $WeakSetPrototype$() {};
 
     // 23.4.2.2 WeakSet [ @@create ] ( )
     // 23.4.3 Properties of the WeakSet Prototype Object
@@ -2203,7 +2213,7 @@
       });
 
     // 23.4.3.6 WeakSet.prototype [ @@toStringTag ]
-    WeakSet.prototype[$$toStringTag] = 'WeakSet';
+    defineValueProperty(WeakSet.prototype, $$toStringTag, 'WeakSet');
 
     // 23.4.4 Properties of WeakSet Instances
 
@@ -2236,7 +2246,7 @@
   // 24.1.4.2 ArrayBuffer.prototype.constructor
   // 24.1.4.3 ArrayBuffer.prototype.slice ( start , end)
   // 24.1.4.4 ArrayBuffer.prototype [ @@toStringTag ]
-  ArrayBuffer.prototype[$$toStringTag] = 'ArrayBuffer';
+  defineValueProperty(ArrayBuffer.prototype, $$toStringTag, 'ArrayBuffer');
 
   // 24.1.5 Properties of the ArrayBuffer Instances
 
@@ -2279,7 +2289,7 @@
   // 24.2.4.19 DataView.prototype.setUint16(byteOffset, value, littleEndian=false)
   // 24.2.4.20 DataView.prototype.setUint32(byteOffset, value, littleEndian=false)
   // 24.2.4.21 DataView.prototype[ @@toStringTag ]
-  DataView.prototype[$$toStringTag] = 'DataView';
+  defineValueProperty(DataView.prototype, $$toStringTag, 'DataView');
   // 24.2.5 Properties of DataView Instances
 
   // See typedarray.js for TypedArray polyfill
@@ -2531,12 +2541,12 @@
       this.nextIndex = 0;
       this.propList = Enumerate(o);
     }
-    PropertyIterator.prototype = {};
+    PropertyIterator.prototype = new function $PropertyIteratorPrototype() {};
 
     defineFunctionProperty(
       PropertyIterator.prototype, 'next',
       function next() {
-        if (typeof this !== 'object') { throw new TypeError; }
+        if (Type(this) !== 'object') { throw new TypeError; }
         var o = this.set,
             index = this.nextIndex,
             entries = this.propList;
@@ -2666,8 +2676,8 @@
       this.iteratedObject = object;
       this.nextIndex = nextIndex;
     }
-    StringIterator.prototype = {};
-    StringIterator.prototype[$$toStringTag] = 'String Iterator';
+    StringIterator.prototype = new function $StringIteratorPrototype$() {};
+    defineValueProperty(StringIterator.prototype, $$toStringTag, 'String Iterator');
     defineFunctionProperty(
       StringIterator.prototype, 'next',
       function next() {
@@ -2732,8 +2742,8 @@
       // TODO: Use Enumerate()
       this.propList = Object.keys(object);
     }
-    DictIterator.prototype = {};
-    DictIterator.prototype[$$toStringTag] = 'Dict Iterator';
+    DictIterator.prototype = new function $DictIteratorPrototype$() {};
+    defineValueProperty(DictIterator.prototype, $$toStringTag, 'Dict Iterator');
     defineFunctionProperty(
       DictIterator.prototype, 'next',
       function next() {

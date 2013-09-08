@@ -432,6 +432,7 @@ test("Identity Testing", function () {
 
 test("Map", function () {
 
+  assertEqual("Map.length", 0);
   map = new Map();
   assertFalse("map.has(-0)");
   assertFalse("map.has(0)");
@@ -516,6 +517,8 @@ test("Map", function () {
 
 test("Set", function () {
 
+  assertEqual("Set.length", 0);
+
   set = new Set();
   assertFalse("set.has(-0)");
   assertFalse("set.has(0)");
@@ -597,6 +600,8 @@ test("Set", function () {
 
 test("WeakMap", function () {
 
+  assertEqual("WeakMap.length", 0);
+
   wm1 = new WeakMap();
   wm2 = new WeakMap();
   x = {};
@@ -668,6 +673,9 @@ test("WeakMap", function () {
 });
 
 test("WeakSet", function () {
+
+  assertEqual("WeakSet.length", 0);
+
   set = new WeakSet();
   x = {};
   y = {};
