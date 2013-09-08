@@ -40,6 +40,10 @@
 
   var USE_NATIVE_IF_AVAILABLE = true;
 
+  // Beyond this value, index getters/setters (i.e. array[0], array[1]) are so slow to
+  // create, and consume so much memory, that the browser appears frozen.
+  var MAX_ARRAY_LENGTH = 1e5;
+
   // Approximations of internal ECMAScript conversion functions
   var ECMAScript = (function () {
     // Stash a copy in case other scripts modify these
@@ -126,6 +130,8 @@
   // for index in 0 ... obj.length
   function makeArrayAccessors(obj) {
     if (!Object.defineProperty) { return; }
+
+    if (obj.length > MAX_ARRAY_LENGTH) { throw new RangeError("Array too large for polyfill"); }
 
     function makeArrayAccessor(index) {
       Object.defineProperty(obj, index, {
