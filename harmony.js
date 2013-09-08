@@ -1510,7 +1510,7 @@
       }
       map._mapData = { keys: [], values: [] };
       if (comparator !== undefined && comparator !== "is") { throw new TypeError(); }
-      map._mapComparator = (comparator === 'is') ? Object.is : Map.defaultComparator;
+      map._mapComparator = comparator;
 
       if (iterable === undefined) {
         return map;
@@ -1543,9 +1543,6 @@
       return -1;
     }
 
-    // TODO: Rework this; should be part of /same/ calculation in operations
-    Map.defaultComparator = abstractOperation.SameValueZero;
-
     // 23.1.1.2 new Map ( ... argumentsList )
     // 23.1.2 Properties of the Map Constructor
     // 23.1.2.1 Map.prototype
@@ -1567,7 +1564,9 @@
     defineFunctionProperty(
       Map.prototype, 'delete',
       function deleteFunction(key) {
-        var i = indexOf(this._mapComparator, this._mapData, key);
+        var same = (this._mapComparator === undefined) ?
+              abstractOperation.SameValueZero : abstractOperation.SameValue;
+        var i = indexOf(same, this._mapData, key);
         if (i < 0) { return false; }
         this._mapData.keys[i] = empty;
         this._mapData.values[i] = empty;
@@ -1599,7 +1598,9 @@
     defineFunctionProperty(
       Map.prototype, 'get',
       function get(key) {
-        var i = indexOf(this._mapComparator, this._mapData, key);
+        var same = (this._mapComparator === undefined) ?
+              abstractOperation.SameValueZero : abstractOperation.SameValue;
+        var i = indexOf(same, this._mapData, key);
         return i < 0 ? undefined : this._mapData.values[i];
       });
 
@@ -1607,7 +1608,9 @@
     defineFunctionProperty(
       Map.prototype, 'has',
       function has(key) {
-        return indexOf(this._mapComparator, this._mapData, key) >= 0;
+        var same = (this._mapComparator === undefined) ?
+              abstractOperation.SameValueZero : abstractOperation.SameValue;
+        return indexOf(same, this._mapData, key) >= 0;
       });
 
     // 23.1.3.8 Map.prototype.keys ( )
@@ -1621,7 +1624,9 @@
     defineFunctionProperty(
       Map.prototype, 'set',
       function set(key, val) {
-        var i = indexOf(this._mapComparator, this._mapData, key);
+        var same = (this._mapComparator === undefined) ?
+              abstractOperation.SameValueZero : abstractOperation.SameValue;
+        var i = indexOf(same, this._mapData, key);
         if (i < 0) { i = this._mapData.keys.length; }
         this._mapData.keys[i] = key;
         this._mapData.values[i] = val;
@@ -1742,7 +1747,7 @@
       }
       set._setData = [];
       if (comparator !== undefined && comparator !== "is") { throw new TypeError(); }
-      set._setComparator = (comparator === 'is') ? Object.is : Set.defaultComparator;
+      set._setComparator = comparator;
       if (iterable === undefined) {
         return set;
       }
@@ -1771,8 +1776,6 @@
       return -1;
     }
 
-    Set.defaultComparator = abstractOperation.SameValueZero;
-
     // 23.2.1.2 new Set ( ... argumentsList )
     // 23.2.2 Properties of the Set Constructor
 
@@ -1786,7 +1789,9 @@
     defineFunctionProperty(
       Set.prototype, 'add',
       function add(key) {
-        var i = indexOf(this._setComparator, this._setData, key);
+        var same = (this._setComparator === undefined) ?
+              abstractOperation.SameValueZero : abstractOperation.SameValue;
+        var i = indexOf(same, this._setData, key);
         if (i < 0) { i = this._setData.length; }
         this._setData[i] = key;
         return key;
@@ -1804,7 +1809,9 @@
     defineFunctionProperty(
       Set.prototype, 'delete',
       function deleteFunction(key) {
-        var i = indexOf(this._setComparator, this._setData, key);
+        var same = (this._setComparator === undefined) ?
+              abstractOperation.SameValueZero : abstractOperation.SameValue;
+        var i = indexOf(same, this._setData, key);
         if (i < 0) { return false; }
         this._setData[i] = empty;
         return true;
@@ -1829,7 +1836,9 @@
     defineFunctionProperty(
       Set.prototype, 'has',
       function has(key) {
-        return indexOf(this._setComparator, this._setData, key) !== -1;
+        var same = (this._setComparator === undefined) ?
+              abstractOperation.SameValueZero : abstractOperation.SameValue;
+        return indexOf(same, this._setData, key) !== -1;
       });
 
     // 23.2.3.8 Set.prototype.keys ( )
