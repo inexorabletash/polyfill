@@ -91,7 +91,7 @@
   if (!Object.defineProperty ||
        !(function() { try { Object.defineProperty({}, 'x', {}); return true; } catch (e) { return false; } }())) {
     Object.defineProperty = function(o, p, desc) {
-      if (!o === Object(o)) { throw new TypeError("Object.defineProperty called on non-object"); }
+      if (!o === Object(o)) throw new TypeError("Object.defineProperty called on non-object");
       if (ECMAScript.HasProperty(desc, 'get') && Object.prototype.__defineGetter__) { Object.prototype.__defineGetter__.call(o, p, desc.get); }
       if (ECMAScript.HasProperty(desc, 'set') && Object.prototype.__defineSetter__) { Object.prototype.__defineSetter__.call(o, p, desc.set); }
       if (ECMAScript.HasProperty(desc, 'value')) { o[p] = desc.value; }
@@ -101,7 +101,7 @@
 
   if (!Object.getOwnPropertyNames) {
     Object.getOwnPropertyNames = function getOwnPropertyNames(o) {
-      if (o !== Object(o)) { throw new TypeError("Object.getOwnPropertyNames called on non-object"); }
+      if (o !== Object(o)) throw new TypeError("Object.getOwnPropertyNames called on non-object");
       var props = [], p;
       for (p in o) {
         if (ECMAScript.HasOwnProperty(o, p)) {
@@ -117,7 +117,7 @@
   function makeArrayAccessors(obj) {
     if (!Object.defineProperty) { return; }
 
-    if (obj.length > MAX_ARRAY_LENGTH) { throw new RangeError("Array too large for polyfill"); }
+    if (obj.length > MAX_ARRAY_LENGTH) throw new RangeError("Array too large for polyfill");
 
     function makeArrayAccessor(index) {
       Object.defineProperty(obj, index, {
@@ -141,25 +141,25 @@
   function as_signed(value, bits) { var s = 32 - bits; return (value << s) >> s; }
   function as_unsigned(value, bits) { var s = 32 - bits; return (value << s) >>> s; }
 
-  function packInt8(n) { return [n & 0xff]; }
-  function unpackInt8(bytes) { return as_signed(bytes[0], 8); }
+  function packI8(n) { return [n & 0xff]; }
+  function unpackI8(bytes) { return as_signed(bytes[0], 8); }
 
-  function packUint8(n) { return [n & 0xff]; }
-  function unpackUint8(bytes) { return as_unsigned(bytes[0], 8); }
+  function packU8(n) { return [n & 0xff]; }
+  function unpackU8(bytes) { return as_unsigned(bytes[0], 8); }
 
-  function packUint8Clamped(n) { n = round(Number(n)); return [n < 0 ? 0 : n > 0xff ? 0xff : n & 0xff]; }
+  function packU8Clamped(n) { n = round(Number(n)); return [n < 0 ? 0 : n > 0xff ? 0xff : n & 0xff]; }
 
-  function packInt16(n) { return [(n >> 8) & 0xff, n & 0xff]; }
-  function unpackInt16(bytes) { return as_signed(bytes[0] << 8 | bytes[1], 16); }
+  function packI16(n) { return [(n >> 8) & 0xff, n & 0xff]; }
+  function unpackI16(bytes) { return as_signed(bytes[0] << 8 | bytes[1], 16); }
 
-  function packUint16(n) { return [(n >> 8) & 0xff, n & 0xff]; }
-  function unpackUint16(bytes) { return as_unsigned(bytes[0] << 8 | bytes[1], 16); }
+  function packU16(n) { return [(n >> 8) & 0xff, n & 0xff]; }
+  function unpackU16(bytes) { return as_unsigned(bytes[0] << 8 | bytes[1], 16); }
 
-  function packInt32(n) { return [(n >> 24) & 0xff, (n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff]; }
-  function unpackInt32(bytes) { return as_signed(bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3], 32); }
+  function packI32(n) { return [(n >> 24) & 0xff, (n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff]; }
+  function unpackI32(bytes) { return as_signed(bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3], 32); }
 
-  function packUint32(n) { return [(n >> 24) & 0xff, (n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff]; }
-  function unpackUint32(bytes) { return as_unsigned(bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3], 32); }
+  function packU32(n) { return [(n >> 24) & 0xff, (n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff]; }
+  function unpackU32(bytes) { return as_unsigned(bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3], 32); }
 
   function packIEEE754(v, ebits, fbits) {
 
@@ -201,12 +201,12 @@
           e = (1 << ebits) - 1;
           f = 0;
         } else {
-          // Normal
+          // Normalized
           e = e + bias;
           f = f - pow(2, fbits);
         }
       } else {
-        // Subnormal
+        // Denormalized
         e = 0;
         f = roundToEven(v / pow(2, 1 - bias - fbits));
       }
@@ -264,10 +264,10 @@
     }
   }
 
-  function unpackFloat64(b) { return unpackIEEE754(b, 11, 52); }
-  function packFloat64(v) { return packIEEE754(v, 11, 52); }
-  function unpackFloat32(b) { return unpackIEEE754(b, 8, 23); }
-  function packFloat32(v) { return packIEEE754(v, 8, 23); }
+  function unpackF64(b) { return unpackIEEE754(b, 11, 52); }
+  function packF64(v) { return packIEEE754(v, 11, 52); }
+  function unpackF32(b) { return unpackIEEE754(b, 8, 23); }
+  function packF32(v) { return packIEEE754(v, 8, 23); }
 
 
   //
@@ -279,7 +279,7 @@
     /** @constructor */
     var ArrayBuffer = function ArrayBuffer(length) {
       length = ECMAScript.ToInt32(length);
-      if (length < 0) { throw new RangeError('ArrayBuffer size is not a small enough positive integer.'); }
+      if (length < 0) throw new RangeError('ArrayBuffer size is not a small enough positive integer.');
 
       this.byteLength = length;
       this._bytes = [];
@@ -311,7 +311,7 @@
     // 5 The Typed Array View Types
     //
 
-    function makeTypedArrayConstructor(bytesPerElement, pack, unpack) {
+    function makeConstructor(bytesPerElement, pack, unpack) {
       // Each TypedArray type requires a distinct constructor instance with
       // identical logic, which this produces.
 
@@ -322,7 +322,7 @@
         if (!arguments.length || typeof arguments[0] === 'number') {
           // Constructor(unsigned long length)
           this.length = ECMAScript.ToInt32(arguments[0]);
-          if (length < 0) { throw new RangeError('ArrayBufferView size is not a small enough positive integer.'); }
+          if (length < 0) throw new RangeError('ArrayBufferView size is not a small enough positive integer.');
 
           this.byteLength = this.length * this.BYTES_PER_ELEMENT;
           this.buffer = new ArrayBuffer(this.byteLength);
@@ -403,7 +403,7 @@
 
       // getter type (unsigned long index);
       ctor.prototype._getter = function(index) {
-        if (arguments.length < 1) { throw new SyntaxError("Not enough arguments"); }
+        if (arguments.length < 1) throw new SyntaxError("Not enough arguments");
 
         index = ECMAScript.ToUint32(index);
         if (index >= this.length) {
@@ -424,7 +424,7 @@
 
       // setter void (unsigned long index, type value);
       ctor.prototype._setter = function(index, value) {
-        if (arguments.length < 2) { throw new SyntaxError("Not enough arguments"); }
+        if (arguments.length < 2) throw new SyntaxError("Not enough arguments");
 
         index = ECMAScript.ToUint32(index);
         if (index >= this.length) {
@@ -442,7 +442,7 @@
       // void set(TypedArray array, optional unsigned long offset);
       // void set(sequence<type> array, optional unsigned long offset);
       ctor.prototype.set = function(index, value) {
-        if (arguments.length < 1) { throw new SyntaxError("Not enough arguments"); }
+        if (arguments.length < 1) throw new SyntaxError("Not enough arguments");
         var array, sequence, offset, len,
             i, s, d,
             byteOffset, byteLength, tmp;
@@ -520,15 +520,15 @@
       return ctor;
     }
 
-    var Int8Array = makeTypedArrayConstructor(1, packInt8, unpackInt8);
-    var Uint8Array = makeTypedArrayConstructor(1, packUint8, unpackUint8);
-    var Uint8ClampedArray = makeTypedArrayConstructor(1, packUint8Clamped, unpackUint8);
-    var Int16Array = makeTypedArrayConstructor(2, packInt16, unpackInt16);
-    var Uint16Array = makeTypedArrayConstructor(2, packUint16, unpackUint16);
-    var Int32Array = makeTypedArrayConstructor(4, packInt32, unpackInt32);
-    var Uint32Array = makeTypedArrayConstructor(4, packUint32, unpackUint32);
-    var Float32Array = makeTypedArrayConstructor(4, packFloat32, unpackFloat32);
-    var Float64Array = makeTypedArrayConstructor(8, packFloat64, unpackFloat64);
+    var Int8Array = makeConstructor(1, packI8, unpackI8);
+    var Uint8Array = makeConstructor(1, packU8, unpackU8);
+    var Uint8ClampedArray = makeConstructor(1, packU8Clamped, unpackU8);
+    var Int16Array = makeConstructor(2, packI16, unpackI16);
+    var Uint16Array = makeConstructor(2, packU16, unpackU16);
+    var Int32Array = makeConstructor(4, packI32, unpackI32);
+    var Uint32Array = makeConstructor(4, packU32, unpackU32);
+    var Float32Array = makeConstructor(4, packF32, unpackF32);
+    var Float64Array = makeConstructor(8, packF64, unpackF64);
 
     global.Int8Array = global.Int8Array || Int8Array;
     global.Uint8Array = global.Uint8Array || Uint8Array;
@@ -549,7 +549,6 @@
     function r(array, index) {
       return ECMAScript.IsCallable(array.get) ? array.get(index) : array[index];
     }
-
 
     var IS_BIG_ENDIAN = (function() {
       var u16array = new Uint16Array([0x1234]),
@@ -588,12 +587,7 @@
       configureProperties(this);
     };
 
-    // TODO: Reintroduce this to get correct hierarchy
-    //if (typeof ArrayBufferView === 'function') {
-    //  DataView.prototype = new ArrayBufferView();
-    //}
-
-    function makeDataView_getter(arrayType) {
+    function makeGetter(arrayType) {
       return function(byteOffset, littleEndian) {
 
         byteOffset = ECMAScript.ToUint32(byteOffset);
@@ -617,16 +611,16 @@
       };
     }
 
-    DataView.prototype.getUint8 = makeDataView_getter(Uint8Array);
-    DataView.prototype.getInt8 = makeDataView_getter(Int8Array);
-    DataView.prototype.getUint16 = makeDataView_getter(Uint16Array);
-    DataView.prototype.getInt16 = makeDataView_getter(Int16Array);
-    DataView.prototype.getUint32 = makeDataView_getter(Uint32Array);
-    DataView.prototype.getInt32 = makeDataView_getter(Int32Array);
-    DataView.prototype.getFloat32 = makeDataView_getter(Float32Array);
-    DataView.prototype.getFloat64 = makeDataView_getter(Float64Array);
+    DataView.prototype.getUint8 = makeGetter(Uint8Array);
+    DataView.prototype.getInt8 = makeGetter(Int8Array);
+    DataView.prototype.getUint16 = makeGetter(Uint16Array);
+    DataView.prototype.getInt16 = makeGetter(Int16Array);
+    DataView.prototype.getUint32 = makeGetter(Uint32Array);
+    DataView.prototype.getInt32 = makeGetter(Int32Array);
+    DataView.prototype.getFloat32 = makeGetter(Float32Array);
+    DataView.prototype.getFloat64 = makeGetter(Float64Array);
 
-    function makeDataView_setter(arrayType) {
+    function makeSetter(arrayType) {
       return function(byteOffset, value, littleEndian) {
 
         byteOffset = ECMAScript.ToUint32(byteOffset);
@@ -654,14 +648,14 @@
       };
     }
 
-    DataView.prototype.setUint8 = makeDataView_setter(Uint8Array);
-    DataView.prototype.setInt8 = makeDataView_setter(Int8Array);
-    DataView.prototype.setUint16 = makeDataView_setter(Uint16Array);
-    DataView.prototype.setInt16 = makeDataView_setter(Int16Array);
-    DataView.prototype.setUint32 = makeDataView_setter(Uint32Array);
-    DataView.prototype.setInt32 = makeDataView_setter(Int32Array);
-    DataView.prototype.setFloat32 = makeDataView_setter(Float32Array);
-    DataView.prototype.setFloat64 = makeDataView_setter(Float64Array);
+    DataView.prototype.setUint8 = makeSetter(Uint8Array);
+    DataView.prototype.setInt8 = makeSetter(Int8Array);
+    DataView.prototype.setUint16 = makeSetter(Uint16Array);
+    DataView.prototype.setInt16 = makeSetter(Int16Array);
+    DataView.prototype.setUint32 = makeSetter(Uint32Array);
+    DataView.prototype.setInt32 = makeSetter(Int32Array);
+    DataView.prototype.setFloat32 = makeSetter(Float32Array);
+    DataView.prototype.setFloat64 = makeSetter(Float64Array);
 
     global.DataView = global.DataView || DataView;
 
