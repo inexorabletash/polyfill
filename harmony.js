@@ -1431,64 +1431,215 @@
   // 22.2 TypedArray Objects
   // ---------------------------------------
 
-  // 22.2.1 The %TypedArray% Intrinsic Object
-  // 22.2.1.1 %TypedArray% ( length )
-  // 22.2.1.2 %TypedArray% ( typedArray )
-  // 22.2.1.3 %TypedArray% ( array )
-  // 22.2.1.4 %TypedArray% ( buffer, byteOffset=0, length=undefined )
-  // 22.2.1.5 %TypedArray% ( all other argument combinations )
-  // 22.2.2 Properties of the %TypedArray% Intrinsic Object
-  // 22.2.2.1 %TypedArray%.from ( source , mapfn=undefined, thisArg=undefined )
-  // 22.2.2.2 %TypedArray%.of ( ...items )
-  // 22.2.2.3 %TypedArray%.prototype
-  // 22.2.2.4 %TypedArray% [ @@create ] ( )
-  // 22.2.3 Properties of the %TypedArrayPrototype% Object
-  // 22.2.3.1 get %TypedArray%.prototype.buffer
-  // 22.2.3.2 get %TypedArray%.prototype.byteLength
-  // 22.2.3.3 get %TypedArray%.prototype.byteOffset
-  // 22.2.3.4 %TypedArray%.prototype.constructor
-  // 22.2.3.5 %TypedArray%.prototype.copyWithin (target, start, end = this.length )
-  // 22.2.3.6 %TypedArray%.prototype.entries ( )
-  // 22.2.3.7 %TypedArray%.prototype.every ( callbackfn, thisArg = undefined )
-  // 22.2.3.8 %TypedArray%.prototype.fill (value, start = 0, end = this.length )
-  // 22.2.3.9 %TypedArray%.prototype.filter ( callbackfn, thisArg = undefined )
-  // 22.2.3.10 %TypedArray%.prototype.find (predicate, thisArg = undefined)
-  // 22.2.3.11 %TypedArray%.prototype.findIndex ( predicate, thisArg = undefined )
-  // 22.2.3.12 %TypedArray%.prototype.forEach ( callbackfn, thisArg = undefined )
-  // 22.2.3.13 %TypedArray%.prototype.indexOf (searchElement, fromIndex = 0 )
-  // 22.2.3.14 %TypedArray%.prototype.join ( separator )
-  // 22.2.3.15 %TypedArray%.prototype.keys ( )
-  // 22.2.3.16 %TypedArray%.prototype.lastIndexOf ( searchElement, fromIndex = this.length-1 )
-  // 22.2.3.17 get %TypedArray%.prototype.length
-  // 22.2.3.18 %TypedArray%.prototype.map ( callbackfn, thisArg = undefined )
-  // 22.2.3.19 %TypedArray%.prototype.reduce ( callbackfn [, initialValue] )
-  // 22.2.3.20 %TypedArray%.prototype.reduceRight ( callbackfn [, initialValue] )
-  // 22.2.3.21 %TypedArray%.prototype.reverse ( )
-  // 22.2.3.22 %TypedArray%.prototype.set(array, offset = 0 )
-  // 22.2.3.23 %TypedArray%.prototype.set(typedArray, offset = 0 )
-  // 22.2.3.24 %TypedArray%.prototype.slice ( start, end )
-  // 22.2.3.25 %TypedArray%.prototype.some ( callbackfn, thisArg = undefined )
-  // 22.2.3.26 %TypedArray%.prototype.sort ( comparefn )
-  // 22.2.3.27 %TypedArray%.prototype.subarray(begin = 0, end = this.length )
-  // 22.2.3.28 %TypedArray%.prototype.toLocaleString ( )
-  // 22.2.3.29 %TypedArray%.prototype.toString ( )
-  // 22.2.3.30 %TypedArray%.prototype.values ( )
-  // 22.2.3.31 %TypedArray%.prototype [ @@iterator ] ( )
-  // 22.2.3.32 get %TypedArray%.prototype [ @@toStringTag ]
-  // 22.2.4 The TypedArray Constructors
-  // 22.2.4.1 new TypedArray( ... argumentsList)
-  // 22.2.4.2 new TypedArray( ... argumentsList)
-  // 22.2.5 Properties of the TypedArray Constructors
-  // 22.2.5.1 TypedArray.BYTES_PER_ELEMENT
-  // 22.2.5.2 TypedArray.prototype
-  // 22.2.6 Properties of TypedArray Prototype Objects
-  // 22.2.6.1 TypedArray.prototype.BYTES_PER_ELEMENT
-  // 22.2.6.2 TypedArray.prototype.constructor
-  // 22.2.7 Properties of TypedArray Instances
-
   // See typedarray.js for TypedArray polyfill
 
-  // TODO: ES6 extensions to TypedArrays
+  // TODO: Remaining ES6 extensions to TypedArrays
+
+  ['Int8Array', 'Uint8Array', 'Uint8ArrayClamped',
+   'Int16Array', 'Uint16Array',
+   'Int32Array', 'Uint32Array',
+   'Float32Array', 'Float64Array'].forEach(function (__TypedArrayName__) {
+     if (!(__TypedArrayName__ in global))
+       return;
+     var $TypedArray$ = global[__TypedArrayName__];
+
+     // 22.2.1 The %TypedArray% Intrinsic Object
+     // 22.2.1.1 %TypedArray% ( length )
+     // 22.2.1.2 %TypedArray% ( typedArray )
+     // 22.2.1.3 %TypedArray% ( array )
+     // 22.2.1.4 %TypedArray% ( buffer, byteOffset=0, length=undefined )
+     // 22.2.1.5 %TypedArray% ( all other argument combinations )
+     // 22.2.2 Properties of the %TypedArray% Intrinsic Object
+
+     // 22.2.2.1 %TypedArray%.from ( source , mapfn=undefined, thisArg=undefined )
+     // TODO: Implement
+
+     // 22.2.2.2 %TypedArray%.of ( ...items )
+     defineFunctionProperty(
+       $TypedArray$, 'of',
+       function of() {
+         var items = arguments;
+
+         var len = items.length;
+         var c = this;
+         var newObj = new c(len);
+         var k = 0;
+         while (k < len) {
+           newObj[k] = items[k];
+           ++k;
+         }
+         return newObj;
+       });
+
+     // 22.2.2.3 %TypedArray%.prototype
+     // 22.2.2.4 %TypedArray% [ @@create ] ( )
+     // 22.2.3 Properties of the %TypedArrayPrototype% Object
+     // 22.2.3.1 get %TypedArray%.prototype.buffer
+     // 22.2.3.2 get %TypedArray%.prototype.byteLength
+     // 22.2.3.3 get %TypedArray%.prototype.byteOffset
+     // 22.2.3.4 %TypedArray%.prototype.constructor
+
+     // 22.2.3.5 %TypedArray%.prototype.copyWithin (target, start, end = this.length )
+     defineFunctionProperty($TypedArray$.prototype, 'copyWithin', Array.prototype.copyWithin);
+
+     // 22.2.3.6 %TypedArray%.prototype.entries ( )
+     defineFunctionProperty($TypedArray$.prototype, 'entries', Array.prototype.entries);
+
+     // 22.2.3.7 %TypedArray%.prototype.every ( callbackfn, thisArg = undefined )
+     defineFunctionProperty($TypedArray$.prototype, 'every', Array.prototype.every);
+
+     // 22.2.3.8 %TypedArray%.prototype.fill (value, start = 0, end = this.length )
+     defineFunctionProperty($TypedArray$.prototype, 'fill', Array.prototype.fill);
+
+     // 22.2.3.9 %TypedArray%.prototype.filter ( callbackfn, thisArg = undefined )
+     defineFunctionProperty(
+       $TypedArray$.prototype, 'filter',
+       function filter(callbackfn) {
+         var thisArg = arguments[1];
+
+         var o = Object(this);
+         var lenVal = o.length;
+         var len = abstractOperation.ToLength(lenVal);
+         if (!abstractOperation.IsCallable(callbackfn)) throw new TypeError();
+         var t = thisArg;
+         var c = o.constructor;
+         var kept = [];
+         var k = 0;
+         var captured = 0;
+         while (k < len) {
+           var kValue = o[k];
+           var selected = callbackfn.call(t, kValue, k, o);
+           if (selected) {
+             kept.push(kValue);
+             ++captured;
+           }
+           ++k;
+         }
+         var a = new c(captured);
+         var n = 0;
+         for (var i = 0; i < kept.length; ++i) {
+           var e = kept[i];
+           a[n] = e;
+           ++n;
+         }
+         return a;
+       });
+
+     // 22.2.3.10 %TypedArray%.prototype.find (predicate, thisArg = undefined)
+     defineFunctionProperty($TypedArray$.prototype, 'find', Array.prototype.find);
+
+     // 22.2.3.11 %TypedArray%.prototype.findIndex ( predicate, thisArg = undefined )
+     defineFunctionProperty($TypedArray$.prototype, 'findIndex', Array.prototype.findIndex);
+
+     // 22.2.3.12 %TypedArray%.prototype.forEach ( callbackfn, thisArg = undefined )
+
+     // 22.2.3.13 %TypedArray%.prototype.indexOf (searchElement, fromIndex = 0 )
+     defineFunctionProperty($TypedArray$.prototype, 'indexOf', Array.prototype.indexOf);
+
+     // 22.2.3.14 %TypedArray%.prototype.join ( separator )
+     defineFunctionProperty($TypedArray$.prototype, 'join', Array.prototype.join);
+
+     // 22.2.3.15 %TypedArray%.prototype.keys ( )
+     defineFunctionProperty($TypedArray$.prototype, 'keys', Array.prototype.keys);
+
+     // 22.2.3.16 %TypedArray%.prototype.lastIndexOf ( searchElement, fromIndex = this.length-1 )
+     defineFunctionProperty($TypedArray$.prototype, 'lastIndexOf', Array.prototype.lastIndexOf);
+
+     // 22.2.3.17 get %TypedArray%.prototype.length
+
+     // 22.2.3.18 %TypedArray%.prototype.map ( callbackfn, thisArg = undefined )
+     defineFunctionProperty(
+       $TypedArray$.prototype, 'map',
+       function map(callbackfn) {
+         var thisArg = arguments[1];
+
+         var o = Object(this);
+         var lenValue = o.length;
+         var len = abstractOperation.ToLength(lenValue);
+         if (!abstractOperation.IsCallable(callbackfn)) throw new TypeError();
+         var t = thisArg;
+         var a = undefined;
+         var c = o.constructor;
+         if (abstractOperation.IsConstructor(c))
+           a = new c(len);
+         if (a === undefined)
+           a = new Array(len);
+         var k = 0;
+         while (k < len) {
+           var kPresent = abstractOperation.HasProperty(o, k);
+           if (kPresent) {
+             var kValue = o[k];
+             var mappedValue = callbackfn.call(t, kValue, k, o);
+             a[k] = mappedValue;
+           }
+           ++k;
+         }
+         return a;
+       });
+
+     // 22.2.3.19 %TypedArray%.prototype.reduce ( callbackfn [, initialValue] )
+     defineFunctionProperty($TypedArray$.prototype, 'reduce', Array.prototype.reduce);
+
+     // 22.2.3.20 %TypedArray%.prototype.reduceRight ( callbackfn [, initialValue] )
+     defineFunctionProperty($TypedArray$.prototype, 'reduceRight', Array.prototype.reduceRight);
+
+     // 22.2.3.21 %TypedArray%.prototype.reverse ( )
+     defineFunctionProperty($TypedArray$.prototype, 'reverse', Array.prototype.reverse);
+
+     // 22.2.3.22 %TypedArray%.prototype.set(array, offset = 0 )
+     // 22.2.3.23 %TypedArray%.prototype.set(typedArray, offset = 0 )
+
+     // 22.2.3.24 %TypedArray%.prototype.slice ( start, end )
+     // TODO: Implement
+
+     // 22.2.3.25 %TypedArray%.prototype.some ( callbackfn, thisArg = undefined )
+     defineFunctionProperty($TypedArray$.prototype, 'some', Array.prototype.some);
+
+     // 22.2.3.26 %TypedArray%.prototype.sort ( comparefn )
+     defineFunctionProperty(
+       $TypedArray$.prototype, 'sort',
+       function sort() {
+         var comparefn = arguments[0];
+
+         function sortCompare(x, y) {
+           assert(Type(x) === 'number' && Type(y) === 'number');
+           if (x !== x && y !== y) return +0;
+           if (x !== x) return 1;
+           if (y !== y) return -1;
+           if (comparefn !== undefined) {
+             return comparefn(x, y);
+           }
+           if (x < y) return -1;
+           if (x > y) return 1;
+           return +0;
+         }
+         Array.prototype.sort.call(this, sortCompare);
+       });
+
+     // 22.2.3.27 %TypedArray%.prototype.subarray(begin = 0, end = this.length )
+     // 22.2.3.28 %TypedArray%.prototype.toLocaleString ( )
+     // 22.2.3.29 %TypedArray%.prototype.toString ( )
+
+     // 22.2.3.30 %TypedArray%.prototype.values ( )
+     defineFunctionProperty($TypedArray$.prototype, 'values', Array.prototype.values);
+
+     // 22.2.3.31 %TypedArray%.prototype [ @@iterator ] ( )
+
+     // 22.2.3.32 get %TypedArray%.prototype [ @@toStringTag ]
+     // NOTE: Only required if %TypedArray% is polyfilled
+     defineValueProperty($TypedArray$.prototype, $$toStringTag, __TypedArrayName__);
+
+     // 22.2.4 The TypedArray Constructors
+     // 22.2.4.1 new TypedArray( ... argumentsList)
+     // 22.2.4.2 new TypedArray( ... argumentsList)
+     // 22.2.5 Properties of the TypedArray Constructors
+     // 22.2.5.1 TypedArray.BYTES_PER_ELEMENT
+     // 22.2.5.2 TypedArray.prototype
+     // 22.2.6 Properties of TypedArray Prototype Objects
+     // 22.2.6.1 TypedArray.prototype.BYTES_PER_ELEMENT
+     // 22.2.6.2 TypedArray.prototype.constructor
+     // 22.2.7 Properties of TypedArray Instances
+   });
 
   // ---------------------------------------
   // 23 Keyed Collection
@@ -2228,35 +2379,53 @@
   // 24.1 ArrayBuffer Objects
   // ---------------------------------------
 
-  // 24.1.1 Abstract Operations For ArrayBuffer Objects
-  // 24.1.1.1 AllocateArrayBuffer(constructor)
-  // 24.1.1.2 SetArrayBufferData(arrayBuffer, bytes)
-  // 24.1.1.3 CloneArrayBuffer(srcBuffer, srcByteOffset, srcType,cloneElementType, srcLength).
-  // 24.1.1.4 GetValueFromBuffer (arrayBuffer, byteIndex, type, isLittleEndian)
-  // 24.1.1.5 SetValueInBuffer (arrayBuffer, byteIndex, type, value, isLittleEndian)
-  // 24.1.2 The ArrayBuffer Constructor
-  // 24.1.2.1 ArrayBuffer(length)
-  // 24.1.2.2 new ArrayBuffer( ... argumentsList)
-  // 24.1.3 Properties of the ArrayBuffer Constructor
-  // 24.1.3.1 ArrayBuffer.isView ( arg )
-  // 24.1.3.2 ArrayBuffer.prototype
-  // 24.1.3.3 ArrayBuffer[ @@create ] ( )
-  // 24.1.4 Properties of the ArrayBuffer Prototype Object
-  // 24.1.4.1 get ArrayBuffer.prototype.byteLength
-  // 24.1.4.2 ArrayBuffer.prototype.constructor
-  // 24.1.4.3 ArrayBuffer.prototype.slice ( start , end)
-  // 24.1.4.4 ArrayBuffer.prototype [ @@toStringTag ]
-  defineValueProperty(ArrayBuffer.prototype, $$toStringTag, 'ArrayBuffer');
-
-  // 24.1.5 Properties of the ArrayBuffer Instances
-
   // See typedarray.js for TypedArray polyfill
 
-  // TODO: ES6 extensions to TypedArrays
+  (function() {
+    if (!('ArrayBuffer' in global))
+      return;
+
+    // 24.1.1 Abstract Operations For ArrayBuffer Objects
+    // 24.1.1.1 AllocateArrayBuffer(constructor)
+    // 24.1.1.2 SetArrayBufferData(arrayBuffer, bytes)
+    // 24.1.1.3 CloneArrayBuffer(srcBuffer, srcByteOffset, srcType,cloneElementType, srcLength).
+    // 24.1.1.4 GetValueFromBuffer (arrayBuffer, byteIndex, type, isLittleEndian)
+    // 24.1.1.5 SetValueInBuffer (arrayBuffer, byteIndex, type, value, isLittleEndian)
+    // 24.1.2 The ArrayBuffer Constructor
+    // 24.1.2.1 ArrayBuffer(length)
+    // 24.1.2.2 new ArrayBuffer( ... argumentsList)
+    // 24.1.3 Properties of the ArrayBuffer Constructor
+
+    // 24.1.3.1 ArrayBuffer.isView ( arg )
+    defineFunctionProperty(
+      ArrayBuffer, 'isView',
+      function isView(arg) {
+        if (Type(arg) !== 'object') return false;
+        // TODO: Is there a less hackish way?
+        if ('buffer' in arg && arg.buffer instanceof ArrayBuffer) return true;
+        // TODO: [[ViewedDataArrayBuffer]] clause?
+        return false;
+      });
+
+    // 24.1.3.2 ArrayBuffer.prototype
+    // 24.1.3.3 ArrayBuffer[ @@create ] ( )
+    // 24.1.4 Properties of the ArrayBuffer Prototype Object
+    // 24.1.4.1 get ArrayBuffer.prototype.byteLength
+    // 24.1.4.2 ArrayBuffer.prototype.constructor
+    // 24.1.4.3 ArrayBuffer.prototype.slice ( start , end)
+
+    // 24.1.4.4 ArrayBuffer.prototype [ @@toStringTag ]
+    // NOTE: Only required if ArrayBuffer is polyfilled
+    defineValueProperty(ArrayBuffer.prototype, $$toStringTag, 'ArrayBuffer');
+
+    // 24.1.5 Properties of the ArrayBuffer Instances
+  }());
 
   // ---------------------------------------
   // 24.2 DataView Objects
   // ---------------------------------------
+
+  // See typedarray.js for TypedArray polyfill
 
   // 24.2.1 Abstract Operations For DataView Objects
   // 24.2.1.1 GetViewValue(view, requestIndex, isLittleEndian, type)
@@ -2288,13 +2457,12 @@
   // 24.2.4.18 DataView.prototype.setUint8(byteOffset, value)
   // 24.2.4.19 DataView.prototype.setUint16(byteOffset, value, littleEndian=false)
   // 24.2.4.20 DataView.prototype.setUint32(byteOffset, value, littleEndian=false)
+
   // 24.2.4.21 DataView.prototype[ @@toStringTag ]
+  // NOTE: Only required if ArrayBuffer is polyfilled
   defineValueProperty(DataView.prototype, $$toStringTag, 'DataView');
+
   // 24.2.5 Properties of DataView Instances
-
-  // See typedarray.js for TypedArray polyfill
-
-  // TODO: ES6 extensions to TypedArrays
 
   // ---------------------------------------
   // 24.3 The JSON Object
