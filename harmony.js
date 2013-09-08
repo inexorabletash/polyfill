@@ -564,6 +564,7 @@
   // 20.1.2.14 Number.POSITIVE_INFINITY
   // 20.1.2.15 Number.prototype
   // 20.1.2.16 Number[ @@create ] ( )
+
   // 20.1.3 Properties of the Number Prototype Object
 
   // 20.1.3.1 Number.prototype.clz ()

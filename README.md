@@ -85,22 +85,23 @@ The standardization of ES6 is currently in progress.
 This will attempt to track the evolving spec, so may change at any time.
 
 In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts):
-* Object: `assign()`, `is()`, `setPrototypeOf()`
-* Number: `EPILON`, `MAX_SAFE_INTEGER`, `parseInt()`, `parseFloat()`, `isFinite()`, `isNaN()`, `isInteger()`, `isSafeInteger()`
+* Object: `assign()`, `getOwnPropertyKeys()`, `is()`, `mixin()`, `setPrototypeOf()`
+* Number: `EPILON`, `isFinite()`, `isInteger()`, `isNaN()`, `isSafeInteger()`, `MAX_SAFE_INTEGER`, `MIN_SAFE_INTEGER`, `parseFloat()`, `parseInt()`
 * Number prototype: `clz()`
+* Math: `acosh()`, `asinh()`, `atanh()`, `cbrt()`, `cosh()`, `expm1()`, `hypot()`, `imul()`, `log1p()`, `log10()`, `log2()`, `roundFloat32`, `sign()`, `sinh()`, `tanh()`, `trunc()`
 * String: `fromCodePoint()`
-* String.prototype: `codePointAt()`, `repeat()`, `startsWith()`, `endsWith()`, `contains()`
-* Math: `log10()`, `log2()`, `log1p()`, `expm1()`, `cosh()`, `sinh()`, `tanh()`, `acosh()`, `asinh()`, `atanh()`, `hypot()`, `trunc()`, `sign()`, `cbrt()`, `imul()`
-* Array: `of()`, `from()`
-* Array prototype: `find()`, `findIndex()`, `entries()`, `keys()`, `values()`, `@@iterator()`, `fill`, `copyWithin`
-* Map: `clear()`, `delete()`, `forEach()`, `get()`, `has()`, `entries()`, `keys()`, `set()`, `size`, `values()`, `@@iterator()`
-* Set: `add()`, `clear()`, `delete()`, `forEach()`, `has()`, `size`, `values()`, `@@iterator()`
+* String.prototype: `codePointAt()`, `contains()`, `endsWith()`, `repeat()`, `startsWith()`
+* Array: `from()`, `of()`
+* Array prototype: `copyWithin()`, `entries()`, `fill()`, `find()`, `findIndex()`, `keys()`, `values()`, `[@@iterator]()`
+* Map: `clear()`, `delete()`, `entries()`, `forEach()`, `get()`, `keys()`, `has()`, `set()`, `size`, `values()`, `[@@iterator]()`
+* Set: `add()`, `clear()`, `delete()`, `entries()`, `forEach()`, `has()`, `size`, `values()`, `[@@iterator]()`
 * WeakMap (intrusive; modifies valueOf property of key): `clear()`, `delete()`, `get()`, `has()`, `set()`
+* WeakSet (intrusive; modifies valueOf property of key): `add()`, `clear()`, `delete()`
 
 Not yet approved:
 * Number: `compare()`
 * Array prototype: `pushAll()`, `contains()` [ref](https://mail.mozilla.org/pipermail/es-discuss/2011-December/019099.html)
-* String prototype: `@@iterator()` [ref](http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html)
+* String prototype: `[@@iterator]()` [ref](http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html)
 * Dict: `keys(dict)`, `values(dict)`, `entries(dict)`
   * `dict()` is shortcut for `Object.create(null)`
 * Symbol: `Symbol`
