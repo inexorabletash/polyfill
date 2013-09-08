@@ -172,6 +172,7 @@
   // 7.1.9 ToObject - just use Object()
 
   // 7.1.10 ToPropertyKey - TODO: consider for Symbol polyfill
+  abstractOperation.ToPropertyKey = function (v) { return String(v); };
 
   // 7.1.11
   abstractOperation.ToLength = function(v) {
@@ -235,7 +236,13 @@
   };
 
   // 7.2.5
-  abstractOperation.IsConstructor = function (o) { return typeof o === 'function'; };
+  abstractOperation.IsConstructor = function (o) {
+    try {
+      return typeof o === 'function' && new o instanceof o;
+    } catch (e) {
+      return false;
+    }
+  };
 
   // 7.2.6 IsPropertyKey - TODO: Consider for Symbol() polyfill
 
@@ -979,7 +986,7 @@
   // 21.1.3.11 String.prototype.match (regexp)
   // 21.1.3.12 String.prototype.normalize ( form = "NFC" )
 
-  // TODO
+  // TODO - probably not practical due to table sizes.
 
   // 21.1.3.13 String.prototype.repeat (count)
   defineFunctionProperty(
@@ -2446,12 +2453,24 @@
       Object.isExtensible);
 
     // 26.1.10 Reflect.invoke (target, propertyKey, argumentsList, receiver=target)
+    defineFunctionProperty(
+      Reflect, 'invoke',
+      function invoke(target, propertyKey, argumentsList, receiver) {
 
-    // TODO: Implement
+        var obj = Object(target);
+        var key = abstractOperation.ToPropertyKey(propertyKey);
+        if (receiver === undefined) receiver = target;
+
+        return Function.prototype.apply.call(obj[key], receiver, argumentsList);
+      });
 
     // 26.1.11 Reflect.ownKeys (target)
-
-    // TODO: Implement
+    defineFunctionProperty(
+      Reflect, 'ownKeys',
+      function ownKeys(target) {
+        var obj = Object(target);
+        return Object.getOwnPropertyNames(obj);
+      });
 
     // 26.1.12 Reflect.preventExtensions (target)
     defineFunctionProperty(
@@ -2479,54 +2498,6 @@
       Reflect, 'setPrototypeOf',
       function setPrototypeOf(target, proto) {
         target.__proto__ = proto;
-      });
-
-
-
-    // TODO: What happened to these? (Removed in 9/5/13 draft or earlier)
-
-    defineFunctionProperty(
-      Reflect, 'getOwnPropertyNames',
-      Object.getOwnPropertyNames);
-    defineFunctionProperty(
-      Reflect, 'freeze',
-      function freeze(target) {
-        try { Object.freeze(target); return true; } catch (e) { return false; }
-      });
-    defineFunctionProperty(
-      Reflect, 'seal',
-      function seal(target) {
-        try { Object.seal(target); return true; } catch (e) { return false; }
-      });
-    defineFunctionProperty(
-      Reflect, 'isFrozen',
-      Object.isFrozen);
-    defineFunctionProperty(
-      Reflect, 'isSealed',
-      Object.isSealed);
-    defineFunctionProperty(
-      Reflect, 'instanceOf',
-      function instanceOf(target, O) {
-        return target instanceof O;
-      });
-    defineFunctionProperty(
-      Reflect, 'keys',
-      Object.keys);
-    defineFunctionProperty(
-      Reflect, 'apply',
-      function apply(target,thisArg,args) {
-        return Function.prototype.apply.call(target, thisArg, args);
-      });
-    defineFunctionProperty(
-      Reflect, 'construct',
-      function construct(target, args) {
-        var a = arguments;
-        var s = 'new target';
-        for (var i = 1; i < a.length; ++i) {
-          s += ((i === 1) ? '(' : ',') + 'a[' + i + ']';
-        }
-        s += ')';
-        return eval(s);
       });
 
     function Enumerate(obj, includePrototype, onlyEnumerable) {
