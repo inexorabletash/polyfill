@@ -1616,7 +1616,9 @@
           throw new TypeError('First argument to forEach is not callable.');
         }
         for (var i = 0; i < entries.keys.length; ++i) {
-          callbackfn.call(thisArg, entries.keys[i], entries.values[i], m);
+          if (entries.keys[i] !== empty) {
+            callbackfn.call(thisArg, entries.keys[i], entries.values[i], m);
+          }
         }
       });
 
@@ -1910,7 +1912,9 @@
           throw new TypeError('First argument to forEach is not callable.');
         }
         for (var i = 0; i < entries.length; ++i) {
-          callbackfn.call(thisArg, entries[i], s);
+          if (entries[i] !== empty) {
+            callbackfn.call(thisArg, entries[i], s);
+          }
         }
       });
 

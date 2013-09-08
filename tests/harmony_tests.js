@@ -480,7 +480,7 @@ test("Map", function () {
     delete self.k;
     delete self.v;
   });
-  ok(3, count);
+  equal(2, count);
 
   // Verify |empty| behavior
   map = new Map();
@@ -498,6 +498,16 @@ test("Map", function () {
   keys.push(iterator.next().value);
   keys.push(iterator.next().value);
   assertEqual('JSON.stringify(["a","d","e"])', JSON.stringify(keys));
+
+  map = new Map();
+  map.set('a', 1);
+  map.set('b', 2);
+  map.delete('a');
+  count = 0;
+  map.forEach(function (k, v) {
+    ++count;
+  });
+  equal(1, count);
 
   delete map;
 
@@ -551,7 +561,7 @@ test("Set", function () {
     delete self.i;
     ++count;
   });
-  ok(3, count);
+  equal(3, count);
 
   // Verify |empty| behavior
   set = new Set();
@@ -569,6 +579,16 @@ test("Set", function () {
   keys.push(iterator.next().value);
   keys.push(iterator.next().value);
   assertEqual('JSON.stringify(["a","d","e"])', JSON.stringify(keys));
+
+  set = new Set();
+  set.add('a');
+  set.add('b');
+  set.delete('a');
+  count = 0;
+  set.forEach(function(v) {
+    ++count;
+  });
+  equal(1, count);
 
   delete set;
 
