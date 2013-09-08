@@ -116,6 +116,8 @@
     };
   }
 
+  var empty = Object.create(null);
+
   var abstractOperation = {};
 
   //----------------------------------------------------------------------
@@ -126,36 +128,30 @@
   //----------------------------------------------------------------------
 
   //----------------------------------------
-  // 8 Types
+  // 6 ECMAScript Data Types and Values
   //----------------------------------------
 
-  // shorthand
+  // "Type(x)" is used as shorthand for "the type of x"...
   function Type(v) { return v === null ? 'null' : typeof v; };
 
-  // 8.1.7.2 Object Internal Methods
-  abstractOperation.HasOwnProperty = (function() {
-    var ophop = Object.prototype.hasOwnProperty;
-    return function (o, p) { return ophop.call(o, p); };
-  }());
+  // 6.1.6.4 Well-Known Symbols and Intrinsics
 
-  // 8.3.14
-  abstractOperation.ObjectCreate =  (function() {
-    var oc = Object.create;
-    return function(p, idl) { return oc(p, idl); };
-  }());
+  var $$toStringTag = Symbol(),
+      $$iterator = Symbol();
 
   //----------------------------------------
-  // 9 Abstract Operations
+  // 7 Abstract Operations
   //----------------------------------------
 
   //----------------------------------------
-  // 9.2 Type Conversion and Testing
+  // 7.1 Type Conversion and Testing
   //----------------------------------------
 
-  // 9.1.2 ToBoolean - just use Boolean()
-  // 9.1.3 ToNumber - just use Number()
+  // 7.1.1 ToPrimitive - just use valueOf()
+  // 7.1.2 ToBoolean - just use Boolean()
+  // 7.1.3 ToNumber - just use Number()
 
-  // 9.1.4
+  // 7.1.4
   abstractOperation.ToInteger = function (n) {
     n = Number(n);
     if (global_isNaN(n)) { return 0; }
@@ -163,21 +159,21 @@
     return ((n < 0) ? -1 : 1) * floor(abs(n));
   };
 
-  // 9.1.5
+  // 7.1.5
   abstractOperation.ToInt32 = function (v) { return v >> 0; };
 
-  // 9.1.6
+  // 7.1.6
   abstractOperation.ToUint32 = function (v) { return v >>> 0; };
 
-  // 9.1.7
+  // 7.1.7
   abstractOperation.ToUint16 = function (v) { return (v >>> 0) & 0xFFFF; };
 
-  // 9.1.8 ToString - just use String()
-  // 9.1.9 ToObject - just use Object()
+  // 7.1.8 ToString - just use String()
+  // 7.1.9 ToObject - just use Object()
 
-  // 9.1.10 ToPropertyKey - TODO: consider for Symbol polyfill
+  // 7.1.10 ToPropertyKey - TODO: consider for Symbol polyfill
 
-  // 9.1.11
+  // 7.1.11
   abstractOperation.ToLength = function(v) {
     var len = abstractOperation.ToInteger(v);
     if (len <= 0) {
@@ -187,15 +183,15 @@
   };
 
   //----------------------------------------
-  // 9.2 Testing and Comparison Operations
+  // 7.2 Testing and Comparison Operations
   //----------------------------------------
 
-  // 9.2.1 CheckObjectCoercible - TODO: needed?
+  // 7.2.1 CheckObjectCoercible - TODO: needed?
 
-  // 9.2.2
+  // 7.2.2
   abstractOperation.IsCallable = function (o) { return typeof o === 'function'; };
 
-  // 9.2.3
+  // 7.2.3
   abstractOperation.SameValue = function (x, y) {
     if (typeof x !== typeof y) {
       return false;
@@ -217,7 +213,7 @@
     }
   };
 
-  // 9.2.4
+  // 7.2.4
   abstractOperation.SameValueZero = function (x, y) {
     if (typeof x !== typeof y) {
       return false;
@@ -238,23 +234,36 @@
     }
   };
 
-  // 9.2.5
+  // 7.2.5
   abstractOperation.IsConstructor = function (o) { return typeof o === 'function'; };
 
-  // 9.2.6 IsPropertyKey - TODO: Consider for Symbol() polyfill
+  // 7.2.6 IsPropertyKey - TODO: Consider for Symbol() polyfill
 
   //----------------------------------------
-  // 9.3 Operations on Object
+  // 7.3 Operations on Object
   //----------------------------------------
 
-  // 9.3.1 Get - just use o.p or o[p]
-  // 9.3.2 Put - just use o.p = v or o[p] = v
+  // 7.3.1 Get - just use o.p or o[p]
+  // 7.3.2 Put - just use o.p = v or o[p] = v
 
-  // 9.3.6
+  // 7.3.6
   abstractOperation.HasProperty = function (o, p) { return p in o; };
 
-  var $$toStringTag = Symbol(),
-      $$iterator = Symbol();
+  //----------------------------------------
+  // 9 ECMAScript Ordinary and Exotic Objects Behaviors
+  //----------------------------------------
+
+  // 9.1.5
+  abstractOperation.HasOwnProperty = (function() {
+    var ophop = Object.prototype.hasOwnProperty;
+    return function (o, p) { return ophop.call(o, p); };
+  }());
+
+  // 9.1.15
+  abstractOperation.ObjectCreate = (function() {
+    var oc = Object.create;
+    return function(p, idl) { return oc(p, idl); };
+  }());
 
   // ---------------------------------------
   // 19 Fundamental Objects
@@ -1481,112 +1490,621 @@
   // 23.1 Map Objects
   // ---------------------------------------
 
-  // 23.1.1 The Map Constructor
-  // 23.1.1.1 Map (iterable = undefined , comparator = undefined )
-  // 23.1.1.2 new Map ( ... argumentsList )
-  // 23.1.2 Properties of the Map Constructor
-  // 23.1.2.1 Map.prototype
-  // 23.1.2.2 Map[ @@create ] ( )
-  // 23.1.3 Properties of the Map Prototype Object
-  // 23.1.3.1 Map.prototype.clear ()
-  // 23.1.3.2 Map.prototype.constructor
-  // 23.1.3.3 Map.prototype.delete ( key )
-  // 23.1.3.4 Map.prototype.entries ( )
-  // 23.1.3.5 Map.prototype.forEach ( callbackfn , thisArg = undefined )
-  // 23.1.3.6 Map.prototype.get ( key )
-  // 23.1.3.7 Map.prototype.has ( key )
-  // 23.1.3.8 Map.prototype.keys ( )
-  // 23.1.3.9 Map.prototype.set ( key , value )
-  // 23.1.3.10 get Map.prototype.size
-  // 23.1.3.11 Map.prototype.values ( )
-  // 23.1.3.12 Map.prototype.@@iterator ( )
-  // 23.1.3.13 Map.prototype [ @@toStringTag ]
-  // 23.1.4 Properties of Map Instances
-  // 23.1.5 Map Iterator Object Structure
-  // 23.1.5.1 CreateMapIterator Abstract Operation
-  // 23.1.5.2 The Map Iterator Prototype
-  // 23.1.5.2.1MapIterator.prototype.constructor
-  // 23.1.5.2.2MapIterator.prototype.next( )
-  // 23.1.5.2.3MapIterator.prototype [ @@iterator ] ( )
-  // 23.1.5.2.4MapIterator.prototype [ @@toStringTag ]
-  // 23.1.5.3 Properties of Map Iterator Instances
+  (function() {
+
+    // 23.1.1 The Map Constructor
+
+    // 23.1.1.1 Map (iterable = undefined , comparator = undefined )
+    /** @constructor */
+    function Map(iterable, comparator) {
+      var map = this;
+
+      if (typeof map !== 'object') { throw new TypeError(); }
+      if ('_mapData' in map) { throw new TypeError(); }
+
+      if (iterable !== undefined) {
+        iterable = Object(iterable);
+        var itr = iterable[$$iterator](); // or throw...
+        var adder = map['set'];
+        if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
+      }
+      map._mapData = { keys: [], values: [] };
+      if (comparator !== undefined && comparator !== "is") { throw new TypeError(); }
+      map._mapComparator = (comparator === 'is') ? Object.is : Map.defaultComparator;
+
+      if (iterable === undefined) {
+        return map;
+      }
+      while (true) {
+        var next = abstractOperation.IteratorNext(itr);
+        var done = abstractOperation.IteratorComplete(next);
+        if (done)
+          return map;
+        var nextItem = abstractOperation.IteratorValue(next);
+        if (typeof nextItem !== 'object') { throw new TypeError(); }
+        var k = nextItem[0];
+        var v = nextItem[1];
+        adder.call(map, k, v);
+      }
+
+      return map;
+    }
+
+    function indexOf(mapComparator, mapData, key) {
+      var i;
+      // NOTE: Assumed invariant over all supported comparators
+      if (key === key && key !== 0) {
+        return mapData.keys.indexOf(key);
+      }
+      // Slow case for NaN/+0/-0
+      for (i = 0; i < mapData.keys.length; i += 1) {
+        if (mapComparator(mapData.keys[i], key)) { return i; }
+      }
+      return -1;
+    }
+
+    // TODO: Rework this; should be part of /same/ calculation in operations
+    Map.defaultComparator = abstractOperation.SameValueZero;
+
+    // 23.1.1.2 new Map ( ... argumentsList )
+    // 23.1.2 Properties of the Map Constructor
+    // 23.1.2.1 Map.prototype
+    Map.prototype = {};
+
+    // 23.1.2.2 Map[ @@create ] ( )
+    // 23.1.3 Properties of the Map Prototype Object
+    // 23.1.3.1 Map.prototype.clear ()
+    defineFunctionProperty(
+      Map.prototype, 'clear',
+      function clear() {
+        this._mapData.keys.length = 0;
+        this._mapData.values.length = 0;
+      });
+
+    // 23.1.3.2 Map.prototype.constructor
+
+    // 23.1.3.3 Map.prototype.delete ( key )
+    defineFunctionProperty(
+      Map.prototype, 'delete',
+      function deleteFunction(key) {
+        var i = indexOf(this._mapComparator, this._mapData, key);
+        if (i < 0) { return false; }
+        this._mapData.keys[i] = empty;
+        this._mapData.values[i] = empty;
+        return true;
+      });
+
+    // 23.1.3.4 Map.prototype.entries ( )
+     defineFunctionProperty(
+      Map.prototype, 'entries',
+      function entries() {
+        return CreateMapIterator(Object(this), 'key+value');
+      });
+
+    // 23.1.3.5 Map.prototype.forEach ( callbackfn , thisArg = undefined )
+    defineFunctionProperty(
+      Map.prototype, 'forEach',
+      function forEach(callbackfn /*, thisArg*/) {
+        var thisArg = arguments[1];
+        var m = Object(this);
+        if (!abstractOperation.IsCallable(callbackfn)) {
+          throw new TypeError('First argument to forEach is not callable.');
+        }
+        for (var i = 0; i < this._mapData.keys.length; ++i) {
+          callbackfn.call(thisArg, this._mapData.keys[i], this._mapData.values[i], m);
+        }
+      });
+
+    // 23.1.3.6 Map.prototype.get ( key )
+    defineFunctionProperty(
+      Map.prototype, 'get',
+      function get(key) {
+        var i = indexOf(this._mapComparator, this._mapData, key);
+        return i < 0 ? undefined : this._mapData.values[i];
+      });
+
+    // 23.1.3.7 Map.prototype.has ( key )
+    defineFunctionProperty(
+      Map.prototype, 'has',
+      function has(key) {
+        return indexOf(this._mapComparator, this._mapData, key) >= 0;
+      });
+
+    // 23.1.3.8 Map.prototype.keys ( )
+    defineFunctionProperty(
+      Map.prototype, 'keys',
+      function keys() {
+        return CreateMapIterator(Object(this), 'key');
+      });
+
+    // 23.1.3.9 Map.prototype.set ( key , value )
+    defineFunctionProperty(
+      Map.prototype, 'set',
+      function set(key, val) {
+        var i = indexOf(this._mapComparator, this._mapData, key);
+        if (i < 0) { i = this._mapData.keys.length; }
+        this._mapData.keys[i] = key;
+        this._mapData.values[i] = val;
+        return val;
+      });
+
+    // 23.1.3.10 get Map.prototype.size
+    Object.defineProperty(
+      Map.prototype, 'size', {
+        get: function() {
+          var entries = this._mapData;
+          var count = 0;
+          for (var i = 0; i < entries.keys.length; ++i) {
+            if (entries.keys[i] !== empty)
+              count = count + 1;
+          }
+          return count;
+        }
+      });
+
+    // 23.1.3.11 Map.prototype.values ( )
+    defineFunctionProperty(
+      Map.prototype, 'values',
+      function values() {
+        return CreateMapIterator(Object(this), 'value');
+      });
+
+    // 23.1.3.12 Map.prototype.@@iterator ( )
+    defineFunctionProperty(
+      Map.prototype, $$iterator,
+      function() {
+        return CreateMapIterator(Object(this), 'key+value');
+      });
+
+    // 23.1.3.13 Map.prototype [ @@toStringTag ]
+    Map.prototype[$$toStringTag] = 'Map';
+
+    // 23.1.4 Properties of Map Instances
+    // 23.1.5 Map Iterator Object Structure
+    /** @constructor */
+    function MapIterator(object, index, kind) {
+      this._iterationObject = object;
+      this._nextIndex = index;
+      this._iterationKind = kind;
+    }
+
+    // 23.1.5.1 CreateMapIterator Abstract Operation
+    function CreateMapIterator(map, kind) {
+      map = Object(map);
+      return new MapIterator(map, 0, kind);
+    }
+
+    // 23.1.5.2 The Map Iterator Prototype
+    MapIterator.prototype = {};
+
+    // 23.1.5.2.1 MapIterator.prototype.constructor
+    // 23.1.5.2.2 MapIterator.prototype.next( )
+    defineFunctionProperty(
+      MapIterator.prototype, 'next',
+      function next() {
+        if (typeof this !== 'object') { throw new TypeError(); }
+        var m = this._iterationObject,
+            index = this._nextIndex,
+            itemKind = this._iterationKind,
+            entries = m._mapData;
+        while (index < entries.keys.length) {
+          var e = {key: entries.keys[index], value: entries.values[index]};
+          index = index += 1;
+          this._nextIndex = index;
+          if (e.key !== empty) {
+            if (itemKind === 'key') {
+              return abstractOperation.CreateItrResultObject(e.key, false);
+            } else if (itemKind === 'value') {
+              return abstractOperation.CreateItrResultObject(e.value, false);
+            } else {
+              return abstractOperation.CreateItrResultObject([e.key, e.value], false);
+            }
+          }
+        }
+        return abstractOperation.CreateItrResultObject(undefined, true);
+      });
+
+    // 23.1.5.2.3 MapIterator.prototype [ @@iterator ] ( )
+    defineFunctionProperty(
+      MapIterator.prototype, $$iterator,
+      function() {
+        return this;
+      });
+
+    // 23.1.5.2.4 MapIterator.prototype [ @@toStringTag ]
+    MapIterator.prototype[$$toStringTag] = 'Map Iterator';
+
+    // 23.1.5.3 Properties of Map Iterator Instances
+    global.Map = global.Map || Map;
+  }());
 
   // ---------------------------------------
   // 23.2 Set Objects
   // ---------------------------------------
 
-  // 23.2.1 The Set Constructor
-  // 23.2.1.1 Set (iterable = undefined, comparator = undefined )
-  // 23.2.1.2 new Set ( ... argumentsList )
-  // 23.2.2 Properties of the Set Constructor
-  // 23.2.2.1 Set.prototype
-  // 23.2.2.2 Set[ @@create ] ( )
-  // 23.2.3 Properties of the Set Prototype Object
-  // 23.2.3.1 Set.prototype.add (value )
-  // 23.2.3.2 Set.prototype.clear ()
-  // 23.2.3.3 Set.prototype.constructor
-  // 23.2.3.4 Set.prototype.delete ( value )
-  // 23.2.3.5 Set.prototype.entries ( )
-  // 23.2.3.6 Set.prototype.forEach ( callbackfn , thisArg = undefined )
-  // 23.2.3.7 Set.prototype.has ( value )
-  // 23.2.3.8 Set.prototype.keys ( )
-  // 23.2.3.9 get Set.prototype.size
-  // 23.2.3.10 Set.prototype.values ( )
-  // 23.2.3.11 Set.prototype [@@iterator ] ( )
-  // 23.2.3.12 Set.prototype [ @@toStringTag ]
-  // 23.2.4 Properties of Set Instances
-  // 23.2.5 Set Iterator Object Structure
-  // 23.2.5.1 CreateSetIterator Abstract Operation
-  // 23.2.5.2 The Set Iterator Prototype
-  // 23.2.5.2.1SetIterator.prototype.constructor
-  // 23.2.5.2.2SetIterator.prototype.next( )
-  // 23.2.5.2.3SetIterator.prototype.@@iterator ( )
-  // 23.2.5.2.4SetIterator.prototype.@@toStringTag
-  // 23.2.5.3 Properties of Set Iterator Instances
+  (function() {
+
+    // 23.2.1 The Set Constructor
+    // 23.2.1.1 Set (iterable = undefined, comparator = undefined )
+
+    /** @constructor */
+    function Set(iterable, comparator) {
+      var set = this;
+
+      if (typeof set !== 'object') { throw new TypeError(); }
+      if ('_setData' in set) { throw new TypeError(); }
+
+      if (iterable !== undefined) {
+        iterable = Object(iterable);
+        var itr = abstractOperation.HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
+        var adder = set['add'];
+        if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
+      }
+      set._setData = [];
+      if (comparator !== undefined && comparator !== "is") { throw new TypeError(); }
+      set._setComparator = (comparator === 'is') ? Object.is : Set.defaultComparator;
+      if (iterable === undefined) {
+        return set;
+      }
+      while (true) {
+        var next = abstractOperation.IteratorNext(itr);
+        var done = abstractOperation.IteratorComplete(next);
+        if (done)
+          return set;
+        var nextValue = abstractOperation.IteratorValue(next);
+        adder.call(set, nextValue);
+      }
+
+      return set;
+    }
+
+    function indexOf(setComparator, setData, key) {
+      var i;
+      // NOTE: Assumed invariant over all supported comparators
+      if (key === key && key !== 0) {
+        return setData.indexOf(key);
+      }
+      // Slow case for NaN/+0/-0
+      for (i = 0; i < setData.length; i += 1) {
+        if (setComparator(setData[i], key)) { return i; }
+      }
+      return -1;
+    }
+
+    Set.defaultComparator = abstractOperation.SameValueZero;
+
+    // 23.2.1.2 new Set ( ... argumentsList )
+    // 23.2.2 Properties of the Set Constructor
+
+    // 23.2.2.1 Set.prototype
+    Set.prototype = {};
+
+    // 23.2.2.2 Set[ @@create ] ( )
+    // 23.2.3 Properties of the Set Prototype Object
+
+    // 23.2.3.1 Set.prototype.add (value )
+    defineFunctionProperty(
+      Set.prototype, 'add',
+      function add(key) {
+        var i = indexOf(this._setComparator, this._setData, key);
+        if (i < 0) { i = this._setData.length; }
+        this._setData[i] = key;
+        return key;
+      });
+
+    // 23.2.3.2 Set.prototype.clear ()
+    defineFunctionProperty(
+      Set.prototype, 'clear',
+      function clear() {
+        this._setData = [];
+      });
+
+    // 23.2.3.3 Set.prototype.constructor
+    // 23.2.3.4 Set.prototype.delete ( value )
+    defineFunctionProperty(
+      Set.prototype, 'delete',
+      function deleteFunction(key) {
+        var i = indexOf(this._setComparator, this._setData, key);
+        if (i < 0) { return false; }
+        this._setData[i] = empty;
+        return true;
+      });
+
+    // 23.2.3.5 Set.prototype.entries ( )
+    // 23.2.3.6 Set.prototype.forEach ( callbackfn , thisArg = undefined )
+    defineFunctionProperty(
+      Set.prototype, 'forEach',
+      function forEach(callbackfn/*, thisArg*/) {
+        var thisArg = arguments[1];
+        var s = Object(this);
+        if (!abstractOperation.IsCallable(callbackfn)) {
+          throw new TypeError('First argument to forEach is not callable.');
+        }
+        for (var i = 0; i < this._setData.length; ++i) {
+          callbackfn.call(thisArg, this._setData[i], s);
+        }
+      });
+
+    // 23.2.3.7 Set.prototype.has ( value )
+    defineFunctionProperty(
+      Set.prototype, 'has',
+      function has(key) {
+        return indexOf(this._setComparator, this._setData, key) !== -1;
+      });
+
+    // 23.2.3.8 Set.prototype.keys ( )
+    // 23.2.3.9 get Set.prototype.size
+    Object.defineProperty(
+      Set.prototype, 'size', {
+        get: function() {
+          var entries = this._setData;
+          var count = 0;
+          for (var i = 0; i < entries.length; ++i) {
+            if (entries[i] !== empty)
+              count = count + 1;
+          }
+          return count;
+        }
+      });
+
+    // 23.2.3.10 Set.prototype.values ( )
+    defineFunctionProperty(
+      Set.prototype, 'values',
+      function values() {
+        return CreateSetIterator(Object(this));
+      });
+
+    // 23.2.3.11 Set.prototype [@@iterator ] ( )
+    defineFunctionProperty(
+      Set.prototype, $$iterator,
+      function() {
+        return CreateSetIterator(Object(this));
+      });
+
+    // 23.2.3.12 Set.prototype [ @@toStringTag ]
+    Set.prototype[$$toStringTag] = 'Set';
+
+    // 23.2.4 Properties of Set Instances
+    // 23.2.5 Set Iterator Object Structure
+    /** @constructor */
+    function SetIterator(set, index) {
+      this.set = set;
+      this.nextIndex = index;
+    }
+
+    // 23.2.5.1 CreateSetIterator Abstract Operation
+    function CreateSetIterator(set) {
+      set = Object(set);
+      return new SetIterator(set, 0);
+    }
+
+    // 23.2.5.2 The Set Iterator Prototype
+    SetIterator.prototype = {};
+
+    // 23.2.5.2.1 SetIterator.prototype.constructor
+    // 23.2.5.2.2 SetIterator.prototype.next( )
+    defineFunctionProperty(
+      SetIterator.prototype, 'next',
+      function next() {
+        if (typeof this !== 'object') { throw new TypeError; }
+        var s = this.set,
+            index = this.nextIndex,
+            entries = s._setData;
+        while (index < entries.length) {
+          var e = entries[index];
+          index = index += 1;
+          this.nextIndex = index;
+          if (e !== empty) {
+            return abstractOperation.CreateItrResultObject(e, false);
+          }
+        }
+        return abstractOperation.CreateItrResultObject(undefined, true);
+      });
+
+    // 23.2.5.2.3 SetIterator.prototype.@@iterator ( )
+    defineFunctionProperty(
+      SetIterator.prototype, $$iterator,
+      function() {
+        return this;
+      });
+
+    // 23.2.5.2.4 SetIterator.prototype.@@toStringTag
+    SetIterator.prototype[$$toStringTag] = 'Set Iterator';
+
+    // 23.2.5.3 Properties of Set Iterator Instances
+
+    global.Set = global.Set || Set;
+  }());
+
+
 
   // ---------------------------------------
   // 23.3 WeakMap Objects
   // ---------------------------------------
 
-  // 23.3.1 The WeakMap Constructor
-  // 23.3.1.1 WeakMap (iterable = undefined )
-  // 23.3.1.2 new WeakMap ( ... argumentsList )
-  // 23.3.2 Properties of the WeakMap Constructor
-  // 23.3.2.1 WeakMap.prototype
-  // 23.3.2.2 WeakMap[ @@create ] ( )
-  // 23.3.3 Properties of the WeakMap Prototype Object
-  // 23.3.3.1 WeakMap.prototype.clear ()
-  // 23.3.3.2 WeakMap.prototype.constructor
-  // 23.3.3.3 WeakMap.prototype.delete ( key )
-  // 23.3.3.4 WeakMap.prototype.get ( key )
-  // 23.3.3.5 WeakMap.prototype.has ( key )
-  // 23.3.3.6 WeakMap.prototype.set ( key , value )
-  // 23.3.3.7 WeakMap.prototype [ @@toStringTag ]
-  // 23.3.4 Properties of WeakMap Instances
+  (function() {
+
+    // 23.3.1 The WeakMap Constructor
+    // 23.3.1.1 WeakMap (iterable = undefined )
+   /** @constructor */
+    function WeakMap(iterable) {
+      var map = this;
+
+     if (typeof map !== 'object') { throw new TypeError(); }
+      if ('_table' in map) { throw new TypeError(); }
+
+      if (iterable !== undefined) {
+        iterable = Object(iterable);
+        var itr = iterable[$$iterator](); // or throw...
+        var adder = map['set'];
+        if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
+      }
+      map._table = new EphemeronTable;
+      if (iterable === undefined) {
+        return map;
+      }
+      while (true) {
+        var next = abstractOperation.IteratorNext(itr);
+        var done = abstractOperation.IteratorComplete(next);
+        if (done)
+          return map;
+        var nextValue = abstractOperation.IteratorValue(next);
+        if (typeof nextValue !== 'object') { throw new TypeError(); }
+        var k = nextValue[0];
+        var vk = nextValue[1];
+        adder.call(map, k, v);
+      }
+
+      return map;
+    }
+
+    // 23.3.1.2 new WeakMap ( ... argumentsList )
+    // 23.3.2 Properties of the WeakMap Constructor
+    // 23.3.2.1 WeakMap.prototype
+    WeakMap.prototype = {};
+
+    // 23.3.2.2 WeakMap[ @@create ] ( )
+    // 23.3.3 Properties of the WeakMap Prototype Object
+
+    // 23.3.3.1 WeakMap.prototype.clear ()
+    defineFunctionProperty(
+      WeakMap.prototype, 'clear',
+      function clear() {
+        this._table.clear();
+      });
+
+    // 23.3.3.2 WeakMap.prototype.constructor
+
+    // 23.3.3.3 WeakMap.prototype.delete ( key )
+    defineFunctionProperty(
+      WeakMap.prototype, 'delete',
+      function deleteFunction(key) {
+        if (key !== Object(key)) { throw new TypeError('Expected object'); }
+        this._table.remove(key);
+      });
+
+    // 23.3.3.4 WeakMap.prototype.get ( key )
+    defineFunctionProperty(
+      WeakMap.prototype, 'get',
+      function get(key, defaultValue) {
+        if (key !== Object(key)) { throw new TypeError('Expected object'); }
+        return this._table.get(key, defaultValue);
+      });
+
+    // 23.3.3.5 WeakMap.prototype.has ( key )
+    defineFunctionProperty(
+      WeakMap.prototype, 'has',
+      function has(key) {
+        if (key !== Object(key)) { throw new TypeError('Expected object'); }
+        return this._table.has(key);
+      });
+
+    // 23.3.3.6 WeakMap.prototype.set ( key , value )
+    defineFunctionProperty(
+      WeakMap.prototype, 'set',
+      function set(key, value) {
+        if (key !== Object(key)) { throw new TypeError('Expected object'); }
+        this._table.set(key, value);
+        return value;
+      });
+
+    // 23.3.3.7 WeakMap.prototype [ @@toStringTag ]
+    WeakMap.prototype[$$toStringTag] = 'WeakMap';
+
+    // 23.3.4 Properties of WeakMap Instances
+
+    global.WeakMap = global.WeakMap || WeakMap;
+  }());
+
 
   // ---------------------------------------
   // 23.4 WeakSet Objects
   // ---------------------------------------
 
-  // 23.4.1 The WeakSet Constructor
-  // 23.4.1.1 WeakSet (iterable = undefined)
-  // 23.4.1.2 new WeakSet ( ... argumentsList)
-  // 23.4.2 Properties of the WeakSet Constructor
-  // 23.4.2.1 WeakSet.prototype
-  // 23.4.2.2 WeakSet [ @@create ] ( )
-  // 23.4.3 Properties of the WeakSet Prototype Object
-  // 23.4.3.1 WeakSet.prototype.add (value )
-  // 23.4.3.2 WeakSet.prototype.clear ()
-  // 23.4.3.3 WeakSet.prototype.constructor
-  // 23.4.3.4 WeakSet.prototype.delete ( value )
-  // 23.4.3.5 WeakSet.prototype.has ( value )
-  // 23.4.3.6 WeakSet.prototype [ @@toStringTag ]
-  // 23.4.4 Properties of WeakSet Instances
+  (function() {
+
+    // 23.4.1 The WeakSet Constructor
+    // 23.4.1.1 WeakSet (iterable = undefined)
+    /** @constructor */
+    function WeakSet(iterable) {
+      var set = this;
+
+      if (typeof set !== 'object') { throw new TypeError(); }
+      if ('_table' in set) { throw new TypeError(); }
+
+      if (iterable !== undefined) {
+        iterable = Object(iterable);
+        var itr = abstractOperation.HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
+        var adder = set['add'];
+        if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
+      }
+      set._table = new EphemeronTable;
+      if (iterable === undefined) {
+        return set;
+      }
+      while (true) {
+        var next = abstractOperation.IteratorNext(itr);
+        var done = abstractOperation.IteratorComplete(next);
+        if (done)
+          return set;
+        var nextValue = abstractOperation.IteratorValue(next);
+        adder.call(set, nextValue);
+      }
+
+      return set;
+    }
+
+    // 23.4.1.2 new WeakSet ( ... argumentsList)
+    // 23.4.2 Properties of the WeakSet Constructor
+    // 23.4.2.1 WeakSet.prototype
+    WeakSet.prototype = {};
+
+    // 23.4.2.2 WeakSet [ @@create ] ( )
+    // 23.4.3 Properties of the WeakSet Prototype Object
+    // 23.4.3.1 WeakSet.prototype.add (value )
+    defineFunctionProperty(
+      WeakSet.prototype, 'add',
+      function add(value) {
+        if (value !== Object(value)) { throw new TypeError('Expected object'); }
+        this._table.set(value, true);
+        return value;
+      });
+
+    // 23.4.3.2 WeakSet.prototype.clear ()
+    defineFunctionProperty(
+      WeakSet.prototype, 'clear',
+      function clear() {
+        this._table.clear();
+      });
+
+    // 23.4.3.3 WeakSet.prototype.constructor
+    // 23.4.3.4 WeakSet.prototype.delete ( value )
+    defineFunctionProperty(
+      WeakSet.prototype, 'delete',
+      function deleteFunction(value) {
+        if (value !== Object(value)) { throw new TypeError('Expected object'); }
+        this._table.remove(value);
+      });
+
+    // 23.4.3.5 WeakSet.prototype.has ( value )
+    defineFunctionProperty(
+      WeakSet.prototype, 'has',
+      function has(key) {
+        if (key !== Object(key)) { throw new TypeError('Expected object'); }
+        return this._table.has(key);
+      });
+
+    // 23.4.3.6 WeakSet.prototype [ @@toStringTag ]
+    WeakSet.prototype[$$toStringTag] = 'WeakSet';
+
+    // 23.4.4 Properties of WeakSet Instances
+
+    global.WeakSet = global.WeakSet || WeakSet;
+  }());
 
   // ---------------------------------------
   // 24 Structured Data
   // ---------------------------------------
-
 
   // ---------------------------------------
   // 24.1 ArrayBuffer Objects
@@ -1610,7 +2128,13 @@
   // 24.1.4.2 ArrayBuffer.prototype.constructor
   // 24.1.4.3 ArrayBuffer.prototype.slice ( start , end)
   // 24.1.4.4 ArrayBuffer.prototype [ @@toStringTag ]
+  ArrayBuffer.prototype[$$toStringTag] = 'ArrayBuffer';
+
   // 24.1.5 Properties of the ArrayBuffer Instances
+
+  // See typedarray.js for TypedArray polyfill
+
+  // TODO: ES6 extensions to TypedArrays
 
   // ---------------------------------------
   // 24.2 DataView Objects
@@ -1647,7 +2171,12 @@
   // 24.2.4.19 DataView.prototype.setUint16(byteOffset, value, littleEndian=false)
   // 24.2.4.20 DataView.prototype.setUint32(byteOffset, value, littleEndian=false)
   // 24.2.4.21 DataView.prototype[ @@toStringTag ]
+  DataView.prototype[$$toStringTag] = 'DataView';
   // 24.2.5 Properties of DataView Instances
+
+  // See typedarray.js for TypedArray polyfill
+
+  // TODO: ES6 extensions to TypedArrays
 
   // ---------------------------------------
   // 24.3 The JSON Object
@@ -1964,574 +2493,6 @@
   // ---------------------------------------
 
   // Not polyfillable.
-
-
-  //----------------------------------------
-  // 15.14 Map Objects
-  //----------------------------------------
-
-  var empty = abstractOperation.ObjectCreate(null);
-
-  (function() {
-
-
-    // 15.14.1 The Map Constructor
-
-    /** @constructor */
-    function Map(iterable, comparator) {
-      var map = this;
-
-      if (typeof map !== 'object') { throw new TypeError(); }
-      if ('_mapData' in map) { throw new TypeError(); }
-
-      if (iterable !== undefined) {
-        iterable = Object(iterable);
-        var itr = iterable[$$iterator](); // or throw...
-        var adder = map['set'];
-        if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
-      }
-      map._mapData = { keys: [], values: [] };
-      if (comparator !== undefined && comparator !== "is") { throw new TypeError(); }
-      map._mapComparator = (comparator === 'is') ? Object.is : Map.defaultComparator;
-
-      if (iterable === undefined) {
-        return map;
-      }
-      while (true) {
-        var next = abstractOperation.IteratorNext(itr);
-        var done = abstractOperation.IteratorComplete(next);
-        if (done)
-          return map;
-        var nextItem = abstractOperation.IteratorValue(next);
-        if (typeof nextItem !== 'object') { throw new TypeError(); }
-        var k = nextItem[0];
-        var v = nextItem[1];
-        adder.call(map, k, v);
-      }
-
-      return map;
-    }
-
-    function indexOf(mapComparator, mapData, key) {
-      var i;
-      // NOTE: Assumed invariant over all supported comparators
-      if (key === key && key !== 0) {
-        return mapData.keys.indexOf(key);
-      }
-      // Slow case for NaN/+0/-0
-      for (i = 0; i < mapData.keys.length; i += 1) {
-        if (mapComparator(mapData.keys[i], key)) { return i; }
-      }
-      return -1;
-    }
-
-    Map.defaultComparator = abstractOperation.SameValueZero;
-
-    // 15.14.5 Properties of the Map Prototype Object
-
-    Map.prototype = {};
-
-    // 15.14.5.2
-    defineFunctionProperty(
-      Map.prototype, 'clear',
-      function clear() {
-        this._mapData.keys.length = 0;
-        this._mapData.values.length = 0;
-      });
-
-    // 15.14.5.3
-    defineFunctionProperty(
-      Map.prototype, 'delete',
-      function deleteFunction(key) {
-        var i = indexOf(this._mapComparator, this._mapData, key);
-        if (i < 0) { return false; }
-        this._mapData.keys[i] = empty;
-        this._mapData.values[i] = empty;
-        return true;
-      });
-
-    // 15.14.5.4
-    defineFunctionProperty(
-      Map.prototype, 'forEach',
-      function forEach(callbackfn /*, thisArg*/) {
-        var thisArg = arguments[1];
-        var m = Object(this);
-        if (!abstractOperation.IsCallable(callbackfn)) {
-          throw new TypeError('First argument to forEach is not callable.');
-        }
-        for (var i = 0; i < this._mapData.keys.length; ++i) {
-          callbackfn.call(thisArg, this._mapData.keys[i], this._mapData.values[i], m);
-        }
-      });
-
-    // 15.14.5.5
-    defineFunctionProperty(
-      Map.prototype, 'get',
-      function get(key) {
-        var i = indexOf(this._mapComparator, this._mapData, key);
-        return i < 0 ? undefined : this._mapData.values[i];
-      });
-
-    // 15.14.5.6
-    defineFunctionProperty(
-      Map.prototype, 'has',
-      function has(key) {
-        return indexOf(this._mapComparator, this._mapData, key) >= 0;
-      });
-
-    // 15.14.5.7
-    defineFunctionProperty(
-      Map.prototype, 'entries',
-      function entries() {
-        return CreateMapIterator(Object(this), 'key+value');
-      });
-
-    // 15.14.5.8
-    defineFunctionProperty(
-      Map.prototype, 'keys',
-      function keys() {
-        return CreateMapIterator(Object(this), 'key');
-      });
-
-    // 15.14.5.9
-    defineFunctionProperty(
-      Map.prototype, 'set',
-      function set(key, val) {
-        var i = indexOf(this._mapComparator, this._mapData, key);
-        if (i < 0) { i = this._mapData.keys.length; }
-        this._mapData.keys[i] = key;
-        this._mapData.values[i] = val;
-        return val;
-      });
-
-    // 15.14.5.10
-    Object.defineProperty(
-      Map.prototype, 'size', {
-        get: function() {
-          var entries = this._mapData;
-          var count = 0;
-          for (var i = 0; i < entries.keys.length; ++i) {
-            if (entries.keys[i] !== empty)
-              count = count + 1;
-          }
-          return count;
-        }
-      });
-
-    // 15.14.5.11
-    defineFunctionProperty(
-      Map.prototype, 'values',
-      function values() {
-        return CreateMapIterator(Object(this), 'value');
-      });
-
-    // 15.14.5.12
-    defineFunctionProperty(
-      Map.prototype, $$iterator,
-      function() {
-        return CreateMapIterator(Object(this), 'key+value');
-      });
-
-    // 15.14.5.13
-    Map.prototype[$$toStringTag] = 'Map';
-
-    // 15.14.7 Properties of Map Instances
-
-    // 15.14.7.1
-    function CreateMapIterator(map, kind) {
-      map = Object(map);
-      return new MapIterator(map, 0, kind);
-    }
-
-    /** @constructor */
-    function MapIterator(object, index, kind) {
-      this._iterationObject = object;
-      this._nextIndex = index;
-      this._iterationKind = kind;
-    }
-
-    // 15.14.17.2
-    MapIterator.prototype = {};
-
-    // 15.14.17.2.2
-    defineFunctionProperty(
-      MapIterator.prototype, 'next',
-      function next() {
-        if (typeof this !== 'object') { throw new TypeError(); }
-        var m = this._iterationObject,
-            index = this._nextIndex,
-            itemKind = this._iterationKind,
-            entries = m._mapData;
-        while (index < entries.keys.length) {
-          var e = {key: entries.keys[index], value: entries.values[index]};
-          index = index += 1;
-          this._nextIndex = index;
-          if (e.key !== empty) {
-            if (itemKind === 'key') {
-              return abstractOperation.CreateItrResultObject(e.key, false);
-            } else if (itemKind === 'value') {
-              return abstractOperation.CreateItrResultObject(e.value, false);
-            } else {
-              return abstractOperation.CreateItrResultObject([e.key, e.value], false);
-            }
-          }
-        }
-        return abstractOperation.CreateItrResultObject(undefined, true);
-      });
-
-    // 15.14.17.2.3
-    defineFunctionProperty(
-      MapIterator.prototype, $$iterator,
-      function() {
-        return this;
-      });
-
-    // 15.14.17.2.4
-    MapIterator.prototype[$$toStringTag] = 'Map Iterator';
-
-    global.Map = global.Map || Map;
-  }());
-
-  //----------------------------------------
-  // 15.15 WeakMap Objects
-  //----------------------------------------
-
-
-  (function() {
-    // 15.15.3 The WeakMap Constructor
-
-    /** @constructor */
-    function WeakMap(iterable) {
-      var map = this;
-
-     if (typeof map !== 'object') { throw new TypeError(); }
-      if ('_table' in map) { throw new TypeError(); }
-
-      if (iterable !== undefined) {
-        iterable = Object(iterable);
-        var itr = iterable[$$iterator](); // or throw...
-        var adder = map['set'];
-        if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
-      }
-      map._table = new EphemeronTable;
-      if (iterable === undefined) {
-        return map;
-      }
-      while (true) {
-        var next = abstractOperation.IteratorNext(itr);
-        var done = abstractOperation.IteratorComplete(next);
-        if (done)
-          return map;
-        var nextValue = abstractOperation.IteratorValue(next);
-        if (typeof nextValue !== 'object') { throw new TypeError(); }
-        var k = nextValue[0];
-        var vk = nextValue[1];
-        adder.call(map, k, v);
-      }
-
-      return map;
-    }
-
-    WeakMap.prototype = {};
-
-    // 15.15.5 Properties of the WeakMap Prototype Object
-
-    // 15.15.5.2
-    defineFunctionProperty(
-      WeakMap.prototype, 'clear',
-      function clear() {
-        this._table.clear();
-      });
-
-    // 15.15.5.3
-    defineFunctionProperty(
-      WeakMap.prototype, 'delete',
-      function deleteFunction(key) {
-        if (key !== Object(key)) { throw new TypeError('Expected object'); }
-        this._table.remove(key);
-      });
-
-    // 15.15.5.4
-    defineFunctionProperty(
-      WeakMap.prototype, 'get',
-      function get(key, defaultValue) {
-        if (key !== Object(key)) { throw new TypeError('Expected object'); }
-        return this._table.get(key, defaultValue);
-      });
-
-    // 15.15.5.5
-    defineFunctionProperty(
-      WeakMap.prototype, 'has',
-      function has(key) {
-        if (key !== Object(key)) { throw new TypeError('Expected object'); }
-        return this._table.has(key);
-      });
-
-    // 15.15.5.6
-    defineFunctionProperty(
-      WeakMap.prototype, 'set',
-      function set(key, value) {
-        if (key !== Object(key)) { throw new TypeError('Expected object'); }
-        this._table.set(key, value);
-        return value;
-      });
-
-    // 15.15.5.8
-    WeakMap.prototype[$$toStringTag] = 'WeakMap';
-
-    global.WeakMap = global.WeakMap || WeakMap;
-  }());
-
-  //----------------------------------------
-  // 15.16 Set Objects
-  //----------------------------------------
-
-  (function() {
-
-    // 15.16.3 The Set Constructor
-    /** @constructor */
-    function Set(iterable, comparator) {
-      var set = this;
-
-      if (typeof set !== 'object') { throw new TypeError(); }
-      if ('_setData' in set) { throw new TypeError(); }
-
-      if (iterable !== undefined) {
-        iterable = Object(iterable);
-        var itr = abstractOperation.HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
-        var adder = set['add'];
-        if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
-      }
-      set._setData = [];
-      if (comparator !== undefined && comparator !== "is") { throw new TypeError(); }
-      set._setComparator = (comparator === 'is') ? Object.is : Set.defaultComparator;
-      if (iterable === undefined) {
-        return set;
-      }
-      while (true) {
-        var next = abstractOperation.IteratorNext(itr);
-        var done = abstractOperation.IteratorComplete(next);
-        if (done)
-          return set;
-        var nextValue = abstractOperation.IteratorValue(next);
-        adder.call(set, nextValue);
-      }
-
-      return set;
-    }
-
-    function indexOf(setComparator, setData, key) {
-      var i;
-      // NOTE: Assumed invariant over all supported comparators
-      if (key === key && key !== 0) {
-        return setData.indexOf(key);
-      }
-      // Slow case for NaN/+0/-0
-      for (i = 0; i < setData.length; i += 1) {
-        if (setComparator(setData[i], key)) { return i; }
-      }
-      return -1;
-    }
-
-    Set.defaultComparator = abstractOperation.SameValueZero;
-
-    // 15.16.5 Properties of the Set Prototype Object
-
-    Set.prototype = {};
-
-    // 15.16.5.2
-    defineFunctionProperty(
-      Set.prototype, 'add',
-      function add(key) {
-        var i = indexOf(this._setComparator, this._setData, key);
-        if (i < 0) { i = this._setData.length; }
-        this._setData[i] = key;
-        return key;
-      });
-
-    // 15.16.5.3
-    defineFunctionProperty(
-      Set.prototype, 'clear',
-      function clear() {
-        this._setData = [];
-      });
-
-    // 15.16.5.4
-    defineFunctionProperty(
-      Set.prototype, 'delete',
-      function deleteFunction(key) {
-        var i = indexOf(this._setComparator, this._setData, key);
-        if (i < 0) { return false; }
-        this._setData[i] = empty;
-        return true;
-      });
-
-    // 15.16.5.5
-    defineFunctionProperty(
-      Set.prototype, 'forEach',
-      function forEach(callbackfn/*, thisArg*/) {
-        var thisArg = arguments[1];
-        var s = Object(this);
-        if (!abstractOperation.IsCallable(callbackfn)) {
-          throw new TypeError('First argument to forEach is not callable.');
-        }
-        for (var i = 0; i < this._setData.length; ++i) {
-          callbackfn.call(thisArg, this._setData[i], s);
-        }
-      });
-
-    // 15.16.5.6
-    defineFunctionProperty(
-      Set.prototype, 'has',
-      function has(key) {
-        return indexOf(this._setComparator, this._setData, key) !== -1;
-      });
-
-    // 15.16.5.7
-    Object.defineProperty(
-      Set.prototype, 'size', {
-        get: function() {
-          var entries = this._setData;
-          var count = 0;
-          for (var i = 0; i < entries.length; ++i) {
-            if (entries[i] !== empty)
-              count = count + 1;
-          }
-          return count;
-        }
-      });
-
-    // 15.16.5.8
-    defineFunctionProperty(
-      Set.prototype, 'values',
-      function values() {
-        return CreateSetIterator(Object(this));
-      });
-
-    // 15.16.5.9
-    defineFunctionProperty(
-      Set.prototype, $$iterator,
-      function() {
-        return CreateSetIterator(Object(this));
-      });
-
-    // 15.16.5.10
-    Set.prototype[$$toStringTag] = 'Set';
-
-    // 15.16.7 Set Iterator Object Structure
-
-    function CreateSetIterator(set) {
-      set = Object(set);
-      return new SetIterator(set, 0);
-    }
-
-    /** @constructor */
-    function SetIterator(set, index) {
-      this.set = set;
-      this.nextIndex = index;
-    }
-    SetIterator.prototype = {};
-
-    // 15.16.7.2.2
-    defineFunctionProperty(
-      SetIterator.prototype, 'next',
-      function next() {
-        if (typeof this !== 'object') { throw new TypeError; }
-        var s = this.set,
-            index = this.nextIndex,
-            entries = s._setData;
-        while (index < entries.length) {
-          var e = entries[index];
-          index = index += 1;
-          this.nextIndex = index;
-          if (e !== empty) {
-            return abstractOperation.CreateItrResultObject(e, false);
-          }
-        }
-        return abstractOperation.CreateItrResultObject(undefined, true);
-      });
-
-    // 15.16.7.2.3
-    defineFunctionProperty(
-      SetIterator.prototype, $$iterator,
-      function() {
-        return this;
-      });
-
-    // 15.16.7.2.4
-    SetIterator.prototype[$$toStringTag] = 'Set Iterator';
-
-    global.Set = global.Set || Set;
-  }());
-
-  // WeakSet
-  (function() {
-
-    /** @constructor */
-    function WeakSet(iterable) {
-      var set = this;
-
-      if (typeof set !== 'object') { throw new TypeError(); }
-      if ('_table' in set) { throw new TypeError(); }
-
-      if (iterable !== undefined) {
-        iterable = Object(iterable);
-        var itr = abstractOperation.HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
-        var adder = set['add'];
-        if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
-      }
-      set._table = new EphemeronTable;
-      if (iterable === undefined) {
-        return set;
-      }
-      while (true) {
-        var next = abstractOperation.IteratorNext(itr);
-        var done = abstractOperation.IteratorComplete(next);
-        if (done)
-          return set;
-        var nextValue = abstractOperation.IteratorValue(next);
-        adder.call(set, nextValue);
-      }
-
-      return set;
-    }
-
-    WeakSet.prototype = {};
-
-    defineFunctionProperty(
-      WeakSet.prototype, 'add',
-      function add(key) {
-        if (key !== Object(key)) { throw new TypeError('Expected object'); }
-        this._table.set(key, true);
-        return key;
-      });
-
-    defineFunctionProperty(
-      WeakSet.prototype, 'clear',
-      function clear() {
-        this._table.clear();
-      });
-
-    defineFunctionProperty(
-      WeakSet.prototype, 'delete',
-      function deleteFunction(key) {
-        if (key !== Object(key)) { throw new TypeError('Expected object'); }
-        this._table.remove(key);
-      });
-
-    defineFunctionProperty(
-      WeakSet.prototype, 'has',
-      function has(key) {
-        if (key !== Object(key)) { throw new TypeError('Expected object'); }
-        return this._table.has(key);
-      });
-
-    WeakSet.prototype[$$toStringTag] = 'WeakSet';
-
-    global.WeakSet = global.WeakSet || WeakSet;
-  }());
-
-
 
   //----------------------------------------------------------------------
   //
