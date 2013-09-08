@@ -1500,7 +1500,7 @@
       var map = this;
 
       if (typeof map !== 'object') { throw new TypeError(); }
-      if ('_mapData' in map) { throw new TypeError(); }
+      if ('__MapData__' in map) { throw new TypeError(); }
 
       if (iterable !== undefined) {
         iterable = Object(iterable);
@@ -1508,7 +1508,7 @@
         var adder = map['set'];
         if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
       }
-      map._mapData = { keys: [], values: [] };
+      map.__MapData__ = { keys: [], values: [] };
       if (comparator !== undefined && comparator !== "is") { throw new TypeError(); }
       map._mapComparator = comparator;
 
@@ -1530,7 +1530,7 @@
       return map;
     }
 
-    function indexOf(mapComparator, mapData, key) {
+    function indexOf(same, mapData, key) {
       var i;
       // NOTE: Assumed invariant over all supported comparators
       if (key === key && key !== 0) {
@@ -1538,7 +1538,7 @@
       }
       // Slow case for NaN/+0/-0
       for (i = 0; i < mapData.keys.length; i += 1) {
-        if (mapComparator(mapData.keys[i], key)) { return i; }
+        if (same(mapData.keys[i], key)) { return i; }
       }
       return -1;
     }
@@ -1554,8 +1554,13 @@
     defineFunctionProperty(
       Map.prototype, 'clear',
       function clear() {
-        this._mapData.keys.length = 0;
-        this._mapData.values.length = 0;
+        var m = this;
+        if (Type(m) !== 'object') throw new TypeError();
+        if (!('__MapData__' in m)) throw new TypeError();
+        if (m.__MapData__ === undefined) throw new TypeError();
+        var entries = m.__MapData__;
+        entries.keys.length = 0;
+        entries.values.length = 0;
       });
 
     // 23.1.3.2 Map.prototype.constructor
@@ -1564,12 +1569,17 @@
     defineFunctionProperty(
       Map.prototype, 'delete',
       function deleteFunction(key) {
-        var same = (this._mapComparator === undefined) ?
+        var m = this;
+        if (Type(m) !== 'object') throw new TypeError();
+        if (!('__MapData__' in m)) throw new TypeError();
+        if (m.__MapData__ === undefined) throw new TypeError();
+        var entries = m.__MapData__;
+        var same = (m._mapComparator === undefined) ?
               abstractOperation.SameValueZero : abstractOperation.SameValue;
-        var i = indexOf(same, this._mapData, key);
+        var i = indexOf(same, entries, key);
         if (i < 0) { return false; }
-        this._mapData.keys[i] = empty;
-        this._mapData.values[i] = empty;
+        entries.keys[i] = empty;
+        entries.values[i] = empty;
         return true;
       });
 
@@ -1577,7 +1587,9 @@
      defineFunctionProperty(
       Map.prototype, 'entries',
       function entries() {
-        return CreateMapIterator(Object(this), 'key+value');
+        var m = this;
+        if (Type(m) !== 'object') throw new TypeError();
+        return CreateMapIterator(m, 'key+value');
       });
 
     // 23.1.3.5 Map.prototype.forEach ( callbackfn , thisArg = undefined )
@@ -1585,12 +1597,18 @@
       Map.prototype, 'forEach',
       function forEach(callbackfn /*, thisArg*/) {
         var thisArg = arguments[1];
-        var m = Object(this);
+
+        var m = this;
+        if (Type(m) !== 'object') throw new TypeError();
+        if (!('__MapData__' in m)) throw new TypeError();
+        if (m.__MapData__ === undefined) throw new TypeError();
+        var entries = m.__MapData__;
+
         if (!abstractOperation.IsCallable(callbackfn)) {
           throw new TypeError('First argument to forEach is not callable.');
         }
-        for (var i = 0; i < this._mapData.keys.length; ++i) {
-          callbackfn.call(thisArg, this._mapData.keys[i], this._mapData.values[i], m);
+        for (var i = 0; i < entries.keys.length; ++i) {
+          callbackfn.call(thisArg, entries.keys[i], entries.values[i], m);
         }
       });
 
@@ -1598,46 +1616,67 @@
     defineFunctionProperty(
       Map.prototype, 'get',
       function get(key) {
-        var same = (this._mapComparator === undefined) ?
+        var m = this;
+        if (Type(m) !== 'object') throw new TypeError();
+        if (!('__MapData__' in m)) throw new TypeError();
+        if (m.__MapData__ === undefined) throw new TypeError();
+        var entries = m.__MapData__;
+        var same = (m._mapComparator === undefined) ?
               abstractOperation.SameValueZero : abstractOperation.SameValue;
-        var i = indexOf(same, this._mapData, key);
-        return i < 0 ? undefined : this._mapData.values[i];
+        var i = indexOf(same, entries, key);
+        return i < 0 ? undefined : entries.values[i];
       });
 
     // 23.1.3.7 Map.prototype.has ( key )
     defineFunctionProperty(
       Map.prototype, 'has',
       function has(key) {
-        var same = (this._mapComparator === undefined) ?
+        var m = this;
+        if (Type(m) !== 'object') throw new TypeError();
+        if (!('__MapData__' in m)) throw new TypeError();
+        if (m.__MapData__ === undefined) throw new TypeError();
+        var entries = m.__MapData__;
+        var same = (m._mapComparator === undefined) ?
               abstractOperation.SameValueZero : abstractOperation.SameValue;
-        return indexOf(same, this._mapData, key) >= 0;
+        return indexOf(same, entries, key) >= 0;
       });
 
     // 23.1.3.8 Map.prototype.keys ( )
     defineFunctionProperty(
       Map.prototype, 'keys',
       function keys() {
-        return CreateMapIterator(Object(this), 'key');
+        var m = this;
+        if (Type(m) !== 'object') throw new TypeError();
+        return CreateMapIterator(m, 'key');
       });
 
     // 23.1.3.9 Map.prototype.set ( key , value )
     defineFunctionProperty(
       Map.prototype, 'set',
       function set(key, val) {
-        var same = (this._mapComparator === undefined) ?
+        var m = this;
+        if (Type(m) !== 'object') throw new TypeError();
+        if (!('__MapData__' in m)) throw new TypeError();
+        if (m.__MapData__ === undefined) throw new TypeError();
+        var entries = m.__MapData__;
+        var same = (m._mapComparator === undefined) ?
               abstractOperation.SameValueZero : abstractOperation.SameValue;
-        var i = indexOf(same, this._mapData, key);
-        if (i < 0) { i = this._mapData.keys.length; }
-        this._mapData.keys[i] = key;
-        this._mapData.values[i] = val;
-        return val;
+        var i = indexOf(same, entries, key);
+        if (i < 0) { i = entries.keys.length; }
+        entries.keys[i] = key;
+        entries.values[i] = val;
+        return m;
       });
 
     // 23.1.3.10 get Map.prototype.size
     Object.defineProperty(
       Map.prototype, 'size', {
         get: function() {
-          var entries = this._mapData;
+          var m = this;
+          if (Type(m) !== 'object') throw new TypeError();
+          if (!('__MapData__' in m)) throw new TypeError();
+          if (m.__MapData__ === undefined) throw new TypeError();
+          var entries = m.__MapData__;
           var count = 0;
           for (var i = 0; i < entries.keys.length; ++i) {
             if (entries.keys[i] !== empty)
@@ -1651,14 +1690,18 @@
     defineFunctionProperty(
       Map.prototype, 'values',
       function values() {
-        return CreateMapIterator(Object(this), 'value');
+        var m = this;
+        if (Type(m) !== 'object') throw new TypeError();
+        return CreateMapIterator(m, 'value');
       });
 
     // 23.1.3.12 Map.prototype.@@iterator ( )
     defineFunctionProperty(
       Map.prototype, $$iterator,
       function() {
-        return CreateMapIterator(Object(this), 'key+value');
+        var m = this;
+        if (Type(m) !== 'object') throw new TypeError();
+        return CreateMapIterator(m, 'key+value');
       });
 
     // 23.1.3.13 Map.prototype [ @@toStringTag ]
@@ -1691,7 +1734,7 @@
         var m = this._iterationObject,
             index = this._nextIndex,
             itemKind = this._iterationKind,
-            entries = m._mapData;
+            entries = m.__MapData__;
         while (index < entries.keys.length) {
           var e = {key: entries.keys[index], value: entries.values[index]};
           index = index += 1;
@@ -1737,7 +1780,7 @@
       var set = this;
 
       if (typeof set !== 'object') { throw new TypeError(); }
-      if ('_setData' in set) { throw new TypeError(); }
+      if ('__SetData__' in set) { throw new TypeError(); }
 
       if (iterable !== undefined) {
         iterable = Object(iterable);
@@ -1745,7 +1788,7 @@
         var adder = set['add'];
         if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
       }
-      set._setData = [];
+      set.__SetData__ = [];
       if (comparator !== undefined && comparator !== "is") { throw new TypeError(); }
       set._setComparator = comparator;
       if (iterable === undefined) {
@@ -1763,7 +1806,7 @@
       return set;
     }
 
-    function indexOf(setComparator, setData, key) {
+    function indexOf(same, setData, key) {
       var i;
       // NOTE: Assumed invariant over all supported comparators
       if (key === key && key !== 0) {
@@ -1771,7 +1814,7 @@
       }
       // Slow case for NaN/+0/-0
       for (i = 0; i < setData.length; i += 1) {
-        if (setComparator(setData[i], key)) { return i; }
+        if (same(setData[i], key)) { return i; }
       }
       return -1;
     }
@@ -1788,47 +1831,78 @@
     // 23.2.3.1 Set.prototype.add (value )
     defineFunctionProperty(
       Set.prototype, 'add',
-      function add(key) {
-        var same = (this._setComparator === undefined) ?
+      function add(value) {
+        var s = this;
+        if (Type(s) !== 'object') throw new TypeError();
+        if (!('__SetData__' in s)) throw new TypeError();
+        if (s.__SetData__ === undefined) throw new TypeError();
+        var entries = s.__SetData__;
+        var same = (s._setComparator === undefined) ?
               abstractOperation.SameValueZero : abstractOperation.SameValue;
-        var i = indexOf(same, this._setData, key);
-        if (i < 0) { i = this._setData.length; }
-        this._setData[i] = key;
-        return key;
+        var i = indexOf(same, entries, value);
+        if (i < 0) { i = this.__SetData__.length; }
+        this.__SetData__[i] = value;
+
+        return s;
       });
 
     // 23.2.3.2 Set.prototype.clear ()
     defineFunctionProperty(
       Set.prototype, 'clear',
       function clear() {
-        this._setData = [];
+        var s = this;
+        if (Type(s) !== 'object') throw new TypeError();
+        if (!('__SetData__' in s)) throw new TypeError();
+        if (s.__SetData__ === undefined) throw new TypeError();
+        var entries = s.__SetData__;
+        entries.length = 0;
+        return undefined;
       });
 
     // 23.2.3.3 Set.prototype.constructor
     // 23.2.3.4 Set.prototype.delete ( value )
     defineFunctionProperty(
       Set.prototype, 'delete',
-      function deleteFunction(key) {
-        var same = (this._setComparator === undefined) ?
+      function deleteFunction(value) {
+        var s = this;
+        if (Type(s) !== 'object') throw new TypeError();
+        if (!('__SetData__' in s)) throw new TypeError();
+        if (s.__SetData__ === undefined) throw new TypeError();
+        var entries = s.__SetData__;
+        var same = (s._setComparator === undefined) ?
               abstractOperation.SameValueZero : abstractOperation.SameValue;
-        var i = indexOf(same, this._setData, key);
+        var i = indexOf(same, entries, value);
         if (i < 0) { return false; }
-        this._setData[i] = empty;
+        entries[i] = empty;
         return true;
       });
 
     // 23.2.3.5 Set.prototype.entries ( )
+    defineFunctionProperty(
+      Set.prototype, 'entries',
+      function entries() {
+        var s = this;
+        if (Type(s) !== 'object') throw new TypeError();
+        return CreateSetIterator(s, 'key+value');
+      });
+
     // 23.2.3.6 Set.prototype.forEach ( callbackfn , thisArg = undefined )
     defineFunctionProperty(
       Set.prototype, 'forEach',
       function forEach(callbackfn/*, thisArg*/) {
         var thisArg = arguments[1];
-        var s = Object(this);
+
+        var s = this;
+        if (Type(s) !== 'object') throw new TypeError();
+        if (!('__SetData__' in s)) throw new TypeError();
+        if (s.__SetData__ === undefined) throw new TypeError();
+        var entries = s.__SetData__;
+
         if (!abstractOperation.IsCallable(callbackfn)) {
           throw new TypeError('First argument to forEach is not callable.');
         }
-        for (var i = 0; i < this._setData.length; ++i) {
-          callbackfn.call(thisArg, this._setData[i], s);
+        for (var i = 0; i < entries.length; ++i) {
+          callbackfn.call(thisArg, entries[i], s);
         }
       });
 
@@ -1836,9 +1910,14 @@
     defineFunctionProperty(
       Set.prototype, 'has',
       function has(key) {
-        var same = (this._setComparator === undefined) ?
+        var s = this;
+        if (Type(s) !== 'object') throw new TypeError();
+        if (!('__SetData__' in s)) throw new TypeError();
+        if (s.__SetData__ === undefined) throw new TypeError();
+        var entries = s.__SetData__;
+        var same = (s._setComparator === undefined) ?
               abstractOperation.SameValueZero : abstractOperation.SameValue;
-        return indexOf(same, this._setData, key) !== -1;
+        return indexOf(same, entries, key) !== -1;
       });
 
     // 23.2.3.8 Set.prototype.keys ( )
@@ -1846,7 +1925,11 @@
     Object.defineProperty(
       Set.prototype, 'size', {
         get: function() {
-          var entries = this._setData;
+          var s = this;
+          if (Type(s) !== 'object') throw new TypeError();
+          if (!('__SetData__' in s)) throw new TypeError();
+          if (s.__SetData__ === undefined) throw new TypeError();
+          var entries = s.__SetData__;
           var count = 0;
           for (var i = 0; i < entries.length; ++i) {
             if (entries[i] !== empty)
@@ -1860,14 +1943,18 @@
     defineFunctionProperty(
       Set.prototype, 'values',
       function values() {
-        return CreateSetIterator(Object(this));
+        var s = this;
+        if (Type(s) !== 'object') throw new TypeError();
+        return CreateSetIterator(s);
       });
 
     // 23.2.3.11 Set.prototype [@@iterator ] ( )
     defineFunctionProperty(
       Set.prototype, $$iterator,
       function() {
-        return CreateSetIterator(Object(this));
+        var s = this;
+        if (Type(s) !== 'object') throw new TypeError();
+        return CreateSetIterator(s);
       });
 
     // 23.2.3.12 Set.prototype [ @@toStringTag ]
@@ -1898,7 +1985,7 @@
         if (typeof this !== 'object') { throw new TypeError; }
         var s = this.set,
             index = this.nextIndex,
-            entries = s._setData;
+            entries = s.__SetData__;
         while (index < entries.length) {
           var e = entries[index];
           index = index += 1;

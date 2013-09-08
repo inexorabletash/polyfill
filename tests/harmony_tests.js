@@ -449,7 +449,7 @@ test("Map", function () {
   assertFalse("map.has(0)");
   assertFalse("map.has(-0)");
   assertEqual("map.size", 0);
-  assertEqual("map.set('key', 'value')", 'value');
+  assertEqual("map.set('key', 'value')", map);
 
   map = new Map(undefined, "is");
   assertFalse("map.has(-0)");
@@ -466,7 +466,7 @@ test("Map", function () {
   map.clear();
   assertFalse("map.has(0)");
   assertEqual("map.size", 0);
-  assertEqual("map.set('key', 'value')", 'value');
+  assertEqual("map.set('key', 'value')", map);
 
   var data = ["a", "b"], expected = [[0, "a"], [1, "b"]], count = 0;
   map = new Map(data);
@@ -522,7 +522,7 @@ test("Set", function () {
   set.clear();
   assertFalse("set.has(0)");
   assertEqual("set.size", 0);
-  assertEqual("set.add('key')", 'key');
+  assertEqual("set.add('key')", set);
 
   set = new Set(undefined, "is");
   assertFalse("set.has(-0)");
@@ -540,7 +540,7 @@ test("Set", function () {
   set.clear();
   assertFalse("set.has(0)");
   assertEqual("set.size", 0);
-  assertEqual("set.add('key')", 'key');
+  assertEqual("set.add('key')", set);
 
   var data = [1, 2, 3], count = 0;
   set = new Set(data);
