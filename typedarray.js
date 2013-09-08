@@ -35,17 +35,16 @@
 //  * Allows typed_array.get/set() as alias for subscripts (typed_array[])
 
 
-(function (global) {
+(function(global) {
   "use strict";
-
-  var USE_NATIVE_IF_AVAILABLE = true;
+  var undefined = (void 0); // Paranoia
 
   // Beyond this value, index getters/setters (i.e. array[0], array[1]) are so slow to
   // create, and consume so much memory, that the browser appears frozen.
   var MAX_ARRAY_LENGTH = 1e5;
 
   // Approximations of internal ECMAScript conversion functions
-  var ECMAScript = (function () {
+  var ECMAScript = (function() {
     // Stash a copy in case other scripts modify these
     var opts = Object.prototype.toString,
         ophop = Object.prototype.hasOwnProperty;
@@ -56,8 +55,8 @@
       HasProperty: function(o, p) { return p in o; },
       HasOwnProperty: function(o, p) { return ophop.call(o, p); },
       IsCallable: function(o) { return typeof o === 'function'; },
-      ToInt32: function (v) { return v >> 0; },
-      ToUint32: function (v) { return v >>> 0; }
+      ToInt32: function(v) { return v >> 0; },
+      ToUint32: function(v) { return v >>> 0; }
     };
   }());
 
@@ -69,19 +68,6 @@
       min = Math.min,
       pow = Math.pow,
       round = Math.round;
-
-  // Create an INDEX_SIZE_ERR event - intentionally induces a DOM error if possible
-  function new_INDEX_SIZE_ERR() {
-    try {
-      if (document) {
-        // raises DOMException(INDEX_SIZE_ERR)
-        document.createTextNode("").splitText(1);
-      }
-      return new RangeError("INDEX_SIZE_ERR");
-    } catch (e) {
-      return e;
-    }
-  }
 
   // ES5: lock down object properties
   function configureProperties(obj) {
@@ -103,8 +89,8 @@
   // (second clause tests for Object.defineProperty() in IE<9 that only supports extending DOM prototypes, but
   // note that IE<9 does not support __defineGetter__ or __defineSetter__ so it just renders the method harmless)
   if (!Object.defineProperty ||
-       !(function () { try { Object.defineProperty({}, 'x', {}); return true; } catch (e) { return false; } } ())) {
-    Object.defineProperty = function (o, p, desc) {
+       !(function() { try { Object.defineProperty({}, 'x', {}); return true; } catch (e) { return false; } }())) {
+    Object.defineProperty = function(o, p, desc) {
       if (!o === Object(o)) { throw new TypeError("Object.defineProperty called on non-object"); }
       if (ECMAScript.HasProperty(desc, 'get') && Object.prototype.__defineGetter__) { Object.prototype.__defineGetter__.call(o, p, desc.get); }
       if (ECMAScript.HasProperty(desc, 'set') && Object.prototype.__defineSetter__) { Object.prototype.__defineSetter__.call(o, p, desc.set); }
@@ -135,8 +121,8 @@
 
     function makeArrayAccessor(index) {
       Object.defineProperty(obj, index, {
-        'get': function () { return obj._getter(index); },
-        'set': function (v) { obj._setter(index, v); },
+        'get': function() { return obj._getter(index); },
+        'set': function(v) { obj._setter(index, v); },
         enumerable: true,
         configurable: false
       });
@@ -288,7 +274,7 @@
   // 3 The ArrayBuffer Type
   //
 
-  (function () {
+  (function() {
 
     /** @constructor */
     var ArrayBuffer = function ArrayBuffer(length) {
@@ -307,6 +293,7 @@
       configureProperties(this);
     };
 
+    global.ArrayBuffer = global.ArrayBuffer || ArrayBuffer;
 
     //
     // 4 The ArrayBufferView Type
@@ -329,7 +316,7 @@
       // identical logic, which this produces.
 
       var ctor;
-      ctor = function (buffer, byteOffset, length) {
+      ctor = function(buffer, byteOffset, length) {
         var array, sequence, i, s;
 
         if (!arguments.length || typeof arguments[0] === 'number') {
@@ -374,13 +361,12 @@
 
           this.byteOffset = ECMAScript.ToUint32(byteOffset);
           if (this.byteOffset > this.buffer.byteLength) {
-            throw new_INDEX_SIZE_ERR(); // byteOffset out of range
+            throw new RangeError("byteOffset out of range");
           }
 
           if (this.byteOffset % this.BYTES_PER_ELEMENT) {
             // The given byteOffset must be a multiple of the element
             // size of the specific type, otherwise an exception is raised.
-            //throw new_INDEX_SIZE_ERR();
             throw new RangeError("ArrayBuffer length minus the byteOffset is not a multiple of the element size.");
           }
 
@@ -388,7 +374,7 @@
             this.byteLength = this.buffer.byteLength - this.byteOffset;
 
             if (this.byteLength % this.BYTES_PER_ELEMENT) {
-              throw new_INDEX_SIZE_ERR(); // length of buffer minus byteOffset not a multiple of the element size
+              throw new RangeError("length of buffer minus byteOffset not a multiple of the element size");
             }
             this.length = this.byteLength / this.BYTES_PER_ELEMENT;
           } else {
@@ -397,7 +383,7 @@
           }
 
           if ((this.byteOffset + this.byteLength) > this.buffer.byteLength) {
-            throw new_INDEX_SIZE_ERR(); // byteOffset and length reference an area beyond the end of the buffer
+            throw new RangeError("byteOffset and length reference an area beyond the end of the buffer");
           }
         } else {
           throw new TypeError("Unexpected argument type(s)");
@@ -416,13 +402,12 @@
       ctor.BYTES_PER_ELEMENT = bytesPerElement;
 
       // getter type (unsigned long index);
-      ctor.prototype._getter = function (index) {
+      ctor.prototype._getter = function(index) {
         if (arguments.length < 1) { throw new SyntaxError("Not enough arguments"); }
 
         index = ECMAScript.ToUint32(index);
         if (index >= this.length) {
-          //throw new_INDEX_SIZE_ERR(); // Array index out of range
-          return (void 0); // undefined
+          return undefined;
         }
 
         var bytes = [], i, o;
@@ -438,13 +423,12 @@
       ctor.prototype.get = ctor.prototype._getter;
 
       // setter void (unsigned long index, type value);
-      ctor.prototype._setter = function (index, value) {
+      ctor.prototype._setter = function(index, value) {
         if (arguments.length < 2) { throw new SyntaxError("Not enough arguments"); }
 
         index = ECMAScript.ToUint32(index);
         if (index >= this.length) {
-          //throw new_INDEX_SIZE_ERR(); // Array index out of range
-          return;
+          return undefined;
         }
 
         var bytes = this._pack(value), i, o;
@@ -457,7 +441,7 @@
 
       // void set(TypedArray array, optional unsigned long offset);
       // void set(sequence<type> array, optional unsigned long offset);
-      ctor.prototype.set = function (index, value) {
+      ctor.prototype.set = function(index, value) {
         if (arguments.length < 1) { throw new SyntaxError("Not enough arguments"); }
         var array, sequence, offset, len,
             i, s, d,
@@ -469,7 +453,7 @@
           offset = ECMAScript.ToUint32(arguments[1]);
 
           if (offset + array.length > this.length) {
-            throw new_INDEX_SIZE_ERR(); // Offset plus length of array is out of range
+            throw new RangeError("Offset plus length of array is out of range");
           }
 
           byteOffset = this.byteOffset + offset * this.BYTES_PER_ELEMENT;
@@ -496,7 +480,7 @@
           offset = ECMAScript.ToUint32(arguments[1]);
 
           if (offset + len > this.length) {
-            throw new_INDEX_SIZE_ERR(); // Offset plus length of array is out of range
+            throw new RangeError("Offset plus length of array is out of range");
           }
 
           for (i = 0; i < len; i += 1) {
@@ -509,7 +493,7 @@
       };
 
       // TypedArray subarray(long begin, optional long end);
-      ctor.prototype.subarray = function (start, end) {
+      ctor.prototype.subarray = function(start, end) {
         function clamp(v, min, max) { return v < min ? min : v > max ? max : v; }
 
         start = ECMAScript.ToInt32(start);
@@ -546,46 +530,32 @@
     var Float32Array = makeTypedArrayConstructor(4, packFloat32, unpackFloat32);
     var Float64Array = makeTypedArrayConstructor(8, packFloat64, unpackFloat64);
 
-    if (USE_NATIVE_IF_AVAILABLE) {
-      global.ArrayBuffer = global.ArrayBuffer || ArrayBuffer;
-      global.Int8Array = global.Int8Array || Int8Array;
-      global.Uint8Array = global.Uint8Array || Uint8Array;
-      global.Uint8ClampedArray = global.Uint8ClampedArray || Uint8ClampedArray;
-      global.Int16Array = global.Int16Array || Int16Array;
-      global.Uint16Array = global.Uint16Array || Uint16Array;
-      global.Int32Array = global.Int32Array || Int32Array;
-      global.Uint32Array = global.Uint32Array || Uint32Array;
-      global.Float32Array = global.Float32Array || Float32Array;
-      global.Float64Array = global.Float64Array || Float64Array;
-    } else {
-      global.ArrayBuffer = ArrayBuffer;
-      global.Int8Array = Int8Array;
-      global.Uint8Array = Uint8Array;
-      global.Uint8ClampedArray = Uint8ClampedArray;
-      global.Int16Array = Int16Array;
-      global.Uint16Array = Uint16Array;
-      global.Int32Array = Int32Array;
-      global.Uint32Array = Uint32Array;
-      global.Float32Array = Float32Array;
-      global.Float64Array = Float64Array;
-    }
-  } ());
+    global.Int8Array = global.Int8Array || Int8Array;
+    global.Uint8Array = global.Uint8Array || Uint8Array;
+    global.Uint8ClampedArray = global.Uint8ClampedArray || Uint8ClampedArray;
+    global.Int16Array = global.Int16Array || Int16Array;
+    global.Uint16Array = global.Uint16Array || Uint16Array;
+    global.Int32Array = global.Int32Array || Int32Array;
+    global.Uint32Array = global.Uint32Array || Uint32Array;
+    global.Float32Array = global.Float32Array || Float32Array;
+    global.Float64Array = global.Float64Array || Float64Array;
+  }());
 
   //
   // 6 The DataView View Type
   //
 
-  (function () {
+  (function() {
     function r(array, index) {
       return ECMAScript.IsCallable(array.get) ? array.get(index) : array[index];
     }
 
 
-    var IS_BIG_ENDIAN = (function () {
+    var IS_BIG_ENDIAN = (function() {
       var u16array = new Uint16Array([0x1234]),
           u8array = new Uint8Array(u16array.buffer);
       return r(u8array, 0) === 0x12;
-    } ());
+    }());
 
     // Constructor(ArrayBuffer buffer,
     //             optional unsigned long byteOffset,
@@ -602,7 +572,7 @@
 
       this.byteOffset = ECMAScript.ToUint32(byteOffset);
       if (this.byteOffset > this.buffer.byteLength) {
-        throw new_INDEX_SIZE_ERR(); // byteOffset out of range
+        throw new RangeError("byteOffset out of range");
       }
 
       if (arguments.length < 3) {
@@ -612,7 +582,7 @@
       }
 
       if ((this.byteOffset + this.byteLength) > this.buffer.byteLength) {
-        throw new_INDEX_SIZE_ERR(); // byteOffset and length reference an area beyond the end of the buffer
+        throw new RangeError("byteOffset and length reference an area beyond the end of the buffer");
       }
 
       configureProperties(this);
@@ -624,12 +594,12 @@
     //}
 
     function makeDataView_getter(arrayType) {
-      return function (byteOffset, littleEndian) {
+      return function(byteOffset, littleEndian) {
 
         byteOffset = ECMAScript.ToUint32(byteOffset);
 
         if (byteOffset + arrayType.BYTES_PER_ELEMENT > this.byteLength) {
-          throw new_INDEX_SIZE_ERR(); // Array index out of range
+          throw new RangeError("Array index out of range");
         }
         byteOffset += this.byteOffset;
 
@@ -657,11 +627,11 @@
     DataView.prototype.getFloat64 = makeDataView_getter(Float64Array);
 
     function makeDataView_setter(arrayType) {
-      return function (byteOffset, value, littleEndian) {
+      return function(byteOffset, value, littleEndian) {
 
         byteOffset = ECMAScript.ToUint32(byteOffset);
         if (byteOffset + arrayType.BYTES_PER_ELEMENT > this.byteLength) {
-          throw new_INDEX_SIZE_ERR(); // Array index out of range
+          throw new RangeError("Array index out of range");
         }
 
         // Get bytes
@@ -693,12 +663,8 @@
     DataView.prototype.setFloat32 = makeDataView_setter(Float32Array);
     DataView.prototype.setFloat64 = makeDataView_setter(Float64Array);
 
-    if (USE_NATIVE_IF_AVAILABLE) {
-      global.DataView = global.DataView || DataView;
-    } else {
-      global.DataView = DataView;
-    }
+    global.DataView = global.DataView || DataView;
 
-  } ());
+  }());
 
-} (this));
+}(this));
