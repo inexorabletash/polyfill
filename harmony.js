@@ -1350,7 +1350,7 @@
   // 22.1.3.30 Array.prototype [ @@iterator ] ( )
   defineFunctionProperty(
     Array.prototype, $$iterator,
-    Array.prototype.entries
+    Array.prototype.values
     );
 
   // 22.1.3.31 Array.prototype [ @@unscopables ]
@@ -1452,7 +1452,67 @@
      // 22.2.2 Properties of the %TypedArray% Intrinsic Object
 
      // 22.2.2.1 %TypedArray%.from ( source , mapfn=undefined, thisArg=undefined )
-     // TODO: Implement
+     defineFunctionProperty(
+       $TypedArray$, 'from',
+       function from(source) {
+         var mapfn = arguments[1];
+         var thisArg = arguments[2];
+
+         var c = this;
+         if (!abstractOperation.IsConstructor(c)) throw new TypeError();
+         var items = Object(source);
+         if (mapfn === undefined) {
+           var mapping = false;
+         } else {
+           if (abstractOperation.IsCallable(mapfn)) throw new TypeError();
+           var t = thisArg;
+           mapping = true;
+         }
+         var usingIterator = abstractOperation.HasProperty(items, $$iterator);
+         if (usingIterator) {
+           var iterator = abstractOperation.GetIterator(items);
+           var values = [];
+           var done = false;
+           while (!done) {
+             var next = abstractOperation.IteratorNext(iterator);
+             done = abstractOperation.IteratorComplete(next);
+             if (!done) {
+               var nextValue = abstractOperation.IteratorValue(next);
+               values.push(nextValue);
+             }
+           }
+           var len = values.length;
+           var newObj = new c(len);
+           var k = 0;
+           while (k < len) {
+             var kValue = values.shift();
+             if (mapping) {
+               var mappedValue = mapfn.call(t, kValue);
+             } else {
+               mappedValue = kValue;
+             }
+             newObj[k] = mappedValue;
+             ++k;
+           }
+           assert(values.length === 0);
+           return newObj;
+         }
+         var lenValue = items.length;
+         len = abstractOperation.ToInteger(lenValue);
+         newObj = new c(len);
+         k = 0;
+         while (k < len) {
+           kValue = items[k];
+           if (mapping) {
+             mappedValue = mapfn.call(t, kValue, k, items);
+           } else {
+             mappedValue = kValue;
+           }
+           newObj[k] = mappedValue;
+           ++k;
+         }
+         return newObj;
+       });
 
      // 22.2.2.2 %TypedArray%.of ( ...items )
      defineFunctionProperty(
@@ -1532,6 +1592,7 @@
      defineFunctionProperty($TypedArray$.prototype, 'findIndex', Array.prototype.findIndex);
 
      // 22.2.3.12 %TypedArray%.prototype.forEach ( callbackfn, thisArg = undefined )
+     defineFunctionProperty($TypedArray$.prototype, 'forEach', Array.prototype.forEach);
 
      // 22.2.3.13 %TypedArray%.prototype.indexOf (searchElement, fromIndex = 0 )
      defineFunctionProperty($TypedArray$.prototype, 'indexOf', Array.prototype.indexOf);
@@ -1613,7 +1674,7 @@
            if (x > y) return 1;
            return +0;
          }
-         Array.prototype.sort.call(this, sortCompare);
+         return Array.prototype.sort.call(this, sortCompare);
        });
 
      // 22.2.3.27 %TypedArray%.prototype.subarray(begin = 0, end = this.length )
@@ -2537,7 +2598,7 @@
   // 25.4.3.5 GetIterator ( obj )
   abstractOperation.GetIterator = function(obj) {
     var iterator = obj[$$iterator]();
-    if (Type(iterator) !== object) throw new TypeError();
+    if (Type(iterator) !== 'object') throw new TypeError();
     return iterator;
   };
 

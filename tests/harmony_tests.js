@@ -1,3 +1,16 @@
+function verifyIterator(iterator, expected) {
+  while (true) {
+    var result = iterator.next();
+    if (result.done) {
+      ok(expected.length === 0);
+      return;
+    } else {
+      var ex = expected.shift();
+      equal(result.done, false);
+      deepEqual(result.value, ex);
+    }
+  }
+}
 
 test("Approved Math extras", function () {
   var EPSILON = 1e-5;
@@ -469,26 +482,26 @@ test("Map", function () {
   assertEqual("map.size", 0);
   assertEqual("map.set('key', 'value')", map);
 
-  var data = ["a", "b"], expected = [[0, "a"], [1, "b"]], count = 0;
+  var data = [[0, "a"], [1, "b"]], count = 0;
   map = new Map(data);
   map.forEach(function(k, v, m) {
     assertEqual("map", m);
     self.k = k;
     self.v = v;
-    assertEqual("k", expected[count][0]);
-    assertEqual("v", expected[count][1]);
+    assertEqual("k", data[count][0]);
+    assertEqual("v", data[count][1]);
     ++count;
     delete self.k;
     delete self.v;
   });
   equal(2, count);
 
+  verifyIterator(new Map([[1,'a'], [2,'b'], [3,'c']]).keys(), [1,2,3]);
+  verifyIterator(new Map([[1,'a'], [2,'b'], [3,'c']]).values(), ['a','b','c']);
+  verifyIterator(new Map([[1,'a'], [2,'b'], [3,'c']]).entries(), [[1,'a'], [2,'b'], [3,'c']]);
+
   // Verify |empty| behavior
-  map = new Map();
-  map.set('a', 1);
-  map.set('b', 2);
-  map.set('c', 3);
-  map.set('d', 4);
+  map = new Map().set('a', 1).set('b', 2).set('c', 3).set('d', 4);
   var keys = [];
   var iterator = map.keys();
   keys.push(iterator.next().value);
@@ -565,6 +578,8 @@ test("Set", function () {
     ++count;
   });
   equal(3, count);
+
+  verifyIterator(new Set("ABC").values(), ['A', 'B', 'C']);
 
   // Verify |empty| behavior
   set = new Set();
@@ -776,30 +791,11 @@ test("Proposed Unicode support String extras", function () {
   assertEqual("'\\ud800\\udc00\\udbff\\udfff'.codePointAt(2)", 0x10ffff);
 });
 
-test("Iterators", function () {
+test("Proposed String Iterators", function () {
   s = new Set("ABC");
   assertTrue("s.has('A')");
   assertFalse("s.has('Z')");
   assertEqual("s.size", 3);
-  it = s.values();
-  assertEqual("it.next().value", 'A');
-  assertEqual("it.next().value", 'B');
-  assertEqual("it.next().value", 'C');
-  assertTrue("it.next().done");
-
-  m = new Map();
-  m.set(1, 'a');
-  m.set(2, 'b');
-  m.set(3, 'c');
-  it = m.entries();
-  assertEqual("it.next().value.length", 2);
-  assertEqual("it.next().value[0]", 2);
-  assertEqual("it.next().value[1]", "c");
-  assertTrue("it.next().done");
-
-  delete s;
-  delete m;
-  delete it;
 });
 
 test("Branding", function() {
@@ -844,23 +840,9 @@ test("Dict", function() {
   assertEqual("Object.getPrototypeOf(d)", null);
   d['b'] = 2;
 
-  it = keys(d);
-  assertEqual("it.next().value", 'a');
-  assertEqual("it.next().value", 'b');
-  assertTrue("it.next().done");
-
-  it = values(d);
-  assertEqual("it.next().value", 1);
-  assertEqual("it.next().value", 2);
-  assertTrue("it.next().done");
-
-  it = entries(d);
-  deepEqual(it.next().value, ['a', 1]);
-  deepEqual(it.next().value, ['b', 2]);
-  assertTrue("it.next().done");
-
-  delete it;
-  delete d;
+  verifyIterator(keys(d), ['a', 'b']);
+  verifyIterator(values(d), [1, 2]);
+  verifyIterator(entries(d), [['a', 1], ['b', 2]]);
 });
 
 test("Symbol", function() {
@@ -875,4 +857,52 @@ test("Symbol", function() {
   delete s;
   delete t;
   delete o;
+});
+
+test("Typed Array Extras", function() {
+  deepEqual(Uint8Array.from([1,2,3]), new Uint8Array([1,2,3]));
+  deepEqual(Uint8Array.from({0:1,1:2,2:3,length:3}), new Uint8Array([1,2,3]));
+
+  deepEqual(Uint8Array.of(1,2,3), new Uint8Array([1,2,3]));
+
+  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(3, 0, 2), new Uint8Array([0,1,2,0,1]));
+  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(0, 3), new Uint8Array([3,4,2,3,4]));
+  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(0, 2, 5), new Uint8Array([2,3,4,3,4]));
+  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(2, 0, 3), new Uint8Array([0,1,0,1,2]));
+
+  assertTrue("new Uint8Array([1,3,5]).every(function(n){return n%2;})");
+  assertFalse("new Uint8Array([1,3,6]).every(function(n){return n%2;})");
+
+  deepEqual(new Uint8Array(3).fill(9), new Uint8Array([9,9,9]));
+  deepEqual(new Uint8Array([0,1,2,3,4]).filter(function(n){return n%2;}), new Uint8Array([1,3]));
+  deepEqual(new Uint8Array([1,2,3,4]).find(function(n){return n>2;}), 3);
+  deepEqual(new Uint8Array([1,2,3,4]).findIndex(function(n){return n>2;}), 2);
+
+  var data = [11, 22, 33], count = 0;
+  var array = new Uint8Array(data);
+  array.forEach(function(v, k, a) {
+    equal(v, data[count]);
+    equal(k, count);
+    equal(a, array);
+    ++count;
+  });
+  equal(count, data.length);
+
+  deepEqual(new Uint8Array([1,2,3,1,2,3]).indexOf(3), 2);
+  deepEqual(new Uint8Array([1,2,3,4]).join('-'), "1-2-3-4");
+
+  deepEqual(new Uint8Array([1,2,3,1,2,3]).lastIndexOf(3), 5);
+  deepEqual(new Uint8Array([0,1,2,3]).map(function(n){return n*2;}), new Uint8Array([0,2,4,6]));
+  deepEqual(new Uint8Array([0,1,2,3]).reduce(function(a,b){return a-b;}), -6);
+  deepEqual(new Uint8Array([0,1,2,3]).reduceRight(function(a,b){return a-b;}), 0);
+  deepEqual(new Uint8Array([0,1,2,3]).reverse(), new Uint8Array([3,2,1,0]));
+
+  assertFalse("new Uint8Array([1,3,5]).some(function(n){return n%2===0;})");
+  assertTrue("new Uint8Array([1,3,6]).some(function(n){return n%2===0;})");
+
+  deepEqual(new Float32Array([Infinity,NaN,10,2]).sort(), new Float32Array([2,10,Infinity,NaN]));
+
+  verifyIterator(new Uint8Array([11,22,33]).values(), [11,22,33]);
+  verifyIterator(new Uint8Array([11,22,33]).keys(), [0,1,2]);
+  verifyIterator(new Uint8Array([11,22,33]).entries(), [[0,11], [1,22], [2,33]]);
 });
