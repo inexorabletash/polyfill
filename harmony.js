@@ -1649,7 +1649,32 @@
      // 22.2.3.23 %TypedArray%.prototype.set(typedArray, offset = 0 )
 
      // 22.2.3.24 %TypedArray%.prototype.slice ( start, end )
-     // TODO: Implement
+     define(
+       $TypedArray$.prototype, 'slice',
+       function slice(start, end) {
+         var o = Object(this);
+         var lenVal = o.length;
+         var len = abstractOperation.ToLength(lenVal);
+         var relativeStart = abstractOperation.ToInteger(start);
+         var k = (relativeStart < 0) ? max(len + relativeStart, 0) : min(relativeStart, len);
+         var relativeEnd = (end === undefined) ? len : abstractOperation.ToInteger(end);
+         var final = (relativeEnd < 0) ? max(len + relativeEnd, 0) : min(relativeEnd, len);
+         var count = final - k;
+         var c = o.constructor;
+         if (abstractOperation.IsConstructor(c)) {
+           var a = new c(count);
+         } else {
+           throw new TypeError();
+         }
+         var n = 0;
+         while (k < final) {
+           var kValue = o[k];
+           a[n] = kValue;
+           ++k;
+           ++n;
+         }
+         return a;
+       });
 
      // 22.2.3.25 %TypedArray%.prototype.some ( callbackfn, thisArg = undefined )
      define($TypedArray$.prototype, 'some', Array.prototype.some);

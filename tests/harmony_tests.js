@@ -897,6 +897,9 @@ test("Typed Array Extras", function() {
   deepEqual(new Uint8Array([0,1,2,3]).reduceRight(function(a,b){return a-b;}), 0);
   deepEqual(new Uint8Array([0,1,2,3]).reverse(), new Uint8Array([3,2,1,0]));
 
+  deepEqual(new Uint8Array([1,2,3,4]).slice(), new Uint8Array([1,2,3,4]));
+  deepEqual(new Uint8Array([1,2,3,4]).slice(2,4), new Uint8Array([3,4]));
+
   assertFalse("new Uint8Array([1,3,5]).some(function(n){return n%2===0;})");
   assertTrue("new Uint8Array([1,3,6]).some(function(n){return n%2===0;})");
 
