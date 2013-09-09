@@ -554,8 +554,7 @@
 
   // 20.1.2.13 Number.parseInt (string, radix)
   define(
-    Number,
-    'parseInt',
+    Number, 'parseInt',
     function parseInt(string) {
       return global_parseInt(string);
     });
