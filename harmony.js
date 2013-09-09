@@ -1102,6 +1102,8 @@
       var mapfn = arguments[1];
       var thisArg = arguments[2];
 
+      // TODO: Needs updating to use @@iterator if present
+
       var items = Object(arrayLike);
       var lenValue = items.length;
       var len = abstractOperation.ToUint32(lenValue);
@@ -1706,6 +1708,10 @@
      define($TypedArray$.prototype, 'values', Array.prototype.values);
 
      // 22.2.3.31 %TypedArray%.prototype [ @@iterator ] ( )
+     define(
+       $TypedArray$.prototype, $$iterator,
+       $TypedArray$.prototype.values
+     );
 
      // 22.2.3.32 get %TypedArray%.prototype [ @@toStringTag ]
      // NOTE: Only required if %TypedArray% is polyfilled
