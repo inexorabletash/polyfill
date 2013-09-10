@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<title>Web Standards / Browser Compat Polyfill Unit Tests</title>
+
+<script src="http://code.jquery.com/qunit/qunit-1.12.0.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.12.0.css" type="text/css" media="screen" />
+
+<h1 id="qunit-header">Web Standards / Browser Compat Polyfill Unit Tests</h1>
+<h2 id="qunit-banner"></h2>
+<div id="qunit-testrunner-toolbar"></div>
+<h2 id="qunit-userAgent"></h2>
+<ol id="qunit-tests"></ol>
+<div id="qunit-fixture">
+
+test markup, will be hidden
+
+<div>
+  <div id="foo" class="alpha">
+    <div id="bar" class="beta">
+      <span id="baz" class="beta delta epsilon phi"></span>
+    </div>
+  </div>
+  <span id="bat" class="alpha"></span>
+</div>
+
+<div id="datadiv" data-foo="bar" data-bar="123">
+  <span id="dataspan" data-123="blah"></span>
+</div>
+
+</div>
+
+<script type="text/javascript" src="../es5.js"></script>
+<script type="text/javascript" src="../web.js"></script>
+<script type="text/javascript" src="testhelpers.js"></script>
+<script type="text/javascript" src="web_tests.js"></script>

@@ -10,10 +10,10 @@ Note that my general approach to polyfills is not to produce 100% compliant beha
 
 I use these in various pages on my sites; most are by me, or I have at least tweaked them. A more comprehensive list can be found at [The All-In-One Entirely-Not-Alphabetical No-Bullshit Guide to HTML5 Fallbacks](https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills) by Paul Irish.
 
-Browser Compat
---------------
-[script](polyfill.js) -
-[unit tests](http://calormen.com/polyfill/tests/polyfill.html)
+Web Standards / Browser Compat
+------------------------------
+[script](web.js) -
+[unit tests](http://calormen.com/polyfill/tests/web.html)
 
 Bundled together; nearly every page I create needs at least some of these. These will change over time,
 and going forward I will only target IE8 and later.
