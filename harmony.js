@@ -966,8 +966,16 @@
   // 21.1.3.6 String.prototype.contains (searchString, position = 0 )
   define(
     String.prototype, 'contains',
-    function contains(searchString, position) {
-      return String(this).indexOf(searchString, position) !== -1;
+    function contains(searchString) {
+      var position = arguments[1];
+
+      var o = this;
+      var s = String(o);
+      var searchStr = String(searchString);
+      var pos = abstractOperation.ToInteger(position);
+      var len = s.length;
+      var start = min(max(pos, 0), len);
+      return s.indexOf(searchStr, pos) !== -1;
     });
 
   // 21.1.3.7 String.prototype.endsWith (searchString [, endPosition] )
@@ -1187,6 +1195,7 @@
     Array, 'of',
     function of() {
       var items = arguments;
+
       var lenValue = items.length;
       var len = abstractOperation.ToUint32(lenValue);
       var c = this, a;
@@ -1203,7 +1212,6 @@
       }
       a.length = len;
       return a;
-      return Array.from(arguments);
     });
 
   // 22.1.2.4 Array.prototype

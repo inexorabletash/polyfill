@@ -334,6 +334,7 @@ test("Approved String extras", function () {
   assertThrows("'ab'.repeat(Infinity)");
   assertEqual("'ab'.repeat(1)", 'ab');
   assertEqual("'ab'.repeat(10)", 'abababababababababab');
+  assertEqual("''.repeat.length", 1);
 
   // String.prototype.startsWith
   assertTrue("'abcdef'.startsWith('abc')");
@@ -353,6 +354,7 @@ test("Approved String extras", function () {
   assertTrue("'abcdef'.contains('bcd')");
   assertFalse("'abcdef'.contains('mno')");
   assertTrue("'abcdef'.contains('')");
+  assertTrue("''.contains.length", 1);
 });
 
 test("Approved Array extras", function () {
