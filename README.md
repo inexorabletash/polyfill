@@ -10,22 +10,14 @@ Note that my general approach to polyfills is not to produce 100% compliant beha
 
 I use these in various pages on my sites; most are by me, or I have at least tweaked them. A more comprehensive list can be found at [The All-In-One Entirely-Not-Alphabetical No-Bullshit Guide to HTML5 Fallbacks](https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills) by Paul Irish.
 
-ECMAScript 5 & Browser Compat
------------------------------
+Browser Compat
+--------------
 [script](polyfill.js) -
 [unit tests](http://calormen.com/polyfill/tests/polyfill.html)
 
 Bundled together; nearly every page I create needs at least some of these. These will change over time,
 and going forward I will only target IE8 and later.
 
-* [ECMAScript 5](http://www.ecma-international.org/publications/standards/Ecma-262.htm) Object, Function, String and Date extras
-  * Object: `getPrototypeOf`, `getOwnPropertyNames`, `create`, `defineProperty`, `defineProperties`, `keys`
-  * Function prototype: `bind`
-  * Array: `isArray`
-  * Array prototype: `indexOf`, `lastIndexOf`, `every`, `some`, `forEach`, `map`, `filter`, `reduce`, `reduceRight`
-  * String prototype: `trim`
-  * Date: `now`
-  * Date prototype: `toISOString`
 * [`XMLHttpRequest`](http://xhr.spec.whatwg.org/) (for IE6-)
 * [Selector API](http://www.w3.org/TR/selectors-api/) (for IE7-) - adapted from [Paul Young](http://ajaxian.com/archives/creating-a-queryselector-for-ie-that-runs-at-native-speed)
   * `element = document.querySelector(selector)`
@@ -74,6 +66,21 @@ and going forward I will only target IE8 and later.
 * [JavaScript 1.X String Extras](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String)
   * String prototype: `trimLeft`, `trimRight`, `quote`
 
+ECMAScript 5 (polyfill)
+-----------------------------------
+[script](es5.js) -
+[unit tests](http://calormen.com/polyfill/tests/es5.html)
+
+[ECMAScript 5](http://www.ecma-international.org/publications/standards/Ecma-262.htm) Object, Function, String and Date extras:
+* Object: `getPrototypeOf`, `getOwnPropertyNames`, `create`, `defineProperty`, `defineProperties`, `keys`
+* Function prototype: `bind`
+* Array: `isArray`
+* Array prototype: `indexOf`, `lastIndexOf`, `every`, `some`, `forEach`, `map`, `filter`, `reduce`, `reduceRight`
+* String prototype: `trim`
+* Date: `now`
+* Date prototype: `toISOString`
+
+Does not include JSON - use [json2.js](https://github.com/douglascrockford/JSON-js)
 
 ECMAScript 6 / "Harmony" (polyfill)
 -----------------------------------
