@@ -362,8 +362,8 @@ test("Approved Array extras", function () {
 
   assertTrue("'from' in Array");
   assertEqual("typeof Array.from", 'function');
-  assertEqual("Array.from.length", 1); // TODO: Verify
-  assertEqual("Array.from(1,2,3).length", 0);
+  assertEqual("Array.from.length", 1);
+  assertThrows("Array.from(1,2,3)");
   assertEqual("Array.from([1,2,3]).length", 3);
   deepEqual(Array.from([1, 2, 3]), [1, 2, 3]);
   deepEqual(Array.from({length: 0}), []);

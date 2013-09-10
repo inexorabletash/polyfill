@@ -1102,28 +1102,65 @@
       var mapfn = arguments[1];
       var thisArg = arguments[2];
 
-      // TODO: Needs updating to use @@iterator if present
-
+      var c = this;
       var items = Object(arrayLike);
+      if (mapfn === undefined) {
+        var mapping = false;
+      } else {
+        if (!abstractOperation.IsCallable(mapfn)) throw new TypeError();
+        var t = thisArg;
+        mapping = true;
+      }
+      var usingIterator = abstractOperation.HasProperty(items, $$iterator);
+      if (usingIterator) {
+        var iterator = abstractOperation.GetIterator(items);
+        if (abstractOperation.IsConstructor(c)) {
+          // SPEC: Spec bug: A vs. newObj
+          var newObj = new c();
+          var a = Object(newObj);
+        } else {
+          a = new Array();
+        }
+        var k = 0;
+        while (true) {
+          var next = abstractOperation.IteratorNext(iterator);
+          var done = abstractOperation.IteratorComplete(next);
+          if (done) {
+            a.length = k;
+            return a;
+          }
+          var nextValue = abstractOperation.IteratorValue(next);
+          if (mapping) {
+            var mappedValue = mapfn.call(t, nextValue);
+          } else {
+            mappedValue = nextValue;
+          }
+          a[k] = mappedValue;
+          ++k;
+        }
+      }
       var lenValue = items.length;
-      var len = abstractOperation.ToUint32(lenValue);
-      var c = this, a;
+      var len = abstractOperation.ToInteger(lenValue);
       if (abstractOperation.IsConstructor(c)) {
-        a = new c(len);
-        a = Object(a);
+        newObj = new c(len);
+        a = Object(newObj);
       } else {
         a = new Array(len);
       }
-      var k = 0;
+      k = 0;
       while (k < len) {
-        var item = items[k];
-        if (mapfn) {
-          item = mapfn.call(thisArg, item);
+        var kPresent = abstractOperation.HasProperty(items, k);
+        if (kPresent) {
+          var kValue = items[k];
+          if (mapping) {
+            mappedValue = mapfn.call(t, kValue, k, items);
+          } else {
+            mappedValue = kValue;
+          }
+          a[k] = mappedValue;
         }
-        a[k] = item;
-        k += 1;
+        ++k;
       }
-      a.length = len;
       return a;
     });
 
