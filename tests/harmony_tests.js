@@ -318,17 +318,20 @@ test("Approved String extras", function () {
   // String.prototype.repeat
   assertEqual("''.repeat(NaN)", '');
   assertEqual("''.repeat(0)", '');
-  assertEqual("''.repeat(-1)", '');
+  assertThrows("''.repeat(-1)");
+  assertThrows("'a'.repeat(Infinity)");
   assertEqual("''.repeat(1)", '');
   assertEqual("''.repeat(10)", '');
   assertEqual("'a'.repeat(NaN)", '');
   assertEqual("'a'.repeat(0)", '');
-  assertEqual("'a'.repeat(-1)", '');
+  assertThrows("'a'.repeat(-1)");
+  assertThrows("'a'.repeat(Infinity)");
   assertEqual("'a'.repeat(1)", 'a');
   assertEqual("'a'.repeat(10)", 'aaaaaaaaaa');
   assertEqual("'ab'.repeat(NaN)", '');
   assertEqual("'ab'.repeat(0)", '');
-  assertEqual("'ab'.repeat(-1)", '');
+  assertThrows("'ab'.repeat(-1)");
+  assertThrows("'ab'.repeat(Infinity)");
   assertEqual("'ab'.repeat(1)", 'ab');
   assertEqual("'ab'.repeat(10)", 'abababababababababab');
 
@@ -336,11 +339,15 @@ test("Approved String extras", function () {
   assertTrue("'abcdef'.startsWith('abc')");
   assertFalse("'abcdef'.startsWith('def')");
   assertTrue("'abcdef'.startsWith('')");
+  assertTrue("'abcdef'.startsWith('bc', 1)");
+  assertTrue("''.startsWith.length", 1);
 
   // String.prototype.endsWith
   assertTrue("'abcdef'.endsWith('def')");
   assertFalse("'abcdef'.endsWith('abc')");
   assertTrue("'abcdef'.endsWith('')");
+  assertTrue("'abcdef'.endsWith('de', 5)");
+  assertTrue("''.endsWith.length", 1);
 
   // String.prototype.contains
   assertTrue("'abcdef'.contains('bcd')");

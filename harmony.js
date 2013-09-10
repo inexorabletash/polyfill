@@ -973,10 +973,20 @@
   // 21.1.3.7 String.prototype.endsWith (searchString [, endPosition] )
   define(
     String.prototype, 'endsWith',
-    function endsWith(s) {
-      s = String(s);
-      var t = String(this);
-      return t.substring(t.length - s.length) === s;
+    function endsWith(searchString) {
+      var endPosition = arguments[1];
+
+      var o = this;
+      var s = String(o);
+      var searchStr = String(searchString);
+      var len = s.length;
+      var pos = (endPosition === undefined) ? len : abstractOperation.ToInteger(endPosition);
+      var end = min(max(pos, 0), len);
+      var searchLength = searchStr.length;
+      var start = end - searchLength;
+      if (start < 0) return false;
+      if (s.substring(start, start + searchLength) === searchStr) return true;
+      return false;
     });
 
   // 21.1.3.8 String.prototype.indexOf (searchString, position)
@@ -991,17 +1001,13 @@
   define(
     String.prototype, 'repeat',
     function repeat(count) {
-      // var string = '' + this;
-      // count = abstractOperation.ToInteger(count);
-      // var result = ';
-      // while (--count >= 0) {
-      //     result += string;
-      // }
-      // return result;
-      count = abstractOperation.ToInteger(count);
-      var a = [];
-      a.length = count + 1;
-      return a.join(String(this));
+      var o = this;
+      var s = String(o);
+      var n = abstractOperation.ToInteger(count);
+      if (n < 0) throw new RangeError();
+      if (n === Infinity) throw new RangeError();
+      var t = new Array(n + 1).join(s);
+      return t;
     });
 
   // 21.1.3.14 String.prototype.replace (searchValue, replaceValue)
@@ -1012,9 +1018,19 @@
   // 21.1.3.18 String.prototype.startsWith (searchString [, position ] )
   define(
     String.prototype, 'startsWith',
-    function startsWith(s) {
-      s = String(s);
-      return String(this).substring(0, s.length) === s;
+    function startsWith(searchString) {
+      var position = arguments[1];
+
+      var o = this;
+      var s = String(o);
+      var searchStr = String(searchString);
+      var pos = abstractOperation.ToInteger(position);
+      var len = s.length;
+      var start = min(max(pos, 0), len);
+      var searchLength = searchStr.length;
+      if (searchLength + start > len) return false;
+      if (s.substring(start, start + searchLength) === searchStr) return true;
+      return false;
     });
 
   // 21.1.3.19 String.prototype.substring (start, end)
@@ -1203,7 +1219,7 @@
       var end = arguments[2];
 
       var o = Object(this);
-      var lenVal = o["length"];
+      var lenVal = o.length;
       var len = abstractOperation.ToLength(lenVal);
       len = max(len, 0);
       var relativeTarget = abstractOperation.ToInteger(target);
@@ -1271,7 +1287,7 @@
           end = arguments[2];
 
       var o = Object(this);
-      var lenVal = o["length"];
+      var lenVal = o.length;
       var len = abstractOperation.ToLength(lenVal);
       len = max(len, 0);
       var relativeStart = abstractOperation.ToInteger(start);
@@ -1305,7 +1321,7 @@
     Array.prototype, 'find',
     function find(predicate) {
       var o = Object(this);
-      var lenValue = o["length"];
+      var lenValue = o.length;
       var len = abstractOperation.ToInteger(lenValue);
       if (!abstractOperation.IsCallable(predicate)) { throw new TypeError(); }
       var t = arguments.length > 1 ? arguments[1] : undefined;
@@ -1330,7 +1346,7 @@
     Array.prototype, 'findIndex',
     function findIndex(predicate) {
       var o = Object(this);
-      var lenValue = o["length"];
+      var lenValue = o.length;
       var len = abstractOperation.ToInteger(lenValue);
       if (!abstractOperation.IsCallable(predicate)) { throw new TypeError(); }
       var t = arguments.length > 1 ? arguments[1] : undefined;
