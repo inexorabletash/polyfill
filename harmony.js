@@ -199,8 +199,6 @@
     switch (typeof x) {
     case 'undefined':
       return true;
-    case 'null':
-      return true;
     case 'number':
       if (global_isNaN(x) && global_isNaN(y)) { return true; }
       if (x === 0 && y === 0) { return 1/x === 1/y; }
@@ -220,8 +218,6 @@
     }
     switch (typeof x) {
     case 'undefined':
-      return true;
-    case 'null':
       return true;
     case 'number':
       if (global_isNaN(x) && global_isNaN(y)) { return true; }
