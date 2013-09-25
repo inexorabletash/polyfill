@@ -159,13 +159,14 @@ test("Approved Math extras", function () {
   assertEqual("Math.hypot(+0, -1)", +1);
   assertEqual("Math.hypot(-0, +1)", +1);
   assertEqual("Math.hypot(-0, -1)", +1);
-  assertEqual("Math.hypot(0)", NaN);
-  assertEqual("Math.hypot(1)", NaN);
-  assertEqual("Math.hypot(2)", NaN);
+  assertEqual("Math.hypot(0)", 0);
+  assertEqual("Math.hypot(1)", 1);
+  assertEqual("Math.hypot(2)", 2);
   assertEqual("Math.hypot(0,0,1)", 1);
   assertEqual("Math.hypot(0,1,0)", 1);
   assertEqual("Math.hypot(1,0,0)", 1);
   assertEqual("Math.hypot(2,3,4)", Math.sqrt(2*2 + 3*3 + 4*4));
+  assertEqual("Math.hypot(2,3,4,5)", Math.sqrt(2*2 + 3*3 + 4*4 + 5*5));
 
   // trunc(x)
   assertEqual("Math.trunc('')", Math.trunc(0));

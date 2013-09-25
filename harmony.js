@@ -379,7 +379,7 @@
   // ---------------------------------------
 
   // 19.2.1 The Function Constructor
-  // 19.2.1.1 Function (p1, p2, … , pn, body)
+  // 19.2.1.1 Function (p1, p2, ... , pn, body)
   // 19.2.1.2 new Function ( ... argumentsList)
   // 19.2.2 Properties of the Function Constructor
   // 19.2.2.1 Function.length
@@ -387,8 +387,8 @@
   // 19.2.2.3 Function[ @@create ] ( )
   // 19.2.3 Properties of the Function Prototype Object
   // 19.2.3.1 Function.prototype.apply (thisArg, argArray)
-  // 19.2.3.2 Function.prototype.bind (thisArg [, arg1 [, arg2, …]])
-  // 19.2.3.3 Function.prototype.call (thisArg [ , arg1 [ , arg2, … ] ] )
+  // 19.2.3.2 Function.prototype.bind (thisArg [, arg1 [, arg2, ...]])
+  // 19.2.3.3 Function.prototype.call (thisArg [ , arg1 [ , arg2, ... ] ] )
   // 19.2.3.4 Function.prototype.constructor
   // 19.2.3.5 Function.prototype.toString ( )
   // 19.2.3.6 Function.prototype[ @@create ] ( )
@@ -683,21 +683,19 @@
 
   // 20.2.2.15 Math.floor (x)
 
-  // 20.2.2.16 Math.hypot( value1 , value2, value3 = 0 )
+  // 20.2.2.16 Math.hypot( ...values )
   define(
     Math, 'hypot',
-    function hypot(x, y, z) {
+    function hypot() {
       function isInfinite(x) { return x === Infinity || x === -Infinity; }
-      x = Number(x);
-      y = Number(y);
-      z = (z === undefined) ? 0 : Number(z);
-      if (isInfinite(x) || isInfinite(y) || isInfinite(z)) {
-        return Infinity;
+      var sum = 0;
+      for (var i = 0; i < arguments.length; ++i) {
+        var arg = arguments[i];
+        var n = Number(arg);
+        if (isInfinite(n)) return Infinity;
+        sum = sum + n * n;
       }
-      if (global_isNaN(x) || global_isNaN(y) || global_isNaN(z)) {
-        return NaN;
-      }
-      return sqrt(x*x + y*y + z*z);
+      return sqrt(sum);
     });
 
   // 20.2.2.17 Math.imul(x, y)
@@ -749,16 +747,16 @@
       return log(x) * LOG2E;
     });
 
-  // 20.2.2.22 Math.max ( [ value1 [ , value2 [ , … ] ] ] )
-  // 20.2.2.23 Math.min ( [ value1 [ , value2 [ , … ] ] ] )
+  // 20.2.2.22 Math.max ( [ value1 [ , value2 [ , ... ] ] ] )
+  // 20.2.2.23 Math.min ( [ value1 [ , value2 [ , ... ] ] ] )
   // 20.2.2.24 Math.pow (x, y)
   // 20.2.2.25 Math.random ( )
   // 20.2.2.26 Math.round (x)
 
-  // 20.2.2.27 Math.roundFloat32 (x )
+  // 20.2.2.27 Math.fround  (x)
   define(
-    Math, 'roundFloat32',
-    function roundFloat32(x) {
+    Math, 'fround',
+    function fround(x) {
       if (global_isNaN(x)) {
         return NaN;
       }
@@ -1114,7 +1112,7 @@
   // ---------------------------------------
 
   // 22.1.1 The Array Constructor
-  // 22.1.1.1 Array ( [ item1 [ , item2 [ , … ] ] ] )
+  // 22.1.1.1 Array ( [ item1 [ , item2 [ , ... ] ] ] )
   // 22.1.1.2 Array (len)
   // 22.1.1.3 new Array ( ... argumentsList)
   // 22.1.2 Properties of the Array Constructor
@@ -1217,7 +1215,7 @@
   // 22.1.2.4 Array.prototype
   // 22.1.2.5 Array[ @@create ] ( )
   // 22.1.3 Properties of the Array Prototype Object
-  // 22.1.3.1 Array.prototype.concat ( [ item1 [ , item2 [ , … ] ] ] )
+  // 22.1.3.1 Array.prototype.concat ( [ item1 [ , item2 [ , ... ] ] ] )
   // 22.1.3.1.1 IsConcatSpreadable ( O ) Abstract Operation
   // 22.1.3.2 Array.prototype.constructor
   // 22.1.3.3 Array.prototype.copyWith (target, start, end = this.length)
@@ -1388,7 +1386,7 @@
   // 22.1.3.14 Array.prototype.lastIndexOf ( searchElement [ , fromIndex ] )
   // 22.1.3.15 Array.prototype.map ( callbackfn [ , thisArg ] )
   // 22.1.3.16 Array.prototype.pop ( )
-  // 22.1.3.17 Array.prototype.push ( [ item1 [ , item2 [ , … ] ] ] )
+  // 22.1.3.17 Array.prototype.push ( [ item1 [ , item2 [ , ... ] ] ] )
   // 22.1.3.18 Array.prototype.reduce ( callbackfn [ , initialValue ] )
   // 22.1.3.19 Array.prototype.reduceRight ( callbackfn [ , initialValue ] )
   // 22.1.3.20 Array.prototype.reverse ( )
@@ -1396,10 +1394,10 @@
   // 22.1.3.22 Array.prototype.slice (start, end)
   // 22.1.3.23 Array.prototype.some ( callbackfn [ , thisArg ] )
   // 22.1.3.24 Array.prototype.sort (comparefn)
-  // 22.1.3.25 Array.prototype.splice (start, deleteCount [ , item1 [ , item2 [ , … ] ] ] )
+  // 22.1.3.25 Array.prototype.splice (start, deleteCount [ , item1 [ , item2 [ , ... ] ] ] )
   // 22.1.3.26 Array.prototype.toLocaleString ( )
   // 22.1.3.27 Array.prototype.toString ( )
-  // 22.1.3.28 Array.prototype.unshift ( [ item1 [ , item2 [ , … ] ] ] )
+  // 22.1.3.28 Array.prototype.unshift ( [ item1 [ , item2 [ , ... ] ] ] )
 
   // 22.1.3.29 Array.prototype.values ( )
   define(
@@ -2643,7 +2641,7 @@
   // ---------------------------------------
 
   // 25.3.1 The GeneratorFunction Constructor
-  // 25.3.1.1 GeneratorFunction (p1, p2, … , pn, body)
+  // 25.3.1.1 GeneratorFunction (p1, p2, ... , pn, body)
   // 25.3.1.2 new GeneratorFunction ( ... argumentsList)
   // 25.3.2 Properties of the GeneratorFunction Constructor
   // 25.3.2.1 GeneratorFunction.length
