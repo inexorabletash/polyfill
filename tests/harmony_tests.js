@@ -12,9 +12,9 @@ function verifyIterator(iterator, expected) {
   }
 }
 
-module("Standard Library Extras");
+module("Extras");
 
-test("Approved Math extras", function () {
+test("Math", function () {
   var EPSILON = 1e-5;
 
   // log10(x)
@@ -215,7 +215,7 @@ test("Approved Math extras", function () {
   assertEqual("Math.imul(0x01234567, 0xfedcba98)", 602016552);
 });
 
-test("Approved Number extras", function () {
+test("Number", function () {
   // Number.EPSILON
   assertTrue("'EPSILON' in Number");
   assertEqual("typeof Number.EPSILON", 'number');
@@ -276,7 +276,7 @@ test("Approved Number extras", function () {
   assertFalse("Number.isSafeInteger(-Math.pow(2,53))", 1);
 });
 
-test("Approved Number.prototype extras", function () {
+test("Number.prototype", function () {
   // Number.prototype.clz()
   assertEqual("typeof Number.prototype.clz", "function");
   assertEqual("(-1).clz()", 0);
@@ -317,7 +317,7 @@ test("Approved Number.prototype extras", function () {
   assertEqual("(0).clz()", 32);
 });
 
-test("Approved String extras", function () {
+test("String", function () {
   // String.prototype.repeat
   assertEqual("''.repeat(NaN)", '');
   assertEqual("''.repeat(0)", '');
@@ -360,7 +360,38 @@ test("Approved String extras", function () {
   assertTrue("''.contains.length", 1);
 });
 
-test("Approved Array extras", function () {
+test("String - Unicode helpers", function () {
+  // String.fromCodePoint
+  assertEqual("String.fromCodePoint(0)", "\x00");
+  assertEqual("String.fromCodePoint(65)", "A");
+  assertEqual("String.fromCodePoint(65, 66, 67)", "ABC");
+  assertEqual("String.fromCodePoint(0x0100)", "\u0100");
+  assertEqual("String.fromCodePoint(0x1000)", "\u1000");
+  assertEqual("String.fromCodePoint(0xd800)", "\ud800");
+  assertEqual("String.fromCodePoint(0xdc00)", "\udc00");
+  assertEqual("String.fromCodePoint(0xfffd)", "\ufffd");
+  assertEqual("String.fromCodePoint(0x010000)", "\ud800\udc00");
+  assertEqual("String.fromCodePoint(0x10ffff)", "\udbff\udfff");
+
+  // String.prototype.codePointAt
+  assertEqual("'\\x00'.codePointAt(0)", 0);
+  assertEqual("'A'.codePointAt(0)", 65);
+  assertEqual("'\\u0100'.codePointAt(0)", 0x100);
+  assertEqual("'\\u1000'.codePointAt(0)", 0x1000);
+  assertEqual("'\\ud800'.codePointAt(0)", 0xd800);
+  assertEqual("'\\udc00'.codePointAt(0)", 0xdc00);
+  assertEqual("'\\ufffd'.codePointAt(0)", 0xfffd);
+  assertEqual("'\\ud800\\udc00'.codePointAt(0)", 0x10000);
+  assertEqual("'\\udbff\\udfff'.codePointAt(0)", 0x10ffff);
+  assertEqual("''.codePointAt(0)", undefined);
+  assertEqual("'A'.codePointAt(1)", undefined);
+  assertEqual("'AB'.codePointAt(1)", 66);
+  assertEqual("'\\ud800\\udc00\\udbff\\udfff'.codePointAt(0)", 0x10000);
+  assertEqual("'\\ud800\\udc00\\udbff\\udfff'.codePointAt(1)", 0xdc00);
+  assertEqual("'\\ud800\\udc00\\udbff\\udfff'.codePointAt(2)", 0x10ffff);
+});
+
+test("Array", function () {
   assertTrue("'of' in Array");
   assertEqual("typeof Array.of", 'function');
   assertEqual("Array.of.length", 0);
@@ -413,7 +444,7 @@ test("Array.prototype.find/findIndex", function() {
   delete array;
 });
 
-test("Identity Testing", function () {
+test("Object", function () {
 
   testobj1 = {};
   testobj2 = {};
@@ -455,7 +486,58 @@ test("Identity Testing", function () {
 
 });
 
-module("Containers");
+test("Typed Array", function() {
+  deepEqual(Uint8Array.from([1,2,3]), new Uint8Array([1,2,3]));
+  deepEqual(Uint8Array.from({0:1,1:2,2:3,length:3}), new Uint8Array([1,2,3]));
+
+  deepEqual(Uint8Array.of(1,2,3), new Uint8Array([1,2,3]));
+
+  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(3, 0, 2), new Uint8Array([0,1,2,0,1]));
+  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(0, 3), new Uint8Array([3,4,2,3,4]));
+  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(0, 2, 5), new Uint8Array([2,3,4,3,4]));
+  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(2, 0, 3), new Uint8Array([0,1,0,1,2]));
+
+  assertTrue("new Uint8Array([1,3,5]).every(function(n){return n%2;})");
+  assertFalse("new Uint8Array([1,3,6]).every(function(n){return n%2;})");
+
+  deepEqual(new Uint8Array(3).fill(9), new Uint8Array([9,9,9]));
+  deepEqual(new Uint8Array([0,1,2,3,4]).filter(function(n){return n%2;}), new Uint8Array([1,3]));
+  deepEqual(new Uint8Array([1,2,3,4]).find(function(n){return n>2;}), 3);
+  deepEqual(new Uint8Array([1,2,3,4]).findIndex(function(n){return n>2;}), 2);
+
+  var data = [11, 22, 33], count = 0;
+  var array = new Uint8Array(data);
+  array.forEach(function(v, k, a) {
+    equal(v, data[count]);
+    equal(k, count);
+    equal(a, array);
+    ++count;
+  });
+  equal(count, data.length);
+
+  deepEqual(new Uint8Array([1,2,3,1,2,3]).indexOf(3), 2);
+  deepEqual(new Uint8Array([1,2,3,4]).join('-'), "1-2-3-4");
+
+  deepEqual(new Uint8Array([1,2,3,1,2,3]).lastIndexOf(3), 5);
+  deepEqual(new Uint8Array([0,1,2,3]).map(function(n){return n*2;}), new Uint8Array([0,2,4,6]));
+  deepEqual(new Uint8Array([0,1,2,3]).reduce(function(a,b){return a-b;}), -6);
+  deepEqual(new Uint8Array([0,1,2,3]).reduceRight(function(a,b){return a-b;}), 0);
+  deepEqual(new Uint8Array([0,1,2,3]).reverse(), new Uint8Array([3,2,1,0]));
+
+  deepEqual(new Uint8Array([1,2,3,4]).slice(), new Uint8Array([1,2,3,4]));
+  deepEqual(new Uint8Array([1,2,3,4]).slice(2,4), new Uint8Array([3,4]));
+
+  assertFalse("new Uint8Array([1,3,5]).some(function(n){return n%2===0;})");
+  assertTrue("new Uint8Array([1,3,6]).some(function(n){return n%2===0;})");
+
+  deepEqual(new Float32Array([Infinity,NaN,10,2]).sort(), new Float32Array([2,10,Infinity,NaN]));
+
+  verifyIterator(new Uint8Array([11,22,33]).values(), [11,22,33]);
+  verifyIterator(new Uint8Array([11,22,33]).keys(), [0,1,2]);
+  verifyIterator(new Uint8Array([11,22,33]).entries(), [[0,11], [1,22], [2,33]]);
+});
+
+module("Containers and Iterators");
 
 test("Map", function () {
 
@@ -734,89 +816,6 @@ test("WeakSet", function () {
   assertThrows('WeakSet()');
 });
 
-module("Not Yet Approved");
-
-test("Proposed Number extras", function () {
-  // Number.compare
-  assertTrue("'compare' in Number");
-  assertEqual("typeof Number.compare", 'function');
-  assertEqual("Number.compare(0, 0)", 0);
-  assertEqual("Number.compare(1, 0)", 1);
-  assertEqual("Number.compare(0, 1)", -1);
-  assertEqual("Number.compare(0, 0, 1)", 0);
-  assertEqual("Number.compare(1, 0, 1)", 0);
-  assertEqual("Number.compare(0, 1, 1)", 0);
-});
-
-test("Proposed Array extras", function () {
-  assertTrue("'pushAll' in Array.prototype");
-  assertEqual("typeof Array.prototype.pushAll", 'function');
-  var a;
-  a = []; a.pushAll([]); deepEqual(a, []);
-  a = [1,2]; a.pushAll([]); deepEqual(a, [1,2]);
-  a = []; a.pushAll([1,2]); deepEqual(a, [1,2]);
-  a = [1,2]; a.pushAll([1,2]); deepEqual(a, [1,2,1,2]);
-
-  assertTrue("'contains' in Array.prototype");
-  assertEqual("typeof Array.prototype.contains", 'function');
-  assertTrue("[1,2,3].contains(1)");
-  assertFalse("[1,2,3].contains(0)");
-  assertTrue("[1,NaN,3].contains(NaN)");
-  assertFalse("[1,2,3].contains(NaN)");
-  assertTrue("[1,-0,3].contains(-0)");
-  assertFalse("[1,-0,3].contains(0)");
-  assertFalse("[1,[],3].contains([])");
-  assertFalse("[1,{},3].contains({})");
-  assertFalse("[1,2,3].contains(Math)");
-  assertTrue("[1,Math,3].contains(Math)");
-  assertFalse("[1,2,3].contains(undefined)");
-  assertTrue("[1,undefined,3].contains(undefined)");
-  assertFalse("[1,2,3].contains(null)");
-  assertTrue("[1,null,3].contains(null)");
-
-});
-
-test("Proposed Unicode support String extras", function () {
-  // String.fromCodePoint
-  assertEqual("String.fromCodePoint(0)", "\x00");
-  assertEqual("String.fromCodePoint(65)", "A");
-  assertEqual("String.fromCodePoint(65, 66, 67)", "ABC");
-  assertEqual("String.fromCodePoint(0x0100)", "\u0100");
-  assertEqual("String.fromCodePoint(0x1000)", "\u1000");
-  assertEqual("String.fromCodePoint(0xd800)", "\ud800");
-  assertEqual("String.fromCodePoint(0xdc00)", "\udc00");
-  assertEqual("String.fromCodePoint(0xfffd)", "\ufffd");
-  assertEqual("String.fromCodePoint(0x010000)", "\ud800\udc00");
-  assertEqual("String.fromCodePoint(0x10ffff)", "\udbff\udfff");
-
-  // String.prototype.codePointAt
-  assertEqual("'\\x00'.codePointAt(0)", 0);
-  assertEqual("'A'.codePointAt(0)", 65);
-  assertEqual("'\\u0100'.codePointAt(0)", 0x100);
-  assertEqual("'\\u1000'.codePointAt(0)", 0x1000);
-  assertEqual("'\\ud800'.codePointAt(0)", 0xd800);
-  assertEqual("'\\udc00'.codePointAt(0)", 0xdc00);
-  assertEqual("'\\ufffd'.codePointAt(0)", 0xfffd);
-  assertEqual("'\\ud800\\udc00'.codePointAt(0)", 0x10000);
-  assertEqual("'\\udbff\\udfff'.codePointAt(0)", 0x10ffff);
-  assertEqual("''.codePointAt(0)", undefined);
-  assertEqual("'A'.codePointAt(1)", undefined);
-  assertEqual("'AB'.codePointAt(1)", 66);
-  assertEqual("'\\ud800\\udc00\\udbff\\udfff'.codePointAt(0)", 0x10000);
-  assertEqual("'\\ud800\\udc00\\udbff\\udfff'.codePointAt(1)", 0xdc00);
-  assertEqual("'\\ud800\\udc00\\udbff\\udfff'.codePointAt(2)", 0x10ffff);
-});
-
-test("Proposed String Iterators", function () {
-  s = new Set("ABC");
-  assertTrue("s.has('A')");
-  assertFalse("s.has('Z')");
-  assertEqual("s.size", 3);
-});
-
-
-module("Silly Shims");
-
 test("Branding", function() {
   assertEqual("String(new Map)", "[object Map]");
   assertEqual("Object.prototype.toString.call(new Map)", "[object Map]");
@@ -854,83 +853,6 @@ test("Branding", function() {
   // etc.
 });
 
-
-module("Modules");
-
-test("Dict", function() {
-  d = dict({a: 1});
-  assertEqual("Object.getPrototypeOf(d)", null);
-  d['b'] = 2;
-
-  verifyIterator(keys(d), ['a', 'b']);
-  verifyIterator(values(d), [1, 2]);
-  verifyIterator(entries(d), [['a', 1], ['b', 2]]);
-});
-
-test("Symbol", function() {
-  s = new Symbol();
-  t = new Symbol();
-  o = {};
-  assertEqual("o[s] = 1", 1);
-  assertTrue("s in o");
-  assertFalse("t in o");
-  assertFalse("s === t");
-  assertEqual("o[s]", 1);
-  delete s;
-  delete t;
-  delete o;
-});
-
-test("Typed Array Extras", function() {
-  deepEqual(Uint8Array.from([1,2,3]), new Uint8Array([1,2,3]));
-  deepEqual(Uint8Array.from({0:1,1:2,2:3,length:3}), new Uint8Array([1,2,3]));
-
-  deepEqual(Uint8Array.of(1,2,3), new Uint8Array([1,2,3]));
-
-  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(3, 0, 2), new Uint8Array([0,1,2,0,1]));
-  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(0, 3), new Uint8Array([3,4,2,3,4]));
-  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(0, 2, 5), new Uint8Array([2,3,4,3,4]));
-  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(2, 0, 3), new Uint8Array([0,1,0,1,2]));
-
-  assertTrue("new Uint8Array([1,3,5]).every(function(n){return n%2;})");
-  assertFalse("new Uint8Array([1,3,6]).every(function(n){return n%2;})");
-
-  deepEqual(new Uint8Array(3).fill(9), new Uint8Array([9,9,9]));
-  deepEqual(new Uint8Array([0,1,2,3,4]).filter(function(n){return n%2;}), new Uint8Array([1,3]));
-  deepEqual(new Uint8Array([1,2,3,4]).find(function(n){return n>2;}), 3);
-  deepEqual(new Uint8Array([1,2,3,4]).findIndex(function(n){return n>2;}), 2);
-
-  var data = [11, 22, 33], count = 0;
-  var array = new Uint8Array(data);
-  array.forEach(function(v, k, a) {
-    equal(v, data[count]);
-    equal(k, count);
-    equal(a, array);
-    ++count;
-  });
-  equal(count, data.length);
-
-  deepEqual(new Uint8Array([1,2,3,1,2,3]).indexOf(3), 2);
-  deepEqual(new Uint8Array([1,2,3,4]).join('-'), "1-2-3-4");
-
-  deepEqual(new Uint8Array([1,2,3,1,2,3]).lastIndexOf(3), 5);
-  deepEqual(new Uint8Array([0,1,2,3]).map(function(n){return n*2;}), new Uint8Array([0,2,4,6]));
-  deepEqual(new Uint8Array([0,1,2,3]).reduce(function(a,b){return a-b;}), -6);
-  deepEqual(new Uint8Array([0,1,2,3]).reduceRight(function(a,b){return a-b;}), 0);
-  deepEqual(new Uint8Array([0,1,2,3]).reverse(), new Uint8Array([3,2,1,0]));
-
-  deepEqual(new Uint8Array([1,2,3,4]).slice(), new Uint8Array([1,2,3,4]));
-  deepEqual(new Uint8Array([1,2,3,4]).slice(2,4), new Uint8Array([3,4]));
-
-  assertFalse("new Uint8Array([1,3,5]).some(function(n){return n%2===0;})");
-  assertTrue("new Uint8Array([1,3,6]).some(function(n){return n%2===0;})");
-
-  deepEqual(new Float32Array([Infinity,NaN,10,2]).sort(), new Float32Array([2,10,Infinity,NaN]));
-
-  verifyIterator(new Uint8Array([11,22,33]).values(), [11,22,33]);
-  verifyIterator(new Uint8Array([11,22,33]).keys(), [0,1,2]);
-  verifyIterator(new Uint8Array([11,22,33]).entries(), [[0,11], [1,22], [2,33]]);
-});
 
 
 module("Promises");
@@ -1079,4 +1001,81 @@ asyncTest("Promise.all() reject", function() {
       equal(reason, 2);
       start();
     });
+});
+
+module("Helpers");
+
+test("Symbol", function() {
+  s = new Symbol();
+  t = new Symbol();
+  o = {};
+  assertEqual("o[s] = 1", 1);
+  assertTrue("s in o");
+  assertFalse("t in o");
+  assertFalse("s === t");
+  assertEqual("o[s]", 1);
+  delete s;
+  delete t;
+  delete o;
+});
+
+module("Not Yet Approved");
+
+test("Proposed Number extras", function () {
+  // Number.compare
+  assertTrue("'compare' in Number");
+  assertEqual("typeof Number.compare", 'function');
+  assertEqual("Number.compare(0, 0)", 0);
+  assertEqual("Number.compare(1, 0)", 1);
+  assertEqual("Number.compare(0, 1)", -1);
+  assertEqual("Number.compare(0, 0, 1)", 0);
+  assertEqual("Number.compare(1, 0, 1)", 0);
+  assertEqual("Number.compare(0, 1, 1)", 0);
+});
+
+test("Proposed Array extras", function () {
+  assertTrue("'pushAll' in Array.prototype");
+  assertEqual("typeof Array.prototype.pushAll", 'function');
+  var a;
+  a = []; a.pushAll([]); deepEqual(a, []);
+  a = [1,2]; a.pushAll([]); deepEqual(a, [1,2]);
+  a = []; a.pushAll([1,2]); deepEqual(a, [1,2]);
+  a = [1,2]; a.pushAll([1,2]); deepEqual(a, [1,2,1,2]);
+
+  assertTrue("'contains' in Array.prototype");
+  assertEqual("typeof Array.prototype.contains", 'function');
+  assertTrue("[1,2,3].contains(1)");
+  assertFalse("[1,2,3].contains(0)");
+  assertTrue("[1,NaN,3].contains(NaN)");
+  assertFalse("[1,2,3].contains(NaN)");
+  assertTrue("[1,-0,3].contains(-0)");
+  assertFalse("[1,-0,3].contains(0)");
+  assertFalse("[1,[],3].contains([])");
+  assertFalse("[1,{},3].contains({})");
+  assertFalse("[1,2,3].contains(Math)");
+  assertTrue("[1,Math,3].contains(Math)");
+  assertFalse("[1,2,3].contains(undefined)");
+  assertTrue("[1,undefined,3].contains(undefined)");
+  assertFalse("[1,2,3].contains(null)");
+  assertTrue("[1,null,3].contains(null)");
+
+});
+
+test("Proposed String Iterators", function () {
+  s = new Set("ABC");
+  assertTrue("s.has('A')");
+  assertFalse("s.has('Z')");
+  assertEqual("s.size", 3);
+  delete s;
+});
+
+test("Proposed 'Dict' Helpers", function() {
+  d = dict({a: 1});
+  assertEqual("Object.getPrototypeOf(d)", null);
+  d['b'] = 2;
+
+  verifyIterator(keys(d), ['a', 'b']);
+  verifyIterator(values(d), [1, 2]);
+  verifyIterator(entries(d), [['a', 1], ['b', 2]]);
+  delete d;
 });
