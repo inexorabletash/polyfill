@@ -73,10 +73,10 @@
   // Inspired by https://gist.github.com/1638059
   /** @constructor */
   function EphemeronTable() {
-    var secretKey = abstractOperation.ObjectCreate(null);
+    var secretKey = ObjectCreate(null);
 
     function conceal(o) {
-      var oValueOf = o.valueOf, secrets = abstractOperation.ObjectCreate(null);
+      var oValueOf = o.valueOf, secrets = ObjectCreate(null);
       o.valueOf = (function(secretKey) {
         return function (k) {
           return (k === secretKey) ? secrets : oValueOf.apply(o, arguments);
@@ -92,7 +92,7 @@
 
     return {
       clear: function() {
-        secretKey = abstractOperation.ObjectCreate(null);
+        secretKey = ObjectCreate(null);
       },
       remove: function(key) {
         var secrets = reveal(key);
@@ -102,11 +102,11 @@
       },
       get: function(key, defaultValue) {
         var secrets = reveal(key);
-        return (secrets && abstractOperation.HasOwnProperty(secrets, 'value')) ? secrets.value : defaultValue;
+        return (secrets && HasOwnProperty(secrets, 'value')) ? secrets.value : defaultValue;
       },
       has: function(key) {
         var secrets = reveal(key);
-        return Boolean(secrets && abstractOperation.HasOwnProperty(secrets, 'value'));
+        return Boolean(secrets && HasOwnProperty(secrets, 'value'));
       },
       set: function(key, value) {
         var secrets = reveal(key) || conceal(key);
@@ -116,8 +116,6 @@
   }
 
   var empty = Object.create(null);
-
-  var abstractOperation = {};
 
   //----------------------------------------------------------------------
   //
@@ -155,41 +153,41 @@
   // 7.1.3 ToNumber - just use Number()
 
   // 7.1.4
-  abstractOperation.ToInteger = function (n) {
+  function ToInteger(n) {
     n = Number(n);
     if (global_isNaN(n)) { return 0; }
     if (n === 0 || n === Infinity || n === -Infinity) { return n; }
     return ((n < 0) ? -1 : 1) * floor(abs(n));
-  };
+  }
 
   // 7.1.5
-  abstractOperation.ToInt32 = function (v) { return v >> 0; };
+  function ToInt32(v) { return v >> 0; }
 
   // 7.1.6
-  abstractOperation.ToUint32 = function (v) { return v >>> 0; };
+  function ToUint32(v) { return v >>> 0; }
 
   // 7.1.7
-  abstractOperation.ToUint16 = function (v) { return (v >>> 0) & 0xFFFF; };
+  function ToUint16(v) { return (v >>> 0) & 0xFFFF; }
 
   // 7.1.8 ToString - just use String()
 
   // 7.1.9 ToObject
-  abstractOperation.ToObject = function(v) {
+  function ToObject(v) {
     if (v === null || v === undefined) throw new TypeError();
     return Object(v);
-  };
+  }
 
   // 7.1.10 ToPropertyKey - TODO: consider for Symbol polyfill
-  abstractOperation.ToPropertyKey = function (v) { return String(v); };
+  function ToPropertyKey(v) { return String(v); }
 
   // 7.1.11
-  abstractOperation.ToLength = function(v) {
-    var len = abstractOperation.ToInteger(v);
+  function ToLength(v) {
+    var len = ToInteger(v);
     if (len <= 0) {
       return 0;
     }
     return min(len, 0x20000000000000 - 1); // 2^53-1
-  };
+  }
 
   //----------------------------------------
   // 7.2 Testing and Comparison Operations
@@ -198,10 +196,10 @@
   // 7.2.1 CheckObjectCoercible - TODO: needed?
 
   // 7.2.2
-  abstractOperation.IsCallable = function (o) { return typeof o === 'function'; };
+  function IsCallable(o) { return typeof o === 'function'; }
 
   // 7.2.3
-  abstractOperation.SameValue = function (x, y) {
+  function SameValue(x, y) {
     if (typeof x !== typeof y) {
       return false;
     }
@@ -218,10 +216,10 @@
     default:
       return x === y;
     }
-  };
+  }
 
   // 7.2.4
-  abstractOperation.SameValueZero = function (x, y) {
+  function SameValueZero(x, y) {
     if (typeof x !== typeof y) {
       return false;
     }
@@ -237,13 +235,13 @@
     default:
       return x === y;
     }
-  };
+  }
 
   // 7.2.5
-  abstractOperation.IsConstructor = function (o) {
+  function IsConstructor(o) {
     // TODO: Can this be improved on?
     return typeof o === 'function';
-  };
+  }
 
   // 7.2.6 IsPropertyKey - TODO: Consider for Symbol() polyfill
 
@@ -255,23 +253,17 @@
   // 7.3.2 Put - just use o.p = v or o[p] = v
 
   // 7.3.6
-  abstractOperation.HasProperty = function (o, p) { return p in o; };
+  function HasProperty(o, p) { return p in o; }
 
   //----------------------------------------
   // 9 ECMAScript Ordinary and Exotic Objects Behaviors
   //----------------------------------------
 
   // 9.1.5
-  abstractOperation.HasOwnProperty = (function() {
-    var ophop = Object.prototype.hasOwnProperty;
-    return function (o, p) { return ophop.call(o, p); };
-  }());
+  function HasOwnProperty(o, p) { return Object.prototype.hasOwnProperty.call(o, p); }
 
   // 9.1.15
-  abstractOperation.ObjectCreate = (function() {
-    var oc = Object.create;
-    return function(p, idl) { return oc(p, idl); };
-  }());
+  function ObjectCreate(p, idl) { return Object.create(p, idl); }
 
   // ---------------------------------------
   // 19 Fundamental Objects
@@ -318,7 +310,7 @@
   define(
     Object, 'is',
     function is(value1, value2) {
-      return abstractOperation.SameValue(value1, value2);
+      return SameValue(value1, value2);
     });
 
   // 19.1.3.11 Object.isExtensible ( O )
@@ -498,7 +490,7 @@
       if (global_isNaN(number) || number === +Infinity || number === -Infinity) {
         return false;
       }
-      var integer = abstractOperation.ToInteger(number);
+      var integer = ToInteger(number);
       if (integer !== number) {
         return false;
       }
@@ -522,7 +514,7 @@
       if (number !== number || number === +Infinity || number === -Infinity) {
         return false;
       }
-      var integer = abstractOperation.ToInteger(number);
+      var integer = ToInteger(number);
       if (integer !== number) {
         return false;
       }
@@ -576,7 +568,7 @@
         (x & 0x08 ? 4 : x & 0x04 ? 5 : x & 0x02 ? 6 : x & 0x01 ? 7 : 8);
       }
       var x = Number(this);
-      x = abstractOperation.ToUint32(x);
+      x = ToUint32(x);
       return x & 0xff000000 ? clz8(x >> 24) :
         x & 0xff0000 ? clz8(x >> 16) + 8 :
         x & 0xff00 ? clz8(x >> 8) + 16 : clz8(x) + 24;
@@ -623,7 +615,7 @@
     Math, 'asinh',
     function asinh(x) {
       x = Number(x);
-      if (abstractOperation.SameValue(x, -0)) {
+      if (SameValue(x, -0)) {
         return x;
       }
       var s = sqrt(x * x + 1);
@@ -674,7 +666,7 @@
     function expm1(x) {
       x = Number(x);
       // from: http://www.johndcook.com/cpp_log1p.html
-      if (abstractOperation.SameValue(x, -0)) {
+      if (SameValue(x, -0)) {
         return -0;
       } else if (abs(x) < 1e-5) {
         return x + 0.5 * x * x; // two terms of Taylor expansion
@@ -704,8 +696,8 @@
   define(
     Math, 'imul',
     function imul(x, y) {
-      var a = abstractOperation.ToUint32(x);
-      var b = abstractOperation.ToUint32(y);
+      var a = ToUint32(x);
+      var b = ToUint32(y);
       // (slow but accurate)
       var ah  = (a >>> 16) & 0xffff;
       var al = a & 0xffff;
@@ -724,7 +716,7 @@
       // from: http://www.johndcook.com/cpp_expm1.html
       if (x < -1) {
         return NaN;
-      } else if (abstractOperation.SameValue(x, -0)) {
+      } else if (SameValue(x, -0)) {
         return -0;
       } else if (abs(x) > 1e-4) {
         return log(1 + x);
@@ -783,7 +775,7 @@
     Math, 'sinh',
     function sinh(x) {
       x = Number(x);
-      return abstractOperation.SameValue(x, -0) ? x : (pow(E, x) - pow(E, -x)) / 2;
+      return SameValue(x, -0) ? x : (pow(E, x) - pow(E, -x)) / 2;
     });
 
   // 20.2.2.31 Math.sqrt (x)
@@ -796,7 +788,7 @@
       x = Number(x);
       var n = pow(E, 2 * x) - 1,
           d = pow(E, 2 * x) + 1;
-      if (abstractOperation.SameValue(x, -0))
+      if (SameValue(x, -0))
         return x;
       return (n === d) ? 1 : n / d; // Handle Infinity/Infinity
     });
@@ -914,7 +906,7 @@
       while (nextIndex < length) {
         var next = codePoints[nextIndex];
         var nextCP = Number(next);
-        if (!abstractOperation.SameValue(nextCP, abstractOperation.ToInteger(nextCP)) ||
+        if (!SameValue(nextCP, ToInteger(nextCP)) ||
             nextCP < 0 || nextCP > 0x10FFFF) {
           throw new RangeError('Invalid code point ' + nextCP);
         }
@@ -945,7 +937,7 @@
     String.prototype, 'codePointAt',
     function codePointAt(pos) {
       var s = String(this),
-          position = abstractOperation.ToInteger(pos),
+          position = ToInteger(pos),
           size = s.length;
       if (position < 0 || position >= size) {
         return undefined;
@@ -972,7 +964,7 @@
       var o = this;
       var s = String(o);
       var searchStr = String(searchString);
-      var pos = abstractOperation.ToInteger(position);
+      var pos = ToInteger(position);
       var len = s.length;
       var start = min(max(pos, 0), len);
       return s.indexOf(searchStr, pos) !== -1;
@@ -988,7 +980,7 @@
       var s = String(o);
       var searchStr = String(searchString);
       var len = s.length;
-      var pos = (endPosition === undefined) ? len : abstractOperation.ToInteger(endPosition);
+      var pos = (endPosition === undefined) ? len : ToInteger(endPosition);
       var end = min(max(pos, 0), len);
       var searchLength = searchStr.length;
       var start = end - searchLength;
@@ -1011,7 +1003,7 @@
     function repeat(count) {
       var o = this;
       var s = String(o);
-      var n = abstractOperation.ToInteger(count);
+      var n = ToInteger(count);
       if (n < 0) throw new RangeError();
       if (n === Infinity) throw new RangeError();
       var t = new Array(n + 1).join(s);
@@ -1032,7 +1024,7 @@
       var o = this;
       var s = String(o);
       var searchStr = String(searchString);
-      var pos = abstractOperation.ToInteger(position);
+      var pos = ToInteger(position);
       var len = s.length;
       var start = min(max(pos, 0), len);
       var searchLength = searchStr.length;
@@ -1131,14 +1123,14 @@
       if (mapfn === undefined) {
         var mapping = false;
       } else {
-        if (!abstractOperation.IsCallable(mapfn)) throw new TypeError();
+        if (!IsCallable(mapfn)) throw new TypeError();
         var t = thisArg;
         mapping = true;
       }
-      var usingIterator = abstractOperation.HasProperty(items, $$iterator);
+      var usingIterator = HasProperty(items, $$iterator);
       if (usingIterator) {
-        var iterator = abstractOperation.GetIterator(items);
-        if (abstractOperation.IsConstructor(c)) {
+        var iterator = GetIterator(items);
+        if (IsConstructor(c)) {
           // SPEC: Spec bug: A vs. newObj
           var newObj = new c();
           var a = Object(newObj);
@@ -1147,13 +1139,13 @@
         }
         var k = 0;
         while (true) {
-          var next = abstractOperation.IteratorNext(iterator);
-          var done = abstractOperation.IteratorComplete(next);
+          var next = IteratorNext(iterator);
+          var done = IteratorComplete(next);
           if (done) {
             a.length = k;
             return a;
           }
-          var nextValue = abstractOperation.IteratorValue(next);
+          var nextValue = IteratorValue(next);
           if (mapping) {
             var mappedValue = mapfn.call(t, nextValue);
           } else {
@@ -1164,8 +1156,8 @@
         }
       }
       var lenValue = items.length;
-      var len = abstractOperation.ToInteger(lenValue);
-      if (abstractOperation.IsConstructor(c)) {
+      var len = ToInteger(lenValue);
+      if (IsConstructor(c)) {
         newObj = new c(len);
         a = Object(newObj);
       } else {
@@ -1173,7 +1165,7 @@
       }
       k = 0;
       while (k < len) {
-        var kPresent = abstractOperation.HasProperty(items, k);
+        var kPresent = HasProperty(items, k);
         if (kPresent) {
           var kValue = items[k];
           if (mapping) {
@@ -1197,9 +1189,9 @@
       var items = arguments;
 
       var lenValue = items.length;
-      var len = abstractOperation.ToUint32(lenValue);
+      var len = ToUint32(lenValue);
       var c = this, a;
-      if (abstractOperation.IsConstructor(c)) {
+      if (IsConstructor(c)) {
         a = new c(len);
         a = Object(a);
       } else {
@@ -1228,15 +1220,15 @@
 
       var o = Object(this);
       var lenVal = o.length;
-      var len = abstractOperation.ToLength(lenVal);
+      var len = ToLength(lenVal);
       len = max(len, 0);
-      var relativeTarget = abstractOperation.ToInteger(target);
+      var relativeTarget = ToInteger(target);
       var to;
       if (relativeTarget < 0)
         to = max(len + relativeTarget, 0);
       else
         to = min(relativeTarget, len);
-      var relativeStart = abstractOperation.ToInteger(start);
+      var relativeStart = ToInteger(start);
       var from;
       if (relativeStart < 0)
         from = max(len + relativeStart, 0);
@@ -1246,7 +1238,7 @@
       if (end === undefined)
         relativeEnd = len;
       else
-        relativeEnd = abstractOperation.ToInteger(end);
+        relativeEnd = ToInteger(end);
       var final;
       if (relativeEnd < 0)
         final = max(len + relativeEnd, 0);
@@ -1264,7 +1256,7 @@
       while (count > 0) {
         var fromKey = String(from);
         var toKey = String(to);
-        var fromPresent = abstractOperation.HasProperty(o, fromKey);
+        var fromPresent = HasProperty(o, fromKey);
         if (fromPresent) {
           var fromVal = o[fromKey];
           o[toKey] = fromVal;
@@ -1296,9 +1288,9 @@
 
       var o = Object(this);
       var lenVal = o.length;
-      var len = abstractOperation.ToLength(lenVal);
+      var len = ToLength(lenVal);
       len = max(len, 0);
-      var relativeStart = abstractOperation.ToInteger(start);
+      var relativeStart = ToInteger(start);
       var k;
       if (relativeStart < 0)
         k = max((len + relativeStart), 0);
@@ -1308,7 +1300,7 @@
       if (end === undefined)
         relativeEnd = len;
       else
-        relativeEnd = abstractOperation.ToInteger(end);
+        relativeEnd = ToInteger(end);
       var final;
       if (relativeEnd < 0)
         final = max((len + relativeEnd), 0);
@@ -1330,13 +1322,13 @@
     function find(predicate) {
       var o = Object(this);
       var lenValue = o.length;
-      var len = abstractOperation.ToInteger(lenValue);
-      if (!abstractOperation.IsCallable(predicate)) { throw new TypeError(); }
+      var len = ToInteger(lenValue);
+      if (!IsCallable(predicate)) { throw new TypeError(); }
       var t = arguments.length > 1 ? arguments[1] : undefined;
       var k = 0;
       while (k < len) {
         var pk = String(k);
-        var kPresent = abstractOperation.HasProperty(o, pk);
+        var kPresent = HasProperty(o, pk);
         if (kPresent) {
           var kValue = o[pk];
           var testResult = predicate.call(t, kValue, k, o);
@@ -1355,13 +1347,13 @@
     function findIndex(predicate) {
       var o = Object(this);
       var lenValue = o.length;
-      var len = abstractOperation.ToInteger(lenValue);
-      if (!abstractOperation.IsCallable(predicate)) { throw new TypeError(); }
+      var len = ToInteger(lenValue);
+      if (!IsCallable(predicate)) { throw new TypeError(); }
       var t = arguments.length > 1 ? arguments[1] : undefined;
       var k = 0;
       while (k < len) {
         var pk = String(k);
-        var kPresent = abstractOperation.HasProperty(o, pk);
+        var kPresent = HasProperty(o, pk);
         if (kPresent) {
           var kValue = o[pk];
           var testResult = predicate.call(t, kValue, k, o);
@@ -1443,14 +1435,14 @@
           index = this.nextIndex,
           itemKind = this.iterationKind,
           lenValue = a.length,
-          len = abstractOperation.ToUint32(lenValue),
+          len = ToUint32(lenValue),
           elementKey,
           elementValue;
       if (itemKind.indexOf('sparse') !== -1) {
         var found = false;
         while (!found && index < len) {
           elementKey = String(index);
-          found = abstractOperation.HasProperty(a, elementKey);
+          found = HasProperty(a, elementKey);
           if (!found) {
             index += 1;
           }
@@ -1458,7 +1450,7 @@
       }
       if (index >= len) {
         this.nextIndex = Infinity;
-        return abstractOperation.CreateItrResultObject(undefined, true);
+        return CreateItrResultObject(undefined, true);
       }
       elementKey = index;
       this.nextIndex = index + 1;
@@ -1466,11 +1458,11 @@
         elementValue = a[elementKey];
       }
       if (itemKind.indexOf('key+value') !== -1) {
-        return abstractOperation.CreateItrResultObject([elementKey, elementValue], false);
+        return CreateItrResultObject([elementKey, elementValue], false);
       } else if (itemKind.indexOf('key') !== -1) {
-        return abstractOperation.CreateItrResultObject(elementKey, false);
+        return CreateItrResultObject(elementKey, false);
       } else if (itemKind === 'value') {
-        return abstractOperation.CreateItrResultObject(elementValue, false);
+        return CreateItrResultObject(elementValue, false);
       }
       throw new Error('Internal error');
     });
@@ -1518,25 +1510,25 @@
          var thisArg = arguments[2];
 
          var c = this;
-         if (!abstractOperation.IsConstructor(c)) throw new TypeError();
+         if (!IsConstructor(c)) throw new TypeError();
          var items = Object(source);
          if (mapfn === undefined) {
            var mapping = false;
          } else {
-           if (abstractOperation.IsCallable(mapfn)) throw new TypeError();
+           if (IsCallable(mapfn)) throw new TypeError();
            var t = thisArg;
            mapping = true;
          }
-         var usingIterator = abstractOperation.HasProperty(items, $$iterator);
+         var usingIterator = HasProperty(items, $$iterator);
          if (usingIterator) {
-           var iterator = abstractOperation.GetIterator(items);
+           var iterator = GetIterator(items);
            var values = [];
            var done = false;
            while (!done) {
-             var next = abstractOperation.IteratorNext(iterator);
-             done = abstractOperation.IteratorComplete(next);
+             var next = IteratorNext(iterator);
+             done = IteratorComplete(next);
              if (!done) {
-               var nextValue = abstractOperation.IteratorValue(next);
+               var nextValue = IteratorValue(next);
                values.push(nextValue);
              }
            }
@@ -1557,7 +1549,7 @@
            return newObj;
          }
          var lenValue = items.length;
-         len = abstractOperation.ToInteger(lenValue);
+         len = ToInteger(lenValue);
          newObj = new c(len);
          k = 0;
          while (k < len) {
@@ -1618,8 +1610,8 @@
 
          var o = Object(this);
          var lenVal = o.length;
-         var len = abstractOperation.ToLength(lenVal);
-         if (!abstractOperation.IsCallable(callbackfn)) throw new TypeError();
+         var len = ToLength(lenVal);
+         if (!IsCallable(callbackfn)) throw new TypeError();
          var t = thisArg;
          var c = o.constructor;
          var kept = [];
@@ -1675,18 +1667,18 @@
 
          var o = Object(this);
          var lenValue = o.length;
-         var len = abstractOperation.ToLength(lenValue);
-         if (!abstractOperation.IsCallable(callbackfn)) throw new TypeError();
+         var len = ToLength(lenValue);
+         if (!IsCallable(callbackfn)) throw new TypeError();
          var t = thisArg;
          var a = undefined;
          var c = o.constructor;
-         if (abstractOperation.IsConstructor(c))
+         if (IsConstructor(c))
            a = new c(len);
          if (a === undefined)
            a = new Array(len);
          var k = 0;
          while (k < len) {
-           var kPresent = abstractOperation.HasProperty(o, k);
+           var kPresent = HasProperty(o, k);
            if (kPresent) {
              var kValue = o[k];
              var mappedValue = callbackfn.call(t, kValue, k, o);
@@ -1715,14 +1707,14 @@
        function slice(start, end) {
          var o = Object(this);
          var lenVal = o.length;
-         var len = abstractOperation.ToLength(lenVal);
-         var relativeStart = abstractOperation.ToInteger(start);
+         var len = ToLength(lenVal);
+         var relativeStart = ToInteger(start);
          var k = (relativeStart < 0) ? max(len + relativeStart, 0) : min(relativeStart, len);
-         var relativeEnd = (end === undefined) ? len : abstractOperation.ToInteger(end);
+         var relativeEnd = (end === undefined) ? len : ToInteger(end);
          var final = (relativeEnd < 0) ? max(len + relativeEnd, 0) : min(relativeEnd, len);
          var count = final - k;
          var c = o.constructor;
-         if (abstractOperation.IsConstructor(c)) {
+         if (IsConstructor(c)) {
            var a = new c(count);
          } else {
            throw new TypeError();
@@ -1817,7 +1809,7 @@
         iterable = Object(iterable);
         var itr = iterable[$$iterator](); // or throw...
         var adder = map['set'];
-        if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
+        if (!IsCallable(adder)) { throw new TypeError(); }
       }
       map.__MapData__ = { keys: [], values: [] };
       if (comparator !== undefined && comparator !== "is") { throw new TypeError(); }
@@ -1827,11 +1819,11 @@
         return map;
       }
       while (true) {
-        var next = abstractOperation.IteratorNext(itr);
-        var done = abstractOperation.IteratorComplete(next);
+        var next = IteratorNext(itr);
+        var done = IteratorComplete(next);
         if (done)
           return map;
-        var nextItem = abstractOperation.IteratorValue(next);
+        var nextItem = IteratorValue(next);
         if (Type(nextItem) !== 'object') throw new TypeError();
         var k = nextItem[0];
         var v = nextItem[1];
@@ -1886,7 +1878,7 @@
         if (m.__MapData__ === undefined) throw new TypeError();
         var entries = m.__MapData__;
         var same = (m._mapComparator === undefined) ?
-              abstractOperation.SameValueZero : abstractOperation.SameValue;
+              SameValueZero : SameValue;
         var i = indexOf(same, entries, key);
         if (i < 0) { return false; }
         entries.keys[i] = empty;
@@ -1915,7 +1907,7 @@
         if (m.__MapData__ === undefined) throw new TypeError();
         var entries = m.__MapData__;
 
-        if (!abstractOperation.IsCallable(callbackfn)) {
+        if (!IsCallable(callbackfn)) {
           throw new TypeError('First argument to forEach is not callable.');
         }
         for (var i = 0; i < entries.keys.length; ++i) {
@@ -1935,7 +1927,7 @@
         if (m.__MapData__ === undefined) throw new TypeError();
         var entries = m.__MapData__;
         var same = (m._mapComparator === undefined) ?
-              abstractOperation.SameValueZero : abstractOperation.SameValue;
+              SameValueZero : SameValue;
         var i = indexOf(same, entries, key);
         return i < 0 ? undefined : entries.values[i];
       });
@@ -1950,7 +1942,7 @@
         if (m.__MapData__ === undefined) throw new TypeError();
         var entries = m.__MapData__;
         var same = (m._mapComparator === undefined) ?
-              abstractOperation.SameValueZero : abstractOperation.SameValue;
+              SameValueZero : SameValue;
         return indexOf(same, entries, key) >= 0;
       });
 
@@ -1973,7 +1965,7 @@
         if (m.__MapData__ === undefined) throw new TypeError();
         var entries = m.__MapData__;
         var same = (m._mapComparator === undefined) ?
-              abstractOperation.SameValueZero : abstractOperation.SameValue;
+              SameValueZero : SameValue;
         var i = indexOf(same, entries, key);
         if (i < 0) { i = entries.keys.length; }
         entries.keys[i] = key;
@@ -2054,15 +2046,15 @@
           this._nextIndex = index;
           if (e.key !== empty) {
             if (itemKind === 'key') {
-              return abstractOperation.CreateItrResultObject(e.key, false);
+              return CreateItrResultObject(e.key, false);
             } else if (itemKind === 'value') {
-              return abstractOperation.CreateItrResultObject(e.value, false);
+              return CreateItrResultObject(e.value, false);
             } else {
-              return abstractOperation.CreateItrResultObject([e.key, e.value], false);
+              return CreateItrResultObject([e.key, e.value], false);
             }
           }
         }
-        return abstractOperation.CreateItrResultObject(undefined, true);
+        return CreateItrResultObject(undefined, true);
       });
 
     // 23.1.5.2.3 MapIterator.prototype [ @@iterator ] ( )
@@ -2100,9 +2092,9 @@
 
       if (iterable !== undefined) {
         iterable = Object(iterable);
-        var itr = abstractOperation.HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
+        var itr = HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
         var adder = set['add'];
-        if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
+        if (!IsCallable(adder)) { throw new TypeError(); }
       }
       set.__SetData__ = [];
       if (comparator !== undefined && comparator !== "is") { throw new TypeError(); }
@@ -2111,11 +2103,11 @@
         return set;
       }
       while (true) {
-        var next = abstractOperation.IteratorNext(itr);
-        var done = abstractOperation.IteratorComplete(next);
+        var next = IteratorNext(itr);
+        var done = IteratorComplete(next);
         if (done)
           return set;
-        var nextValue = abstractOperation.IteratorValue(next);
+        var nextValue = IteratorValue(next);
         adder.call(set, nextValue);
       }
 
@@ -2154,7 +2146,7 @@
         if (s.__SetData__ === undefined) throw new TypeError();
         var entries = s.__SetData__;
         var same = (s._setComparator === undefined) ?
-              abstractOperation.SameValueZero : abstractOperation.SameValue;
+              SameValueZero : SameValue;
         var i = indexOf(same, entries, value);
         if (i < 0) { i = this.__SetData__.length; }
         this.__SetData__[i] = value;
@@ -2186,7 +2178,7 @@
         if (s.__SetData__ === undefined) throw new TypeError();
         var entries = s.__SetData__;
         var same = (s._setComparator === undefined) ?
-              abstractOperation.SameValueZero : abstractOperation.SameValue;
+              SameValueZero : SameValue;
         var i = indexOf(same, entries, value);
         if (i < 0) { return false; }
         entries[i] = empty;
@@ -2214,7 +2206,7 @@
         if (s.__SetData__ === undefined) throw new TypeError();
         var entries = s.__SetData__;
 
-        if (!abstractOperation.IsCallable(callbackfn)) {
+        if (!IsCallable(callbackfn)) {
           throw new TypeError('First argument to forEach is not callable.');
         }
         for (var i = 0; i < entries.length; ++i) {
@@ -2234,7 +2226,7 @@
         if (s.__SetData__ === undefined) throw new TypeError();
         var entries = s.__SetData__;
         var same = (s._setComparator === undefined) ?
-              abstractOperation.SameValueZero : abstractOperation.SameValue;
+              SameValueZero : SameValue;
         return indexOf(same, entries, key) !== -1;
       });
 
@@ -2309,10 +2301,10 @@
           index = index += 1;
           this.nextIndex = index;
           if (e !== empty) {
-            return abstractOperation.CreateItrResultObject(e, false);
+            return CreateItrResultObject(e, false);
           }
         }
-        return abstractOperation.CreateItrResultObject(undefined, true);
+        return CreateItrResultObject(undefined, true);
       });
 
     // 23.2.5.2.3 SetIterator.prototype.@@iterator ( )
@@ -2353,18 +2345,18 @@
         iterable = Object(iterable);
         var itr = iterable[$$iterator](); // or throw...
         var adder = map['set'];
-        if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
+        if (!IsCallable(adder)) { throw new TypeError(); }
       }
       map._table = new EphemeronTable;
       if (iterable === undefined) {
         return map;
       }
       while (true) {
-        var next = abstractOperation.IteratorNext(itr);
-        var done = abstractOperation.IteratorComplete(next);
+        var next = IteratorNext(itr);
+        var done = IteratorComplete(next);
         if (done)
           return map;
-        var nextValue = abstractOperation.IteratorValue(next);
+        var nextValue = IteratorValue(next);
         if (Type(nextValue) !== 'object') { throw new TypeError(); }
         var k = nextValue[0];
         var v = nextValue[1];
@@ -2452,20 +2444,20 @@
 
       if (iterable !== undefined) {
         iterable = Object(iterable);
-        var itr = abstractOperation.HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
+        var itr = HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
         var adder = set['add'];
-        if (!abstractOperation.IsCallable(adder)) { throw new TypeError(); }
+        if (!IsCallable(adder)) { throw new TypeError(); }
       }
       set._table = new EphemeronTable;
       if (iterable === undefined) {
         return set;
       }
       while (true) {
-        var next = abstractOperation.IteratorNext(itr);
-        var done = abstractOperation.IteratorComplete(next);
+        var next = IteratorNext(itr);
+        var done = IteratorComplete(next);
         if (done)
           return set;
-        var nextValue = abstractOperation.IteratorValue(next);
+        var nextValue = IteratorValue(next);
         adder.call(set, nextValue);
       }
 
@@ -2675,39 +2667,39 @@
   // 25.4.3.3 GeneratorYield ( itrNextObj )
 
   // 25.4.3.4 CreateItrResultObject (value, done)
-  abstractOperation.CreateItrResultObject = function(value, done) {
+  function CreateItrResultObject(value, done) {
     assert(Type(done) === 'boolean');
     var obj = {};
     obj["value"] = value;
     obj["done"] = done;
     return obj;
-  };
+  }
 
   // 25.4.3.5 GetIterator ( obj )
-  abstractOperation.GetIterator = function(obj) {
+  function GetIterator(obj) {
     var iterator = obj[$$iterator]();
     if (Type(iterator) !== 'object') throw new TypeError();
     return iterator;
-  };
+  }
 
   // 25.4.3.6 IteratorNext ( iterator, value )
-  abstractOperation.IteratorNext = function(iterator, value) {
+  function IteratorNext(iterator, value) {
     var result = iterator.next(value);
     if (Type(result) !== 'object') throw new TypeError();
     return result;
-  };
+  }
 
   // 25.4.3.7 IteratorComplete ( itrResult )
-  abstractOperation.IteratorComplete = function(itrResult) {
+  function IteratorComplete(itrResult) {
     assert(Type(itrResult) === 'object');
     return Boolean(itrResult.done);
-  };
+  }
 
   // 25.4.3.8 IteratorValue ( itrResult )
-  abstractOperation.IteratorValue = function(itrResult) {
+  function IteratorValue(itrResult) {
     assert(Type(itrResult) === 'object');
     return itrResult.value;
-  };
+  }
 
   // 25.4.3.9 CreateEmptyIterator ( )
 
@@ -2790,7 +2782,7 @@
       function invoke(target, propertyKey, argumentsList, receiver) {
 
         var obj = Object(target);
-        var key = abstractOperation.ToPropertyKey(propertyKey);
+        var key = ToPropertyKey(propertyKey);
         if (receiver === undefined) receiver = target;
 
         return Function.prototype.apply.call(obj[key], receiver, argumentsList);
@@ -2872,10 +2864,10 @@
           index = index += 1;
           this.nextIndex = index;
           if (e !== empty) {
-            return abstractOperation.CreateItrResultObject(e, false);
+            return CreateItrResultObject(e, false);
           }
         }
-        return abstractOperation.CreateItrResultObject(undefined, true);
+        return CreateItrResultObject(undefined, true);
       });
 
     define(
@@ -2925,7 +2917,7 @@
   define(
     Object, 'getPropertyNames',
     function getPropertyNames(o) {
-      var names = abstractOperation.ObjectCreate(null);
+      var names = ObjectCreate(null);
       do {
         Object.getOwnPropertyNames(o).forEach(function(name) {
           names[name] = true;
@@ -2943,14 +2935,14 @@
       if (start === undefined) {
         start = 0;
       }
-      start = abstractOperation.ToUint32(start);
-      var otherLength = abstractOperation.ToUint32(other.length);
+      start = ToUint32(start);
+      var otherLength = ToUint32(other.length);
       if (end === undefined) {
         end = otherLength;
       }
-      end = abstractOperation.ToUint32(end);
+      end = ToUint32(end);
       var self = Object(this);
-      var length = abstractOperation.ToUint32(self.length);
+      var length = ToUint32(self.length);
       for (var i = 0, j = length; i < end; i++, j++) {
         self[j] = other[i];
       }
@@ -2964,11 +2956,11 @@
     function contains(target) {
       if (this === undefined || this === null) { throw new TypeError(); }
       var t = Object(this),
-          len = abstractOperation.ToUint32(t.length),
+          len = ToUint32(t.length),
           i;
       for (i = 0; i < len; i += 1) {
         // eval('0 in [undefined]') == false in IE8-
-        if (/*i in t &&*/ abstractOperation.SameValue(t[i], target)) {
+        if (/*i in t &&*/ SameValue(t[i], target)) {
           return true;
         }
       }
@@ -3003,11 +2995,11 @@
             len = s.length;
         if (index >= len) {
           this.nextIndex = Infinity;
-          return abstractOperation.CreateItrResultObject(undefined, true);
+          return CreateItrResultObject(undefined, true);
         }
         var cp = s.codePointAt(index);
         this.nextIndex += cp > 0xFFFF ? 2 : 1;
-        return abstractOperation.CreateItrResultObject(String.fromCodePoint(cp), false);
+        return CreateItrResultObject(String.fromCodePoint(cp), false);
       });
     define(
       StringIterator.prototype, $$iterator,
@@ -3020,7 +3012,7 @@
   // https://mail.mozilla.org/pipermail/es-discuss/2012-December/026810.html
   (function() {
     function dict(init) {
-      var dict = abstractOperation.ObjectCreate(null);
+      var dict = ObjectCreate(null);
       if (init) {
         for (var key in init) {
           if (Object.prototype.hasOwnProperty.call(init, key)) {
@@ -3075,15 +3067,15 @@
           this.nextIndex = index;
           if (e.key !== empty) {
             if (itemKind === 'key') {
-              return abstractOperation.CreateItrResultObject(e.key, false);
+              return CreateItrResultObject(e.key, false);
             } else if (itemKind === 'value') {
-              return abstractOperation.CreateItrResultObject(e.value, false);
+              return CreateItrResultObject(e.value, false);
             } else {
-              return abstractOperation.CreateItrResultObject([e.key, e.value], false);
+              return CreateItrResultObject([e.key, e.value], false);
             }
           }
         }
-        return abstractOperation.CreateItrResultObject(undefined, true);
+        return CreateItrResultObject(undefined, true);
       });
     define(
       DictIterator.prototype, $$iterator,
@@ -3111,10 +3103,10 @@
     var it = o[$$iterator]();
     while (true) {
       var result = it.next();
-      if (abstractOperation.IteratorComplete(result)) {
+      if (IteratorComplete(result)) {
         return;
       }
-      func(abstractOperation.IteratorValue(result));
+      func(IteratorValue(result));
     }
   }
   global.forOf = forOf; // Since for( ... of ... ) can't be shimmed w/o a transpiler.
@@ -3141,7 +3133,7 @@
     };
 
     function ToPromise(C, x) {
-      if (IsPromise(x) && abstractOperation.SameValue(x.__PromiseConstructor__, C) === true) return x;
+      if (IsPromise(x) && SameValue(x.__PromiseConstructor__, C) === true) return x;
       var deferred = GetDeferred(C);
       deferred.__Resolve__(x);
       return deferred.__Promise__;
@@ -3151,7 +3143,7 @@
       if (p.__Following__ !== unset || p.__Value__ !== unset || p.__Reason__ !== unset)
         return;
       if (IsPromise(x)) {
-        if (abstractOperation.SameValue(p, x)) {
+        if (SameValue(p, x)) {
           var selfResolutionError = new TypeError();
           SetReason(p, selfResolutionError);
         } else if (x.__Following__ !== unset) {
@@ -3210,7 +3202,7 @@
             } else {
               try {
                 var then = originator.__Value__["then"];
-                if (abstractOperation.IsCallable(then)) {
+                if (IsCallable(then)) {
                   var coerced = CoerceThenable(originator.__Value__, then);
                   UpdateDerivedFromPromise(derived, coerced);
                 } else {
@@ -3230,14 +3222,14 @@
     }
 
     function UpdateDerivedFromValue(derived, value) {
-      if (abstractOperation.IsCallable(derived.__OnFulfilled__))
+      if (IsCallable(derived.__OnFulfilled__))
         CallHandler(derived.__DerivedPromise__, derived.__OnFulfilled__, value);
       else
         SetValue(derived.__DerivedPromise__, value);
     }
 
     function UpdateDerivedFromReason(derived, reason) {
-      if (abstractOperation.IsCallable(derived.__OnRejected__))
+      if (IsCallable(derived.__OnRejected__))
         CallHandler(derived.__DerivedPromise__, derived.__OnRejected__, reason);
       else
         SetReason(derived.__DerivedPromise__, reason);
@@ -3277,7 +3269,7 @@
 
     function CoerceThenable(thenable, then) {
       assert(IsObject(thenable));
-      assert(abstractOperation.IsCallable(then));
+      assert(IsCallable(then));
       var p = new Promise();
       var resolve = function(x) { Resolve(p, x); };
       var reject = function(r) { Reject(p, r); };
@@ -3291,7 +3283,7 @@
     }
 
     function GetDeferred(C) {
-      if (abstractOperation.IsConstructor(C)) {
+      if (IsConstructor(C)) {
         var resolve, reject;
         var resolver = function() { resolve = arguments[0]; reject = arguments[1]; };
         var promise = new C(resolver);
@@ -3307,7 +3299,7 @@
       var promise = this;
       if (Type(promise) !== 'object') throw new TypeError();
       if (promise.__IsPromise__ === unset) throw new TypeError();
-      if (!abstractOperation.IsCallable(resolver)) throw new TypeError();
+      if (!IsCallable(resolver)) throw new TypeError();
       promise.__IsPromise__ = true;
 
       promise.__Following__ = unset;
@@ -3391,6 +3383,5 @@
     };
 
   }());
-
 
 }(self));
