@@ -106,6 +106,7 @@ In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification
 * Set: `add()`, `clear()`, `delete()`, `entries()`, `forEach()`, `has()`, `size`, `values()`, `[@@iterator]()`
 * WeakMap (intrusive; modifies valueOf property of key): `clear()`, `delete()`, `get()`, `has()`, `set()`
 * WeakSet (intrusive; modifies valueOf property of key): `add()`, `clear()`, `delete()`, `has()`
+* Promise: `new Promise()`, `Promise.resolve()`, `Promise.reject()`, `Promise.cast()`, `Promise.race()`, `Promise.all()`, `promise.then()`, `promise.catch()`
 
 Not yet approved:
 * Number: `compare()`
