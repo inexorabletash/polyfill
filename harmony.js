@@ -283,12 +283,44 @@
   define(
     Object, 'assign',
     function assign(target, source) {
-      target = Object(target);
-      source = Object(source);
-      Object.keys(source).forEach(function(key) {
-        target[key] = source[key];
-      });
-      return target;
+      var to = ToObject(target);
+      var from = ToObject(source);
+      var keys = Object.keys(from);
+      var gotAllNames = false;
+      var pendingException = undefined;
+      while (!gotAllNames) {
+        var next = IteratorStep(keys);
+        if (next === false) {
+          gotAllNames = true;
+        } else {
+          var nextKey = IteratorValue(next);
+          try {
+            var desc = Object.getOwnPropertyDescriptor(from, nextKey);
+          } catch (e) {
+            if (pendingException === undefined)
+              pendingException = e;
+            continue;
+          }
+          if (desc !== undefined && desc.enumerable === true) {
+            try {
+              var propValue = from[nextKey];
+            } catch (e) {
+              if (pendingException === undefined)
+                  pendingException = e;
+              continue;
+            }
+            try {
+              to[nextKey] = propValue;
+            } catch (e) {
+              if (pendingException === undefined)
+                pendingException = e;
+            }
+          }
+        }
+      }
+      if (pendingException !== undefined)
+        throw pendingException;
+      return to;
     });
 
   // 19.1.3.2 Object.create ( O [, Properties] )
@@ -1139,9 +1171,8 @@
         }
         var k = 0;
         while (true) {
-          var next = IteratorNext(iterator);
-          var done = IteratorComplete(next);
-          if (done) {
+          var next = IteratorStep(iterator);
+          if (next === false) {
             a.length = k;
             return a;
           }
@@ -1523,11 +1554,10 @@
          if (usingIterator) {
            var iterator = GetIterator(items);
            var values = [];
-           var done = false;
-           while (!done) {
-             var next = IteratorNext(iterator);
-             done = IteratorComplete(next);
-             if (!done) {
+           var next = true;
+           while (next !== false) {
+             next = IteratorStep(iterator);
+             if (next !== false) {
                var nextValue = IteratorValue(next);
                values.push(nextValue);
              }
@@ -1819,9 +1849,8 @@
         return map;
       }
       while (true) {
-        var next = IteratorNext(itr);
-        var done = IteratorComplete(next);
-        if (done)
+        var next = IteratorStep(itr);
+        if (next === false)
           return map;
         var nextItem = IteratorValue(next);
         if (Type(nextItem) !== 'object') throw new TypeError();
@@ -2103,9 +2132,8 @@
         return set;
       }
       while (true) {
-        var next = IteratorNext(itr);
-        var done = IteratorComplete(next);
-        if (done)
+        var next = IteratorStep(itr);
+        if (next === false)
           return set;
         var nextValue = IteratorValue(next);
         adder.call(set, nextValue);
@@ -2352,9 +2380,8 @@
         return map;
       }
       while (true) {
-        var next = IteratorNext(itr);
-        var done = IteratorComplete(next);
-        if (done)
+        var next = IteratorStep(itr);
+        if (next === false)
           return map;
         var nextValue = IteratorValue(next);
         if (Type(nextValue) !== 'object') { throw new TypeError(); }
@@ -2453,9 +2480,8 @@
         return set;
       }
       while (true) {
-        var next = IteratorNext(itr);
-        var done = IteratorComplete(next);
-        if (done)
+        var next = IteratorStep(itr);
+        if (next === false)
           return set;
         var nextValue = IteratorValue(next);
         adder.call(set, nextValue);
@@ -2689,19 +2715,27 @@
     return result;
   }
 
-  // 25.4.3.7 IteratorComplete ( itrResult )
-  function IteratorComplete(itrResult) {
-    assert(Type(itrResult) === 'object');
-    return Boolean(itrResult.done);
+  // 25.4.3.7 IteratorComplete ( iterResult )
+  function IteratorComplete(iterResult) {
+    assert(Type(iterResult) === 'object');
+    return Boolean(iterResult.done);
   }
 
-  // 25.4.3.8 IteratorValue ( itrResult )
-  function IteratorValue(itrResult) {
-    assert(Type(itrResult) === 'object');
-    return itrResult.value;
+  // 25.4.3.8 IteratorValue ( iterResult )
+  function IteratorValue(iterResult) {
+    assert(Type(iterResult) === 'object');
+    return iterResult.value;
   }
 
-  // 25.4.3.9 CreateEmptyIterator ( )
+  // 25.4.3.9 IteratorStep ( iterator, value )
+  function IteratorStep( iterator, value ) {
+    var result = IteratorNext(iterator, value);
+    var done = result['done'];
+    if (Boolean(done) === true) return false;
+    return result;
+  }
+
+  // 25.4.3.10 CreateEmptyIterator ( )
 
   // ---------------------------------------
   // 26 The Reflect Module
