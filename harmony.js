@@ -1081,32 +1081,36 @@
     define(
       String.prototype, $$iterator,
       function entries() {
-        return CreateStringIterator(this);
+        return CreateStringIterator(this, 'value');
       });
 
-    function CreateStringIterator(string) {
-      return new StringIterator(string, 0);
+    /** @constructor */
+    function StringIterator() {}
+
+    function CreateStringIterator(string, kind) {
+      var s = String(string);
+      var iterator = new StringIterator;
+      iterator.__IteratedString__ = s;
+      iterator.__StringIteratorNextIndex__ = 0;
+      iterator.__StringIterationKind__ = kind;
+      return iterator;
     }
 
-    /** @constructor */
-    function StringIterator(object, nextIndex) {
-      this.iteratedObject = object;
-      this.nextIndex = nextIndex;
-    }
     StringIterator.prototype = new function $StringIteratorPrototype$() {};
     define(StringIterator.prototype, $$toStringTag, 'String Iterator');
     define(
       StringIterator.prototype, 'next',
       function next() {
-        var s = String(this.iteratedObject),
-            index = this.nextIndex,
+        var o = ToObject(this);
+        var s = String(o.__IteratedString__),
+            index = o.__StringIteratorNextIndex__,
             len = s.length;
         if (index >= len) {
-          this.nextIndex = Infinity;
+          o.__StringIteratorNextIndex__ = Infinity;
           return CreateItrResultObject(undefined, true);
         }
         var cp = s.codePointAt(index);
-        this.nextIndex += cp > 0xFFFF ? 2 : 1;
+        o.__StringIteratorNextIndex__ += cp > 0xFFFF ? 2 : 1;
         return CreateItrResultObject(String.fromCodePoint(cp), false);
       });
     define(
