@@ -1485,15 +1485,16 @@
   // 22.1.4.1 length
 
   // 22.1.5 Array Iterator Object Structure
-  function ArrayIterator(object, nextIndex, kind) {
-    this.iteratedObject = object;
-    this.nextIndex = nextIndex;
-    this.iterationKind = kind;
-  }
+  function ArrayIterator() {}
 
   // 22.1.5.1 CreateArrayIterator Abstract Operation
   function CreateArrayIterator(array, kind) {
-    return new ArrayIterator(array, 0, kind);
+    var o = ToObject(array);
+    var iterator = new ArrayIterator;
+    iterator.__IteratedObject__ = o;
+    iterator.__ArrayIteratorNextIndex__ = 0;
+    iterator.__ArrayIterationKind__ = kind;
+    return iterator;
   }
 
   // 22.1.5.2 The Array Iterator Prototype
@@ -1504,10 +1505,11 @@
   define(
     ArrayIterator.prototype, 'next',
     function next() {
-      if (Type(this) !== 'object') { throw new TypeError; }
-      var a = this.iteratedObject,
-          index = this.nextIndex,
-          itemKind = this.iterationKind,
+      var o = this;
+      if (Type(o) !== 'object') { throw new TypeError; }
+      var a = o.__IteratedObject__,
+          index = o.__ArrayIteratorNextIndex__,
+          itemKind = o.__ArrayIterationKind__,
           lenValue = a.length,
           len = ToUint32(lenValue),
           elementKey,
@@ -1523,11 +1525,11 @@
         }
       }
       if (index >= len) {
-        this.nextIndex = Infinity;
+        o.__ArrayIteratorNextIndex__ = Infinity;
         return CreateItrResultObject(undefined, true);
       }
       elementKey = index;
-      this.nextIndex = index + 1;
+      o.__ArrayIteratorNextIndex__ = index + 1;
       if (itemKind.indexOf('value') !== -1) {
         elementValue = a[elementKey];
       }
