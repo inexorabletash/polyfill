@@ -2087,16 +2087,18 @@
     // 23.1.4 Properties of Map Instances
     // 23.1.5 Map Iterator Object Structure
     /** @constructor */
-    function MapIterator(object, index, kind) {
-      this._iterationObject = object;
-      this._nextIndex = index;
-      this._iterationKind = kind;
-    }
+    function MapIterator() {}
 
     // 23.1.5.1 CreateMapIterator Abstract Operation
     function CreateMapIterator(map, kind) {
-      map = ToObject(map);
-      return new MapIterator(map, 0, kind);
+      if (Type(map) !== 'object') throw new TypeError();
+      if (!('__MapData__' in map)) throw new TypeError();
+      if (map.__MapData__ === undefined) throw new TypeError();
+      var iterator = new MapIterator;
+      iterator.__Map__ = map;
+      iterator.__MapNextIndex__ = 0;
+      iterator.__MapIterationKind__ = kind;
+      return iterator;
     }
 
     // 23.1.5.2 The Map Iterator Prototype
@@ -2107,15 +2109,16 @@
     define(
       MapIterator.prototype, 'next',
       function next() {
-        if (Type(this) !== 'object') { throw new TypeError(); }
-        var m = this._iterationObject,
-            index = this._nextIndex,
-            itemKind = this._iterationKind,
+        var o = this;
+        if (Type(o) !== 'object') { throw new TypeError(); }
+        var m = o.__Map__,
+            index = o.__MapNextIndex__,
+            itemKind = o.__MapIterationKind__,
             entries = m.__MapData__;
         while (index < entries.keys.length) {
           var e = {key: entries.keys[index], value: entries.values[index]};
           index = index += 1;
-          this._nextIndex = index;
+          o.__MapNextIndex__ = index;
           if (e.key !== empty) {
             if (itemKind === 'key') {
               return CreateItrResultObject(e.key, false);
@@ -2344,15 +2347,18 @@
     // 23.2.4 Properties of Set Instances
     // 23.2.5 Set Iterator Object Structure
     /** @constructor */
-    function SetIterator(set, index) {
-      this.set = set;
-      this.nextIndex = index;
-    }
+    function SetIterator() {}
 
     // 23.2.5.1 CreateSetIterator Abstract Operation
-    function CreateSetIterator(set) {
-      set = ToObject(set);
-      return new SetIterator(set, 0);
+    function CreateSetIterator(set, kind) {
+      if (Type(set) !== 'object') throw new TypeError();
+      if (!('__SetData__' in set)) throw new TypeError();
+      if (set.__SetData__ === undefined) throw new TypeError();
+      var iterator = new SetIterator;
+      iterator.__IteratedSet__ = set;
+      iterator.__SetNextIndex__ = 0;
+      iterator.__SetIteratorKind__ = kind;
+      return iterator;
     }
 
     // 23.2.5.2 The Set Iterator Prototype
@@ -2363,14 +2369,15 @@
     define(
       SetIterator.prototype, 'next',
       function next() {
-        if (Type(this) !== 'object') { throw new TypeError; }
-        var s = this.set,
-            index = this.nextIndex,
+        var o = this;
+        if (Type(o) !== 'object') { throw new TypeError; }
+        var s = o.__IteratedSet__,
+            index = o.__SetNextIndex__,
             entries = s.__SetData__;
         while (index < entries.length) {
           var e = entries[index];
           index = index += 1;
-          this.nextIndex = index;
+          o.__SetNextIndex__ = index;
           if (e !== empty) {
             return CreateItrResultObject(e, false);
           }
