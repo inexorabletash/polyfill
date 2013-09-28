@@ -354,8 +354,8 @@
   define(
     Object, 'mixin',
     function mixin(target, source) {
-      target = Object(target);
-      source = Object(source);
+      target = ToObject(target);
+      source = ToObject(source);
       Object.keys(source).forEach(function(key) {
         var desc = Object.getOwnPropertyDescriptor(source, key);
         Object.defineProperty(target, key, desc);
@@ -709,12 +709,12 @@
 
   // 20.2.2.15 Math.floor (x)
 
-  // 20.2.2.16 Math.hypot( ...values )
+  // 20.2.2.16 Math.hypot( value1 [, value2 [ ... ] ] )
   define(
     Math, 'hypot',
     function hypot() {
       function isInfinite(x) { return x === Infinity || x === -Infinity; }
-      var sum = 0;
+      var sum = +0;
       for (var i = 0; i < arguments.length; ++i) {
         var arg = arguments[i];
         var n = Number(arg);
@@ -1073,6 +1073,49 @@
   // 21.1.3.24 String.prototype.toUpperCase ( )
   // 21.1.3.25 String.prototype.trim ( )
   // 21.1.3.26 String.prototype.valueOf ( )
+
+  // 21.1.3.27 String.prototype [ @@iterator ] ( )
+
+  (function() {
+    // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
+    define(
+      String.prototype, $$iterator,
+      function entries() {
+        return CreateStringIterator(this);
+      });
+
+    function CreateStringIterator(string) {
+      return new StringIterator(string, 0);
+    }
+
+    /** @constructor */
+    function StringIterator(object, nextIndex) {
+      this.iteratedObject = object;
+      this.nextIndex = nextIndex;
+    }
+    StringIterator.prototype = new function $StringIteratorPrototype$() {};
+    define(StringIterator.prototype, $$toStringTag, 'String Iterator');
+    define(
+      StringIterator.prototype, 'next',
+      function next() {
+        var s = String(this.iteratedObject),
+            index = this.nextIndex,
+            len = s.length;
+        if (index >= len) {
+          this.nextIndex = Infinity;
+          return CreateItrResultObject(undefined, true);
+        }
+        var cp = s.codePointAt(index);
+        this.nextIndex += cp > 0xFFFF ? 2 : 1;
+        return CreateItrResultObject(String.fromCodePoint(cp), false);
+      });
+    define(
+      StringIterator.prototype, $$iterator,
+      function() {
+        return this;
+      });
+  }());
+
   // 21.1.4 Properties of String Instances
   // 21.1.4.1 length
 
@@ -1151,7 +1194,7 @@
       var thisArg = arguments[2];
 
       var c = this;
-      var items = Object(arrayLike);
+      var items = ToObject(arrayLike);
       if (mapfn === undefined) {
         var mapping = false;
       } else {
@@ -1165,7 +1208,7 @@
         if (IsConstructor(c)) {
           // SPEC: Spec bug: A vs. newObj
           var newObj = new c();
-          var a = Object(newObj);
+          var a = ToObject(newObj);
         } else {
           a = new Array();
         }
@@ -1190,7 +1233,7 @@
       var len = ToInteger(lenValue);
       if (IsConstructor(c)) {
         newObj = new c(len);
-        a = Object(newObj);
+        a = ToObject(newObj);
       } else {
         a = new Array(len);
       }
@@ -1224,7 +1267,7 @@
       var c = this, a;
       if (IsConstructor(c)) {
         a = new c(len);
-        a = Object(a);
+        a = ToObject(a);
       } else {
         a = new Array(len);
       }
@@ -1249,7 +1292,7 @@
     function copyWithin(target, start/*, end*/) {
       var end = arguments[2];
 
-      var o = Object(this);
+      var o = ToObject(this);
       var lenVal = o.length;
       var len = ToLength(lenVal);
       len = max(len, 0);
@@ -1317,7 +1360,7 @@
       var start = arguments[1],
           end = arguments[2];
 
-      var o = Object(this);
+      var o = ToObject(this);
       var lenVal = o.length;
       var len = ToLength(lenVal);
       len = max(len, 0);
@@ -1351,7 +1394,7 @@
    define(
     Array.prototype, 'find',
     function find(predicate) {
-      var o = Object(this);
+      var o = ToObject(this);
       var lenValue = o.length;
       var len = ToInteger(lenValue);
       if (!IsCallable(predicate)) { throw new TypeError(); }
@@ -1376,7 +1419,7 @@
   define(
     Array.prototype, 'findIndex',
     function findIndex(predicate) {
-      var o = Object(this);
+      var o = ToObject(this);
       var lenValue = o.length;
       var len = ToInteger(lenValue);
       if (!IsCallable(predicate)) { throw new TypeError(); }
@@ -1542,7 +1585,7 @@
 
          var c = this;
          if (!IsConstructor(c)) throw new TypeError();
-         var items = Object(source);
+         var items = ToObject(source);
          if (mapfn === undefined) {
            var mapping = false;
          } else {
@@ -1638,7 +1681,7 @@
        function filter(callbackfn) {
          var thisArg = arguments[1];
 
-         var o = Object(this);
+         var o = ToObject(this);
          var lenVal = o.length;
          var len = ToLength(lenVal);
          if (!IsCallable(callbackfn)) throw new TypeError();
@@ -1695,7 +1738,7 @@
        function map(callbackfn) {
          var thisArg = arguments[1];
 
-         var o = Object(this);
+         var o = ToObject(this);
          var lenValue = o.length;
          var len = ToLength(lenValue);
          if (!IsCallable(callbackfn)) throw new TypeError();
@@ -1735,7 +1778,7 @@
      define(
        $TypedArray$.prototype, 'slice',
        function slice(start, end) {
-         var o = Object(this);
+         var o = ToObject(this);
          var lenVal = o.length;
          var len = ToLength(lenVal);
          var relativeStart = ToInteger(start);
@@ -1836,7 +1879,7 @@
       if ('__MapData__' in map) { throw new TypeError(); }
 
       if (iterable !== undefined) {
-        iterable = Object(iterable);
+        iterable = ToObject(iterable);
         var itr = iterable[$$iterator](); // or throw...
         var adder = map['set'];
         if (!IsCallable(adder)) { throw new TypeError(); }
@@ -2052,7 +2095,7 @@
 
     // 23.1.5.1 CreateMapIterator Abstract Operation
     function CreateMapIterator(map, kind) {
-      map = Object(map);
+      map = ToObject(map);
       return new MapIterator(map, 0, kind);
     }
 
@@ -2120,7 +2163,7 @@
       if ('__SetData__' in set) { throw new TypeError(); }
 
       if (iterable !== undefined) {
-        iterable = Object(iterable);
+        iterable = ToObject(iterable);
         var itr = HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
         var adder = set['add'];
         if (!IsCallable(adder)) { throw new TypeError(); }
@@ -2308,7 +2351,7 @@
 
     // 23.2.5.1 CreateSetIterator Abstract Operation
     function CreateSetIterator(set) {
-      set = Object(set);
+      set = ToObject(set);
       return new SetIterator(set, 0);
     }
 
@@ -2370,7 +2413,7 @@
       if ('_table' in map) { throw new TypeError(); }
 
       if (iterable !== undefined) {
-        iterable = Object(iterable);
+        iterable = ToObject(iterable);
         var itr = iterable[$$iterator](); // or throw...
         var adder = map['set'];
         if (!IsCallable(adder)) { throw new TypeError(); }
@@ -2470,7 +2513,7 @@
       if ('_table' in set) { throw new TypeError(); }
 
       if (iterable !== undefined) {
-        iterable = Object(iterable);
+        iterable = ToObject(iterable);
         var itr = HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
         var adder = set['add'];
         if (!IsCallable(adder)) { throw new TypeError(); }
@@ -2763,7 +2806,7 @@
     define(
       Reflect, 'enumerate',
       function enumerate(target) {
-        target = Object(target);
+        target = ToObject(target);
         return new PropertyIterator(target);
       });
 
@@ -2771,7 +2814,7 @@
     define(
       Reflect, 'get',
       function get(target,name,receiver) {
-        target = Object(target);
+        target = ToObject(target);
         name = String(name);
         receiver = (receiver === undefined) ? target : Object(receiver);
         var desc = Object.getPropertyDescriptor(target, name);
@@ -2815,7 +2858,7 @@
       Reflect, 'invoke',
       function invoke(target, propertyKey, argumentsList, receiver) {
 
-        var obj = Object(target);
+        var obj = ToObject(target);
         var key = ToPropertyKey(propertyKey);
         if (receiver === undefined) receiver = target;
 
@@ -2826,7 +2869,7 @@
     define(
       Reflect, 'ownKeys',
       function ownKeys(target) {
-        var obj = Object(target);
+        var obj = ToObject(target);
         return Object.getOwnPropertyNames(obj);
       });
 
@@ -2841,7 +2884,7 @@
     define(
       Reflect, 'set',
       function set(target,name,value,receiver) {
-        target = Object(target);
+        target = ToObject(target);
         name = String(name);
         receiver = (receiver === undefined) ? target : Object(receiver);
         var desc = Object.getPropertyDescriptor(target, name);
@@ -2965,7 +3008,7 @@
   define(
     Array.prototype, 'pushAll',
     function pushAll(other, start, end) {
-      other = Object(other);
+      other = ToObject(other);
       if (start === undefined) {
         start = 0;
       }
@@ -2975,7 +3018,7 @@
         end = otherLength;
       }
       end = ToUint32(end);
-      var self = Object(this);
+      var self = ToObject(this);
       var length = ToUint32(self.length);
       for (var i = 0, j = length; i < end; i++, j++) {
         self[j] = other[i];
@@ -2989,7 +3032,7 @@
     Array.prototype, 'contains',
     function contains(target) {
       if (this === undefined || this === null) { throw new TypeError(); }
-      var t = Object(this),
+      var t = ToObject(this),
           len = ToUint32(t.length),
           i;
       for (i = 0; i < len; i += 1) {
@@ -3000,47 +3043,6 @@
       }
       return false;
     });
-
-
-  // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
-  (function() {
-    define(
-      String.prototype, $$iterator,
-      function entries() {
-        return CreateStringIterator(this);
-      });
-
-    function CreateStringIterator(string) {
-      return new StringIterator(string, 0);
-    }
-
-    /** @constructor */
-    function StringIterator(object, nextIndex) {
-      this.iteratedObject = object;
-      this.nextIndex = nextIndex;
-    }
-    StringIterator.prototype = new function $StringIteratorPrototype$() {};
-    define(StringIterator.prototype, $$toStringTag, 'String Iterator');
-    define(
-      StringIterator.prototype, 'next',
-      function next() {
-        var s = String(this.iteratedObject),
-            index = this.nextIndex,
-            len = s.length;
-        if (index >= len) {
-          this.nextIndex = Infinity;
-          return CreateItrResultObject(undefined, true);
-        }
-        var cp = s.codePointAt(index);
-        this.nextIndex += cp > 0xFFFF ? 2 : 1;
-        return CreateItrResultObject(String.fromCodePoint(cp), false);
-      });
-    define(
-      StringIterator.prototype, $$iterator,
-      function() {
-        return this;
-      });
-  }());
 
   // module "@dict"
   // https://mail.mozilla.org/pipermail/es-discuss/2012-December/026810.html
@@ -3090,7 +3092,7 @@
     define(
       DictIterator.prototype, 'next',
       function next() {
-        var o = Object(this.iteratedObject),
+        var o = ToObject(this.iteratedObject),
             index = this.nextIndex,
             entries = this.propList,
             len = entries.length,
@@ -3133,7 +3135,7 @@
 
   // NOTE: Since true iterators can't be polyfilled, this is a hack
   function forOf(o, func) {
-    o = Object(o);
+    o = ToObject(o);
     var it = o[$$iterator]();
     while (true) {
       var result = it.next();
