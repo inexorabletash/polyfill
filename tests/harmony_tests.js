@@ -1006,8 +1006,9 @@ asyncTest("Promise.all() reject", function() {
 module("Helpers");
 
 test("Symbol", function() {
-  s = new Symbol();
-  t = new Symbol();
+  assertThrows("new Symbol");
+  s = Symbol();
+  t = Symbol();
   o = {};
   assertEqual("o[s] = 1", 1);
   assertTrue("s in o");

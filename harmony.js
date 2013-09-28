@@ -10,6 +10,8 @@
 
   // Helpers
 
+  var symbolSecret = Object.create(null);
+
   function assert(c) {
     if (!c) {
       throw new Error("Internal assertion failure");
@@ -124,6 +126,34 @@
   //
   //----------------------------------------------------------------------
 
+  // NOTE: Symbols are wedged in here since we need the
+  // prototype to be populted for other polyfills
+
+  // Not secure nor is obj[$symbol] hidden from Object.keys():
+  function Symbol(description) {
+    if (!(this instanceof Symbol)) return new Symbol(description, symbolSecret);
+    if (this instanceof Symbol && arguments[1] !== symbolSecret) throw new TypeError();
+
+    var descString = description === undefined ? undefined : String(description);
+
+    function pad8(n) { return ('00000000' + n).slice(-8); }
+    function r() { return pad8((Math.random() * 0x100000000).toString(16)); }
+
+    this.__SymbolData__ = r() + '-' + r() + '-' + r() + '-' + r();
+    this.__Description__ = descString;
+    return this;
+  }
+
+  Symbol.prototype.toString = function toString() {
+    var s = this;
+    var desc = s.__Description__ || s.__SymbolData__;
+    return 'Symbol(' + desc + ')';
+  };
+  Symbol.prototype.valueOf = function valueOf() {
+    var s = this;
+    var sym = s.__SymbolData__;
+  };
+
   //----------------------------------------
   // 6 ECMAScript Data Types and Values
   //----------------------------------------
@@ -135,10 +165,9 @@
     return (t === 'function') ? 'object' : t;
   }
 
-  // 6.1.6.4 Well-Known Symbols and Intrinsics
-
-  var $$toStringTag = Symbol(),
-      $$iterator = Symbol();
+  // 6.1.7.4 Well-Known Symbols and Intrinsics
+  var $$iterator = Symbol('@@iterator'),
+      $$toStringTag = Symbol('@@toStringTag');
 
   //----------------------------------------
   // 7 Abstract Operations
@@ -389,7 +418,7 @@
   hook(Object.prototype, 'toString',
        function() {
          if (this instanceof Symbol) {
-           return '[object Symbol';
+           return '[object Symbol]';
          }
          if (this === Object(this) && $$toStringTag in this) {
            return '[object ' + this[$$toStringTag] + ']';
@@ -444,40 +473,63 @@
   // (No polyfillable changes from ES5)
 
   // ---------------------------------------
-  // 19.4 Error Objects
+  // 19.4 Symbol Objects
   // ---------------------------------------
 
-  // 19.4.1 The Error Constructor
-  // 19.4.1.1 Error (message)
-  // 19.4.1.2 new Error(... argumentsList)
-  // 19.4.2 Properties of the Error Constructor
-  // 19.4.2.1 Error.prototype
-  // 19.4.2.2 Error[ @@create ] ( )
-  // 19.4.3 Properties of the Error Prototype Object
-  // 19.4.3.1 Error.prototype.constructor
-  // 19.4.3.2 Error.prototype.message
-  // 19.4.3.3 Error.prototype.name
-  // 19.4.3.4 Error.prototype.toString ( )
-  // 19.4.4 Properties of Error Instances
-  // 19.4.5 Native Error Types Used in This Standard
-  // 19.4.5.1 EvalError
-  // 19.4.5.2 RangeError
-  // 19.4.5.3 ReferenceError
-  // 19.4.5.4 SyntaxError
-  // 19.4.5.5 TypeError
-  // 19.4.5.6 URIError
-  // 19.4.6 NativeError Object Structure
-  // 19.4.6.1 NativeError Constructors
-  // 19.4.6.1.1 NativeError (message)
-  // 19.4.6.1.2 new NativeError (... argumentsList )
-  // 19.4.6.2 Properties of the NativeError Constructors
-  // 19.4.6.2.1 NativeError.prototype
-  // 19.4.6.2.2 NativeError [ @@create ] ( )
-  // 19.4.6.3 Properties of the NativeError Prototype Objects
-  // 19.4.6.3.1 NativeError.prototype.constructor
-  // 19.4.6.3.2 NativeError.prototype.message
-  // 19.4.6.3.3 NativeError.prototype.name
-  // 19.4.6.4 Properties of NativeError Instances
+  // See earlier for implementation
+
+
+  // 19.4.2.4
+  Symbol.iterator = $$iterator;
+
+  // 19.4.2.7
+  Symbol.toStringTag = $$toStringTag;
+
+  // 19.4.3.2 Symbol.prototype.toString ( )
+  // 19.4.3.3 Symbol.prototype.valueOf ( )
+
+  // 19.4.3.4 Symbol.prototype [ @@toStringTag ]
+  //define(Symbol.prototype, $$toStringTag, 'Symbol');
+
+  global.Symbol = global.Symbol || Symbol;
+
+
+
+  // ---------------------------------------
+  // 19.5 Error Objects
+  // ---------------------------------------
+
+  // 19.5.1 The Error Constructor
+  // 19.5.1.1 Error (message)
+  // 19.5.1.2 new Error(... argumentsList)
+  // 19.5.2 Properties of the Error Constructor
+  // 19.5.2.1 Error.prototype
+  // 19.5.2.2 Error[ @@create ] ( )
+  // 19.5.3 Properties of the Error Prototype Object
+  // 19.5.3.1 Error.prototype.constructor
+  // 19.5.3.2 Error.prototype.message
+  // 19.5.3.3 Error.prototype.name
+  // 19.5.3.4 Error.prototype.toString ( )
+  // 19.5.4 Properties of Error Instances
+  // 19.5.5 Native Error Types Used in This Standard
+  // 19.5.5.1 EvalError
+  // 19.5.5.2 RangeError
+  // 19.5.5.3 ReferenceError
+  // 19.5.5.4 SyntaxError
+  // 19.5.5.5 TypeError
+  // 19.5.5.6 URIError
+  // 19.5.6 NativeError Object Structure
+  // 19.5.6.1 NativeError Constructors
+  // 19.5.6.1.1 NativeError (message)
+  // 19.5.6.1.2 new NativeError (... argumentsList )
+  // 19.5.6.2 Properties of the NativeError Constructors
+  // 19.5.6.2.1 NativeError.prototype
+  // 19.5.6.2.2 NativeError [ @@create ] ( )
+  // 19.5.6.3 Properties of the NativeError Prototype Objects
+  // 19.5.6.3.1 NativeError.prototype.constructor
+  // 19.5.6.3.2 NativeError.prototype.message
+  // 19.5.6.3.3 NativeError.prototype.name
+  // 19.5.6.4 Properties of NativeError Instances
 
   // (No polyfillable changes from ES5)
 
@@ -3134,17 +3186,6 @@
     global.dict = global.dict || dict;
   }());
 
-  // module "@symbol"
-  // Not secure nor is obj[$symbol] hidden from Object.keys():
-  function Symbol() {
-    if (!(this instanceof Symbol)) return new Symbol;
-    function pad8(n) { return ('00000000' + n).slice(-8); }
-    function r() { return pad8((Math.random() * 0x100000000).toString(16)); }
-    var __private__ = r() + '-' + r() + '-' + r() + '-' + r();
-    this.toString = function() { return __private__; };
-    return this;
-  }
-  global.Symbol = global.Symbol || Symbol;
 
   // NOTE: Since true iterators can't be polyfilled, this is a hack
   function forOf(o, func) {
