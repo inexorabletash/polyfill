@@ -114,8 +114,8 @@ Not yet approved:
 * String prototype: `[@@iterator]()` [ref](http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html)
 * Dict: `keys(dict)`, `values(dict)`, `entries(dict)`
   * `dict()` is shortcut for `Object.create(null)`
-* Symbol: `Symbol`
-  * No security, just creates an object with a unique string representation. `typeof` will incorrectly report `"object"`
+* Symbol: `Symbol(description)`, `Symbol.iterator`, `Symbol.toStringTag`
+  * No security, just creates an object with a unique string representation. `typeof Symbol()` will incorrectly report `"object"` but `Symbol() instanceof Symbol` will return `true`
 
 Helpers:
 * `forOf(o, function(i) { ... })` - since `for (i of o) { ... }` can't be polyfilled. Uses iterators, so works with arrays, maps, sets, and strings, via implicit @@iterator and explicit iterators returned by keys/values/entries methods and functions.

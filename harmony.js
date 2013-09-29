@@ -33,7 +33,7 @@
 
     if (typeof v === 'function') {
       // Sanity check that functions are appropriately named (where possible)
-      if ('name' in v && !(p instanceof Symbol) && v.name !== p && v.name !== p + "Function")
+      if ('name' in v && !(p instanceof global.Symbol) && v.name !== p && v.name !== p + "Function")
         throw new Error(v.name + " !== " + p);
       Object.defineProperty(o, p, {
         value: v,
@@ -126,34 +126,54 @@
   //
   //----------------------------------------------------------------------
 
+  // ---------------------------------------
+  // 19.4 Symbol Objects
+  // ---------------------------------------
+
   // NOTE: Symbols are wedged in here since we need the
   // prototype to be populted for other polyfills
 
-  // Not secure nor is obj[$symbol] hidden from Object.keys():
-  function Symbol(description) {
-    if (!(this instanceof Symbol)) return new Symbol(description, symbolSecret);
-    if (this instanceof Symbol && arguments[1] !== symbolSecret) throw new TypeError();
+  // NOTE: Not secure nor is obj[$symbol] hidden from Object.keys():
 
-    var descString = description === undefined ? undefined : String(description);
+  (function() {
+    function Symbol(description) {
+      if (!(this instanceof Symbol)) return new Symbol(description, symbolSecret);
+      if (this instanceof Symbol && arguments[1] !== symbolSecret) throw new TypeError();
 
-    function pad8(n) { return ('00000000' + n).slice(-8); }
-    function r() { return pad8((Math.random() * 0x100000000).toString(16)); }
+      var descString = description === undefined ? undefined : String(description);
 
-    this.__SymbolData__ = r() + '-' + r() + '-' + r() + '-' + r();
-    this.__Description__ = descString;
-    return this;
-  }
+      function pad8(n) { return ('00000000' + n).slice(-8); }
+      function r() { return pad8((Math.random() * 0x100000000).toString(16)); }
 
-  Symbol.prototype.toString = function toString() {
-    var s = this;
-    var desc = s.__Description__ || s.__SymbolData__;
-    return 'Symbol(' + desc + ')';
-  };
+      this.__SymbolData__ = r() + '-' + r() + '-' + r() + '-' + r();
+      this.__Description__ = descString;
+      return this;
+    }
 
-  Symbol.prototype.valueOf = function valueOf() {
-    var s = this;
-    var sym = s.__SymbolData__;
-  };
+    // 19.4.3.2 Symbol.prototype.toString ( )
+    Symbol.prototype.toString = function toString() {
+      var s = this;
+      var desc = s.__Description__ || s.__SymbolData__;
+      return 'Symbol(' + desc + ')';
+    };
+
+    // 19.4.3.3 Symbol.prototype.valueOf ( )
+    Symbol.prototype.valueOf = function valueOf() {
+      var s = this;
+      var sym = s.__SymbolData__;
+    };
+
+    // 19.4.2.4
+    define(Symbol, 'iterator', Symbol('iterator'));
+
+    // 19.4.2.7
+    define(Symbol, 'toStringTag', Symbol('toStringTag'));
+
+    // 19.4.3.4 Symbol.prototype [ @@toStringTag ]
+    define(Symbol.prototype, Symbol.toStringTag, 'Symbol');
+
+    global.Symbol = global.Symbol || Symbol;
+  }());
 
   //----------------------------------------
   // 6 ECMAScript Data Types and Values
@@ -162,14 +182,14 @@
   // "Type(x)" is used as shorthand for "the type of x"...
   function Type(v) {
     if (v === null) return 'null';
-    if (v instanceof Symbol) return 'symbol';
+    if (v instanceof global.Symbol) return 'symbol';
     var t = typeof v;
     return (t === 'function') ? 'object' : t;
   }
 
   // 6.1.7.4 Well-Known Symbols and Intrinsics
-  var $$iterator = Symbol('@@iterator'),
-      $$toStringTag = Symbol('@@toStringTag');
+  var $$iterator = global.Symbol.iterator,
+      $$toStringTag = global.Symbol.toStringTag;
 
   //----------------------------------------
   // 7 Abstract Operations
@@ -426,9 +446,6 @@
   // 19.1.4.6 Object.prototype.toString ( )
   hook(Object.prototype, 'toString',
        function() {
-         if (this instanceof Symbol) {
-           return '[object Symbol]';
-         }
          if (this === Object(this) && $$toStringTag in this) {
            return '[object ' + this[$$toStringTag] + ']';
          }
@@ -480,27 +497,6 @@
   // 19.3.4 Properties of Boolean Instances
 
   // (No polyfillable changes from ES5)
-
-  // ---------------------------------------
-  // 19.4 Symbol Objects
-  // ---------------------------------------
-
-  // See earlier for implementation
-
-
-  // 19.4.2.4
-  Symbol.iterator = $$iterator;
-
-  // 19.4.2.7
-  Symbol.toStringTag = $$toStringTag;
-
-  // 19.4.3.2 Symbol.prototype.toString ( )
-  // 19.4.3.3 Symbol.prototype.valueOf ( )
-
-  // 19.4.3.4 Symbol.prototype [ @@toStringTag ]
-  //define(Symbol.prototype, $$toStringTag, 'Symbol');
-
-  global.Symbol = global.Symbol || Symbol;
 
 
 
@@ -689,6 +685,10 @@
   // 20.2.1.6 Math.PI
   // 20.2.1.7 Math.SQRT1_2
   // 20.2.1.8 Math.SQRT2
+
+  // 20.2.1.9 Math [ @@toStringTag ]
+  define(Math, $$toStringTag, 'Math');
+
   // 20.2.2 Function Properties of the Math Object
   // 20.2.2.1 Math.abs (x)
   // 20.2.2.2 Math.acos (x)
@@ -2210,6 +2210,7 @@
     define(MapIterator.prototype, $$toStringTag, 'Map Iterator');
 
     // 23.1.5.3 Properties of Map Iterator Instances
+
     global.Map = global.Map || Map;
   }());
 
@@ -2758,7 +2759,8 @@
   // 24.3.2 JSON.parse ( text [ , reviver ] )
   // 24.3.3 JSON.stringify ( value [ , replacer [ , space ] ] )
 
-  // (No polyfillable changes from ES5)
+  // 24.3.4 JSON [ @@toStringTag ]
+  define(JSON, $$toStringTag, 'JSON');
 
   // ---------------------------------------
   // 25 The "std:iteration" Module
@@ -3195,25 +3197,30 @@
       function() {
         return this;
       });
+
     global.dict = global.dict || dict;
   }());
 
-
-  // NOTE: Since true iterators can't be polyfilled, this is a hack
+  // NOTE: Since true iterators can't be polyfilled, this is a helper.
   function forOf(o, func) {
     o = ToObject(o);
     var it = o[$$iterator]();
     while (true) {
-      var result = it.next();
-      if (IteratorComplete(result)) {
+      var next = IteratorStep(it);
+      if (next === false)
         return;
-      }
-      func(IteratorValue(result));
+      func(IteratorValue(next));
     }
   }
   global.forOf = forOf; // Since for( ... of ... ) can't be shimmed w/o a transpiler.
 
+  //----------------------------------------
   // Promises
+  //----------------------------------------
+
+  // Approved at September 2013 TC-39 meeting, but not yet in the spec
+  // Tentative spec: https://github.com/domenic/promises-unwrapping
+
   (function(){
 
     function QueueMicrotask(task) {
@@ -3419,7 +3426,6 @@
       }
       return promise;
     }
-    global.Promise = Promise;
 
     Promise.resolve = function resolve(x) {
       var deferred = GetDeferred(this);
@@ -3484,6 +3490,9 @@
       return this.then(undefined, onRejected);
     };
 
+    define(Promise.prototype, $$toStringTag, 'Promise');
+
+    global.Promise = global.Promise || Promise;
   }());
 
 }(self));

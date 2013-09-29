@@ -428,6 +428,9 @@ test("Array", function () {
   deepEqual([0,1,2,3,4].copyWithin(0, 2, 5), [2,3,4,3,4]);
   deepEqual([0,1,2,3,4].copyWithin(2, 0, 3), [0,1,0,1,2]);
   assertEqual("Array.prototype.copyWithin.length", 2);
+
+  assertEqual("String([].entries())", "[object Array Iterator]");
+  assertEqual("Object.prototype.toString.call([].entries())", "[object Array Iterator]");
 });
 
 test("Array.prototype.find/findIndex", function() {
@@ -537,6 +540,34 @@ test("Typed Array", function() {
   verifyIterator(new Uint8Array([11,22,33]).entries(), [[0,11], [1,22], [2,33]]);
 });
 
+module("Symbols");
+
+test("Symbol", function() {
+  assertThrows("new Symbol");
+  s = Symbol();
+  t = Symbol();
+  o = {};
+  assertEqual("o[s] = 1", 1);
+  assertTrue("s in o");
+  assertFalse("t in o");
+  assertFalse("s === t");
+  assertEqual("o[s]", 1);
+
+  assertTrue('Symbol.toStringTag !== null');
+  assertTrue('Symbol.iterator !== null');
+
+  assertTrue('Symbol.iterator in Array.prototype');
+  assertTrue('Symbol.iterator in Map.prototype');
+  assertTrue('Symbol.iterator in Set.prototype');
+
+  delete s;
+  delete t;
+  delete o;
+
+  assertEqual("Symbol.prototype[Symbol.toStringTag]", "Symbol");
+  assertEqual("Object.prototype.toString.call(Symbol())", "[object Symbol]");
+});
+
 module("Containers and Iterators");
 
 test("Map", function () {
@@ -622,6 +653,12 @@ test("Map", function () {
   delete map;
 
   assertThrows('Map()');
+
+  assertEqual("Map.prototype[Symbol.toStringTag]", "Map");
+  assertEqual("String(new Map)", "[object Map]");
+  assertEqual("Object.prototype.toString.call(new Map)", "[object Map]");
+  assertEqual("String((new Map).entries())", "[object Map Iterator]");
+  assertEqual("Object.prototype.toString.call((new Map).entries())", "[object Map Iterator]");
 });
 
 test("Set", function () {
@@ -707,6 +744,12 @@ test("Set", function () {
   delete set;
 
   assertThrows('Set()');
+
+  assertEqual("Set.prototype[Symbol.toStringTag]", "Set");
+  assertEqual("String(new Set)", "[object Set]");
+  assertEqual("Object.prototype.toString.call(new Set)", "[object Set]");
+  assertEqual("String((new Set).values())", "[object Set Iterator]");
+  assertEqual("Object.prototype.toString.call((new Set).values())", "[object Set Iterator]");
 });
 
 test("WeakMap", function () {
@@ -781,6 +824,10 @@ test("WeakMap", function () {
   delete v;
 
   assertThrows('WeakMap()');
+
+  assertEqual("WeakMap.prototype[Symbol.toStringTag]", "WeakMap");
+  assertEqual("String(new WeakMap)", "[object WeakMap]");
+  assertEqual("Object.prototype.toString.call(new WeakMap)", "[object WeakMap]");
 });
 
 test("WeakSet", function () {
@@ -814,24 +861,24 @@ test("WeakSet", function () {
   delete y;
 
   assertThrows('WeakSet()');
+
+  assertEqual("WeakSet.prototype[Symbol.toStringTag]", "WeakSet");
+  assertEqual("String(new WeakSet)", "[object WeakSet]");
+  assertEqual("Object.prototype.toString.call(new WeakSet)", "[object WeakSet]");
 });
 
 test("Branding", function() {
-  assertEqual("String(new Map)", "[object Map]");
-  assertEqual("Object.prototype.toString.call(new Map)", "[object Map]");
-  assertEqual("String((new Map).entries())", "[object Map Iterator]");
-  assertEqual("Object.prototype.toString.call((new Map).entries())", "[object Map Iterator]");
+  assertEqual("ArrayBuffer.prototype[Symbol.toStringTag]", "ArrayBuffer");
+  assertEqual("Object.prototype.toString.call(new Uint8Array().buffer)", "[object ArrayBuffer]");
 
-  assertEqual("String(new Set)", "[object Set]");
-  assertEqual("Object.prototype.toString.call(new Set)", "[object Set]");
-  assertEqual("String((new Set).values())", "[object Set Iterator]");
-  assertEqual("Object.prototype.toString.call((new Set).values())", "[object Set Iterator]");
+  assertEqual("DataView.prototype[Symbol.toStringTag]", "DataView");
+  assertEqual("Object.prototype.toString.call(new DataView)", "[object DataView]");
 
-  assertEqual("String(new WeakMap)", "[object WeakMap]");
-  assertEqual("Object.prototype.toString.call(new WeakMap)", "[object WeakMap]");
+  assertEqual("JSON[Symbol.toStringTag]", "JSON");
+  assertEqual("Object.prototype.toString.call(JSON)", "[object JSON]");
 
-  assertEqual("String([].entries())", "[object Array Iterator]");
-  assertEqual("Object.prototype.toString.call([].entries())", "[object Array Iterator]");
+  assertEqual("Math[Symbol.toStringTag]", "Math");
+  assertEqual("Object.prototype.toString.call(Math)", "[object Math]");
 
   // Make sure these aren't broken:
   assertEqual("Object.prototype.toString.call(undefined)", "[object Undefined]");
@@ -864,6 +911,9 @@ test("Basics", function() {
   });
   equal(typeof fulfill, 'function');
   equal(typeof reject, 'function');
+
+  assertEqual("Promise.prototype[Symbol.toStringTag]", "Promise");
+  assertEqual("Object.prototype.toString.call(new Promise(function(){}))", "[object Promise]");
 });
 
 asyncTest("Fulfill", function() {
@@ -1001,23 +1051,6 @@ asyncTest("Promise.all() reject", function() {
       equal(reason, 2);
       start();
     });
-});
-
-module("Helpers");
-
-test("Symbol", function() {
-  assertThrows("new Symbol");
-  s = Symbol();
-  t = Symbol();
-  o = {};
-  assertEqual("o[s] = 1", 1);
-  assertTrue("s in o");
-  assertFalse("t in o");
-  assertFalse("s === t");
-  assertEqual("o[s]", 1);
-  delete s;
-  delete t;
-  delete o;
 });
 
 module("Not Yet Approved");
