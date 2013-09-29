@@ -149,6 +149,7 @@
     var desc = s.__Description__ || s.__SymbolData__;
     return 'Symbol(' + desc + ')';
   };
+
   Symbol.prototype.valueOf = function valueOf() {
     var s = this;
     var sym = s.__SymbolData__;
@@ -161,6 +162,7 @@
   // "Type(x)" is used as shorthand for "the type of x"...
   function Type(v) {
     if (v === null) return 'null';
+    if (v instanceof Symbol) return 'symbol';
     var t = typeof v;
     return (t === 'function') ? 'object' : t;
   }
@@ -206,8 +208,10 @@
     return Object(v);
   }
 
-  // 7.1.10 ToPropertyKey - TODO: consider for Symbol polyfill
-  function ToPropertyKey(v) { return String(v); }
+  // 7.1.10 ToPropertyKey
+  function ToPropertyKey(v) {
+    return String(v);
+  }
 
   // 7.1.11
   function ToLength(v) {
@@ -272,7 +276,12 @@
     return typeof o === 'function';
   }
 
-  // 7.2.6 IsPropertyKey - TODO: Consider for Symbol() polyfill
+  // 7.2.6 IsPropertyKey
+  function IsPropertyKey(argument) {
+    if (Type(argument) === 'string') return true;
+    if (Type(argument) === 'symbol') return true;
+    return false;
+  }
 
   //----------------------------------------
   // 7.3 Operations on Object
@@ -3140,32 +3149,35 @@
         return CreateDictIterator(o, 'key+value');
       });
 
-    function CreateDictIterator(string, kind) {
-      return new DictIterator(string, 0, kind);
+    function CreateDictIterator(dict, kind) {
+      var d = ToObject(dict);
+      var iterator = new DictIterator();
+      iterator.__IteratedDict__ = d;
+      iterator.__DictNextIndex__ = 0;
+      iterator.__DictIterationKind__ = kind;
+      // TODO: Use Enumerate()
+      iterator.__PropertyList__ = Object.keys(d);
+      return iterator;
     }
 
     /** @constructor */
-    function DictIterator(object, nextIndex, kind) {
-      this.iteratedObject = object;
-      this.nextIndex = nextIndex;
-      this.kind = kind;
-      // TODO: Use Enumerate()
-      this.propList = Object.keys(object);
-    }
+    function DictIterator() {}
+
     DictIterator.prototype = new function $DictIteratorPrototype$() {};
     define(DictIterator.prototype, $$toStringTag, 'Dict Iterator');
     define(
       DictIterator.prototype, 'next',
       function next() {
-        var o = ToObject(this.iteratedObject),
-            index = this.nextIndex,
-            entries = this.propList,
+        var o = ToObject(this);
+        var d = ToObject(o.__IteratedDict__),
+            index = o.__DictNextIndex__,
+            entries = o.__PropertyList__,
             len = entries.length,
-            itemKind = this.kind;
+            itemKind = o.__DictIterationKind__;
         while (index < len) {
-          var e = {key: entries[index], value: o[entries[index]]};
+          var e = {key: entries[index], value: d[entries[index]]};
           index = index += 1;
-          this.nextIndex = index;
+          o.__DictNextIndex__ = index;
           if (e.key !== empty) {
             if (itemKind === 'key') {
               return CreateItrResultObject(e.key, false);
