@@ -130,10 +130,14 @@
   // 19.4 Symbol Objects
   // ---------------------------------------
 
-  // NOTE: Symbols are wedged in here since we need the
-  // prototype to be populted for other polyfills
+  // NOTE: Symbols are defined here - out of spec order - since we need the
+  // properties and prototype to be populated for other polyfills.
 
-  // NOTE: Not secure nor is obj[$symbol] hidden from Object.keys():
+  // NOTE: Not secure, nor is obj[$$symbol] hidden from Object.keys()
+
+  // 19.4.1 The Symbol Constructor
+  // 19.4.1.1 Symbol ( description=undefined )
+  // 19.4.1.2 new Symbol ( ... argumentsList )
 
   (function() {
     function Symbol(description) {
@@ -150,6 +154,26 @@
       return this;
     }
 
+    // 19.4.2 Properties of the Symbol Constructor
+    // 19.4.2.1 Symbol.create
+    // 19.4.2.2 Symbol.hasInstance
+    // 19.4.2.3 Symbol.isRegExp
+
+    // 19.4.2.4 Symbol.iterator
+    define(Symbol, 'iterator', Symbol('iterator'));
+
+    // 19.4.2.5 Symbol.prototype
+    // 19.4.2.6 Symbol.toPrimitive
+
+    // 19.4.2.7 Symbol.toStringTag
+    define(Symbol, 'toStringTag', Symbol('toStringTag'));
+
+    // 19.4.2.8 Symbol.unscopables
+    // 19.4.2.9 Symbol [ @@create ] ()
+
+    // 19.4.3 Properties of the Symbol Prototype Object
+    // 19.4.3.1 Symbol.prototype.constructor
+
     // 19.4.3.2 Symbol.prototype.toString ( )
     Symbol.prototype.toString = function toString() {
       var s = this;
@@ -163,14 +187,10 @@
       var sym = s.__SymbolData__;
     };
 
-    // 19.4.2.4
-    define(Symbol, 'iterator', Symbol('iterator'));
-
-    // 19.4.2.7
-    define(Symbol, 'toStringTag', Symbol('toStringTag'));
-
     // 19.4.3.4 Symbol.prototype [ @@toStringTag ]
     define(Symbol.prototype, Symbol.toStringTag, 'Symbol');
+
+    // 19.4.4 Properties of Symbol Instances
 
     global.Symbol = global.Symbol || Symbol;
   }());
