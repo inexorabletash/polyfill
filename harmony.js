@@ -51,6 +51,15 @@
     }
   }
 
+  function set_internal(o, p, v) {
+    Object.defineProperty(o, p, {
+      value: v,
+      configurable: false,
+      enumerable: false,
+      writable: true
+    });
+  }
+
   // Snapshot intrinsic functions
   var global_isNaN = global.isNaN,
       global_isFinite = global.isFinite,
@@ -79,11 +88,16 @@
 
     function conceal(o) {
       var oValueOf = o.valueOf, secrets = ObjectCreate(null);
-      o.valueOf = (function(secretKey) {
-        return function (k) {
-          return (k === secretKey) ? secrets : oValueOf.apply(o, arguments);
-        };
-      }(secretKey));
+      Object.defineProperty(o, 'valueOf', {
+          value: (function(secretKey) {
+            return function (k) {
+              return (k === secretKey) ? secrets : oValueOf.apply(o, arguments);
+            };
+          }(secretKey)),
+        configurable: true,
+        writeable: true,
+        enumerable: false
+        });
       return secrets;
     }
 
@@ -149,8 +163,8 @@
       function pad8(n) { return ('00000000' + n).slice(-8); }
       function r() { return pad8((Math.random() * 0x100000000).toString(16)); }
 
-      this.__SymbolData__ = r() + '-' + r() + '-' + r() + '-' + r();
-      this.__Description__ = descString;
+      set_internal(this, '[[SymbolData]]', r() + '-' + r() + '-' + r() + '-' + r());
+      set_internal(this, '[[Description]]', descString);
       return this;
     }
 
@@ -175,17 +189,21 @@
     // 19.4.3.1 Symbol.prototype.constructor
 
     // 19.4.3.2 Symbol.prototype.toString ( )
-    Symbol.prototype.toString = function toString() {
-      var s = this;
-      var desc = s.__Description__ || s.__SymbolData__;
-      return 'Symbol(' + desc + ')';
-    };
+    Object.defineProperty(Symbol.prototype, 'toString', {
+      value: function toString() {
+        var s = this;
+        var desc = s['[[Description]]'] || s['[[SymbolData]]'];
+        return 'Symbol(' + desc + ')';
+      },
+      configurable: true, writeable: true, enumerable: false });
 
     // 19.4.3.3 Symbol.prototype.valueOf ( )
-    Symbol.prototype.valueOf = function valueOf() {
-      var s = this;
-      var sym = s.__SymbolData__;
-    };
+    Object.defineProperty(Symbol.prototype, 'valueOf', {
+      value: function valueOf() {
+        var s = this;
+        var sym = s['[[SymbolData]]'];
+      },
+      configurable: true, writeable: true, enumerable: false });
 
     // 19.4.3.4 Symbol.prototype [ @@toStringTag ]
     define(Symbol.prototype, Symbol.toStringTag, 'Symbol');
@@ -1171,9 +1189,9 @@
     function CreateStringIterator(string, kind) {
       var s = String(string);
       var iterator = new StringIterator;
-      iterator.__IteratedString__ = s;
-      iterator.__StringIteratorNextIndex__ = 0;
-      iterator.__StringIterationKind__ = kind;
+      set_internal(iterator, '[[IteratedString]]', s);
+      set_internal(iterator, '[[StringIteratorNextIndex]]', 0);
+      set_internal(iterator, '[[StringIterationKind]]', kind);
       return iterator;
     }
 
@@ -1183,15 +1201,15 @@
       StringIterator.prototype, 'next',
       function next() {
         var o = ToObject(this);
-        var s = String(o.__IteratedString__),
-            index = o.__StringIteratorNextIndex__,
+        var s = String(o['[[IteratedString]]']),
+            index = o['[[StringIteratorNextIndex]]'],
             len = s.length;
         if (index >= len) {
-          o.__StringIteratorNextIndex__ = Infinity;
+          set_internal(o, '[[StringIteratorNextIndex]]', Infinity);
           return CreateItrResultObject(undefined, true);
         }
         var cp = s.codePointAt(index);
-        o.__StringIteratorNextIndex__ += cp > 0xFFFF ? 2 : 1;
+        set_internal(o, '[[StringIteratorNextIndex]]', index + (cp > 0xFFFF ? 2 : 1));
         return CreateItrResultObject(String.fromCodePoint(cp), false);
       });
     define(
@@ -1576,9 +1594,9 @@
   function CreateArrayIterator(array, kind) {
     var o = ToObject(array);
     var iterator = new ArrayIterator;
-    iterator.__IteratedObject__ = o;
-    iterator.__ArrayIteratorNextIndex__ = 0;
-    iterator.__ArrayIterationKind__ = kind;
+    set_internal(iterator, '[[IteratedObject]]', o);
+    set_internal(iterator, '[[ArrayIteratorNextIndex]]', 0);
+    set_internal(iterator, '[[ArrayIterationKind]]', kind);
     return iterator;
   }
 
@@ -1592,9 +1610,9 @@
     function next() {
       var o = this;
       if (Type(o) !== 'object') { throw new TypeError; }
-      var a = o.__IteratedObject__,
-          index = o.__ArrayIteratorNextIndex__,
-          itemKind = o.__ArrayIterationKind__,
+      var a = o['[[IteratedObject]]'],
+          index = o['[[ArrayIteratorNextIndex]]'],
+          itemKind = o['[[ArrayIterationKind]]'],
           lenValue = a.length,
           len = ToUint32(lenValue),
           elementKey,
@@ -1610,11 +1628,11 @@
         }
       }
       if (index >= len) {
-        o.__ArrayIteratorNextIndex__ = Infinity;
+        set_internal(o, '[[ArrayIteratorNextIndex]]', Infinity);
         return CreateItrResultObject(undefined, true);
       }
       elementKey = index;
-      o.__ArrayIteratorNextIndex__ = index + 1;
+      set_internal(o, '[[ArrayIteratorNextIndex]]', index + 1);
       if (itemKind.indexOf('value') !== -1) {
         elementValue = a[elementKey];
       }
@@ -1650,10 +1668,10 @@
   ['Int8Array', 'Uint8Array', 'Uint8ArrayClamped',
    'Int16Array', 'Uint16Array',
    'Int32Array', 'Uint32Array',
-   'Float32Array', 'Float64Array'].forEach(function (__TypedArrayName__) {
-     if (!(__TypedArrayName__ in global))
+   'Float32Array', 'Float64Array'].forEach(function ($TypedArrayName$) {
+     if (!($TypedArrayName$ in global))
        return;
-     var $TypedArray$ = global[__TypedArrayName__];
+     var $TypedArray$ = global[$TypedArrayName$];
 
      // 22.2.1 The %TypedArray% Intrinsic Object
      // 22.2.1.1 %TypedArray% ( length )
@@ -1928,7 +1946,7 @@
 
      // 22.2.3.32 get %TypedArray%.prototype [ @@toStringTag ]
      // NOTE: Only required if %TypedArray% is polyfilled
-     define($TypedArray$.prototype, $$toStringTag, __TypedArrayName__);
+     define($TypedArray$.prototype, $$toStringTag, $TypedArrayName$);
 
      // 22.2.4 The TypedArray Constructors
      // 22.2.4.1 new TypedArray( ... argumentsList)
@@ -1963,7 +1981,7 @@
       var map = this;
 
       if (Type(map) !== 'object') { throw new TypeError(); }
-      if ('__MapData__' in map) { throw new TypeError(); }
+      if ('[[MapData]]' in map) { throw new TypeError(); }
 
       if (iterable !== undefined) {
         iterable = ToObject(iterable);
@@ -1971,7 +1989,7 @@
         var adder = map['set'];
         if (!IsCallable(adder)) { throw new TypeError(); }
       }
-      map.__MapData__ = { keys: [], values: [] };
+      set_internal(map, '[[MapData]]', { keys: [], values: [] });
       if (comparator !== undefined && comparator !== "is") { throw new TypeError(); }
       map._mapComparator = comparator;
 
@@ -2018,9 +2036,9 @@
       function clear() {
         var m = this;
         if (Type(m) !== 'object') throw new TypeError();
-        if (!('__MapData__' in m)) throw new TypeError();
-        if (m.__MapData__ === undefined) throw new TypeError();
-        var entries = m.__MapData__;
+        if (!('[[MapData]]' in m)) throw new TypeError();
+        if (m['[[MapData]]'] === undefined) throw new TypeError();
+        var entries = m['[[MapData]]'];
         entries.keys.length = 0;
         entries.values.length = 0;
       });
@@ -2033,9 +2051,9 @@
       function deleteFunction(key) {
         var m = this;
         if (Type(m) !== 'object') throw new TypeError();
-        if (!('__MapData__' in m)) throw new TypeError();
-        if (m.__MapData__ === undefined) throw new TypeError();
-        var entries = m.__MapData__;
+        if (!('[[MapData]]' in m)) throw new TypeError();
+        if (m['[[MapData]]'] === undefined) throw new TypeError();
+        var entries = m['[[MapData]]'];
         var same = (m._mapComparator === undefined) ?
               SameValueZero : SameValue;
         var i = indexOf(same, entries, key);
@@ -2062,9 +2080,9 @@
 
         var m = this;
         if (Type(m) !== 'object') throw new TypeError();
-        if (!('__MapData__' in m)) throw new TypeError();
-        if (m.__MapData__ === undefined) throw new TypeError();
-        var entries = m.__MapData__;
+        if (!('[[MapData]]' in m)) throw new TypeError();
+        if (m['[[MapData]]'] === undefined) throw new TypeError();
+        var entries = m['[[MapData]]'];
 
         if (!IsCallable(callbackfn)) {
           throw new TypeError('First argument to forEach is not callable.');
@@ -2082,9 +2100,9 @@
       function get(key) {
         var m = this;
         if (Type(m) !== 'object') throw new TypeError();
-        if (!('__MapData__' in m)) throw new TypeError();
-        if (m.__MapData__ === undefined) throw new TypeError();
-        var entries = m.__MapData__;
+        if (!('[[MapData]]' in m)) throw new TypeError();
+        if (m['[[MapData]]'] === undefined) throw new TypeError();
+        var entries = m['[[MapData]]'];
         var same = (m._mapComparator === undefined) ?
               SameValueZero : SameValue;
         var i = indexOf(same, entries, key);
@@ -2097,9 +2115,9 @@
       function has(key) {
         var m = this;
         if (Type(m) !== 'object') throw new TypeError();
-        if (!('__MapData__' in m)) throw new TypeError();
-        if (m.__MapData__ === undefined) throw new TypeError();
-        var entries = m.__MapData__;
+        if (!('[[MapData]]' in m)) throw new TypeError();
+        if (m['[[MapData]]'] === undefined) throw new TypeError();
+        var entries = m['[[MapData]]'];
         var same = (m._mapComparator === undefined) ?
               SameValueZero : SameValue;
         return indexOf(same, entries, key) >= 0;
@@ -2120,9 +2138,9 @@
       function set(key, val) {
         var m = this;
         if (Type(m) !== 'object') throw new TypeError();
-        if (!('__MapData__' in m)) throw new TypeError();
-        if (m.__MapData__ === undefined) throw new TypeError();
-        var entries = m.__MapData__;
+        if (!('[[MapData]]' in m)) throw new TypeError();
+        if (m['[[MapData]]'] === undefined) throw new TypeError();
+        var entries = m['[[MapData]]'];
         var same = (m._mapComparator === undefined) ?
               SameValueZero : SameValue;
         var i = indexOf(same, entries, key);
@@ -2138,9 +2156,9 @@
         get: function() {
           var m = this;
           if (Type(m) !== 'object') throw new TypeError();
-          if (!('__MapData__' in m)) throw new TypeError();
-          if (m.__MapData__ === undefined) throw new TypeError();
-          var entries = m.__MapData__;
+          if (!('[[MapData]]' in m)) throw new TypeError();
+          if (m['[[MapData]]'] === undefined) throw new TypeError();
+          var entries = m['[[MapData]]'];
           var count = 0;
           for (var i = 0; i < entries.keys.length; ++i) {
             if (entries.keys[i] !== empty)
@@ -2179,12 +2197,12 @@
     // 23.1.5.1 CreateMapIterator Abstract Operation
     function CreateMapIterator(map, kind) {
       if (Type(map) !== 'object') throw new TypeError();
-      if (!('__MapData__' in map)) throw new TypeError();
-      if (map.__MapData__ === undefined) throw new TypeError();
+      if (!('[[MapData]]' in map)) throw new TypeError();
+      if (map['[[MapData]]'] === undefined) throw new TypeError();
       var iterator = new MapIterator;
-      iterator.__Map__ = map;
-      iterator.__MapNextIndex__ = 0;
-      iterator.__MapIterationKind__ = kind;
+      set_internal(iterator, '[[Map]]', map);
+      set_internal(iterator, '[[MapNextIndex]]', 0);
+      set_internal(iterator, '[[MapIterationKind]]', kind);
       return iterator;
     }
 
@@ -2198,14 +2216,14 @@
       function next() {
         var o = this;
         if (Type(o) !== 'object') { throw new TypeError(); }
-        var m = o.__Map__,
-            index = o.__MapNextIndex__,
-            itemKind = o.__MapIterationKind__,
-            entries = m.__MapData__;
+        var m = o['[[Map]]'],
+            index = o['[[MapNextIndex]]'],
+            itemKind = o['[[MapIterationKind]]'],
+            entries = m['[[MapData]]'];
         while (index < entries.keys.length) {
           var e = {key: entries.keys[index], value: entries.values[index]};
           index = index += 1;
-          o.__MapNextIndex__ = index;
+          set_internal(o, '[[MapNextIndex]]', index);
           if (e.key !== empty) {
             if (itemKind === 'key') {
               return CreateItrResultObject(e.key, false);
@@ -2251,7 +2269,7 @@
       var set = this;
 
       if (Type(set) !== 'object') { throw new TypeError(); }
-      if ('__SetData__' in set) { throw new TypeError(); }
+      if ('[[SetData]]' in set) { throw new TypeError(); }
 
       if (iterable !== undefined) {
         iterable = ToObject(iterable);
@@ -2259,7 +2277,7 @@
         var adder = set['add'];
         if (!IsCallable(adder)) { throw new TypeError(); }
       }
-      set.__SetData__ = [];
+      set_internal(set, '[[SetData]]', []);
       if (comparator !== undefined && comparator !== "is") { throw new TypeError(); }
       set._setComparator = comparator;
       if (iterable === undefined) {
@@ -2304,14 +2322,14 @@
       function add(value) {
         var s = this;
         if (Type(s) !== 'object') throw new TypeError();
-        if (!('__SetData__' in s)) throw new TypeError();
-        if (s.__SetData__ === undefined) throw new TypeError();
-        var entries = s.__SetData__;
+        if (!('[[SetData]]' in s)) throw new TypeError();
+        if (s['[[SetData]]'] === undefined) throw new TypeError();
+        var entries = s['[[SetData]]'];
         var same = (s._setComparator === undefined) ?
               SameValueZero : SameValue;
         var i = indexOf(same, entries, value);
-        if (i < 0) { i = this.__SetData__.length; }
-        this.__SetData__[i] = value;
+        if (i < 0) { i = s['[[SetData]]'].length; }
+        s['[[SetData]]'][i] = value;
 
         return s;
       });
@@ -2322,9 +2340,9 @@
       function clear() {
         var s = this;
         if (Type(s) !== 'object') throw new TypeError();
-        if (!('__SetData__' in s)) throw new TypeError();
-        if (s.__SetData__ === undefined) throw new TypeError();
-        var entries = s.__SetData__;
+        if (!('[[SetData]]' in s)) throw new TypeError();
+        if (s['[[SetData]]'] === undefined) throw new TypeError();
+        var entries = s['[[SetData]]'];
         entries.length = 0;
         return undefined;
       });
@@ -2336,9 +2354,9 @@
       function deleteFunction(value) {
         var s = this;
         if (Type(s) !== 'object') throw new TypeError();
-        if (!('__SetData__' in s)) throw new TypeError();
-        if (s.__SetData__ === undefined) throw new TypeError();
-        var entries = s.__SetData__;
+        if (!('[[SetData]]' in s)) throw new TypeError();
+        if (s['[[SetData]]'] === undefined) throw new TypeError();
+        var entries = s['[[SetData]]'];
         var same = (s._setComparator === undefined) ?
               SameValueZero : SameValue;
         var i = indexOf(same, entries, value);
@@ -2364,9 +2382,9 @@
 
         var s = this;
         if (Type(s) !== 'object') throw new TypeError();
-        if (!('__SetData__' in s)) throw new TypeError();
-        if (s.__SetData__ === undefined) throw new TypeError();
-        var entries = s.__SetData__;
+        if (!('[[SetData]]' in s)) throw new TypeError();
+        if (s['[[SetData]]'] === undefined) throw new TypeError();
+        var entries = s['[[SetData]]'];
 
         if (!IsCallable(callbackfn)) {
           throw new TypeError('First argument to forEach is not callable.');
@@ -2384,9 +2402,9 @@
       function has(key) {
         var s = this;
         if (Type(s) !== 'object') throw new TypeError();
-        if (!('__SetData__' in s)) throw new TypeError();
-        if (s.__SetData__ === undefined) throw new TypeError();
-        var entries = s.__SetData__;
+        if (!('[[SetData]]' in s)) throw new TypeError();
+        if (s['[[SetData]]'] === undefined) throw new TypeError();
+        var entries = s['[[SetData]]'];
         var same = (s._setComparator === undefined) ?
               SameValueZero : SameValue;
         return indexOf(same, entries, key) !== -1;
@@ -2399,9 +2417,9 @@
         get: function() {
           var s = this;
           if (Type(s) !== 'object') throw new TypeError();
-          if (!('__SetData__' in s)) throw new TypeError();
-          if (s.__SetData__ === undefined) throw new TypeError();
-          var entries = s.__SetData__;
+          if (!('[[SetData]]' in s)) throw new TypeError();
+          if (s['[[SetData]]'] === undefined) throw new TypeError();
+          var entries = s['[[SetData]]'];
           var count = 0;
           for (var i = 0; i < entries.length; ++i) {
             if (entries[i] !== empty)
@@ -2440,12 +2458,12 @@
     // 23.2.5.1 CreateSetIterator Abstract Operation
     function CreateSetIterator(set, kind) {
       if (Type(set) !== 'object') throw new TypeError();
-      if (!('__SetData__' in set)) throw new TypeError();
-      if (set.__SetData__ === undefined) throw new TypeError();
+      if (!('[[SetData]]' in set)) throw new TypeError();
+      if (set['[[SetData]]'] === undefined) throw new TypeError();
       var iterator = new SetIterator;
-      iterator.__IteratedSet__ = set;
-      iterator.__SetNextIndex__ = 0;
-      iterator.__SetIteratorKind__ = kind;
+      set_internal(iterator, '[[IteratedSet]]', set);
+      set_internal(iterator, '[[SetNextIndex]]', 0);
+      set_internal(iterator, '[[SetIteratorKind]]', kind);
       return iterator;
     }
 
@@ -2459,13 +2477,13 @@
       function next() {
         var o = this;
         if (Type(o) !== 'object') { throw new TypeError; }
-        var s = o.__IteratedSet__,
-            index = o.__SetNextIndex__,
-            entries = s.__SetData__;
+        var s = o['[[IteratedSet]]'],
+            index = o['[[SetNextIndex]]'],
+            entries = s['[[SetData]]'];
         while (index < entries.length) {
           var e = entries[index];
           index = index += 1;
-          o.__SetNextIndex__ = index;
+          set_internal(o, '[[SetNextIndex]]', index);
           if (e !== empty) {
             return CreateItrResultObject(e, false);
           }
@@ -3174,11 +3192,11 @@
     function CreateDictIterator(dict, kind) {
       var d = ToObject(dict);
       var iterator = new DictIterator();
-      iterator.__IteratedDict__ = d;
-      iterator.__DictNextIndex__ = 0;
-      iterator.__DictIterationKind__ = kind;
+      set_internal(iterator, '[[IteratedDict]]', d);
+      set_internal(iterator, '[[DictNextIndex]]', 0);
+      set_internal(iterator, '[[DictIterationKind]]', kind);
       // TODO: Use Enumerate()
-      iterator.__PropertyList__ = Object.keys(d);
+      set_internal(iterator, '[[PropertyList]]', Object.keys(d));
       return iterator;
     }
 
@@ -3191,15 +3209,15 @@
       DictIterator.prototype, 'next',
       function next() {
         var o = ToObject(this);
-        var d = ToObject(o.__IteratedDict__),
-            index = o.__DictNextIndex__,
-            entries = o.__PropertyList__,
+        var d = ToObject(o['[[IteratedDict]]']),
+            index = o['[[DictNextIndex]]'],
+            entries = o['[[PropertyList]]'],
             len = entries.length,
-            itemKind = o.__DictIterationKind__;
+            itemKind = o['[[DictIterationKind]]'];
         while (index < len) {
           var e = {key: entries[index], value: d[entries[index]]};
           index = index += 1;
-          o.__DictNextIndex__ = index;
+          set_internal(o, '[[DictNextIndex]]', index);
           if (e.key !== empty) {
             if (itemKind === 'key') {
               return CreateItrResultObject(e.key, false);
