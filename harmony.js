@@ -10,8 +10,6 @@
 
   // Helpers
 
-  var symbolSecret = Object.create(null);
-
   function assert(c) {
     if (!c) {
       throw new Error("Internal assertion failure");
@@ -154,16 +152,22 @@
   // 19.4.1.2 new Symbol ( ... argumentsList )
 
   (function() {
+    var secret = Object.create(null);
+    function uuid() {
+      // http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (Math.random() * 16) | 0, v = (c === 'x') ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
     function Symbol(description) {
-      if (!(this instanceof Symbol)) return new Symbol(description, symbolSecret);
-      if (this instanceof Symbol && arguments[1] !== symbolSecret) throw new TypeError();
+      if (!(this instanceof Symbol)) return new Symbol(description, secret);
+      if (this instanceof Symbol && arguments[1] !== secret) throw new TypeError();
 
       var descString = description === undefined ? undefined : String(description);
 
-      function pad8(n) { return ('00000000' + n).slice(-8); }
-      function r() { return pad8((Math.random() * 0x100000000).toString(16)); }
-
-      set_internal(this, '[[SymbolData]]', r() + '-' + r() + '-' + r() + '-' + r());
+      set_internal(this, '[[SymbolData]]', uuid());
       set_internal(this, '[[Description]]', descString);
       return this;
     }
