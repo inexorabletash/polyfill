@@ -3275,34 +3275,34 @@
     }
 
     function IsPromise(x) {
-      if (IsObject(x) && x.__IsPromise__ === true) return true;
+      if (IsObject(x) && x['[[IsPromise]]'] === true) return true;
       return false;
     };
 
     function ToPromise(C, x) {
-      if (IsPromise(x) && SameValue(x.__PromiseConstructor__, C) === true) return x;
+      if (IsPromise(x) && SameValue(x['[[PromiseConstructor]]'], C) === true) return x;
       var deferred = GetDeferred(C);
-      deferred.__Resolve__(x);
-      return deferred.__Promise__;
+      deferred['[[Resolve]]'](x);
+      return deferred['[[Promise]]'];
     }
 
     function Resolve(p, x) {
-      if (p.__Following__ !== unset || p.__Value__ !== unset || p.__Reason__ !== unset)
+      if (p['[[Following]]'] !== unset || p['[[Value]]'] !== unset || p['[[Reason]]'] !== unset)
         return;
       if (IsPromise(x)) {
         if (SameValue(p, x)) {
           var selfResolutionError = new TypeError();
           SetReason(p, selfResolutionError);
-        } else if (x.__Following__ !== unset) {
-          p.__Following__ = x.__Following__;
-          x.__Following__.__Derived__.push({__DerivedPromise__: p, __OnFulfilled__: undefined, __OnRejected__: undefined });
-        } else if (x.__Value__ !== unset) {
-          SetValue(p, x.__Value__);
-        } else if (x.__Reason__ !== unset) {
-          SetReason(p, x.__Reason__);
+        } else if (x['[[Following]]'] !== unset) {
+          set_internal(p, '[[Following]]', x['[[Following]]']);
+          x['[[Following]]']['[[Derived]]'].push({'[[DerivedPromise]]': p, '[[OnFulfilled]]': undefined, '[[OnRejected]]': undefined });
+        } else if (x['[[Value]]'] !== unset) {
+          SetValue(p, x['[[Value]]']);
+        } else if (x['[[Reason]]'] !== unset) {
+          SetReason(p, x['[[Reason]]']);
         } else {
-          p.__Following__ = x;
-          x.__Derived__.push({__DerivedPromise__: p, __OnFulfilled__: undefined, __OnRejected__: undefined});
+          set_internal(p, '[[Following]]', x);
+          x['[[Derived]]'].push({'[[DerivedPromise]]': p, '[[OnFulfilled]]': undefined, '[[OnRejected]]': undefined});
         }
       } else {
         SetValue(p, x);
@@ -3310,18 +3310,18 @@
     }
 
     function Reject(p, r) {
-      if (p.__Following__ !== unset || p.__Value__ !== unset || p.__Reason__ !== unset) return;
+      if (p['[[Following]]'] !== unset || p['[[Value]]'] !== unset || p['[[Reason]]'] !== unset) return;
       SetReason(p, r);
     }
 
     function Then(p, onFulfilled, onRejected) {
-      if (p.__Following__ !== unset) {
-        return Then(p.__Following__, onFulfilled, onRejected);
+      if (p['[[Following]]'] !== unset) {
+        return Then(p['[[Following]]'], onFulfilled, onRejected);
       }
       try {
         var C = p.constructor;
-        var q = GetDeferred(C).__Promise__;
-        var derived = { __DerivedPromise__: q, __OnFulfilled__: onFulfilled, __OnRejected__: onRejected };
+        var q = GetDeferred(C)['[[Promise]]'];
+        var derived = { '[[DerivedPromise]]': q, '[[OnFulfilled]]': onFulfilled, '[[OnRejected]]': onRejected };
         UpdateDerivedFromPromise(derived, p);
       } catch (e) {
         q = new Promise();
@@ -3331,29 +3331,29 @@
     }
 
     function PropagateToDerived(p) {
-      assert((p.__Value__ === unset) !== (p.__Reason__ === unset));
-      p.__Derived__.forEach(function (derived) {
+      assert((p['[[Value]]'] === unset) !== (p['[[Reason]]'] === unset));
+      p['[[Derived]]'].forEach(function (derived) {
         UpdateDerived(derived, p);
       });
-      p.__Derived__.length = 0;
+      p['[[Derived]]'].length = 0;
     }
 
     function UpdateDerived(derived, originator) {
-      assert((originator.__Value__ === unset) !== (originator.__Reason__ === unset));
-      if (originator.__Value__ !== unset) {
-        if (IsObject(originator.__Value__)) {
+      assert((originator['[[Value]]'] === unset) !== (originator['[[Reason]]'] === unset));
+      if (originator['[[Value]]'] !== unset) {
+        if (IsObject(originator['[[Value]]'])) {
           QueueMicrotask(function() {
-            if (ThenableCoercions.has(originator.__Value__)) {
-              var coercedAlready = ThenableCoercions.get(originator.__Value__);
+            if (ThenableCoercions.has(originator['[[Value]]'])) {
+              var coercedAlready = ThenableCoercions.get(originator['[[Value]]']);
               UpdateDerivedFromPromise(derived, coercedAlready);
             } else {
               try {
-                var then = originator.__Value__["then"];
+                var then = originator['[[Value]]']["then"];
                 if (IsCallable(then)) {
-                  var coerced = CoerceThenable(originator.__Value__, then);
+                  var coerced = CoerceThenable(originator['[[Value]]'], then);
                   UpdateDerivedFromPromise(derived, coerced);
                 } else {
-                  UpdateDerivedFromValue(derived, originator.__Value__);
+                  UpdateDerivedFromValue(derived, originator['[[Value]]']);
                 }
               } catch (e) {
                 UpdateDerivedFromReason(derived, e);
@@ -3361,32 +3361,32 @@
             }
           });
         } else {
-          UpdateDerivedFromValue(derived, originator.__Value__);
+          UpdateDerivedFromValue(derived, originator['[[Value]]']);
         }
       } else {
-        UpdateDerivedFromReason(derived, originator.__Reason__);
+        UpdateDerivedFromReason(derived, originator['[[Reason]]']);
       }
     }
 
     function UpdateDerivedFromValue(derived, value) {
-      if (IsCallable(derived.__OnFulfilled__))
-        CallHandler(derived.__DerivedPromise__, derived.__OnFulfilled__, value);
+      if (IsCallable(derived['[[OnFulfilled]]']))
+        CallHandler(derived['[[DerivedPromise]]'], derived['[[OnFulfilled]]'], value);
       else
-        SetValue(derived.__DerivedPromise__, value);
+        SetValue(derived['[[DerivedPromise]]'], value);
     }
 
     function UpdateDerivedFromReason(derived, reason) {
-      if (IsCallable(derived.__OnRejected__))
-        CallHandler(derived.__DerivedPromise__, derived.__OnRejected__, reason);
+      if (IsCallable(derived['[[OnRejected]]']))
+        CallHandler(derived['[[DerivedPromise]]'], derived['[[OnRejected]]'], reason);
       else
-        SetReason(derived.__DerivedPromise__, reason);
+        SetReason(derived['[[DerivedPromise]]'], reason);
     }
 
     function UpdateDerivedFromPromise(derived, promise) {
-      if (promise.__Value__ !== unset || promise.__Reason__ !== unset)
+      if (promise['[[Value]]'] !== unset || promise['[[Reason]]'] !== unset)
         UpdateDerived(derived, promise);
       else
-        promise.__Derived__.push(derived);
+        promise['[[Derived]]'].push(derived);
     }
 
     function CallHandler(derivedPromise, handler, argument) {
@@ -3401,16 +3401,16 @@
     }
 
     function SetValue(p, value) {
-      assert(p.__Value__ === unset && p.__Reason__ === unset);
-      p.__Value__ = value;
-      p.__Following__ = unset;
+      assert(p['[[Value]]'] === unset && p['[[Reason]]'] === unset);
+      set_internal(p, '[[Value]]', value);
+      set_internal(p, '[[Following]]', unset);
       PropagateToDerived(p);
     }
 
     function SetReason(p, reason) {
-      assert(p.__Value__ === unset && p.__Reason__ === unset);
-      p.__Reason__ = reason;
-      p.__Following__ = unset;
+      assert(p['[[Value]]'] === unset && p['[[Reason]]'] === unset);
+      set_internal(p, '[[Reason]]', reason);
+      set_internal(p, '[[Following]]', unset);
       PropagateToDerived(p);
     }
 
@@ -3439,21 +3439,21 @@
         resolve = function(x) { Resolve(promise, x); };
         reject = function(r) { Reject(promise, r); };
       }
-      return { __Promise__: promise, __Resolve__: resolve, __Reject__: reject };
+      return { '[[Promise]]': promise, '[[Resolve]]': resolve, '[[Reject]]': reject };
     }
 
     function Promise(resolver) {
       var promise = this;
       if (Type(promise) !== 'object') throw new TypeError();
-      if (promise.__IsPromise__ === unset) throw new TypeError();
+      if (promise['[[IsPromise]]'] === unset) throw new TypeError();
       if (!IsCallable(resolver)) throw new TypeError();
-      promise.__IsPromise__ = true;
+      set_internal(promise, '[[IsPromise]]', true);
 
-      promise.__Following__ = unset;
-      promise.__Value__ = unset;
-      promise.__Reason__ = unset;
-      promise.__Derived__ = [];
-      promise.__PromiseConstructor__ = Promise;
+      set_internal(promise, '[[Following]]', unset);
+      set_internal(promise, '[[Value]]', unset);
+      set_internal(promise, '[[Reason]]', unset);
+      set_internal(promise, '[[Derived]]', []);
+      set_internal(promise, '[[PromiseConstructor]]', Promise);
 
       var resolve = function(x) { Resolve(promise, x); };
       var reject = function(r) { Reject(promise, r); };
@@ -3465,33 +3465,33 @@
       return promise;
     }
 
-    Promise.resolve = function resolve(x) {
+    define(Promise, 'resolve', function resolve(x) {
       var deferred = GetDeferred(this);
-      deferred.__Resolve__(x);
-      return deferred.__Promise__;
-    };
+      deferred['[[Resolve]]'](x);
+      return deferred['[[Promise]]'];
+    });
 
-    Promise.reject = function reject(r) {
+    define(Promise, 'reject', function reject(r) {
       var deferred = GetDeferred(this);
-      deferred.__Reject__(r);
-      return deferred.__Promise__;
-    };
+      deferred['[[Reject]]'](r);
+      return deferred['[[Promise]]'];
+    });
 
-    Promise.cast = function cast(x) {
+    define(Promise, 'cast', function cast(x) {
       return ToPromise(this, x);
-    };
+    });
 
-    Promise.race = function race(iterable) {
+    define(Promise, 'race', function race(iterable) {
       var promise = this;
       var deferred = GetDeferred(this);
       forOf(iterable, function(nextValue) {
         var nextPromise = ToPromise(promise, nextValue);
-        Then(nextPromise, deferred.__Resolve__, deferred.__Reject__);
+        Then(nextPromise, deferred['[[Resolve]]'], deferred['[[Reject]]']);
       });
-      return deferred.__Promise__;
-    };
+      return deferred['[[Promise]]'];
+    });
 
-    Promise.all = function all(iterable) {
+    define(Promise, 'all', function all(iterable) {
       var promise = this;
       var deferred = GetDeferred(promise);
       var values = new Array(0);
@@ -3504,29 +3504,29 @@
           values[currentIndex] = v;
           countdown = countdown - 1;
           if (countdown === 0) {
-            deferred.__Resolve__(values);
+            deferred['[[Resolve]]'](values);
           }
         };
-        Then(nextPromise, onFulfilled, deferred.__Reject__);
+        Then(nextPromise, onFulfilled, deferred['[[Reject]]']);
         index = index + 1;
         countdown = countdown + 1;
       });
       if (index === 0) {
-        deferred.__Resolve__(values);
+        deferred['[[Resolve]]'](values);
       }
-      return deferred.__Promise__;
-    };
+      return deferred['[[Promise]]'];
+    });
 
     Promise.prototype.constructor = Promise;
 
-    Promise.prototype.then = function then(onFulfilled, onRejected) {
+    define(Promise.prototype, 'then', function then(onFulfilled, onRejected) {
       if (!IsPromise(this)) throw new TypeError();
       return Then(this, onFulfilled, onRejected);
-    };
+    });
 
-    Promise.prototype.catch = function catch_(onRejected) {
+    define(Promise.prototype, 'catch', function catchFunction(onRejected) {
       return this.then(undefined, onRejected);
-    };
+    });
 
     define(Promise.prototype, $$toStringTag, 'Promise');
 
