@@ -391,6 +391,16 @@ test("String - Unicode helpers", function () {
   assertEqual("'\\ud800\\udc00\\udbff\\udfff'.codePointAt(2)", 0x10ffff);
 });
 
+test("String Iterators", function () {
+  s = new Set("ABC");
+  assertTrue("s.has('A')");
+  assertFalse("s.has('Z')");
+  assertEqual("s.size", 3);
+  delete s;
+
+  assertTrue('Symbol.iterator in String.prototype');
+});
+
 test("Array", function () {
   assertTrue("'of' in Array");
   assertEqual("typeof Array.of", 'function');
@@ -1093,14 +1103,6 @@ test("Proposed Array extras", function () {
   assertFalse("[1,2,3].contains(null)");
   assertTrue("[1,null,3].contains(null)");
 
-});
-
-test("Proposed String Iterators", function () {
-  s = new Set("ABC");
-  assertTrue("s.has('A')");
-  assertFalse("s.has('Z')");
-  assertEqual("s.size", 3);
-  delete s;
 });
 
 test("Proposed 'Dict' Helpers", function() {

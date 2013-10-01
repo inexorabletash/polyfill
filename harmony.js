@@ -153,6 +153,7 @@
 
   (function() {
     var secret = Object.create(null);
+
     function uuid() {
       // http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -385,7 +386,7 @@
     function assign(target, source) {
       var to = ToObject(target);
       var from = ToObject(source);
-      var keys = Object.keys(from);
+      var keys = Object.getOwnPropertyNames(from);
       var gotAllNames = false;
       var pendingException = undefined;
       while (!gotAllNames) {
@@ -428,16 +429,13 @@
   // 19.1.3.4 Object.defineProperty ( O, P, Attributes )
   // 19.1.3.5 Object.freeze ( O )
   // 19.1.3.6 Object.getOwnPropertyDescriptor ( O, P )
+  // 19.1.3.7 Object.getOwnPropertyNames ( O )
+  // TODO: Detect Symbol-like strings, look up in registry, return Symbols
 
-  // 19.1.3.7 Object.getOwnPropertyKeys ( O )
-  define(
-    Object, 'getOwnPropertyKeys',
-    function getOwnPropertyKeys(o) { return Object.keys(o); }
-  );
+  // 19.1.3.8 Object.getOwnPropertySymbols ( O )
+  // TODO: Detect Symbol-like strings, look up in registry, return Symbols
 
-  // 19.1.3.8 Object.getOwnPropertyNames ( O )
   // 19.1.3.9 Object.getPrototypeOf ( O )
-
   // 19.1.3.10 Object.is ( value1, value2 )
   define(
     Object, 'is',
@@ -456,7 +454,7 @@
     function mixin(target, source) {
       target = ToObject(target);
       source = ToObject(source);
-      Object.keys(source).forEach(function(key) {
+      Object.getOwnPropertyNames(source).forEach(function(key) {
         var desc = Object.getOwnPropertyDescriptor(source, key);
         Object.defineProperty(target, key, desc);
       });
@@ -540,7 +538,11 @@
 
   // (No polyfillable changes from ES5)
 
+  // ---------------------------------------
+  // 19.4 Symbol Objects
+  // ---------------------------------------
 
+  // Moved earlier in this script, so that other polyfills can depend on them.
 
   // ---------------------------------------
   // 19.5 Error Objects
@@ -1178,7 +1180,6 @@
   // 21.1.3.26 String.prototype.valueOf ( )
 
   // 21.1.3.27 String.prototype [ @@iterator ] ( )
-
   (function() {
     // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
     define(
@@ -1949,7 +1950,6 @@
      );
 
      // 22.2.3.32 get %TypedArray%.prototype [ @@toStringTag ]
-     // NOTE: Only required if %TypedArray% is polyfilled
      define($TypedArray$.prototype, $$toStringTag, $TypedArrayName$);
 
      // 22.2.4 The TypedArray Constructors
@@ -2742,7 +2742,6 @@
     // 24.1.4.3 ArrayBuffer.prototype.slice ( start , end)
 
     // 24.1.4.4 ArrayBuffer.prototype [ @@toStringTag ]
-    // NOTE: Only required if ArrayBuffer is polyfilled
     define(ArrayBuffer.prototype, $$toStringTag, 'ArrayBuffer');
 
     // 24.1.5 Properties of the ArrayBuffer Instances
@@ -2786,7 +2785,6 @@
   // 24.2.4.20 DataView.prototype.setUint32(byteOffset, value, littleEndian=false)
 
   // 24.2.4.21 DataView.prototype[ @@toStringTag ]
-  // NOTE: Only required if ArrayBuffer is polyfilled
   define(DataView.prototype, $$toStringTag, 'DataView');
 
   // 24.2.5 Properties of DataView Instances
