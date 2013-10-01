@@ -363,6 +363,11 @@
   // 9.1.5
   function HasOwnProperty(o, p) { return Object.prototype.hasOwnProperty.call(o, p); }
 
+  // 9.1.13 [[OwnPropertyKeys]] ()
+  function OwnPropertyKeys(o) {
+    return Object.getOwnPropertyNames(o)[$$iterator]();
+  }
+
   // 9.1.15
   function ObjectCreate(p, idl) { return Object.create(p, idl); }
 
@@ -386,7 +391,7 @@
     function assign(target, source) {
       var to = ToObject(target);
       var from = ToObject(source);
-      var keys = Object.getOwnPropertyNames(from);
+      var keys = OwnPropertyKeys(from);
       var gotAllNames = false;
       var pendingException = undefined;
       while (!gotAllNames) {
@@ -397,24 +402,24 @@
           var nextKey = IteratorValue(next);
           try {
             var desc = Object.getOwnPropertyDescriptor(from, nextKey);
-          } catch (e) {
+          } catch (desc) {
             if (pendingException === undefined)
-              pendingException = e;
+              pendingException = desc;
             continue;
           }
           if (desc !== undefined && desc.enumerable === true) {
             try {
               var propValue = from[nextKey];
-            } catch (e) {
+            } catch (propValue) {
               if (pendingException === undefined)
-                  pendingException = e;
+                  pendingException = propValue;
               continue;
             }
             try {
               to[nextKey] = propValue;
-            } catch (e) {
+            } catch (status) {
               if (pendingException === undefined)
-                pendingException = e;
+                pendingException = status;
             }
           }
         }
@@ -452,13 +457,44 @@
   define(
     Object, 'mixin',
     function mixin(target, source) {
-      target = ToObject(target);
-      source = ToObject(source);
-      Object.getOwnPropertyNames(source).forEach(function(key) {
-        var desc = Object.getOwnPropertyDescriptor(source, key);
-        Object.defineProperty(target, key, desc);
-      });
-      return target;
+      var to = ToObject(target);
+      var from = ToObject(source);
+      return MixinProperties(to, from);
+
+      function MixinProperties(target, source) {
+        var keys = OwnPropertyKeys(source);
+        var gotAllNames = false;
+        var pendingException = undefined;
+        while (gotAllNames === false) {
+          var next = IteratorStep(keys);
+          if (next === false) {
+            gotAllNames = true;
+          } else {
+            var nextKey = IteratorValue(next);
+            try {
+              var desc = Object.getOwnPropertyDescriptor(source, nextKey);
+            } catch (desc) {
+              if (pendingException === undefined)
+                pendingException = desc;
+              continue;
+            }
+            if (desc !== undefined && desc.enumerable === true) {
+              // TODO: Can super rebinding be polyfilled?
+              try {
+                Object.defineProperty(target, nextKey, desc);
+              } catch (status) {
+                if (pendingException === undefined)
+                  pendingException = status;
+                continue;
+              }
+            }
+          }
+        }
+        if (pendingException !== undefined) {
+          throw pendingException;
+        }
+        return to;
+      }
     });
 
   // 19.1.3.16 Object.preventExtensions ( O )
