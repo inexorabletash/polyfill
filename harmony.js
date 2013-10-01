@@ -353,23 +353,25 @@
   // 7.3.1 Get - just use o.p or o[p]
   // 7.3.2 Put - just use o.p = v or o[p] = v
 
-  // 7.3.6
+  // 7.3.6 HasProperty (O, P)
   function HasProperty(o, p) { return p in o; }
+
+  // 7.3.7 HasOwnProperty (O, P)
+  function HasOwnProperty(o, p) { return Object.prototype.hasOwnProperty.call(o, p); }
 
   //----------------------------------------
   // 9 ECMAScript Ordinary and Exotic Objects Behaviors
   //----------------------------------------
-
-  // 9.1.5
-  function HasOwnProperty(o, p) { return Object.prototype.hasOwnProperty.call(o, p); }
 
   // 9.1.13 [[OwnPropertyKeys]] ()
   function OwnPropertyKeys(o) {
     return Object.getOwnPropertyNames(o)[$$iterator]();
   }
 
-  // 9.1.15
-  function ObjectCreate(p, idl) { return Object.create(p, idl); }
+  // 9.1.14 ObjectCreate(proto, internalDataList)
+  function ObjectCreate(proto, internalDataList) {
+    return Object.create(proto, internalDataList);
+  }
 
   // ---------------------------------------
   // 19 Fundamental Objects
@@ -435,7 +437,7 @@
   // 19.1.3.5 Object.freeze ( O )
   // 19.1.3.6 Object.getOwnPropertyDescriptor ( O, P )
   // 19.1.3.7 Object.getOwnPropertyNames ( O )
-  // TODO: Detect Symbol-like strings, look up in registry, return Symbols
+  // TODO: Detect Symbol-like strings, filter them out
 
   // 19.1.3.8 Object.getOwnPropertySymbols ( O )
   // TODO: Detect Symbol-like strings, look up in registry, return Symbols
@@ -452,6 +454,7 @@
   // 19.1.3.12 Object.isFrozen ( O )
   // 19.1.3.13 Object.isSealed ( O )
   // 19.1.3.14 Object.keys ( O )
+  // TODO: Detect Symbol-like keys, filter them out
 
   // 19.1.3.15 Object.mixin ( target, source )
   define(
@@ -3061,7 +3064,7 @@
       } else {
         propList = Enumerate(proto, true, onlyEnumerable);
       }
-      Object.keys(obj).forEach(function(name) {
+      Object.getOwnPropertyNames(obj).forEach(function(name) {
         var desc = Object.getOwnPropertyDescriptor(obj, name);
         var index = propList.indexOf(name);
         if (index !== -1) {
