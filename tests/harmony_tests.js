@@ -169,6 +169,10 @@ test("Math", function () {
   assertEqual("Math.hypot(1,0,0)", 1);
   assertEqual("Math.hypot(2,3,4)", Math.sqrt(2*2 + 3*3 + 4*4));
   assertEqual("Math.hypot(2,3,4,5)", Math.sqrt(2*2 + 3*3 + 4*4 + 5*5));
+  assertEqual("Math.hypot(1e+300, 1e+300)", 1.4142135623730952e+300);
+  assertEqual("Math.hypot(1e+300, 1e+300, 1e+300)", 1.7320508075688774e+300);
+  assertEqual("Math.hypot(1e-300, 1e-300)", 1.4142135623730952e-300);
+  assertEqual("Math.hypot(1e-300, 1e-300, 1e-300)", 1.7320508075688774e-300);
 
   // trunc(x)
   assertEqual("Math.trunc('')", Math.trunc(0));

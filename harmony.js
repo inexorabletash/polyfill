@@ -857,15 +857,18 @@
   define(
     Math, 'hypot',
     function hypot() {
-      function isInfinite(x) { return x === Infinity || x === -Infinity; }
       var sum = +0;
+      var m = max.apply(undefined, [].map.call(arguments, abs));
+      if (m === 0) return +0;
+
       for (var i = 0; i < arguments.length; ++i) {
         var arg = arguments[i];
-        var n = Number(arg);
-        if (isInfinite(n)) return Infinity;
-        sum = sum + n * n;
+        var n = abs(arg);
+        if (n === Infinity) return n;
+        var r = n / m;
+        sum = sum + r * r;
       }
-      return sqrt(sum);
+      return m * sqrt(sum);
     });
 
   // 20.2.2.17 Math.imul(x, y)
