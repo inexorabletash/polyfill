@@ -858,7 +858,7 @@
     Math, 'hypot',
     function hypot() {
       var sum = +0;
-      var m = max.apply(undefined, [].map.call(arguments, abs));
+      var m = [].reduce.call(arguments, function(a,b) { return max(abs(a), abs(b)); });
       if (m === 0) return +0;
 
       for (var i = 0; i < arguments.length; ++i) {
