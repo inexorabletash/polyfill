@@ -857,15 +857,20 @@
   define(
     Math, 'hypot',
     function hypot() {
-      var sum = +0;
-      var m = [].reduce.call(arguments, function(a,b) { return max(abs(a), abs(b)); });
-      if (m === 0) return +0;
-
+      var values = [];
+      var m = 0, sawNaN = false;
       for (var i = 0; i < arguments.length; ++i) {
-        var arg = arguments[i];
-        var n = abs(arg);
+        var n = abs(Number(arguments[i]));
         if (n === Infinity) return n;
-        var r = n / m;
+        if (n !== n) sawNaN = true;
+        if (n > m) m = n;
+        values[i] = n;
+      }
+      if (sawNaN) return NaN;
+      if (m === 0) return +0;
+      var sum = +0;
+      for (i = 0; i < values.length; ++i) {
+        var r = values[i] / m;
         sum = sum + r * r;
       }
       return m * sqrt(sum);

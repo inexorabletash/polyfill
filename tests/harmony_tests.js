@@ -173,6 +173,9 @@ test("Math", function () {
   assertEqual("Math.hypot(1e+300, 1e+300, 1e+300)", 1.7320508075688774e+300);
   assertEqual("Math.hypot(1e-300, 1e-300)", 1.4142135623730952e-300);
   assertEqual("Math.hypot(1e-300, 1e-300, 1e-300)", 1.7320508075688774e-300);
+  c = 0;
+  assertEqual("Math.hypot({valueOf:function() { if (c++) throw c; return c; }})", 1);
+  delete c;
 
   // trunc(x)
   assertEqual("Math.trunc('')", Math.trunc(0));
