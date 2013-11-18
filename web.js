@@ -330,6 +330,7 @@ if ('window' in this && 'document' in this) {
     // interface EventTarget
 
     function addEventListener(type, listener, useCapture) {
+      if (type === 'DOMContentLoaded') type = 'load';
       var target = this;
       var f = function(e) {
         e._timeStamp = Number(new Date);
@@ -342,6 +343,7 @@ if ('window' in this && 'document' in this) {
     }
 
     function removeEventListener(type, listener, useCapture) {
+      if (type === 'DOMContentLoaded') type = 'load';
       var f = this['_' + type + listener];
       if (f) {
         this.detachEvent('on' + type, f);
