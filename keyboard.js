@@ -144,7 +144,7 @@
 //  Win/Chrome, Win/Safari, Win/IE, Win/Firefox - PrintScreen and Scroll only generate keyup events
 //  Win/Chrome - Apps doesn't send keyup
 //  Win/Opera - Tab moves focus even if cancelled; need explicit workaround to return focus
-//  Windows w/ Apple's Bootcamp: BackQuote, BackSlash and Quote are mixed up in Chrome and IE
+//  Windows w/ Apple's Bootcamp: Backquote, BackSlash and Quote are mixed up in Chrome and IE
 
 window.KeyboardEvent = window.KeyboardEvent || function KeyboardEvent() { throw new TypeError('Illegal constructor'); };
 window.KeyboardEvent.DOM_KEY_LOCATION_STANDARD      = 0x00; // Default or unknown location
@@ -256,7 +256,7 @@ var IDENTIFY_KEY_ASSIGN_USB_USAGE;
     0x19: { code: 'Hanja' },
     // 0x19: { code: 'KanjiMode', location: KeyboardEvent.DOM_KEY_LOCATION_STANDARD }, // duplicate on Windows
     // 0x1A - undefined
-    0x1B: { code: 'Esc' },
+    0x1B: { code: 'Escape' },
     0x1C: { code: 'Convert' },
     0x1D: { code: 'NoConvert' },
     0x1E: { code: 'Accept' }, // In D3E, not in D4E
@@ -407,7 +407,7 @@ var IDENTIFY_KEY_ASSIGN_USB_USAGE;
     0xBE: { code: 'Period', keyCap: '.' }, // .>
     0xBF: { code: 'Slash', keyCap: '/' }, // /? (US Standard 101)
 
-    0xC0: { code: 'BackQuote', keyCap: '`' }, // `~ (US Standard 101)
+    0xC0: { code: 'Backquote', keyCap: '`' }, // `~ (US Standard 101)
     // 0xC1-0xCF - reserved
 
     // 0xD0-0xD7 - reserved
@@ -495,14 +495,14 @@ var IDENTIFY_KEY_ASSIGN_USB_USAGE;
             'chrome-win', {
               0xC0: { code: 'Quote', keyCap: '\'' }, // '" (US Standard 101)
               0xDE: { code: 'Backslash',  keyCap: '\\' }, // \| (US Standard 101)
-              0xDF: { code: 'BackQuote', keyCap: '`' } // `~ (US Standard 101)
+              0xDF: { code: 'Backquote', keyCap: '`' } // `~ (US Standard 101)
             });
 
     mergeIf(keyCodeToInfoTable,
             'ie', {
               0xC0: { code: 'Quote', keyCap: '\'' }, // '" (US Standard 101)
               0xDE: { code: 'Backslash',  keyCap: '\\' }, // \| (US Standard 101)
-              0xDF: { code: 'BackQuote', keyCap: '`' } // `~ (US Standard 101)
+              0xDF: { code: 'Backquote', keyCap: '`' } // `~ (US Standard 101)
             });
   }
 
@@ -548,188 +548,190 @@ var IDENTIFY_KEY_ASSIGN_USB_USAGE;
 
   // codeToUsbTable[code] -> usbUsageId (high 16 bits are page, low 16 bits are ID)
 
+  var PAGE7 = 0x070000; // Keyboard/Keypad Page (0x07)
+  var PAGEC = 0x0C0000; // Consumer page (0x0C)
   var codeToUsbTable = {
 
     // Writing System Keys
-    'BackQuote': 0x070035, // ` and ~ on a US keyboard. This is the 半角/全角/漢字 (hankaku/zenkaku/kanji) key on Japanese keyboards
-    'Backslash': 0x070031, // \ and | on a US keyboard. Found only on standard 101-key layouts.
-    'Backspace': 0x07002a, // Labelled Delete on Macintosh keyboards.
-    'BracketLeft': 0x07002f, // [ and { on a US keyboard.
-    'BracketRight': 0x070030, // ] and } on a US keyboard.
-    'Comma': 0x070036, // , and < on a US keyboard.
-    'Digit0': 0x070027, // 0 and ) on a US keyboard.
-    'Digit1': 0x07001e, // 1 and ! on a US keyboard.
-    'Digit2': 0x07001f, // 2 and @ on a US keyboard.
-    'Digit3': 0x070020, // 3 and # on a US keyboard.
-    'Digit4': 0x070021, // 4 and $ on a US keyboard.
-    'Digit5': 0x070022, // 5 and % on a US keyboard.
-    'Digit6': 0x070023, // 6 and ^ on a US keyboard.
-    'Digit7': 0x070024, // 7 and & on a US keyboard.
-    'Digit8': 0x070025, // 8 and * on a US keyboard.
-    'Digit9': 0x070026, // 9 and ( on a US keyboard.
-    'Equal': 0x07002e, // = and + on a US keyboard.
-    'IntlBackslash': 0x070064, // Located between the 'ShiftLeft' and 'KeyZ' keys. The \ and | key on a UK keyboard.
-    'IntlHash': 0x070032, // Located between the 'Quote' and 'Enter' keys on row E of the keyboard. The # and ~ key on a UK keyboard.
-    'IntlRo': 0x070087, // Located between the 'Slash' and 'ShiftRight' keys. The \ and ろ (ro) key on a Japanese keyboard.
-    'IntlYen': 0x070089, // Located between the 'Equal' and 'Backspace' keys. The ¥ (yen) key on a Japanese keyboard. The \ and / key on a Russian keyboard.
-    'KeyA': 0x070004, // a on a US keyboard. Labelled q on an AZERTY (e.g., French) keyboard.
-    'KeyB': 0x070005, // b on a US keyboard.
-    'KeyC': 0x070006, // c on a US keyboard.
-    'KeyD': 0x070007, // d on a US keyboard.
-    'KeyE': 0x070008, // e on a US keyboard.
-    'KeyF': 0x070009, // f on a US keyboard.
-    'KeyG': 0x07000a, // g on a US keyboard.
-    'KeyH': 0x07000b, // h on a US keyboard.
-    'KeyI': 0x07000c, // i on a US keyboard.
-    'KeyJ': 0x07000d, // j on a US keyboard.
-    'KeyK': 0x07000e, // k on a US keyboard.
-    'KeyL': 0x07000f, // l on a US keyboard.
-    'KeyM': 0x070010, // m on a US keyboard.
-    'KeyN': 0x070011, // n on a US keyboard.
-    'KeyO': 0x070012, // o on a US keyboard.
-    'KeyP': 0x070013, // p on a US keyboard.
-    'KeyQ': 0x070014, // q on a US keyboard. Labelled a on an AZERTY (e.g., French) keyboard.
-    'KeyR': 0x070015, // r on a US keyboard.
-    'KeyS': 0x070016, // s on a US keyboard.
-    'KeyT': 0x070017, // t on a US keyboard.
-    'KeyU': 0x070018, // u on a US keyboard.
-    'KeyV': 0x070019, // v on a US keyboard.
-    'KeyW': 0x07001a, // w on a US keyboard. Labelled z on an AZERTY (e.g., French) keyboard.
-    'KeyX': 0x07001b, // x on a US keyboard.
-    'KeyY': 0x07001c, // y on a US keyboard. Labelled z on a QWERTZ (e.g., German) keyboard.
-    'KeyZ': 0x07001d, // z on a US keyboard. Labelled w on an AZERTY (e.g., French) keyboard, and y on a QWERTZ (e.g., German) keyboard.
-    'Minus': 0x07002d, // - and _ on a US keyboard.
-    'Period': 0x070037, // . and > on a US keyboard.
-    'Quote': 0x070034, // ' and " on a US keyboard.
-    'Semicolon': 0x070033, // ; and : on a US keyboard.
-    'Slash': 0x070038, // / and ? on a US keyboard.
+    'Backquote':            PAGE7 + 0x35, // ` and ~ on a US keyboard. This is the 半角/全角/漢字 (hankaku/zenkaku/kanji) key on Japanese keyboards
+    'Backslash':            PAGE7 + 0x31, // \ and | on a US keyboard. Found only on standard 101-key layouts.
+    'Backspace':            PAGE7 + 0x2a, // Labelled Delete on Macintosh keyboards.
+    'BracketLeft':          PAGE7 + 0x2f, // [ and { on a US keyboard.
+    'BracketRight':         PAGE7 + 0x30, // ] and } on a US keyboard.
+    'Comma':                PAGE7 + 0x36, // , and < on a US keyboard.
+    'Digit0':               PAGE7 + 0x27, // 0 and ) on a US keyboard.
+    'Digit1':               PAGE7 + 0x1e, // 1 and ! on a US keyboard.
+    'Digit2':               PAGE7 + 0x1f, // 2 and @ on a US keyboard.
+    'Digit3':               PAGE7 + 0x20, // 3 and # on a US keyboard.
+    'Digit4':               PAGE7 + 0x21, // 4 and $ on a US keyboard.
+    'Digit5':               PAGE7 + 0x22, // 5 and % on a US keyboard.
+    'Digit6':               PAGE7 + 0x23, // 6 and ^ on a US keyboard.
+    'Digit7':               PAGE7 + 0x24, // 7 and & on a US keyboard.
+    'Digit8':               PAGE7 + 0x25, // 8 and * on a US keyboard.
+    'Digit9':               PAGE7 + 0x26, // 9 and ( on a US keyboard.
+    'Equal':                PAGE7 + 0x2e, // = and + on a US keyboard.
+    'IntlBackslash':        PAGE7 + 0x64, // Located between the 'ShiftLeft' and 'KeyZ' keys. The \ and | key on a UK keyboard.
+    'IntlHash':             PAGE7 + 0x32, // Located between the 'Quote' and 'Enter' keys on row E of the keyboard. The # and ~ key on a UK keyboard.
+    'IntlRo':               PAGE7 + 0x87, // Located between the 'Slash' and 'ShiftRight' keys. The \ and ろ (ro) key on a Japanese keyboard.
+    'IntlYen':              PAGE7 + 0x89, // Located between the 'Equal' and 'Backspace' keys. The ¥ (yen) key on a Japanese keyboard. The \ and / key on a Russian keyboard.
+    'KeyA':                 PAGE7 + 0x04, // a on a US keyboard. Labelled q on an AZERTY (e.g., French) keyboard.
+    'KeyB':                 PAGE7 + 0x05, // b on a US keyboard.
+    'KeyC':                 PAGE7 + 0x06, // c on a US keyboard.
+    'KeyD':                 PAGE7 + 0x07, // d on a US keyboard.
+    'KeyE':                 PAGE7 + 0x08, // e on a US keyboard.
+    'KeyF':                 PAGE7 + 0x09, // f on a US keyboard.
+    'KeyG':                 PAGE7 + 0x0a, // g on a US keyboard.
+    'KeyH':                 PAGE7 + 0x0b, // h on a US keyboard.
+    'KeyI':                 PAGE7 + 0x0c, // i on a US keyboard.
+    'KeyJ':                 PAGE7 + 0x0d, // j on a US keyboard.
+    'KeyK':                 PAGE7 + 0x0e, // k on a US keyboard.
+    'KeyL':                 PAGE7 + 0x0f, // l on a US keyboard.
+    'KeyM':                 PAGE7 + 0x10, // m on a US keyboard.
+    'KeyN':                 PAGE7 + 0x11, // n on a US keyboard.
+    'KeyO':                 PAGE7 + 0x12, // o on a US keyboard.
+    'KeyP':                 PAGE7 + 0x13, // p on a US keyboard.
+    'KeyQ':                 PAGE7 + 0x14, // q on a US keyboard. Labelled a on an AZERTY (e.g., French) keyboard.
+    'KeyR':                 PAGE7 + 0x15, // r on a US keyboard.
+    'KeyS':                 PAGE7 + 0x16, // s on a US keyboard.
+    'KeyT':                 PAGE7 + 0x17, // t on a US keyboard.
+    'KeyU':                 PAGE7 + 0x18, // u on a US keyboard.
+    'KeyV':                 PAGE7 + 0x19, // v on a US keyboard.
+    'KeyW':                 PAGE7 + 0x1a, // w on a US keyboard. Labelled z on an AZERTY (e.g., French) keyboard.
+    'KeyX':                 PAGE7 + 0x1b, // x on a US keyboard.
+    'KeyY':                 PAGE7 + 0x1c, // y on a US keyboard. Labelled z on a QWERTZ (e.g., German) keyboard.
+    'KeyZ':                 PAGE7 + 0x1d, // z on a US keyboard. Labelled w on an AZERTY (e.g., French) keyboard, and y on a QWERTZ (e.g., German) keyboard.
+    'Minus':                PAGE7 + 0x2d, // - and _ on a US keyboard.
+    'Period':               PAGE7 + 0x37, // . and > on a US keyboard.
+    'Quote':                PAGE7 + 0x34, // ' and " on a US keyboard.
+    'Semicolon':            PAGE7 + 0x33, // ; and : on a US keyboard.
+    'Slash':                PAGE7 + 0x38, // / and ? on a US keyboard.
 
     // Functional Keys
-    'AltLeft': 0x0700e2, // Labelled Alt or Option.
-    'AltRight': 0x0700e6, // Labelled Alt or Option. This is the AltGr key on many keyboard layouts.
-    'CapsLock': 0x070039,
-    'ContextMenu': 0x070065, // The application context menu key, which is typically found between the right OS key and the right Control key.
-    'ControlLeft': 0x0700e0,
-    'ControlRight': 0x0700e4,
+    'AltLeft':              PAGE7 + 0xe2, // Labelled Alt or Option.
+    'AltRight':             PAGE7 + 0xe6, // Labelled Alt or Option. This is the AltGr key on many keyboard layouts.
+    'CapsLock':             PAGE7 + 0x39,
+    'ContextMenu':          PAGE7 + 0x65, // The application context menu key, which is typically found between the right OS key and the right Control key.
+    'ControlLeft':          PAGE7 + 0xe0,
+    'ControlRight':         PAGE7 + 0xe4,
 
-    // SPEC BUG: listed as 0x070032 in D4E spec
-    'Enter': 0x070028, // Labelled Enter and Return on Macintosh keyboards.
-    'OSLeft': 0x0700e3, // The Windows, ⌘, Command or other OS symbol key.
-    'OSRight': 0x0700e7, // The Windows, ⌘, Command or other OS symbol key.
-    'ShiftLeft': 0x0700e1,
-    'ShiftRight': 0x0700e5,
-    'Space': 0x07002c, // The   key.
-    'Tab': 0x07002b,
+    'Enter':                PAGE7 + 0x28, // Labelled Enter and Return on Macintosh keyboards.
+    'OSLeft':               PAGE7 + 0xe3, // The Windows, ⌘, Command or other OS symbol key.
+    'OSRight':              PAGE7 + 0xe7, // The Windows, ⌘, Command or other OS symbol key.
+    'ShiftLeft':            PAGE7 + 0xe1,
+    'ShiftRight':           PAGE7 + 0xe5,
+    'Space':                PAGE7 + 0x2c, // The   key.
+    'Tab':                  PAGE7 + 0x2b,
 
     // Japanese/Korean
-    'Convert': 0x07008a, // Japanese: 変換 (henkan)
-    'HangulMode': 0x070090, // Korean: 한/영 (han/yeong)
-    'Hanja': 0x070091, // Korean: 한자 (hanja)
-    'KanaMode': 0x070088, // Japanese: カタカナ/ひらがな/ローマ字 (katakana/hiragana/romaji)
-    'NoConvert': 0x07008b, // Japanese: 無変換 (muhenkan)
+    'Convert':              PAGE7 + 0x8a, // Japanese: 変換 (henkan)
+    'HangulMode':           PAGE7 + 0x90, // Korean: 한/영 (han/yeong)
+    'Hanja':                PAGE7 + 0x91, // Korean: 한자 (hanja)
+    'KanaMode':             PAGE7 + 0x88, // Japanese: カタカナ/ひらがな/ローマ字 (katakana/hiragana/romaji)
+    'NoConvert':            PAGE7 + 0x8b, // Japanese: 無変換 (muhenkan)
 
     // Control Pad
-    'Delete': 0x07004c,
-    'End': 0x07004d,
-    'Help': 0x070075, // Not present on standard PC keyboards.
-    'Home': 0x07004a,
-    'Insert': 0x070049, // Not present on Apple keyboards.
-    'PageDown': 0x07004e,
-    'PageUp': 0x07004b,
+    'Delete':               PAGE7 + 0x4c,
+    'End':                  PAGE7 + 0x4d,
+    'Help':                 PAGE7 + 0x75, // Not present on standard PC keyboards.
+    'Home':                 PAGE7 + 0x4a,
+    'Insert':               PAGE7 + 0x49, // Not present on Apple keyboards.
+    'PageDown':             PAGE7 + 0x4e,
+    'PageUp':               PAGE7 + 0x4b,
 
     // Arrow Pad
-    'ArrowDown': 0x070051,
-    'ArrowLeft': 0x070050,
-    'ArrowRight': 0x07004f,
-    'ArrowUp': 0x070052,
+    'ArrowDown':            PAGE7 + 0x51,
+    'ArrowLeft':            PAGE7 + 0x50,
+    'ArrowRight':           PAGE7 + 0x4f,
+    'ArrowUp':              PAGE7 + 0x52,
 
     // Numpad
-    'NumLock': 0x070053,
-    'Numpad0': 0x070062, // 0 and Insert
-    'Numpad1': 0x070059, // 1 and End
-    'Numpad2': 0x07005a, // 2 and ArrowDown
-    'Numpad3': 0x07005b, // 3 and PageDown
-    'Numpad4': 0x07005c, // 4 and ArrowLeft
-    'Numpad5': 0x07005d, // 5
-    'Numpad6': 0x07005e, // 6 and ArrowRight
-    'Numpad7': 0x07005f, // 7 and Home
-    'Numpad8': 0x070060, // 8 and ArrowUp
-    'Numpad9': 0x070061, // 9 and PageUp
-    'NumpadAdd': 0x070057, // +
-    'NumpadBackspace': 0x0700bb, // Found on the Microsoft Natural Keyboard.
-    'NumpadClear': 0x0700d8,
-    'NumpadClearEntry': 0x0700d9,
-    'NumpadComma': 0x070085, // , (thousands separator). For locales where the thousands separator is a '.' (e.g., Brazil), this key may generate a '.'.
-    'NumpadDecimal': 0x070063, // . (decimal separator) and Delete. For locales where the decimal separator is ',' (e.g., Brazil), this key may generate a ','.
-    'NumpadDivide': 0x070054, // /
-    'NumpadEnter': 0x070058,
-    'NumpadMemoryAdd': 0x0700d3,
-    'NumpadMemoryClear': 0x0700d2,
-    'NumpadMemoryRecall': 0x0700d1,
-    'NumpadMemoryStore': 0x0700d0,
-    'NumpadMemorySubtract': 0x0700d4,
-    'NumpadMultiply': 0x070055, // *
-    'NumpadParenLeft': 0x0700b6, // ( Found on the Microsoft Natural Keyboard.
-    'NumpadParenRight': 0x0700b7, // ) Found on the Microsoft Natural Keyboard.
-    'NumpadSubtract': 0x070056, // -
+    'NumLock':              PAGE7 + 0x53,
+    'Numpad0':              PAGE7 + 0x62, // 0 and Insert
+    'Numpad1':              PAGE7 + 0x59, // 1 and End
+    'Numpad2':              PAGE7 + 0x5a, // 2 and ArrowDown
+    'Numpad3':              PAGE7 + 0x5b, // 3 and PageDown
+    'Numpad4':              PAGE7 + 0x5c, // 4 and ArrowLeft
+    'Numpad5':              PAGE7 + 0x5d, // 5
+    'Numpad6':              PAGE7 + 0x5e, // 6 and ArrowRight
+    'Numpad7':              PAGE7 + 0x5f, // 7 and Home
+    'Numpad8':              PAGE7 + 0x60, // 8 and ArrowUp
+    'Numpad9':              PAGE7 + 0x61, // 9 and PageUp
+    'NumpadAdd':            PAGE7 + 0x57, // +
+    'NumpadBackspace':      PAGE7 + 0xbb, // Found on the Microsoft Natural Keyboard.
+    'NumpadClear':          PAGE7 + 0xd8,
+    'NumpadClearEntry':     PAGE7 + 0xd9,
+    'NumpadComma':          PAGE7 + 0x85, // , (thousands separator). For locales where the thousands separator is a '.' (e.g., Brazil), this key may generate a '.'.
+    'NumpadDecimal':        PAGE7 + 0x63, // . (decimal separator) and Delete. For locales where the decimal separator is ',' (e.g., Brazil), this key may generate a ','.
+    'NumpadDivide':         PAGE7 + 0x54, // /
+    'NumpadEnter':          PAGE7 + 0x58,
+    'NumpadMemoryAdd':      PAGE7 + 0xd3,
+    'NumpadMemoryClear':    PAGE7 + 0xd2,
+    'NumpadMemoryRecall':   PAGE7 + 0xd1,
+    'NumpadMemoryStore':    PAGE7 + 0xd0,
+    'NumpadMemorySubtract': PAGE7 + 0xd4,
+    'NumpadMultiply':       PAGE7 + 0x55, // *
+    'NumpadParenLeft':      PAGE7 + 0xb6, // ( Found on the Microsoft Natural Keyboard.
+    'NumpadParenRight':     PAGE7 + 0xb7, // ) Found on the Microsoft Natural Keyboard.
+    'NumpadSubtract':       PAGE7 + 0x56, // -
 
     // Function
-    'Esc': 0x070029,
-    'F1': 0x07003a,
-    'F2': 0x07003b,
-    'F3': 0x07003c,
-    'F4': 0x07003d,
-    'F5': 0x07003e,
-    'F6': 0x07003f,
-    'F7': 0x070040,
-    'F8': 0x070041,
-    'F9': 0x070042,
-    'F10': 0x070043,
-    'F11': 0x070044,
-    'F12': 0x070045,
+    'Escape':               PAGE7 + 0x29,
+    'F1':                   PAGE7 + 0x3a,
+    'F2':                   PAGE7 + 0x3b,
+    'F3':                   PAGE7 + 0x3c,
+    'F4':                   PAGE7 + 0x3d,
+    'F5':                   PAGE7 + 0x3e,
+    'F6':                   PAGE7 + 0x3f,
+    'F7':                   PAGE7 + 0x40,
+    'F8':                   PAGE7 + 0x41,
+    'F9':                   PAGE7 + 0x42,
+    'F10':                  PAGE7 + 0x43,
+    'F11':                  PAGE7 + 0x44,
+    'F12':                  PAGE7 + 0x45,
 
-    'F13': 0x070068,
-    'F14': 0x070069,
-    'F15': 0x07006a,
-    'F16': 0x07006b,
-    'F17': 0x07006c,
-    'F18': 0x07006d,
-    'F19': 0x07006e,
-    'F20': 0x07006f,
-    'F21': 0x070070,
-    'F22': 0x070071,
-    'F23': 0x070072,
-    'F24': 0x070073,
+    // Not in D4E
+    'F13':                  PAGE7 + 0x68,
+    'F14':                  PAGE7 + 0x69,
+    'F15':                  PAGE7 + 0x6a,
+    'F16':                  PAGE7 + 0x6b,
+    'F17':                  PAGE7 + 0x6c,
+    'F18':                  PAGE7 + 0x6d,
+    'F19':                  PAGE7 + 0x6e,
+    'F20':                  PAGE7 + 0x6f,
+    'F21':                  PAGE7 + 0x70,
+    'F22':                  PAGE7 + 0x71,
+    'F23':                  PAGE7 + 0x72,
+    'F24':                  PAGE7 + 0x73,
 
-    'PrintScreen': 0x070046, // PrintScreen and SysReq
-    'ScrollLock': 0x070047,
-    'Pause': 0x070048, // Pause and Break
+    'PrintScreen':          PAGE7 + 0x46, // PrintScreen and SysReq
+    'ScrollLock':           PAGE7 + 0x47,
+    'Pause':                PAGE7 + 0x48, // Pause and Break
 
     // Media keyys
-    'BrowserBack': 0x0c0224,
-    'BrowserFavorites': 0x0c0228,
-    'BrowserForward': 0x0c0225,
-    'BrowserHome': 0x0c0223,
-    'BrowserRefresh': 0x0c0227,
-    'BrowserSearch': 0x0c0221,
-    'BrowserStop': 0x0c0226,
-    'LaunchMail': 0x0c018a,
-    'MediaNextTrack': 0x0c00b5,
-    'MediaPlayPause': 0x0c00cd,
-    'MediaPreviousTrack': 0x0c00b6,
-    'MediaStop': 0x0c00b7,
-    'VolumeDown': 0x070081,
-    'VolumeMute': 0x07007f,
-    'VolumeUp': 0x070080,
+    'BrowserBack':          PAGEC + 0x0224,
+    'BrowserFavorites':     PAGEC + 0x0228,
+    'BrowserForward':       PAGEC + 0x0225,
+    'BrowserHome':          PAGEC + 0x0223,
+    'BrowserRefresh':       PAGEC + 0x0227,
+    'BrowserSearch':        PAGEC + 0x0221,
+    'BrowserStop':          PAGEC + 0x0226,
+    'LaunchMail':           PAGEC + 0x018a,
+    'MediaNextTrack':       PAGEC + 0x00b5,
+    'MediaPlayPause':       PAGEC + 0x00cd,
+    'MediaPreviousTrack':   PAGEC + 0x00b6,
+    'MediaStop':            PAGEC + 0x00b7,
+    'VolumeDown':           PAGE7 + 0x81,
+    'VolumeMute':           PAGE7 + 0x7f,
+    'VolumeUp':             PAGE7 + 0x80,
 
     // In D3E, not in D4E, but known legacy keyCode/USB
-    'Attn': 0x07009a,
-    'Cancel': 0x07009b,
-    'Clear': 0x07009c,
-    'Crsel': 0x0700a3,
-    'Execute': 0x070074,
-    'Exsel': 0x0700a4,
-    'Select': 0x070077
+    'Attn':                 PAGE7 + 0x9a,
+    'Cancel':               PAGE7 + 0x9b,
+    'Clear':                PAGE7 + 0x9c,
+    'Crsel':                PAGE7 + 0xa3,
+    'Execute':              PAGE7 + 0x74,
+    'Exsel':                PAGE7 + 0xa4,
+    'Select':               PAGE7 + 0x77
   };
 
 
