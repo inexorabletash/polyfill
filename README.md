@@ -120,6 +120,8 @@ Not yet approved:
 Helpers:
 * `forOf(o, function(i) { ... })` - since `for (i of o) { ... }` can't be polyfilled. Uses iterators, so works with arrays, maps, sets, and strings, via implicit @@iterator and explicit iterators returned by keys/values/entries methods and functions.
 
+See also: [uate - ES5 "tagged template strings"](https://github.com/inexorabletash/uate)
+
 ### Binary Data
 
 [script](bindata.js) -
