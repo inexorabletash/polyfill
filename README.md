@@ -82,8 +82,8 @@ ECMAScript 5 (polyfill)
 
 Does not include JSON - use [json2.js](https://github.com/douglascrockford/JSON-js)
 
-ECMAScript 6 / "Harmony" (polyfill)
------------------------------------
+ECMAScript 6 / "Harmony" (prollyfill)
+-------------------------------------
 [script](harmony.js) -
 [unit tests](http://calormen.com/polyfill/tests/harmony.html)
 
@@ -125,7 +125,7 @@ Helpers:
 [script](bindata.js) -
 [demo page](http://calormen.com/polyfill/demos/bindata.html)
 
-Proposed for ES6 - http://wiki.ecmascript.org/doku.php?id=harmony:binary_data
+Proposed for ES7 - http://wiki.ecmascript.org/doku.php?id=harmony:binary_data
 
 
 Typed Arrays (polyfill)
