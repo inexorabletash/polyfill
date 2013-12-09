@@ -2,24 +2,39 @@
 <meta charset="UTF-8">
 
 <script type="text/javascript" src="../polyfill.js"></script>
+<script>
+var IDENTIFY_KEY_ASSIGN_KEY_IDENTIFIER = true;
+var IDENTIFY_KEY_ASSIGN_KEY_LOCATION = true;
+var IDENTIFY_KEY_ASSIGN_USB_USAGE = true;;
+</script>
 <script type="text/javascript" src="../keyboard.js"></script>
 
 <style>
-#keyboard { font-family: Sans-Serif; font-size: 10pt; width: 1190px; height: 290px; background-color: #eeeeee; }
+#keyboard {
+  font-family: Sans-Serif;
+  font-size: 10pt;
+  width: 1190px; height: 290px;
+  background-color: #eeeeee;
+}
 .section { float: left; margin: 10px;}
 
+.key.os-win, .key.os-mac, .key.os-cros { display: none; }
+body.os-win .key.os-win,
+body.os-mac .key.os-mac,
+body.os-cros .key.os-cros { display: inline-block }
+
 .key, .gap {
-	display: inline-block;
-	overflow: hidden;
-	vertical-align: top;
-	width: 20px;
-	height: 20px;
-	margin: 2px;
-	padding: 10px;
-	border: solid 2px black;
-	border-radius: 4px;
-	white-space: nowrap;
-	text-align: center;
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  width: 20px;
+  height: 20px;
+  margin: 2px;
+  padding: 10px;
+  border: solid 2px black;
+  border-radius: 4px;
+  white-space: nowrap;
+  text-align: center;
 }
 .gap { border-color: transparent; }
 .tiny { font-size: 6pt; }
@@ -127,12 +142,14 @@
 
 <div>
 <span class="key Control ControlLeft">Ctrl</span>
-<span class="key Win OSLeft">Win</span>
+<span class="key OSLeft os-win">Win</span>
+<span class="key OSLeft os-mac">&#x2318;</span>
 <span class="key Alt AltLeft">Alt</span>
 <span class="key Space">Spacebar</span>
 <span class="key Alt AltRight">Alt</span>
-<span class="key Win OSRight">Win</span>
-<span class="key ContextMenu">Menu</span>
+<span class="key OSRight os-win">Win</span>
+<span class="key OSRight os-mac">&#x2318;</span>
+<span class="key ContextMenu os-win os-mac">Menu</span>
 <span class="key Control ControlRight">Ctrl</span>
 </div>
 </div>
@@ -212,4 +229,3 @@
 <script src="keyboard_test.js"></script>
 
 </body>
-

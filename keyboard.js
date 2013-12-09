@@ -154,6 +154,11 @@ window.KeyboardEvent.DOM_KEY_LOCATION_NUMPAD        = 0x03; // e.g. Numpad 0 or 
 window.KeyboardEvent.DOM_KEY_LOCATION_MOBILE        = 0x04;
 window.KeyboardEvent.DOM_KEY_LOCATION_JOYSTICK      = 0x05;
 
+// Optionally set these to true for properties from older proposals.
+var IDENTIFY_KEY_ASSIGN_KEY_IDENTIFIER;
+var IDENTIFY_KEY_ASSIGN_KEY_LOCATION;
+var IDENTIFY_KEY_ASSIGN_USB_USAGE;
+
 (function(global) {
 
   //--------------------------------------------------------------------
@@ -895,8 +900,11 @@ window.KeyboardEvent.DOM_KEY_LOCATION_JOYSTICK      = 0x05;
     };
 
     // TODO: Update dependent files (e.g. Applesoft TTY) and remove these
-    event.keyIdentifier = event.keyIdentifier || event.code;
-    event.keyLocation = event.location;
-    event.usbUsage = event.usbUsage || codeToUsbTable[event.code];
+    if (IDENTIFY_KEY_ASSIGN_KEY_IDENTIFIER)
+      event.keyIdentifier = event.keyIdentifier || event.code;
+    if (IDENTIFY_KEY_ASSIGN_KEY_LOCATION)
+      event.keyLocation = event.location;
+    if (IDENTIFY_KEY_ASSIGN_USB_USAGE)
+      event.usbUsage = event.usbUsage || codeToUsbTable[event.code];
   };
 } (window));
