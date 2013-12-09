@@ -82,12 +82,16 @@ ECMAScript 5 (polyfill)
 
 Does not include JSON - use [json2.js](https://github.com/douglascrockford/JSON-js)
 
-ECMAScript 6 / "Harmony" (prollyfill)
+ECMAScript "Harmony" (prollyfills)
 -------------------------------------
+
+"Harmony" is the aspirational term for the future of ECMAScript (the standardized version of JavaScript) beyond ES5.
+
+### ES6
+
 [script](harmony.js) -
 [unit tests](http://calormen.com/polyfill/tests/harmony.html)
 
-"Harmony" is the aspirational term for the future of ECMAScript (the standardized version of JavaScript) beyond ES5.
 The standardization of ES6 is currently in progress.
 This will attempt to track the evolving spec, so may change at any time.
 
