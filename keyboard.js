@@ -844,8 +844,8 @@ window.KeyboardEvent.DOM_KEY_LOCATION_JOYSTICK      = 0x05;
     var keyCode = 'keyCode' in event ? event.keyCode : 'which' in event ? event.which : 0;
 
     var keyInfo = (function(){
-      if ('keyLocation' in event || 'location' in event) {
-        var location = event.keyLocation || event.location;
+      if ('location' in event || 'keyLocation' in event) {
+        var location = 'location' in event ? event.location : event.keyLocation;
         if (location && keyCode in locationTable[location]) {
           return locationTable[location][keyCode];
         }
@@ -878,7 +878,9 @@ window.KeyboardEvent.DOM_KEY_LOCATION_JOYSTICK      = 0x05;
 
     // Current version of the spec:
     event.code = event.code || keyInfo.code || '';
-    event.location = event.location || event.keyLocation || keyInfo.location || KeyboardEvent.DOM_KEY_LOCATION_STANDARD;
+    event.location = ('location' in event) ? event.location :
+      ('keyLocation' in event) ? event.keyLocation :
+      ('location' in keyInfo) ? keyInfo.location : KeyboardEvent.DOM_KEY_LOCATION_STANDARD;
     event.queryKeyCap = event.queryKeyCap || function(code, locale) {
       code = String(code);
       if (!codeTable.hasOwnProperty(code)) {
@@ -894,7 +896,7 @@ window.KeyboardEvent.DOM_KEY_LOCATION_JOYSTICK      = 0x05;
 
     // TODO: Update dependent files (e.g. Applesoft TTY) and remove these
     event.keyIdentifier = event.keyIdentifier || event.code;
-    event.keyLocation = event.keyLocation || event.location;
+    event.keyLocation = event.location;
     event.usbUsage = event.usbUsage || codeToUsbTable[event.code];
   };
 } (window));
