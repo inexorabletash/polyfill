@@ -899,7 +899,6 @@ var IDENTIFY_KEY_ASSIGN_USB_USAGE;
       return keyInfo.keyCap || keyInfo.code || 'Undefined';
     };
 
-    // TODO: Update dependent files (e.g. Applesoft TTY) and remove these
     if (IDENTIFY_KEY_ASSIGN_KEY_IDENTIFIER)
       event.keyIdentifier = event.keyIdentifier || event.code;
     if (IDENTIFY_KEY_ASSIGN_KEY_LOCATION)
