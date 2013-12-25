@@ -265,18 +265,18 @@
 
   // 7.1.8 ToString - just use String()
 
-  // 7.1.9 ToObject
+  // 7.1.13 ToObject
   function ToObject(v) {
     if (v === null || v === undefined) throw new TypeError();
     return Object(v);
   }
 
-  // 7.1.10 ToPropertyKey
+  // 7.1.14 ToPropertyKey
   function ToPropertyKey(v) {
     return String(v);
   }
 
-  // 7.1.11
+  // 7.1.15
   function ToLength(v) {
     var len = ToInteger(v);
     if (len <= 0) {
@@ -353,22 +353,22 @@
   // 7.3.1 Get - just use o.p or o[p]
   // 7.3.2 Put - just use o.p = v or o[p] = v
 
-  // 7.3.6 HasProperty (O, P)
+  // 7.3.7 HasProperty (O, P)
   function HasProperty(o, p) { return p in o; }
 
-  // 7.3.7 HasOwnProperty (O, P)
+  // 7.3.8 HasOwnProperty (O, P)
   function HasOwnProperty(o, p) { return Object.prototype.hasOwnProperty.call(o, p); }
 
   //----------------------------------------
   // 9 ECMAScript Ordinary and Exotic Objects Behaviors
   //----------------------------------------
 
-  // 9.1.13 [[OwnPropertyKeys]] ()
+  // 9.1.12 [[OwnPropertyKeys]] ()
   function OwnPropertyKeys(o) {
     return Object.getOwnPropertyNames(o)[$$iterator]();
   }
 
-  // 9.1.14 ObjectCreate(proto, internalDataList)
+  // 9.1.13 ObjectCreate(proto, internalDataList)
   function ObjectCreate(proto, internalDataList) {
     return Object.create(proto, internalDataList);
   }
