@@ -108,8 +108,8 @@ if ('window' in this && 'document' in this) {
   // setImmediate
   // https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html
   (function () {
-    function setImmediate(callback, args) {
-      var params = [].slice.call(arguments, 1), i;
+    function setImmediate(callback/*, args*/) {
+      var params = [].slice.call(arguments, 1);
       return window.setTimeout(function() {
         callback.apply(null, params);
       }, 0);
@@ -333,7 +333,7 @@ if ('window' in this && 'document' in this) {
       if (type === 'DOMContentLoaded') type = 'load';
       var target = this;
       var f = function(e) {
-        e._timeStamp = Number(new Date);
+        e._timeStamp = Date.now();
         e._currentTarget = target;
         listener.call(this, e);
         e._currentTarget = null;
@@ -372,7 +372,7 @@ if ('window' in this && 'document' in this) {
         e.preventDefault = function () { e.returnValue = false; };
         e.stopPropagation = function () { e.cancelBubble = true; };
         e.target = e.srcElement;
-        e.timeStamp = Number(new Date);
+        e.timeStamp = Date.now();
         obj["e" + type + fn].call(this, e);
       };
       obj.attachEvent("on" + type, obj[type + fn]);
@@ -441,12 +441,12 @@ if ('window' in this && 'document' in this) {
           },
 
           add: {
-            value: function (tokens___) {
-              tokens = Array.prototype.slice.call(arguments).map(String);
+            value: function (/*tokens...*/) {
+              var tokens = Array.prototype.slice.call(arguments).map(String);
               if (tokens.some(function(token) { return token.length === 0; })) {
                 throw new SyntaxError();
               }
-              if (tokens.some(function(token) { return /\s/.test(token); })) {
+              if (tokens.some(function(token) { return (/\s/).test(token); })) {
                 throw new Error("InvalidCharacterError");
               }
 
@@ -457,7 +457,7 @@ if ('window' in this && 'document' in this) {
                 if (tokens.length === 0) {
                   return;
                 }
-                if (underlying_string.length !== 0 && !/\s$/.test(underlying_string)) {
+                if (underlying_string.length !== 0 && !(/\s$/).test(underlying_string)) {
                   underlying_string += ' ';
                 }
                 underlying_string += tokens.join(' ');
@@ -470,12 +470,12 @@ if ('window' in this && 'document' in this) {
           },
 
           remove: {
-            value: function (tokens___) {
-              tokens = Array.prototype.slice.call(arguments).map(String);
+            value: function (/*tokens...*/) {
+              var tokens = Array.prototype.slice.call(arguments).map(String);
               if (tokens.some(function(token) { return token.length === 0; })) {
                 throw new SyntaxError();
               }
-              if (tokens.some(function(token) { return /\s/.test(token); })) {
+              if (tokens.some(function(token) { return (/\s/).test(token); })) {
                 throw new Error("InvalidCharacterError");
               }
 
