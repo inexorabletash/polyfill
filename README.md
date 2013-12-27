@@ -183,9 +183,13 @@ W3C Keyboard Events (helper)
 // In your keydown/keyup handler, call:
 window.identifyKey(keyboardEvent);
 
-// This adds the following properties to keyboardEvent:
-keyboardEvent.code
-keyboardEvent.location
+// Or listen during the capture phase (IE9+):
+window.addEventListener('keydown', identifyKey, true);
+window.addEventListener('keyup', identifyKey, true);
+
+// This adds the following properties to each KeyboardEvent:
+event.code
+event.location
 
 // You can get a label for the key using:
 KeyboardEvent.queryKeyCap(code);
