@@ -101,7 +101,7 @@ In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification
 * Number prototype: `clz()`
 * Math: `acosh()`, `asinh()`, `atanh()`, `cbrt()`, `cosh()`, `expm1()`, `fround`, `hypot()`, `imul()`, `log1p()`, `log10()`, `log2()`, `sign()`, `sinh()`, `tanh()`, `trunc()`
 * String: `fromCodePoint()`
-* String.prototype: `codePointAt()`, `contains()`, `endsWith()`, `repeat()`, `startsWith()`
+* String.prototype: `codePointAt()`, `contains()`, `endsWith()`, `repeat()`, `startsWith()`, `[@@iterator]()`
 * Array: `from()`, `of()`
 * Array prototype: `copyWithin()`, `entries()`, `fill()`, `find()`, `findIndex()`, `keys()`, `values()`, `[@@iterator]()`
 * %TypedArray%.prototype: `from()`, `of()`
@@ -111,15 +111,14 @@ In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification
 * WeakMap (intrusive; modifies valueOf property of key): `clear()`, `delete()`, `get()`, `has()`, `set()`
 * WeakSet (intrusive; modifies valueOf property of key): `add()`, `clear()`, `delete()`, `has()`
 * Promise: `p = new Promise()`, `Promise.resolve()`, `Promise.reject()`, `Promise.cast()`, `Promise.race()`, `Promise.all()`, `p.then()`, `p.catch()`
+* Symbol: `Symbol(description)`, `Symbol.iterator`, `Symbol.toStringTag`
+  * No security, just creates an object with a unique string representation. `typeof Symbol()` will incorrectly report `"object"` but `Symbol() instanceof Symbol` will return `true`
 
 Not yet approved:
 * Number: `compare()`
 * Array prototype: `pushAll()`, `contains()` [ref](https://mail.mozilla.org/pipermail/es-discuss/2011-December/019099.html)
-* String prototype: `[@@iterator]()` [ref](http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html)
 * Dict: `keys(dict)`, `values(dict)`, `entries(dict)`
   * `dict()` is shortcut for `Object.create(null)`
-* Symbol: `Symbol(description)`, `Symbol.iterator`, `Symbol.toStringTag`
-  * No security, just creates an object with a unique string representation. `typeof Symbol()` will incorrectly report `"object"` but `Symbol() instanceof Symbol` will return `true`
 
 Helpers:
 * `forOf(o, function(i) { ... })` - since `for (i of o) { ... }` can't be polyfilled. Uses iterators, so works with arrays, maps, sets, and strings, via implicit @@iterator and explicit iterators returned by keys/values/entries methods and functions.
