@@ -94,6 +94,7 @@ ECMAScript "Harmony" (prollyfills)
 
 The standardization of ES6 is currently in progress.
 This will attempt to track the evolving spec, so may change at any time.
+This assumes ES5, so use es5.js for older browsers (IE9-).
 
 In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts):
 #### Fundamental Objects
@@ -114,7 +115,7 @@ In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification
 #### Indexed Collections
 * Array: `from()`, `of()`
 * Array prototype: `copyWithin()`, `entries()`, `fill()`, `find()`, `findIndex()`, `keys()`, `values()`, `[@@iterator]()`
-* _TypedArray_ - see [typedarray.js](#typedarray)
+* _TypedArray_ - for browsers without native support (IE9-) include [typedarray.js](#typedarray)
 * %TypedArray% prototype: `from()`, `of()`
 * %TypedArray% prototype: `copyWithin()`, `entries()`, `every()`, `fill()`, `filter()`, `find()`, `findIndex()`, `forEach()`, `indexOf()`, `join()`, `keys()`, `lastIndexOf()`, `map()`, `reduce()`, `reduceRight()`, `reverse()`, `slice()`, `some()`, `sort()`, `values()`, `[@@iterator]()`
 
