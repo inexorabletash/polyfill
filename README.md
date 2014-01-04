@@ -96,23 +96,30 @@ The standardization of ES6 is currently in progress.
 This will attempt to track the evolving spec, so may change at any time.
 
 In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts):
-* Object: `assign()`, `is()`, `mixin()`, `setPrototypeOf()`
-* Number: `EPILON`, `isFinite()`, `isInteger()`, `isNaN()`, `isSafeInteger()`, `MAX_SAFE_INTEGER`, `MIN_SAFE_INTEGER`, `parseFloat()`, `parseInt()`
-* Number prototype: `clz()`
-* Math: `acosh()`, `asinh()`, `atanh()`, `cbrt()`, `cosh()`, `expm1()`, `fround`, `hypot()`, `imul()`, `log1p()`, `log10()`, `log2()`, `sign()`, `sinh()`, `tanh()`, `trunc()`
-* String: `fromCodePoint()`
-* String.prototype: `codePointAt()`, `contains()`, `endsWith()`, `repeat()`, `startsWith()`, `[@@iterator]()`
-* Array: `from()`, `of()`
-* Array prototype: `copyWithin()`, `entries()`, `fill()`, `find()`, `findIndex()`, `keys()`, `values()`, `[@@iterator]()`
-* %TypedArray%.prototype: `from()`, `of()`
-* %TypedArray%.prototype: `copyWithin()`, `entries()`, `every()`, `fill()`, `filter()`, `find()`, `findIndex()`, `forEach()`, `indexOf()`, `join()`, `keys()`, `lastIndexOf()`, `map()`, `reduce()`, `reduceRight()`, `reverse()`, `slice()`, `some()`, `sort()`, `values()`, `[@@iterator]()`
-* Map: `clear()`, `delete()`, `entries()`, `forEach()`, `get()`, `keys()`, `has()`, `set()`, `size`, `values()`, `[@@iterator]()`
-* Set: `add()`, `clear()`, `delete()`, `entries()`, `forEach()`, `has()`, `size`, `values()`, `[@@iterator]()`
-* WeakMap (intrusive; modifies valueOf property of key): `clear()`, `delete()`, `get()`, `has()`, `set()`
-* WeakSet (intrusive; modifies valueOf property of key): `add()`, `clear()`, `delete()`, `has()`
+* Fundamental Objects
+  * Object: `assign()`, `is()`, `mixin()`, `setPrototypeOf()`
+  * Symbol: `Symbol(description)`, `Symbol.iterator`, `Symbol.toStringTag`
+    * No security, just creates an object with a unique string representation. `typeof Symbol()` will incorrectly report `"object"` but `Symbol() instanceof Symbol` will return `true`
+* Numbers and Dates
+  * Number: `EPILON`, `isFinite()`, `isInteger()`, `isNaN()`, `isSafeInteger()`, `MAX_SAFE_INTEGER`, `MIN_SAFE_INTEGER`, `parseFloat()`, `parseInt()`
+  * Number prototype: `clz()`
+  * Math: `acosh()`, `asinh()`, `atanh()`, `cbrt()`, `cosh()`, `expm1()`, `fround`, `hypot()`, `imul()`, `log1p()`, `log10()`, `log2()`, `sign()`, `sinh()`, `tanh()`, `trunc()`
+* Text Processing
+  * String: `fromCodePoint()`
+  * String.prototype: `codePointAt()`, `contains()`, `endsWith()`, `repeat()`, `startsWith()`, `[@@iterator]()`
+* Indexed Collections
+  * Array: `from()`, `of()`
+  * Array prototype: `copyWithin()`, `entries()`, `fill()`, `find()`, `findIndex()`, `keys()`, `values()`, `[@@iterator]()`
+  * /TypedArray/ - see [typedarray.js](#typedarray)
+  * %TypedArray%.prototype: `from()`, `of()`
+  * %TypedArray%.prototype: `copyWithin()`, `entries()`, `every()`, `fill()`, `filter()`, `find()`, `findIndex()`, `forEach()`, `indexOf()`, `join()`, `keys()`, `lastIndexOf()`, `map()`, `reduce()`, `reduceRight()`, `reverse()`, `slice()`, `some()`, `sort()`, `values()`, `[@@iterator]()`
+* Keyed Collection
+  * Map: `clear()`, `delete()`, `entries()`, `forEach()`, `get()`, `keys()`, `has()`, `set()`, `size`, `values()`, `[@@iterator]()`
+  * Set: `add()`, `clear()`, `delete()`, `entries()`, `forEach()`, `has()`, `size`, `values()`, `[@@iterator]()`
+  * WeakMap (intrusive; modifies valueOf property of key): `clear()`, `delete()`, `get()`, `has()`, `set()`
+  * WeakSet (intrusive; modifies valueOf property of key): `add()`, `clear()`, `delete()`, `has()`
+
 * Promise: `p = new Promise()`, `Promise.resolve()`, `Promise.reject()`, `Promise.cast()`, `Promise.race()`, `Promise.all()`, `p.then()`, `p.catch()`
-* Symbol: `Symbol(description)`, `Symbol.iterator`, `Symbol.toStringTag`
-  * No security, just creates an object with a unique string representation. `typeof Symbol()` will incorrectly report `"object"` but `Symbol() instanceof Symbol` will return `true`
 
 Not yet approved:
 * Number: `compare()`
@@ -132,7 +139,7 @@ See also: [uate - ES5 "tagged template strings"](https://github.com/inexorableta
 
 Proposed for ES7 - http://wiki.ecmascript.org/doku.php?id=harmony:binary_data
 
-
+<a name="typedarray"></name>
 Typed Arrays (polyfill)
 -----------------------
 [script](typedarray.js) -
