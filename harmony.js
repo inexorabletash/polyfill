@@ -12,13 +12,13 @@
 
   function assert(c) {
     if (!c) {
-      throw new Error("Internal assertion failure");
+      throw Error("Internal assertion failure");
     }
   }
 
   function hook(o, p, f) {
     var op = o[p];
-    if (typeof op !== 'function') { throw new TypeError('Not a function'); }
+    if (typeof op !== 'function') { throw TypeError('Not a function'); }
     o[p] = function() {
       var r = f.apply(this, arguments);
       return r !== undefined ? r : op.apply(this, arguments);
@@ -32,7 +32,7 @@
     if (typeof v === 'function') {
       // Sanity check that functions are appropriately named (where possible)
       if ('name' in v && !(p instanceof global.Symbol) && v.name !== p && v.name !== p + "Function")
-        throw new Error(v.name + " !== " + p);
+        throw Error(v.name + " !== " + p);
       Object.defineProperty(o, p, {
         value: v,
         configurable: true,
@@ -164,7 +164,7 @@
 
     function Symbol(description) {
       if (!(this instanceof Symbol)) return new Symbol(description, secret);
-      if (this instanceof Symbol && arguments[1] !== secret) throw new TypeError();
+      if (this instanceof Symbol && arguments[1] !== secret) throw TypeError();
 
       var descString = description === undefined ? undefined : String(description);
 
@@ -267,7 +267,7 @@
 
   // 7.1.13 ToObject
   function ToObject(v) {
-    if (v === null || v === undefined) throw new TypeError();
+    if (v === null || v === undefined) throw TypeError();
     return Object(v);
   }
 
@@ -508,8 +508,8 @@
   define(
     Object, 'setPrototypeOf',
     function setPrototypeOf(o, proto) {
-      if (Type(o) !== 'object') { throw new TypeError(); }
-      if (Type(proto) !== 'object' && Type(proto) !== 'null') { throw new TypeError(); }
+      if (Type(o) !== 'object') { throw TypeError(); }
+      if (Type(proto) !== 'object' && Type(proto) !== 'null') { throw TypeError(); }
       o.__proto__ = proto;
       return o;
     }
@@ -1092,7 +1092,7 @@
         var nextCP = Number(next);
         if (!SameValue(nextCP, ToInteger(nextCP)) ||
             nextCP < 0 || nextCP > 0x10FFFF) {
-          throw new RangeError('Invalid code point ' + nextCP);
+          throw RangeError('Invalid code point ' + nextCP);
         }
         if (nextCP < 0x10000) {
           elements.push(String.fromCharCode(nextCP));
@@ -1188,8 +1188,8 @@
       var o = this;
       var s = String(o);
       var n = ToInteger(count);
-      if (n < 0) throw new RangeError();
-      if (n === Infinity) throw new RangeError();
+      if (n < 0) throw RangeError();
+      if (n === Infinity) throw RangeError();
       var t = new Array(n + 1).join(s);
       return t;
     });
@@ -1353,7 +1353,7 @@
       if (mapfn === undefined) {
         var mapping = false;
       } else {
-        if (!IsCallable(mapfn)) throw new TypeError();
+        if (!IsCallable(mapfn)) throw TypeError();
         var t = thisArg;
         mapping = true;
       }
@@ -1552,7 +1552,7 @@
       var o = ToObject(this);
       var lenValue = o.length;
       var len = ToInteger(lenValue);
-      if (!IsCallable(predicate)) { throw new TypeError(); }
+      if (!IsCallable(predicate)) { throw TypeError(); }
       var t = arguments.length > 1 ? arguments[1] : undefined;
       var k = 0;
       while (k < len) {
@@ -1577,7 +1577,7 @@
       var o = ToObject(this);
       var lenValue = o.length;
       var len = ToInteger(lenValue);
-      if (!IsCallable(predicate)) { throw new TypeError(); }
+      if (!IsCallable(predicate)) { throw TypeError(); }
       var t = arguments.length > 1 ? arguments[1] : undefined;
       var k = 0;
       while (k < len) {
@@ -1661,7 +1661,7 @@
     ArrayIterator.prototype, 'next',
     function next() {
       var o = this;
-      if (Type(o) !== 'object') { throw new TypeError; }
+      if (Type(o) !== 'object') { throw TypeError; }
       var a = o['[[IteratedObject]]'],
           index = o['[[ArrayIteratorNextIndex]]'],
           itemKind = o['[[ArrayIterationKind]]'],
@@ -1695,7 +1695,7 @@
       } else if (itemKind === 'value') {
         return CreateItrResultObject(elementValue, false);
       }
-      throw new Error('Internal error');
+      throw Error('Internal error');
     });
 
   // 22.1.5.2.3 ArrayIterator.prototype.@@iterator ( )
@@ -1741,12 +1741,12 @@
          var thisArg = arguments[2];
 
          var c = this;
-         if (!IsConstructor(c)) throw new TypeError();
+         if (!IsConstructor(c)) throw TypeError();
          var items = ToObject(source);
          if (mapfn === undefined) {
            var mapping = false;
          } else {
-           if (IsCallable(mapfn)) throw new TypeError();
+           if (IsCallable(mapfn)) throw TypeError();
            var t = thisArg;
            mapping = true;
          }
@@ -1841,7 +1841,7 @@
          var o = ToObject(this);
          var lenVal = o.length;
          var len = ToLength(lenVal);
-         if (!IsCallable(callbackfn)) throw new TypeError();
+         if (!IsCallable(callbackfn)) throw TypeError();
          var t = thisArg;
          var c = o.constructor;
          var kept = [];
@@ -1898,7 +1898,7 @@
          var o = ToObject(this);
          var lenValue = o.length;
          var len = ToLength(lenValue);
-         if (!IsCallable(callbackfn)) throw new TypeError();
+         if (!IsCallable(callbackfn)) throw TypeError();
          var t = thisArg;
          var a = undefined;
          var c = o.constructor;
@@ -1947,7 +1947,7 @@
          if (IsConstructor(c)) {
            var a = new c(count);
          } else {
-           throw new TypeError();
+           throw TypeError();
          }
          var n = 0;
          while (k < final) {
@@ -2031,17 +2031,17 @@
 
       var map = this;
 
-      if (Type(map) !== 'object') { throw new TypeError(); }
-      if ('[[MapData]]' in map) { throw new TypeError(); }
+      if (Type(map) !== 'object') { throw TypeError(); }
+      if ('[[MapData]]' in map) { throw TypeError(); }
 
       if (iterable !== undefined) {
         iterable = ToObject(iterable);
         var itr = iterable[$$iterator](); // or throw...
         var adder = map['set'];
-        if (!IsCallable(adder)) { throw new TypeError(); }
+        if (!IsCallable(adder)) { throw TypeError(); }
       }
       set_internal(map, '[[MapData]]', { keys: [], values: [] });
-      if (comparator !== undefined && comparator !== "is") { throw new TypeError(); }
+      if (comparator !== undefined && comparator !== "is") { throw TypeError(); }
       map._mapComparator = comparator;
 
       if (iterable === undefined) {
@@ -2052,7 +2052,7 @@
         if (next === false)
           return map;
         var nextItem = IteratorValue(next);
-        if (Type(nextItem) !== 'object') throw new TypeError();
+        if (Type(nextItem) !== 'object') throw TypeError();
         var k = nextItem[0];
         var v = nextItem[1];
         adder.call(map, k, v);
@@ -2086,9 +2086,9 @@
       Map.prototype, 'clear',
       function clear() {
         var m = this;
-        if (Type(m) !== 'object') throw new TypeError();
-        if (!('[[MapData]]' in m)) throw new TypeError();
-        if (m['[[MapData]]'] === undefined) throw new TypeError();
+        if (Type(m) !== 'object') throw TypeError();
+        if (!('[[MapData]]' in m)) throw TypeError();
+        if (m['[[MapData]]'] === undefined) throw TypeError();
         var entries = m['[[MapData]]'];
         entries.keys.length = 0;
         entries.values.length = 0;
@@ -2101,9 +2101,9 @@
       Map.prototype, 'delete',
       function deleteFunction(key) {
         var m = this;
-        if (Type(m) !== 'object') throw new TypeError();
-        if (!('[[MapData]]' in m)) throw new TypeError();
-        if (m['[[MapData]]'] === undefined) throw new TypeError();
+        if (Type(m) !== 'object') throw TypeError();
+        if (!('[[MapData]]' in m)) throw TypeError();
+        if (m['[[MapData]]'] === undefined) throw TypeError();
         var entries = m['[[MapData]]'];
         var same = (m._mapComparator === undefined) ?
               SameValueZero : SameValue;
@@ -2119,7 +2119,7 @@
       Map.prototype, 'entries',
       function entries() {
         var m = this;
-        if (Type(m) !== 'object') throw new TypeError();
+        if (Type(m) !== 'object') throw TypeError();
         return CreateMapIterator(m, 'key+value');
       });
 
@@ -2130,13 +2130,13 @@
         var thisArg = arguments[1];
 
         var m = this;
-        if (Type(m) !== 'object') throw new TypeError();
-        if (!('[[MapData]]' in m)) throw new TypeError();
-        if (m['[[MapData]]'] === undefined) throw new TypeError();
+        if (Type(m) !== 'object') throw TypeError();
+        if (!('[[MapData]]' in m)) throw TypeError();
+        if (m['[[MapData]]'] === undefined) throw TypeError();
         var entries = m['[[MapData]]'];
 
         if (!IsCallable(callbackfn)) {
-          throw new TypeError('First argument to forEach is not callable.');
+          throw TypeError('First argument to forEach is not callable.');
         }
         for (var i = 0; i < entries.keys.length; ++i) {
           if (entries.keys[i] !== empty) {
@@ -2150,9 +2150,9 @@
       Map.prototype, 'get',
       function get(key) {
         var m = this;
-        if (Type(m) !== 'object') throw new TypeError();
-        if (!('[[MapData]]' in m)) throw new TypeError();
-        if (m['[[MapData]]'] === undefined) throw new TypeError();
+        if (Type(m) !== 'object') throw TypeError();
+        if (!('[[MapData]]' in m)) throw TypeError();
+        if (m['[[MapData]]'] === undefined) throw TypeError();
         var entries = m['[[MapData]]'];
         var same = (m._mapComparator === undefined) ?
               SameValueZero : SameValue;
@@ -2165,9 +2165,9 @@
       Map.prototype, 'has',
       function has(key) {
         var m = this;
-        if (Type(m) !== 'object') throw new TypeError();
-        if (!('[[MapData]]' in m)) throw new TypeError();
-        if (m['[[MapData]]'] === undefined) throw new TypeError();
+        if (Type(m) !== 'object') throw TypeError();
+        if (!('[[MapData]]' in m)) throw TypeError();
+        if (m['[[MapData]]'] === undefined) throw TypeError();
         var entries = m['[[MapData]]'];
         var same = (m._mapComparator === undefined) ?
               SameValueZero : SameValue;
@@ -2179,7 +2179,7 @@
       Map.prototype, 'keys',
       function keys() {
         var m = this;
-        if (Type(m) !== 'object') throw new TypeError();
+        if (Type(m) !== 'object') throw TypeError();
         return CreateMapIterator(m, 'key');
       });
 
@@ -2188,9 +2188,9 @@
       Map.prototype, 'set',
       function set(key, val) {
         var m = this;
-        if (Type(m) !== 'object') throw new TypeError();
-        if (!('[[MapData]]' in m)) throw new TypeError();
-        if (m['[[MapData]]'] === undefined) throw new TypeError();
+        if (Type(m) !== 'object') throw TypeError();
+        if (!('[[MapData]]' in m)) throw TypeError();
+        if (m['[[MapData]]'] === undefined) throw TypeError();
         var entries = m['[[MapData]]'];
         var same = (m._mapComparator === undefined) ?
               SameValueZero : SameValue;
@@ -2206,9 +2206,9 @@
       Map.prototype, 'size', {
         get: function() {
           var m = this;
-          if (Type(m) !== 'object') throw new TypeError();
-          if (!('[[MapData]]' in m)) throw new TypeError();
-          if (m['[[MapData]]'] === undefined) throw new TypeError();
+          if (Type(m) !== 'object') throw TypeError();
+          if (!('[[MapData]]' in m)) throw TypeError();
+          if (m['[[MapData]]'] === undefined) throw TypeError();
           var entries = m['[[MapData]]'];
           var count = 0;
           for (var i = 0; i < entries.keys.length; ++i) {
@@ -2224,7 +2224,7 @@
       Map.prototype, 'values',
       function values() {
         var m = this;
-        if (Type(m) !== 'object') throw new TypeError();
+        if (Type(m) !== 'object') throw TypeError();
         return CreateMapIterator(m, 'value');
       });
 
@@ -2233,7 +2233,7 @@
       Map.prototype, $$iterator,
       function() {
         var m = this;
-        if (Type(m) !== 'object') throw new TypeError();
+        if (Type(m) !== 'object') throw TypeError();
         return CreateMapIterator(m, 'key+value');
       });
 
@@ -2247,9 +2247,9 @@
 
     // 23.1.5.1 CreateMapIterator Abstract Operation
     function CreateMapIterator(map, kind) {
-      if (Type(map) !== 'object') throw new TypeError();
-      if (!('[[MapData]]' in map)) throw new TypeError();
-      if (map['[[MapData]]'] === undefined) throw new TypeError();
+      if (Type(map) !== 'object') throw TypeError();
+      if (!('[[MapData]]' in map)) throw TypeError();
+      if (map['[[MapData]]'] === undefined) throw TypeError();
       var iterator = new MapIterator;
       set_internal(iterator, '[[Map]]', map);
       set_internal(iterator, '[[MapNextIndex]]', 0);
@@ -2266,7 +2266,7 @@
       MapIterator.prototype, 'next',
       function next() {
         var o = this;
-        if (Type(o) !== 'object') { throw new TypeError(); }
+        if (Type(o) !== 'object') { throw TypeError(); }
         var m = o['[[Map]]'],
             index = o['[[MapNextIndex]]'],
             itemKind = o['[[MapIterationKind]]'],
@@ -2319,17 +2319,17 @@
 
       var set = this;
 
-      if (Type(set) !== 'object') { throw new TypeError(); }
-      if ('[[SetData]]' in set) { throw new TypeError(); }
+      if (Type(set) !== 'object') { throw TypeError(); }
+      if ('[[SetData]]' in set) { throw TypeError(); }
 
       if (iterable !== undefined) {
         iterable = ToObject(iterable);
         var itr = HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
         var adder = set['add'];
-        if (!IsCallable(adder)) { throw new TypeError(); }
+        if (!IsCallable(adder)) { throw TypeError(); }
       }
       set_internal(set, '[[SetData]]', []);
-      if (comparator !== undefined && comparator !== "is") { throw new TypeError(); }
+      if (comparator !== undefined && comparator !== "is") { throw TypeError(); }
       set._setComparator = comparator;
       if (iterable === undefined) {
         return set;
@@ -2372,9 +2372,9 @@
       Set.prototype, 'add',
       function add(value) {
         var s = this;
-        if (Type(s) !== 'object') throw new TypeError();
-        if (!('[[SetData]]' in s)) throw new TypeError();
-        if (s['[[SetData]]'] === undefined) throw new TypeError();
+        if (Type(s) !== 'object') throw TypeError();
+        if (!('[[SetData]]' in s)) throw TypeError();
+        if (s['[[SetData]]'] === undefined) throw TypeError();
         var entries = s['[[SetData]]'];
         var same = (s._setComparator === undefined) ?
               SameValueZero : SameValue;
@@ -2390,9 +2390,9 @@
       Set.prototype, 'clear',
       function clear() {
         var s = this;
-        if (Type(s) !== 'object') throw new TypeError();
-        if (!('[[SetData]]' in s)) throw new TypeError();
-        if (s['[[SetData]]'] === undefined) throw new TypeError();
+        if (Type(s) !== 'object') throw TypeError();
+        if (!('[[SetData]]' in s)) throw TypeError();
+        if (s['[[SetData]]'] === undefined) throw TypeError();
         var entries = s['[[SetData]]'];
         entries.length = 0;
         return undefined;
@@ -2404,9 +2404,9 @@
       Set.prototype, 'delete',
       function deleteFunction(value) {
         var s = this;
-        if (Type(s) !== 'object') throw new TypeError();
-        if (!('[[SetData]]' in s)) throw new TypeError();
-        if (s['[[SetData]]'] === undefined) throw new TypeError();
+        if (Type(s) !== 'object') throw TypeError();
+        if (!('[[SetData]]' in s)) throw TypeError();
+        if (s['[[SetData]]'] === undefined) throw TypeError();
         var entries = s['[[SetData]]'];
         var same = (s._setComparator === undefined) ?
               SameValueZero : SameValue;
@@ -2421,7 +2421,7 @@
       Set.prototype, 'entries',
       function entries() {
         var s = this;
-        if (Type(s) !== 'object') throw new TypeError();
+        if (Type(s) !== 'object') throw TypeError();
         return CreateSetIterator(s, 'key+value');
       });
 
@@ -2432,13 +2432,13 @@
         var thisArg = arguments[1];
 
         var s = this;
-        if (Type(s) !== 'object') throw new TypeError();
-        if (!('[[SetData]]' in s)) throw new TypeError();
-        if (s['[[SetData]]'] === undefined) throw new TypeError();
+        if (Type(s) !== 'object') throw TypeError();
+        if (!('[[SetData]]' in s)) throw TypeError();
+        if (s['[[SetData]]'] === undefined) throw TypeError();
         var entries = s['[[SetData]]'];
 
         if (!IsCallable(callbackfn)) {
-          throw new TypeError('First argument to forEach is not callable.');
+          throw TypeError('First argument to forEach is not callable.');
         }
         for (var i = 0; i < entries.length; ++i) {
           if (entries[i] !== empty) {
@@ -2452,9 +2452,9 @@
       Set.prototype, 'has',
       function has(key) {
         var s = this;
-        if (Type(s) !== 'object') throw new TypeError();
-        if (!('[[SetData]]' in s)) throw new TypeError();
-        if (s['[[SetData]]'] === undefined) throw new TypeError();
+        if (Type(s) !== 'object') throw TypeError();
+        if (!('[[SetData]]' in s)) throw TypeError();
+        if (s['[[SetData]]'] === undefined) throw TypeError();
         var entries = s['[[SetData]]'];
         var same = (s._setComparator === undefined) ?
               SameValueZero : SameValue;
@@ -2467,9 +2467,9 @@
       Set.prototype, 'size', {
         get: function() {
           var s = this;
-          if (Type(s) !== 'object') throw new TypeError();
-          if (!('[[SetData]]' in s)) throw new TypeError();
-          if (s['[[SetData]]'] === undefined) throw new TypeError();
+          if (Type(s) !== 'object') throw TypeError();
+          if (!('[[SetData]]' in s)) throw TypeError();
+          if (s['[[SetData]]'] === undefined) throw TypeError();
           var entries = s['[[SetData]]'];
           var count = 0;
           for (var i = 0; i < entries.length; ++i) {
@@ -2485,7 +2485,7 @@
       Set.prototype, 'values',
       function values() {
         var s = this;
-        if (Type(s) !== 'object') throw new TypeError();
+        if (Type(s) !== 'object') throw TypeError();
         return CreateSetIterator(s);
       });
 
@@ -2494,7 +2494,7 @@
       Set.prototype, $$iterator,
       function() {
         var s = this;
-        if (Type(s) !== 'object') throw new TypeError();
+        if (Type(s) !== 'object') throw TypeError();
         return CreateSetIterator(s);
       });
 
@@ -2508,9 +2508,9 @@
 
     // 23.2.5.1 CreateSetIterator Abstract Operation
     function CreateSetIterator(set, kind) {
-      if (Type(set) !== 'object') throw new TypeError();
-      if (!('[[SetData]]' in set)) throw new TypeError();
-      if (set['[[SetData]]'] === undefined) throw new TypeError();
+      if (Type(set) !== 'object') throw TypeError();
+      if (!('[[SetData]]' in set)) throw TypeError();
+      if (set['[[SetData]]'] === undefined) throw TypeError();
       var iterator = new SetIterator;
       set_internal(iterator, '[[IteratedSet]]', set);
       set_internal(iterator, '[[SetNextIndex]]', 0);
@@ -2527,7 +2527,7 @@
       SetIterator.prototype, 'next',
       function next() {
         var o = this;
-        if (Type(o) !== 'object') { throw new TypeError; }
+        if (Type(o) !== 'object') { throw TypeError; }
         var s = o['[[IteratedSet]]'],
             index = o['[[SetNextIndex]]'],
             entries = s['[[SetData]]'];
@@ -2573,14 +2573,14 @@
 
       var map = this;
 
-     if (Type(map) !== 'object') { throw new TypeError(); }
-      if ('_table' in map) { throw new TypeError(); }
+     if (Type(map) !== 'object') { throw TypeError(); }
+      if ('_table' in map) { throw TypeError(); }
 
       if (iterable !== undefined) {
         iterable = ToObject(iterable);
         var itr = iterable[$$iterator](); // or throw...
         var adder = map['set'];
-        if (!IsCallable(adder)) { throw new TypeError(); }
+        if (!IsCallable(adder)) { throw TypeError(); }
       }
       map._table = new EphemeronTable;
       if (iterable === undefined) {
@@ -2591,7 +2591,7 @@
         if (next === false)
           return map;
         var nextValue = IteratorValue(next);
-        if (Type(nextValue) !== 'object') { throw new TypeError(); }
+        if (Type(nextValue) !== 'object') { throw TypeError(); }
         var k = nextValue[0];
         var v = nextValue[1];
         adder.call(map, k, v);
@@ -2621,7 +2621,7 @@
     define(
       WeakMap.prototype, 'delete',
       function deleteFunction(key) {
-        if (key !== Object(key)) { throw new TypeError('Expected object'); }
+        if (key !== Object(key)) { throw TypeError('Expected object'); }
         this._table.remove(key);
       });
 
@@ -2629,7 +2629,7 @@
     define(
       WeakMap.prototype, 'get',
       function get(key, defaultValue) {
-        if (key !== Object(key)) { throw new TypeError('Expected object'); }
+        if (key !== Object(key)) { throw TypeError('Expected object'); }
         return this._table.get(key, defaultValue);
       });
 
@@ -2637,7 +2637,7 @@
     define(
       WeakMap.prototype, 'has',
       function has(key) {
-        if (key !== Object(key)) { throw new TypeError('Expected object'); }
+        if (key !== Object(key)) { throw TypeError('Expected object'); }
         return this._table.has(key);
       });
 
@@ -2645,7 +2645,7 @@
     define(
       WeakMap.prototype, 'set',
       function set(key, value) {
-        if (key !== Object(key)) { throw new TypeError('Expected object'); }
+        if (key !== Object(key)) { throw TypeError('Expected object'); }
         this._table.set(key, value);
         return value;
       });
@@ -2673,14 +2673,14 @@
 
       var set = this;
 
-      if (Type(set) !== 'object') { throw new TypeError(); }
-      if ('_table' in set) { throw new TypeError(); }
+      if (Type(set) !== 'object') { throw TypeError(); }
+      if ('_table' in set) { throw TypeError(); }
 
       if (iterable !== undefined) {
         iterable = ToObject(iterable);
         var itr = HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
         var adder = set['add'];
-        if (!IsCallable(adder)) { throw new TypeError(); }
+        if (!IsCallable(adder)) { throw TypeError(); }
       }
       set._table = new EphemeronTable;
       if (iterable === undefined) {
@@ -2708,7 +2708,7 @@
     define(
       WeakSet.prototype, 'add',
       function add(value) {
-        if (value !== Object(value)) { throw new TypeError('Expected object'); }
+        if (value !== Object(value)) { throw TypeError('Expected object'); }
         this._table.set(value, true);
         return value;
       });
@@ -2725,7 +2725,7 @@
     define(
       WeakSet.prototype, 'delete',
       function deleteFunction(value) {
-        if (value !== Object(value)) { throw new TypeError('Expected object'); }
+        if (value !== Object(value)) { throw TypeError('Expected object'); }
         this._table.remove(value);
       });
 
@@ -2733,7 +2733,7 @@
     define(
       WeakSet.prototype, 'has',
       function has(key) {
-        if (key !== Object(key)) { throw new TypeError('Expected object'); }
+        if (key !== Object(key)) { throw TypeError('Expected object'); }
         return this._table.has(key);
       });
 
@@ -2910,14 +2910,14 @@
   // 25.4.3.5 GetIterator ( obj )
   function GetIterator(obj) {
     var iterator = obj[$$iterator]();
-    if (Type(iterator) !== 'object') throw new TypeError();
+    if (Type(iterator) !== 'object') throw TypeError();
     return iterator;
   }
 
   // 25.4.3.6 IteratorNext ( iterator, value )
   function IteratorNext(iterator, value) {
     var result = iterator.next(value);
-    if (Type(result) !== 'object') throw new TypeError();
+    if (Type(result) !== 'object') throw TypeError();
     return result;
   }
 
@@ -3095,7 +3095,7 @@
     define(
       PropertyIterator.prototype, 'next',
       function next() {
-        if (Type(this) !== 'object') { throw new TypeError; }
+        if (Type(this) !== 'object') { throw TypeError; }
         var o = this.set,
             index = this.nextIndex,
             entries = this.propList;
@@ -3194,7 +3194,7 @@
   define(
     Array.prototype, 'contains',
     function contains(target) {
-      if (this === undefined || this === null) { throw new TypeError(); }
+      if (this === undefined || this === null) { throw TypeError(); }
       var t = ToObject(this),
           len = ToUint32(t.length),
           i;
@@ -3310,271 +3310,295 @@
 
   (function(){
 
-    function QueueMicrotask(task) {
+    function QueueMicrotask(microtask, argumentsList) {
      // TODO: Use MutationObservers or setImmediate if available
-     setTimeout(task, 0);
+     setTimeout(function() {
+       microtask.apply(null, argumentsList);
+     }, 0);
     }
 
-    var unset = new String("unset");
+    // To satisy js2-mode linter that requires consistent return values.
+    var nothing = undefined;
 
-    var ThenableCoercions = new global.WeakMap();
-
-    function IsObject(x) {
-      return Type(x) === 'object';
-    }
-
-    function IsPromise(x) {
-      if (IsObject(x) && x['[[IsPromise]]'] === true) return true;
-      return false;
-    };
-
-    function ToPromise(C, x) {
-      if (IsPromise(x) && SameValue(x['[[PromiseConstructor]]'], C) === true) return x;
-      var deferred = GetDeferred(C);
-      deferred['[[Resolve]]'](x);
-      return deferred['[[Promise]]'];
-    }
-
-    function Resolve(p, x) {
-      if (p['[[Following]]'] !== unset || p['[[Value]]'] !== unset || p['[[Reason]]'] !== unset)
-        return;
-      if (IsPromise(x)) {
-        if (SameValue(p, x)) {
-          var selfResolutionError = new TypeError();
-          SetReason(p, selfResolutionError);
-        } else if (x['[[Following]]'] !== unset) {
-          set_internal(p, '[[Following]]', x['[[Following]]']);
-          x['[[Following]]']['[[Derived]]'].push({'[[DerivedPromise]]': p, '[[OnFulfilled]]': undefined, '[[OnRejected]]': undefined });
-        } else if (x['[[Value]]'] !== unset) {
-          SetValue(p, x['[[Value]]']);
-        } else if (x['[[Reason]]'] !== unset) {
-          SetReason(p, x['[[Reason]]']);
-        } else {
-          set_internal(p, '[[Following]]', x);
-          x['[[Derived]]'].push({'[[DerivedPromise]]': p, '[[OnFulfilled]]': undefined, '[[OnRejected]]': undefined});
-        }
-      } else {
-        SetValue(p, x);
-      }
-    }
-
-    function Reject(p, r) {
-      if (p['[[Following]]'] !== unset || p['[[Value]]'] !== unset || p['[[Reason]]'] !== unset) return;
-      SetReason(p, r);
-    }
-
-    function Then(p, onFulfilled, onRejected) {
-      if (p['[[Following]]'] !== unset) {
-        return Then(p['[[Following]]'], onFulfilled, onRejected);
-      }
-      try {
-        var C = p.constructor;
-        var q = GetDeferred(C)['[[Promise]]'];
-        var derived = { '[[DerivedPromise]]': q, '[[OnFulfilled]]': onFulfilled, '[[OnRejected]]': onRejected };
-        UpdateDerivedFromPromise(derived, p);
-      } catch (e) {
-        q = new Promise();
-        Reject(q, e);
-      }
-      return q;
-    }
-
-    function PropagateToDerived(p) {
-      assert((p['[[Value]]'] === unset) !== (p['[[Reason]]'] === unset));
-      p['[[Derived]]'].forEach(function (derived) {
-        UpdateDerived(derived, p);
-      });
-      p['[[Derived]]'].length = 0;
-    }
-
-    function UpdateDerived(derived, originator) {
-      assert((originator['[[Value]]'] === unset) !== (originator['[[Reason]]'] === unset));
-      if (originator['[[Value]]'] !== unset) {
-        if (IsObject(originator['[[Value]]'])) {
-          QueueMicrotask(function() {
-            if (ThenableCoercions.has(originator['[[Value]]'])) {
-              var coercedAlready = ThenableCoercions.get(originator['[[Value]]']);
-              UpdateDerivedFromPromise(derived, coercedAlready);
-            } else {
-              try {
-                var then = originator['[[Value]]']["then"];
-                if (IsCallable(then)) {
-                  var coerced = CoerceThenable(originator['[[Value]]'], then);
-                  UpdateDerivedFromPromise(derived, coerced);
-                } else {
-                  UpdateDerivedFromValue(derived, originator['[[Value]]']);
-                }
-              } catch (e) {
-                UpdateDerivedFromReason(derived, e);
-              }
-            }
-          });
-        } else {
-          UpdateDerivedFromValue(derived, originator['[[Value]]']);
-        }
-      } else {
-        UpdateDerivedFromReason(derived, originator['[[Reason]]']);
-      }
-    }
-
-    function UpdateDerivedFromValue(derived, value) {
-      if (IsCallable(derived['[[OnFulfilled]]']))
-        CallHandler(derived['[[DerivedPromise]]'], derived['[[OnFulfilled]]'], value);
-      else
-        SetValue(derived['[[DerivedPromise]]'], value);
-    }
-
-    function UpdateDerivedFromReason(derived, reason) {
-      if (IsCallable(derived['[[OnRejected]]']))
-        CallHandler(derived['[[DerivedPromise]]'], derived['[[OnRejected]]'], reason);
-      else
-        SetReason(derived['[[DerivedPromise]]'], reason);
-    }
-
-    function UpdateDerivedFromPromise(derived, promise) {
-      if (promise['[[Value]]'] !== unset || promise['[[Reason]]'] !== unset)
-        UpdateDerived(derived, promise);
-      else
-        promise['[[Derived]]'].push(derived);
-    }
-
-    function CallHandler(derivedPromise, handler, argument) {
-      QueueMicrotask(function() {
-        try {
-          var v = handler.call(undefined, argument);
-          Resolve(derivedPromise, v);
-        } catch (e) {
-          Reject(derivedPromise, e);
-        }
-      });
-    }
-
-    function SetValue(p, value) {
-      assert(p['[[Value]]'] === unset && p['[[Reason]]'] === unset);
-      set_internal(p, '[[Value]]', value);
-      set_internal(p, '[[Following]]', unset);
-      PropagateToDerived(p);
-    }
-
-    function SetReason(p, reason) {
-      assert(p['[[Value]]'] === unset && p['[[Reason]]'] === unset);
-      set_internal(p, '[[Reason]]', reason);
-      set_internal(p, '[[Following]]', unset);
-      PropagateToDerived(p);
-    }
-
-    function CoerceThenable(thenable, then) {
-      assert(IsObject(thenable));
-      assert(IsCallable(then));
-      var p = new Promise();
-      var resolve = function(x) { Resolve(p, x); };
-      var reject = function(r) { Reject(p, r); };
-      try {
-        then.call(thenable, resolve, reject);
-      } catch (e) {
-        Reject(p, e);
-      }
-      ThenableCoercions.set(thenable, p);
-      return p;
-    }
+    // Abstract Operations for Promise Objects
 
     function GetDeferred(C) {
-      if (IsConstructor(C)) {
-        var resolve, reject;
-        var resolver = function() { resolve = arguments[0]; reject = arguments[1]; };
-        var promise = new C(resolver);
-      } else {
-        promise = new Promise();
-        resolve = function(x) { Resolve(promise, x); };
-        reject = function(r) { Reject(promise, r); };
-      }
+      if (!IsConstructor(C)) throw TypeError();
+      var resolver = new DeferredConstructionFunction;
+      var promise = new C(resolver);
+      var resolve = resolver['[[Resolve]]'];
+      if (!IsCallable(resolve)) throw TypeError();
+      var reject = resolver['[[Reject]]'];
+      if (!IsCallable(reject)) throw TypeError();
       return { '[[Promise]]': promise, '[[Resolve]]': resolve, '[[Reject]]': reject };
     }
 
-    function Promise(resolver) {
-      var promise = this;
-      if (Type(promise) !== 'object') throw new TypeError();
-      if (promise['[[IsPromise]]'] === unset) throw new TypeError();
-      if (!IsCallable(resolver)) throw new TypeError();
-      set_internal(promise, '[[IsPromise]]', true);
+    function IsPromise(x) {
+      if (Type(x) !== 'object') return false;
+      if (!x.hasOwnProperty('[[PromiseStatus]]')) return false;
+      if (x['[[PromiseStatus]]'] === undefined) return false;
+      return true;
+    };
 
-      set_internal(promise, '[[Following]]', unset);
-      set_internal(promise, '[[Value]]', unset);
-      set_internal(promise, '[[Reason]]', unset);
-      set_internal(promise, '[[Derived]]', []);
-      set_internal(promise, '[[PromiseConstructor]]', Promise);
+    function PromiseReject(promise, reason) {
+      if (promise['[[PromiseStatus]]'] !== "unresolved") return nothing;
+      var reactions = promise['[[RejectReactions]]'];
+      set_internal(promise, '[[Result]]', reason);
+      set_internal(promise, '[[ResolveReactions]]', undefined);
+      set_internal(promise, '[[RejectReactions]]', undefined);
+      set_internal(promise, '[[PromiseStatus]]', "has-rejection");
+      return TriggerPromiseReactions(reactions, reason);
+    }
 
-      var resolve = function(x) { Resolve(promise, x); };
-      var reject = function(r) { Reject(promise, r); };
+    function PromiseResolve(promise, resolution) {
+      if (promise['[[PromiseStatus]]'] !== "unresolved") return nothing;
+      var reactions = promise['[[ResolveReactions]]'];
+      set_internal(promise, '[[Result]]', resolution);
+      set_internal(promise, '[[ResolveReactions]]', undefined);
+      set_internal(promise, '[[RejectReactions]]', undefined);
+      set_internal(promise, '[[PromiseStatus]]', "has-resolution");
+      return TriggerPromiseReactions(reactions, resolution);
+    }
+
+    function TriggerPromiseReactions(reactions, argument) {
+      reactions.forEach(function(reaction) {
+        QueueMicrotask(ExecutePromiseReaction, [reaction, argument]);
+      });
+    }
+
+    function UpdateDeferredFromPotentialThenable(x, deferred) {
+      if (Type(x) !== 'object') return "not a thenable";
       try {
-        resolver.call(undefined, resolve, reject);
-      } catch (e) {
-        Reject(promise, e);
+        var then = x["then"];
+      } catch (_) {
+        var rejectResult = deferred['[[Reject]]'].call(undefined, then);
+        return nothing;
+      }
+      if (!IsCallable(then)) return "not a thenable";
+      try {
+        var thenCallResult = then.call(x, deferred['[[Resolve]]'], deferred['[[Reject]]']);
+      } catch (_) {
+        rejectResult = deferred['[[Reject]]'].call(undefined, thenCallResult);
+        return nothing;
+      }
+      return nothing;
+    }
+
+    // Built-in Functions for Promise Objects
+
+    function DeferredConstructionFunction() {
+      return function F(resolve, reject) {
+        set_internal(F, '[[Resolve]]', resolve);
+        set_internal(F, '[[Reject]]', reject);
+      };
+    }
+
+    function IdentityFunction() {
+      return function (x) {
+        return x;
+      };
+    }
+
+    function PromiseAllCountdownFunction() {
+      return function F(x) {
+        var index = F['[[Index]]'];
+        var values = F['[[Values]]'];
+        var deferred = F['[[Deferred]]'];
+        var countdownHolder = F['[[CountdownHolder]]'];
+        values[index] = x;
+        countdownHolder['[[Countdown]]'] -= 1;
+        if (countdownHolder['[[Countdown]]'] === 0) {
+          deferred['[[Resolve]]'].call(undefined, values);
+        }
+        return nothing;
+      };
+    }
+
+    function PromiseResolutionHandlerFunction() {
+      return function F(x) {
+        var promise = F['[[Promise]]'];
+        var fulfillmentHandler = F['[[FulfillmentHandler]]'];
+        var rejectionHandler = F['[[RejectionHandler]]'];
+        if (SameValue(x, promise)) {
+          var selfResolutionError = TypeError();
+          return rejectionHandler.call(undefined, selfResolutionError);
+        }
+        var C = promise['[[PromiseConstructor]]'];
+        var deferred = GetDeferred(C);
+        var updateResult = UpdateDeferredFromPotentialThenable(x, deferred);
+        if (updateResult !== "not a thenable") return deferred['[[Promise]]']["then"](fulfillmentHandler, rejectionHandler);
+        return fulfillmentHandler.call(undefined, x);
+      };
+    }
+
+    function RejectPromiseFunction() {
+      return function F(reason) {
+        var promise = F['[[Promise]]'];
+        return PromiseReject(promise, reason);
+      };
+    }
+
+    function ResolvePromiseFunction() {
+      return function F(resolution) {
+        var promise = F['[[Promise]]'];
+        return PromiseResolve(promise, resolution);
+      };
+    }
+
+    function ThrowerFunction() {
+      return function(e) {
+        throw e;
+      };
+    }
+
+    // Microtasks for Promise Objects
+
+    function ExecutePromiseReaction(reaction, argument) {
+      var deferred = reaction['[[Deferred]]'];
+      var handler = reaction['[[Handler]]'];
+      try {
+        var handlerResult = handler.call(undefined, argument);
+      } catch (handlerResult) {
+        return deferred['[[Reject]]'].call(undefined, handlerResult);
+      }
+      if (SameValue(handlerResult, deferred['[[Promise]]'])) {
+        var selfResolutionError = TypeError();
+        return deferred['[[Reject]]'].call(undefined, selfResolutionError);
+      }
+      var updateResult = UpdateDeferredFromPotentialThenable(handlerResult, deferred);
+      if (updateResult === "not a thenable")
+        return deferred['[[Resolve]]'].call(undefined, handlerResult);
+      return nothing;
+    }
+
+    // The Promise Constructor
+
+    function Promise(resolver) {
+      set_internal(this, '[[PromiseConstructor]]', Promise);
+
+      var promise = this;
+      if (Type(promise) !== 'object') throw TypeError();
+      if (!IsCallable(resolver)) throw TypeError();
+      set_internal(promise, '[[PromiseStatus]]', "unresolved");
+      set_internal(promise, '[[ResolveReactions]]', []);
+      set_internal(promise, '[[RejectReactions]]', []);
+      var resolve = new ResolvePromiseFunction;
+      set_internal(resolve, '[[Promise]]', promise);
+      var reject = new RejectPromiseFunction;
+      set_internal(reject, '[[Promise]]', promise);
+      try {
+        var result = resolver.call(undefined, resolve, reject);
+      } catch (result) {
+        PromiseReject(promise, result);
       }
       return promise;
     }
 
-    define(Promise, 'resolve', function resolve(x) {
-      var deferred = GetDeferred(this);
-      deferred['[[Resolve]]'](x);
-      return deferred['[[Promise]]'];
-    });
-
-    define(Promise, 'reject', function reject(r) {
-      var deferred = GetDeferred(this);
-      deferred['[[Reject]]'](r);
-      return deferred['[[Promise]]'];
+    define(Promise, 'all', function all(iterable) {
+      var C = this;
+      var deferred = GetDeferred(C);
+      var iterator = GetIterator(iterable);
+      var values = Array(0);
+      var countdownHolder = { '[[Countdown]]': 0 };
+      var index = 0;
+      while (true) {
+        var next = IteratorStep(iterator);
+        if (next === false) {
+          if (index === 0) {
+            var resolveResult = deferred['[[Resolve]]'].call(undefined, values);
+          }
+          return deferred['[[Promise]]'];
+        }
+        var nextValue = IteratorValue(next);
+        var nextPromise = C["cast"](nextValue);
+        var countdownFunction = new PromiseAllCountdownFunction;
+        set_internal(countdownFunction, '[[Index]]', index);
+        set_internal(countdownFunction, '[[Values]]', values);
+        set_internal(countdownFunction, '[[Deferred]]', deferred);
+        set_internal(countdownFunction, '[[CountdownHolder]]', countdownHolder);
+        var result = nextPromise["then"](countdownFunction, deferred['[[Reject]]']);
+        index += 1;
+        countdownHolder['[[Countdown]]'] += 1;
+      }
     });
 
     define(Promise, 'cast', function cast(x) {
-      return ToPromise(this, x);
+      var C = this;
+      if (IsPromise(x)) {
+        var constructor = x['[[PromiseConstructor]]'];
+        if (SameValue(constructor, C)) return x;
+      }
+      var deferred = GetDeferred(C);
+      var resolveResult = deferred['[[Resolve]]'].call(undefined, x);
+      return deferred['[[Promise]]'];
     });
 
     define(Promise, 'race', function race(iterable) {
-      var promise = this;
-      var deferred = GetDeferred(this);
-      forOf(iterable, function(nextValue) {
-        var nextPromise = ToPromise(promise, nextValue);
-        Then(nextPromise, deferred['[[Resolve]]'], deferred['[[Reject]]']);
-      });
+      var C = this;
+      var deferred = GetDeferred(C);
+      var iterator = GetIterator(iterable);
+      while (true) {
+        var next = IteratorStep(iterator);
+        if (next === false) return deferred['[[Promise]]'];
+        var nextValue = IteratorValue(next);
+        var nextPromise = C["cast"](nextValue);
+        var result = nextPromise["then"](deferred['[[Resolve]]'], deferred['[[Reject]]']);
+      }
+    });
+
+    define(Promise, 'reject', function reject(r) {
+      var C = this;
+      var deferred = GetDeferred(C);
+      var rejectResult = deferred['[[Reject]]'].call(undefined, r);
       return deferred['[[Promise]]'];
     });
 
-    define(Promise, 'all', function all(iterable) {
-      var promise = this;
-      var deferred = GetDeferred(promise);
-      var values = new Array(0);
-      var countdown = 0;
-      var index = 0;
-      forOf(iterable, function(nextValue) {
-        var currentIndex = index;
-        var nextPromise = ToPromise(promise, nextValue);
-        var onFulfilled = function(v) {
-          values[currentIndex] = v;
-          countdown = countdown - 1;
-          if (countdown === 0) {
-            deferred['[[Resolve]]'](values);
-          }
-        };
-        Then(nextPromise, onFulfilled, deferred['[[Reject]]']);
-        index = index + 1;
-        countdown = countdown + 1;
-      });
-      if (index === 0) {
-        deferred['[[Resolve]]'](values);
-      }
+    define(Promise, 'resolve', function resolve(x) {
+      var C = this;
+      var deferred = GetDeferred(C);
+      var resolveResult = deferred['[[Resolve]]'].call(undefined, x);
       return deferred['[[Promise]]'];
     });
+
+    // Properties of the Promise Prototype Object
+
+    Promise.prototype = {};
 
     Promise.prototype.constructor = Promise;
 
-    define(Promise.prototype, 'then', function then(onFulfilled, onRejected) {
-      if (!IsPromise(this)) throw new TypeError();
-      return Then(this, onFulfilled, onRejected);
+    define(Promise.prototype, 'catch', function catchFunction(onRejected) {
+      var promise = this;
+      promise["then"](undefined, onRejected);
     });
 
-    define(Promise.prototype, 'catch', function catchFunction(onRejected) {
-      return this.then(undefined, onRejected);
+    define(Promise.prototype, 'then', function then(onFulfilled, onRejected) {
+      var promise = this;
+      if (!IsPromise(promise)) throw TypeError();
+      var C = promise.constructor;
+      var deferred = GetDeferred(C);
+      var rejectionHandler = new ThrowerFunction;
+      if (IsCallable(onRejected)) rejectionHandler = onRejected;
+      var fulfillmentHandler = new IdentityFunction;
+      if (IsCallable(onFulfilled)) fulfillmentHandler = onFulfilled;
+      var resolutionHandler = new PromiseResolutionHandlerFunction;
+      set_internal(resolutionHandler, '[[Promise]]', promise);
+      set_internal(resolutionHandler, '[[FulfillmentHandler]]', fulfillmentHandler);
+      set_internal(resolutionHandler, '[[RejectionHandler]]', rejectionHandler);
+      var resolveReaction = { '[[Deferred]]': deferred, '[[Handler]]': resolutionHandler };
+      var rejectReaction = { '[[Deferred]]': deferred, '[[Handler]]': rejectionHandler };
+      if (promise['[[PromiseStatus]]'] === "unresolved") {
+        promise['[[ResolveReactions]]'].push(resolveReaction);
+        promise['[[RejectReactions]]'].push(rejectReaction);
+      }
+      if (promise['[[PromiseStatus]]'] === "has-resolution") {
+        var resolution = promise['[[Result]]'];
+        QueueMicrotask(ExecutePromiseReaction, [resolveReaction, resolution]);
+      }
+      if (promise['[[PromiseStatus]]'] === "has-rejection") {
+        resolution = promise['[[Result]]'];
+        QueueMicrotask(ExecutePromiseReaction, [rejectReaction, resolution]);
+      }
+      return deferred['[[Promise]]'];
     });
 
     define(Promise.prototype, $$toStringTag, 'Promise');
