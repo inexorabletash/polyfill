@@ -900,7 +900,7 @@ test("Branding", function() {
   assertEqual("Object.prototype.toString.call(new Uint8Array().buffer)", "[object ArrayBuffer]");
 
   assertEqual("DataView.prototype[Symbol.toStringTag]", "DataView");
-  assertEqual("Object.prototype.toString.call(new DataView)", "[object DataView]");
+  assertEqual("Object.prototype.toString.call(new DataView(new Uint8Array().buffer))", "[object DataView]");
 
   assertEqual("JSON[Symbol.toStringTag]", "JSON");
   assertEqual("Object.prototype.toString.call(JSON)", "[object JSON]");
