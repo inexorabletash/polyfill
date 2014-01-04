@@ -96,42 +96,63 @@ The standardization of ES6 is currently in progress.
 This will attempt to track the evolving spec, so may change at any time.
 
 In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts):
-* Fundamental Objects
-  * Object: `assign()`, `is()`, `mixin()`, `setPrototypeOf()`
-  * Symbol: `Symbol(description)`, `Symbol.iterator`, `Symbol.toStringTag`
-    * No security, just creates an object with a unique string representation. `typeof Symbol()` will incorrectly report `"object"` but `Symbol() instanceof Symbol` will return `true`
-* Numbers and Dates
-  * Number: `EPILON`, `isFinite()`, `isInteger()`, `isNaN()`, `isSafeInteger()`, `MAX_SAFE_INTEGER`, `MIN_SAFE_INTEGER`, `parseFloat()`, `parseInt()`
-  * Number prototype: `clz()`
-  * Math: `acosh()`, `asinh()`, `atanh()`, `cbrt()`, `cosh()`, `expm1()`, `fround`, `hypot()`, `imul()`, `log1p()`, `log10()`, `log2()`, `sign()`, `sinh()`, `tanh()`, `trunc()`
-* Text Processing
-  * String: `fromCodePoint()`
-  * String.prototype: `codePointAt()`, `contains()`, `endsWith()`, `repeat()`, `startsWith()`, `[@@iterator]()`
-  * See also: [uate - ES5 "Tagged Template Strings"](https://github.com/inexorabletash/uate)
-* Indexed Collections
-  * Array: `from()`, `of()`
-  * Array prototype: `copyWithin()`, `entries()`, `fill()`, `find()`, `findIndex()`, `keys()`, `values()`, `[@@iterator]()`
-  * _TypedArray_ - see [typedarray.js](#typedarray)
-  * %TypedArray%.prototype: `from()`, `of()`
-  * %TypedArray%.prototype: `copyWithin()`, `entries()`, `every()`, `fill()`, `filter()`, `find()`, `findIndex()`, `forEach()`, `indexOf()`, `join()`, `keys()`, `lastIndexOf()`, `map()`, `reduce()`, `reduceRight()`, `reverse()`, `slice()`, `some()`, `sort()`, `values()`, `[@@iterator]()`
-* Keyed Collection
-  * Map: `clear()`, `delete()`, `entries()`, `forEach()`, `get()`, `keys()`, `has()`, `set()`, `size`, `values()`, `[@@iterator]()`
-  * Set: `add()`, `clear()`, `delete()`, `entries()`, `forEach()`, `has()`, `size`, `values()`, `[@@iterator]()`
-  * WeakMap (intrusive; modifies valueOf property of key): `clear()`, `delete()`, `get()`, `has()`, `set()`
-  * WeakSet (intrusive; modifies valueOf property of key): `add()`, `clear()`, `delete()`, `has()`
+#### Fundamental Objects
+* Object: `assign()`, `is()`, `mixin()`, `setPrototypeOf()`
+* Symbol: `Symbol(description)`, `Symbol.iterator`, `Symbol.toStringTag`
+  * No security, just creates an object with a unique string representation. `typeof Symbol()` will incorrectly report `"object"` but `Symbol() instanceof Symbol` will return `true`
 
+#### Numbers and Dates
+* Number: `EPILON`, `isFinite()`, `isInteger()`, `isNaN()`, `isSafeInteger()`, `MAX_SAFE_INTEGER`, `MIN_SAFE_INTEGER`, `parseFloat()`, `parseInt()`
+* Number prototype: `clz()`
+* Math: `acosh()`, `asinh()`, `atanh()`, `cbrt()`, `cosh()`, `expm1()`, `fround`, `hypot()`, `imul()`, `log1p()`, `log10()`, `log2()`, `sign()`, `sinh()`, `tanh()`, `trunc()`
+
+#### Text Processing
+* String: `fromCodePoint()`
+* String.prototype: `codePointAt()`, `contains()`, `endsWith()`, `repeat()`, `startsWith()`, `[@@iterator]()`
+* See also: [uate - ES5 "Tagged Template Strings"](https://github.com/inexorabletash/uate)
+
+#### Indexed Collections
+* Array: `from()`, `of()`
+* Array prototype: `copyWithin()`, `entries()`, `fill()`, `find()`, `findIndex()`, `keys()`, `values()`, `[@@iterator]()`
+* _TypedArray_ - see [typedarray.js](#typedarray)
+* %TypedArray%.prototype: `from()`, `of()`
+* %TypedArray%.prototype: `copyWithin()`, `entries()`, `every()`, `fill()`, `filter()`, `find()`, `findIndex()`, `forEach()`, `indexOf()`, `join()`, `keys()`, `lastIndexOf()`, `map()`, `reduce()`, `reduceRight()`, `reverse()`, `slice()`, `some()`, `sort()`, `values()`, `[@@iterator]()`
+
+#### Keyed Collections
+* Map: `clear()`, `delete()`, `entries()`, `forEach()`, `get()`, `keys()`, `has()`, `set()`, `size`, `values()`, `[@@iterator]()`
+* Set: `add()`, `clear()`, `delete()`, `entries()`, `forEach()`, `has()`, `size`, `values()`, `[@@iterator]()`
+* WeakMap: `clear()`, `delete()`, `get()`, `has()`, `set()`
+* WeakSet: `add()`, `clear()`, `delete()`, `has()`
+  * WeakMap and WeakSet are intrusive and modify the `valueOf` property of keys
+
+#### Asynchronous Programming
 * Promise: `p = new Promise()`, `Promise.resolve()`, `Promise.reject()`, `Promise.cast()`, `Promise.race()`, `Promise.all()`, `p.then()`, `p.catch()`
+* [promises spec](https://github.com/domenic/promises-unwrapping)
 
-Not yet approved:
-* Number: `compare()`
+#### Not Yet Approved
+* Number: `compare()` - _probably won't be in ES6_
 * Array prototype: `pushAll()`, `contains()` [ref](https://mail.mozilla.org/pipermail/es-discuss/2011-December/019099.html)
-* Dict: `keys(dict)`, `values(dict)`, `entries(dict)`
-  * `dict()` is shortcut for `Object.create(null)`
+* @dict module: `keys(dict)`, `values(dict)`, `entries(dict)`
+  * `dict()` is shortcut for `Object.create(null)` - _this needs a rework_
 
-Helpers:
+#### Syntax Helpers
 * `forOf(o, function(i) { ... })` - since `for (i of o) { ... }` can't be polyfilled. Uses iterators, so works with arrays, maps, sets, and strings, via implicit @@iterator and explicit iterators returned by keys/values/entries methods and functions.
 
 See also: [uate - ES5 "tagged template strings"](https://github.com/inexorabletash/uate)
+
+<a name="typedarray"></name>
+### Typed Arrays
+[script](typedarray.js) -
+[unit tests](http://calormen.com/polyfill/tests/typedarray.html) -
+[spec](http://www.khronos.org/registry/typedarray/specs/latest/)
+
+Originally specified separately, Typed Arrays are now included in ES6.
+
+* `ArrayBuffer`
+* `Uint8Array`, `Int8Array`, `Uint16Array`, `Int16Array`, `Uint32Array`, `Int32Array`, `Float32Array`, `Float64Array`
+* `DataView`
+
+Creating index getter/setters (i.e. `array[0]`, `array[1]`, etc) is slow and consumes significant memory. Arrays larger than 100k entries will be too slow to initialize in most cases so an upper limit is placed on the size of arrays and exception is thrown on construction.
 
 ### Binary Data
 
@@ -140,18 +161,6 @@ See also: [uate - ES5 "tagged template strings"](https://github.com/inexorableta
 
 Proposed for ES7 - http://wiki.ecmascript.org/doku.php?id=harmony:binary_data
 
-<a name="typedarray"></name>
-Typed Arrays (polyfill)
------------------------
-[script](typedarray.js) -
-[unit tests](http://calormen.com/polyfill/tests/typedarray.html) -
-[spec](http://www.khronos.org/registry/typedarray/specs/latest/)
-
-* `ArrayBuffer`
-* `Uint8Array`, `Int8Array`, `Uint16Array`, `Int16Array`, `Uint32Array`, `Int32Array`, `Float32Array`, `Float64Array`
-* `DataView`
-
-Creating index getter/setters (i.e. `array[0]`, `array[1]`, etc) is slow and consumes significant memory. Arrays larger than 100k entries will be too slow to initialize in most cases so an upper limit is placed on the size of arrays and exception is thrown on construction.
 
 WHATWG URL API
 --------------
