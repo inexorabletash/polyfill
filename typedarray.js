@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2010, Linden Research, Inc.
- Copyright (c) 2012, Joshua Bell
+ Copyright (c) 2014, Joshua Bell
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@
 //
 // Variations:
 //  * Allows typed_array.get/set() as alias for subscripts (typed_array[])
-
+//  * Gradually migrating structure from Khronos spec to ES6 spec
 
 (function(global) {
   "use strict";
@@ -46,14 +46,23 @@
   // Approximations of internal ECMAScript conversion functions
   var ECMAScript = (function() {
     // Stash a copy in case other scripts modify these
-    var opts = Object.prototype.toString,
-        ophop = Object.prototype.hasOwnProperty;
+    var $toString = Object.prototype.toString,
+        $hasOwnProperty = Object.prototype.hasOwnProperty;
 
     return {
+      Type: function(v) {
+        switch(typeof v) {
+          case 'undefined': return 'undefined';
+          case 'boolean': return 'boolean';
+          case 'number': return 'number';
+          case 'string': return 'string';
+          default: return v === null ? 'null' : 'object';
+        }
+      },
       // Class returns internal [[Class]] property, used to avoid cross-frame instanceof issues:
-      Class: function(v) { return opts.call(v).replace(/^\[object *|\]$/g, ''); },
+      Class: function(v) { return $toString.call(v).replace(/^\[object *|\]$/g, ''); },
       HasProperty: function(o, p) { return p in o; },
-      HasOwnProperty: function(o, p) { return ophop.call(o, p); },
+      HasOwnProperty: function(o, p) { return $hasOwnProperty.call(o, p); },
       IsCallable: function(o) { return typeof o === 'function'; },
       ToInt32: function(v) { return v >> 0; },
       ToUint32: function(v) { return v >>> 0; }
@@ -88,25 +97,37 @@
   // http://blogs.msdn.com/b/ie/archive/2010/09/07/transitioning-existing-code-to-the-es5-getter-setter-apis.aspx
   // (second clause tests for Object.defineProperty() in IE<9 that only supports extending DOM prototypes, but
   // note that IE<9 does not support __defineGetter__ or __defineSetter__ so it just renders the method harmless)
-  if (!Object.defineProperty ||
-       !(function() { try { Object.defineProperty({}, 'x', {}); return true; } catch (e) { return false; } }())) {
-    Object.defineProperty = function(o, p, desc) {
-      if (!o === Object(o)) throw TypeError("Object.defineProperty called on non-object");
-      if (ECMAScript.HasProperty(desc, 'get') && Object.prototype.__defineGetter__) { Object.prototype.__defineGetter__.call(o, p, desc.get); }
-      if (ECMAScript.HasProperty(desc, 'set') && Object.prototype.__defineSetter__) { Object.prototype.__defineSetter__.call(o, p, desc.set); }
-      if (ECMAScript.HasProperty(desc, 'value')) { o[p] = desc.value; }
-      return o;
-    };
-  }
+
+  (function() {
+    var orig = Object.defineProperty;
+    var dom_only = !(function(){try{return Object.defineProperty({},'x',{});}catch(_){}}());
+
+    if (!orig || dom_only) {
+      Object.defineProperty = function (o, prop, desc) {
+        // In IE8 try built-in implementation for defining properties on DOM prototypes.
+        if (orig)
+          try { return orig(o, prop, desc); } catch (_) {}
+        if (o !== Object(o))
+          throw TypeError("Object.defineProperty called on non-object");
+        if (Object.prototype.__defineGetter__ && ('get' in desc))
+          Object.prototype.__defineGetter__.call(o, prop, desc.get);
+        if (Object.prototype.__defineSetter__ && ('set' in desc))
+          Object.prototype.__defineSetter__.call(o, prop, desc.set);
+        if ('value' in desc)
+          o[prop] = desc.value;
+        return o;
+      };
+    }
+  }());
+
 
   if (!Object.getOwnPropertyNames) {
     Object.getOwnPropertyNames = function getOwnPropertyNames(o) {
       if (o !== Object(o)) throw TypeError("Object.getOwnPropertyNames called on non-object");
       var props = [], p;
       for (p in o) {
-        if (ECMAScript.HasOwnProperty(o, p)) {
+        if (ECMAScript.HasOwnProperty(o, p))
           props.push(p);
-        }
       }
       return props;
     };
@@ -277,21 +298,19 @@
   (function() {
 
     /** @constructor */
-    var ArrayBuffer = function ArrayBuffer(length) {
+    function ArrayBuffer(length) {
       length = ECMAScript.ToInt32(length);
       if (length < 0) throw RangeError('ArrayBuffer size is not a small enough positive integer.');
-
       this.byteLength = length;
       this._bytes = [];
       this._bytes.length = length;
 
       var i;
-      for (i = 0; i < this.byteLength; i += 1) {
+      for (i = 0; i < this.byteLength; i += 1)
         this._bytes[i] = 0;
-      }
 
       configureProperties(this);
-    };
+    }
 
     global.ArrayBuffer = global.ArrayBuffer || ArrayBuffer;
 
@@ -301,7 +320,7 @@
 
     // NOTE: this constructor is not exported
     /** @constructor */
-    var ArrayBufferView = function ArrayBufferView() {
+    function ArrayBufferView() {
       //this.buffer = null;
       //this.byteOffset = 0;
       //this.byteLength = 0;
@@ -311,52 +330,62 @@
     // 5 The Typed Array View Types
     //
 
-    function makeConstructor(bytesPerElement, pack, unpack) {
-      // Each TypedArray type requires a distinct constructor instance with
-      // identical logic, which this produces.
+    function $TypedArray$() {
 
-      var ctor;
-      ctor = function(buffer, byteOffset, length) {
-        var array, sequence, i, s;
-
-        if (!arguments.length || typeof arguments[0] === 'number') {
-          // Constructor(unsigned long length)
+      // %TypedArray% ( length )
+      if (!arguments.length || typeof arguments[0] !== 'object') {
+        return (function(length) {
           this.length = ECMAScript.ToInt32(arguments[0]);
           if (length < 0) throw RangeError('ArrayBufferView size is not a small enough positive integer.');
 
           this.byteLength = this.length * this.BYTES_PER_ELEMENT;
           this.buffer = new ArrayBuffer(this.byteLength);
           this.byteOffset = 0;
-        } else if (typeof arguments[0] === 'object' && arguments[0].constructor === ctor) {
-          // Constructor(TypedArray array)
-          array = arguments[0];
+        }).apply(this, arguments);
+      }
 
-          this.length = array.length;
+      // %TypedArray% ( typedArray )
+      if (arguments.length >= 1 &&
+          ECMAScript.Type(arguments[0]) === 'object' &&
+          arguments[0] instanceof $TypedArray$) {
+        return (function(typedArray){
+
+          if (this.constructor !== typedArray.constructor) throw TypeError();
+
+          this.length = typedArray.length;
           this.byteLength = this.length * this.BYTES_PER_ELEMENT;
           this.buffer = new ArrayBuffer(this.byteLength);
           this.byteOffset = 0;
 
-          for (i = 0; i < this.length; i += 1) {
-            this._setter(i, array._getter(i));
-          }
-        } else if (typeof arguments[0] === 'object' &&
-                   !(arguments[0] instanceof ArrayBuffer || ECMAScript.Class(arguments[0]) === 'ArrayBuffer')) {
-          // Constructor(sequence<type> array)
-          sequence = arguments[0];
+          for (var i = 0; i < this.length; i += 1)
+            this._setter(i, typedArray._getter(i));
+        }).apply(this, arguments);
+      }
 
-          this.length = ECMAScript.ToUint32(sequence.length);
+      // %TypedArray% ( array )
+      if (arguments.length >= 1 &&
+          ECMAScript.Type(arguments[0]) === 'object' &&
+          !(arguments[0] instanceof $TypedArray$) &&
+          !(arguments[0] instanceof ArrayBuffer || ECMAScript.Class(arguments[0]) === 'ArrayBuffer')) {
+        return (function(array) {
+
+          this.length = ECMAScript.ToUint32(array.length);
           this.byteLength = this.length * this.BYTES_PER_ELEMENT;
           this.buffer = new ArrayBuffer(this.byteLength);
           this.byteOffset = 0;
 
-          for (i = 0; i < this.length; i += 1) {
-            s = sequence[i];
+          for (var i = 0; i < this.length; i += 1) {
+            var s = array[i];
             this._setter(i, Number(s));
           }
-        } else if (typeof arguments[0] === 'object' &&
-                   (arguments[0] instanceof ArrayBuffer || ECMAScript.Class(arguments[0]) === 'ArrayBuffer')) {
-          // Constructor(ArrayBuffer buffer,
-          //             optional unsigned long byteOffset, optional unsigned long length)
+        }).apply(this, arguments);
+      }
+
+      // %TypedArray% ( buffer, byteOffset=0, length=undefined )
+      if (arguments.length >= 1 &&
+          ECMAScript.Type(arguments[0]) === 'object' &&
+          (arguments[0] instanceof ArrayBuffer || ECMAScript.Class(arguments[0]) === 'ArrayBuffer')) {
+        return (function(buffer, byteOffset, length) {
           this.buffer = buffer;
 
           this.byteOffset = ECMAScript.ToUint32(byteOffset);
@@ -385,150 +414,218 @@
           if ((this.byteOffset + this.byteLength) > this.buffer.byteLength) {
             throw RangeError("byteOffset and length reference an area beyond the end of the buffer");
           }
-        } else {
-          throw TypeError("Unexpected argument type(s)");
-        }
+        }).apply(this, arguments);
+      }
 
-        this.constructor = ctor;
-
-        configureProperties(this);
-        makeArrayAccessors(this);
-      };
-
-      ctor.prototype = new ArrayBufferView();
-      ctor.prototype.BYTES_PER_ELEMENT = bytesPerElement;
-      ctor.prototype._pack = pack;
-      ctor.prototype._unpack = unpack;
-      ctor.BYTES_PER_ELEMENT = bytesPerElement;
-
-      // getter type (unsigned long index);
-      ctor.prototype._getter = function(index) {
-        if (arguments.length < 1) throw SyntaxError("Not enough arguments");
-
-        index = ECMAScript.ToUint32(index);
-        if (index >= this.length) {
-          return undefined;
-        }
-
-        var bytes = [], i, o;
-        for (i = 0, o = this.byteOffset + index * this.BYTES_PER_ELEMENT;
-             i < this.BYTES_PER_ELEMENT;
-             i += 1, o += 1) {
-          bytes.push(this.buffer._bytes[o]);
-        }
-        return this._unpack(bytes);
-      };
-
-      // NONSTANDARD: convenience alias for getter: type get(unsigned long index);
-      ctor.prototype.get = ctor.prototype._getter;
-
-      // setter void (unsigned long index, type value);
-      ctor.prototype._setter = function(index, value) {
-        if (arguments.length < 2) throw SyntaxError("Not enough arguments");
-
-        index = ECMAScript.ToUint32(index);
-        if (index >= this.length) {
-          return undefined;
-        }
-
-        var bytes = this._pack(value), i, o;
-        for (i = 0, o = this.byteOffset + index * this.BYTES_PER_ELEMENT;
-             i < this.BYTES_PER_ELEMENT;
-             i += 1, o += 1) {
-          this.buffer._bytes[o] = bytes[i];
-        }
-      };
-
-      // void set(TypedArray array, optional unsigned long offset);
-      // void set(sequence<type> array, optional unsigned long offset);
-      ctor.prototype.set = function(index, value) {
-        if (arguments.length < 1) throw SyntaxError("Not enough arguments");
-        var array, sequence, offset, len,
-            i, s, d,
-            byteOffset, byteLength, tmp;
-
-        if (typeof arguments[0] === 'object' && arguments[0].constructor === this.constructor) {
-          // void set(TypedArray array, optional unsigned long offset);
-          array = arguments[0];
-          offset = ECMAScript.ToUint32(arguments[1]);
-
-          if (offset + array.length > this.length) {
-            throw RangeError("Offset plus length of array is out of range");
-          }
-
-          byteOffset = this.byteOffset + offset * this.BYTES_PER_ELEMENT;
-          byteLength = array.length * this.BYTES_PER_ELEMENT;
-
-          if (array.buffer === this.buffer) {
-            tmp = [];
-            for (i = 0, s = array.byteOffset; i < byteLength; i += 1, s += 1) {
-              tmp[i] = array.buffer._bytes[s];
-            }
-            for (i = 0, d = byteOffset; i < byteLength; i += 1, d += 1) {
-              this.buffer._bytes[d] = tmp[i];
-            }
-          } else {
-            for (i = 0, s = array.byteOffset, d = byteOffset;
-                 i < byteLength; i += 1, s += 1, d += 1) {
-              this.buffer._bytes[d] = array.buffer._bytes[s];
-            }
-          }
-        } else if (typeof arguments[0] === 'object' && typeof arguments[0].length !== 'undefined') {
-          // void set(sequence<type> array, optional unsigned long offset);
-          sequence = arguments[0];
-          len = ECMAScript.ToUint32(sequence.length);
-          offset = ECMAScript.ToUint32(arguments[1]);
-
-          if (offset + len > this.length) {
-            throw RangeError("Offset plus length of array is out of range");
-          }
-
-          for (i = 0; i < len; i += 1) {
-            s = sequence[i];
-            this._setter(offset + i, Number(s));
-          }
-        } else {
-          throw TypeError("Unexpected argument type(s)");
-        }
-      };
-
-      // TypedArray subarray(long begin, optional long end);
-      ctor.prototype.subarray = function(start, end) {
-        function clamp(v, min, max) { return v < min ? min : v > max ? max : v; }
-
-        start = ECMAScript.ToInt32(start);
-        end = ECMAScript.ToInt32(end);
-
-        if (arguments.length < 1) { start = 0; }
-        if (arguments.length < 2) { end = this.length; }
-
-        if (start < 0) { start = this.length + start; }
-        if (end < 0) { end = this.length + end; }
-
-        start = clamp(start, 0, this.length);
-        end = clamp(end, 0, this.length);
-
-        var len = end - start;
-        if (len < 0) {
-          len = 0;
-        }
-
-        return new this.constructor(
-          this.buffer, this.byteOffset + start * this.BYTES_PER_ELEMENT, len);
-      };
-
-      return ctor;
+      // %TypedArray% ( all other argument combinations )
+      throw TypeError();
     }
 
-    var Int8Array = makeConstructor(1, packI8, unpackI8);
-    var Uint8Array = makeConstructor(1, packU8, unpackU8);
-    var Uint8ClampedArray = makeConstructor(1, packU8Clamped, unpackU8);
-    var Int16Array = makeConstructor(2, packI16, unpackI16);
-    var Uint16Array = makeConstructor(2, packU16, unpackU16);
-    var Int32Array = makeConstructor(4, packI32, unpackI32);
-    var Uint32Array = makeConstructor(4, packU32, unpackU32);
-    var Float32Array = makeConstructor(4, packF32, unpackF32);
-    var Float64Array = makeConstructor(8, packF64, unpackF64);
+
+    // Properties of the %TypedArray Instrinsic Object
+    // %TypedArray%.from ( source , mapfn=undefined, thisArg=undefined )
+    // %TypedArray%.of ( ...items )
+    // -- above are defined in harmony.js to shim browsers w/ native TypedArrays
+
+    // %TypedArray%.prototype
+    var $TypedArrayPrototype$ = {};
+    $TypedArray$.prototype = $TypedArrayPrototype$;
+
+    // getter type (unsigned long index);
+    $TypedArray$.prototype._getter = function(index) {
+      if (arguments.length < 1) throw SyntaxError("Not enough arguments");
+
+      index = ECMAScript.ToUint32(index);
+      if (index >= this.length) {
+        return undefined;
+      }
+
+      var bytes = [], i, o;
+      for (i = 0, o = this.byteOffset + index * this.BYTES_PER_ELEMENT;
+           i < this.BYTES_PER_ELEMENT;
+           i += 1, o += 1) {
+        bytes.push(this.buffer._bytes[o]);
+      }
+      return this._unpack(bytes);
+    };
+
+    // NONSTANDARD: convenience alias for getter: type get(unsigned long index);
+    $TypedArray$.prototype.get = $TypedArray$.prototype._getter;
+
+    // setter void (unsigned long index, type value);
+    $TypedArray$.prototype._setter = function(index, value) {
+      if (arguments.length < 2) throw SyntaxError("Not enough arguments");
+
+      index = ECMAScript.ToUint32(index);
+      if (index >= this.length) {
+        return;
+      }
+
+      var bytes = this._pack(value), i, o;
+      for (i = 0, o = this.byteOffset + index * this.BYTES_PER_ELEMENT;
+           i < this.BYTES_PER_ELEMENT;
+           i += 1, o += 1) {
+        this.buffer._bytes[o] = bytes[i];
+      }
+    };
+
+    // get %TypedArray%.prototype.buffer
+    // get %TypedArray%.prototype.byteLength
+    // get %TypedArray%.prototype.byteOffset
+    // -- above are just applied directly to the object in the constructor
+
+    // %TypedArray%.prototype.constructor
+    $TypedArray$.prototype.constructor = $TypedArray$;
+
+    // %TypedArray%.prototype.copyWithin (target, start, end = this.length )
+    // %TypedArray%.prototype.entries ( )
+    // %TypedArray%.prototype.every ( callbackfn, thisArg = undefined )
+    // %TypedArray%.prototype.fill (value, start = 0, end = this.length )
+    // %TypedArray%.prototype.filter ( callbackfn, thisArg = undefined )
+    // %TypedArray%.prototype.find (predicate, thisArg = undefined)
+    // %TypedArray%.prototype.findIndex ( predicate, thisArg = undefined )
+    // %TypedArray%.prototype.forEach ( callbackfn, thisArg = undefined )
+    // %TypedArray%.prototype.indexOf (searchElement, fromIndex = 0 )
+    // %TypedArray%.prototype.join ( separator )
+    // %TypedArray%.prototype.keys ( )
+    // %TypedArray%.prototype.lastIndexOf ( searchElement, fromIndex = this.length-1 )
+    // -- above are defined in harmony.js to shim browsers w/ native TypedArrays
+
+    // get %TypedArray%.prototype.length
+    // -- above is just applied directly to the object in the constructor
+
+    // %TypedArray%.prototype.map ( callbackfn, thisArg = undefined )
+    // %TypedArray%.prototype.reduce ( callbackfn [, initialValue] )
+    // %TypedArray%.prototype.reduceRight ( callbackfn [, initialValue] )
+    // %TypedArray%.prototype.reverse ( )
+
+
+    // %TypedArray%.prototype.set(array, offset = 0 )
+    // %TypedArray%.prototype.set(typedArray, offset = 0 )
+    // void set(TypedArray array, optional unsigned long offset);
+    // void set(sequence<type> array, optional unsigned long offset);
+    $TypedArray$.prototype.set = function(index, value) {
+      if (arguments.length < 1) throw SyntaxError("Not enough arguments");
+      var array, sequence, offset, len,
+          i, s, d,
+          byteOffset, byteLength, tmp;
+
+      if (typeof arguments[0] === 'object' && arguments[0].constructor === this.constructor) {
+        // void set(TypedArray array, optional unsigned long offset);
+        array = arguments[0];
+        offset = ECMAScript.ToUint32(arguments[1]);
+
+        if (offset + array.length > this.length) {
+          throw RangeError("Offset plus length of array is out of range");
+        }
+
+        byteOffset = this.byteOffset + offset * this.BYTES_PER_ELEMENT;
+        byteLength = array.length * this.BYTES_PER_ELEMENT;
+
+        if (array.buffer === this.buffer) {
+          tmp = [];
+          for (i = 0, s = array.byteOffset; i < byteLength; i += 1, s += 1) {
+            tmp[i] = array.buffer._bytes[s];
+          }
+          for (i = 0, d = byteOffset; i < byteLength; i += 1, d += 1) {
+            this.buffer._bytes[d] = tmp[i];
+          }
+        } else {
+          for (i = 0, s = array.byteOffset, d = byteOffset;
+               i < byteLength; i += 1, s += 1, d += 1) {
+            this.buffer._bytes[d] = array.buffer._bytes[s];
+          }
+        }
+      } else if (typeof arguments[0] === 'object' && typeof arguments[0].length !== 'undefined') {
+        // void set(sequence<type> array, optional unsigned long offset);
+        sequence = arguments[0];
+        len = ECMAScript.ToUint32(sequence.length);
+        offset = ECMAScript.ToUint32(arguments[1]);
+
+        if (offset + len > this.length) {
+          throw RangeError("Offset plus length of array is out of range");
+        }
+
+        for (i = 0; i < len; i += 1) {
+          s = sequence[i];
+          this._setter(offset + i, Number(s));
+        }
+      } else {
+        throw TypeError("Unexpected argument type(s)");
+      }
+    };
+
+    // %TypedArray%.prototype.slice ( start, end )
+    // %TypedArray%.prototype.some ( callbackfn, thisArg = undefined )
+    // %TypedArray%.prototype.sort ( comparefn )
+    // -- above are defined in harmony.js to shim browsers w/ native TypedArrays
+
+    // %TypedArray%.prototype.subarray(begin = 0, end = this.length )
+    // TypedArray subarray(long begin, optional long end);
+    $TypedArray$.prototype.subarray = function(start, end) {
+      function clamp(v, min, max) { return v < min ? min : v > max ? max : v; }
+
+      start = ECMAScript.ToInt32(start);
+      end = ECMAScript.ToInt32(end);
+
+      if (arguments.length < 1) { start = 0; }
+      if (arguments.length < 2) { end = this.length; }
+
+      if (start < 0) { start = this.length + start; }
+      if (end < 0) { end = this.length + end; }
+
+      start = clamp(start, 0, this.length);
+      end = clamp(end, 0, this.length);
+
+      var len = end - start;
+      if (len < 0) {
+        len = 0;
+      }
+
+      return new this.constructor(
+        this.buffer, this.byteOffset + start * this.BYTES_PER_ELEMENT, len);
+    };
+
+    // %TypedArray%.prototype.toLocaleString ( )
+    // %TypedArray%.prototype.toString ( )
+    // %TypedArray%.prototype.values ( )
+    // %TypedArray%.prototype [ @@iterator ] ( )
+    // get %TypedArray%.prototype [ @@toStringTag ]
+    // -- above are defined in harmony.js to shim browsers w/ native TypedArrays
+
+    function makeTypedArray(elementSize, pack, unpack) {
+      // Each TypedArray type requires a distinct constructor instance with
+      // identical logic, which this produces.
+      function TypedArray() {
+        this.constructor = TypedArray;
+        $TypedArray$.apply(this, arguments);
+        configureProperties(this);
+        makeArrayAccessors(this);
+      }
+
+      TypedArray.BYTES_PER_ELEMENT = elementSize;
+
+      function TypedArrayPrototype() {}
+      TypedArrayPrototype.prototype = $TypedArrayPrototype$;
+
+      TypedArray.prototype = new TypedArrayPrototype();
+
+      TypedArray.prototype.BYTES_PER_ELEMENT = elementSize;
+      TypedArray.prototype._pack = pack;
+      TypedArray.prototype._unpack = unpack;
+
+      return TypedArray;
+    }
+
+    var Int8Array = makeTypedArray(1, packI8, unpackI8);
+    var Uint8Array = makeTypedArray(1, packU8, unpackU8);
+    var Uint8ClampedArray = makeTypedArray(1, packU8Clamped, unpackU8);
+    var Int16Array = makeTypedArray(2, packI16, unpackI16);
+    var Uint16Array = makeTypedArray(2, packU16, unpackU16);
+    var Int32Array = makeTypedArray(4, packI32, unpackI32);
+    var Uint32Array = makeTypedArray(4, packU32, unpackU32);
+    var Float32Array = makeTypedArray(4, packF32, unpackF32);
+    var Float64Array = makeTypedArray(8, packF64, unpackF64);
 
     global.Int8Array = global.Int8Array || Int8Array;
     global.Uint8Array = global.Uint8Array || Uint8Array;
@@ -560,7 +657,7 @@
     //             optional unsigned long byteOffset,
     //             optional unsigned long byteLength)
     /** @constructor */
-    var DataView = function DataView(buffer, byteOffset, byteLength) {
+    function DataView(buffer, byteOffset, byteLength) {
       if (arguments.length === 0) {
         buffer = new ArrayBuffer(0);
       } else if (!(buffer instanceof ArrayBuffer || ECMAScript.Class(buffer) === 'ArrayBuffer')) {

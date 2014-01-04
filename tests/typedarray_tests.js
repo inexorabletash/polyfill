@@ -795,11 +795,13 @@ test('DataView endian', 27, function () {
 
 
 test('Typed Array getters/setters', function () {
-  // First, make sure this even basically works - it's ES5-only
-  var a = new Uint8Array([123]);
-  stricterEqual(a.get(0), 123);
-  a[0] = 66;
-  if (a.get(0) !== 66) { return; } // Nope, Object.defineProperties or fallback not available
+  // Only supported if Object.defineProperty() is fully on non-DOM objects.
+  try {
+    Object.defineProperty({}, 'x', {});
+  } catch (_) {
+    ok();
+    return;
+  }
 
   var bytes = new Uint8Array([1, 2, 3, 4]),
       uint32s = new Uint32Array(bytes.buffer);
@@ -823,6 +825,6 @@ test('Uint8ClampedArray', 5, function () {
 test('Regression Tests', function() {
   // Bug: https://github.com/inexorabletash/polyfill/issues/16
   var minFloat32 = 1.401298464324817e-45;
-  var truncated = new Float32Array([-minFloat32 / 2 - Math.pow(2, -202)])[0];
+  var truncated = new Float32Array([-minFloat32 / 2 - Math.pow(2, -202)]).get(0);
   stricterEqual(truncated, -minFloat32, 'smallest 32 bit float should not truncate to zero');
 });

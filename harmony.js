@@ -224,10 +224,16 @@
 
   // "Type(x)" is used as shorthand for "the type of x"...
   function Type(v) {
-    if (v === null) return 'null';
-    if (v instanceof global.Symbol) return 'symbol';
-    var t = typeof v;
-    return (t === 'function') ? 'object' : t;
+    switch (typeof v) {
+    case 'undefined': return 'undefined';
+    case 'boolean': return 'boolean';
+    case 'number': return 'number';
+    case 'string': return 'string';
+    default:
+      if (v === null) return 'null';
+      if (v instanceof global.Symbol) return 'symbol';
+      return 'object';
+    }
   }
 
   // 6.1.7.4 Well-Known Symbols and Intrinsics
