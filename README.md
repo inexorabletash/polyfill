@@ -107,10 +107,11 @@ In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification
 * Text Processing
   * String: `fromCodePoint()`
   * String.prototype: `codePointAt()`, `contains()`, `endsWith()`, `repeat()`, `startsWith()`, `[@@iterator]()`
+  * See also: [uate - ES5 "Tagged Template Strings"](https://github.com/inexorabletash/uate)
 * Indexed Collections
   * Array: `from()`, `of()`
   * Array prototype: `copyWithin()`, `entries()`, `fill()`, `find()`, `findIndex()`, `keys()`, `values()`, `[@@iterator]()`
-  * /TypedArray/ - see [typedarray.js](#typedarray)
+  * _TypedArray_ - see [typedarray.js](#typedarray)
   * %TypedArray%.prototype: `from()`, `of()`
   * %TypedArray%.prototype: `copyWithin()`, `entries()`, `every()`, `fill()`, `filter()`, `find()`, `findIndex()`, `forEach()`, `indexOf()`, `join()`, `keys()`, `lastIndexOf()`, `map()`, `reduce()`, `reduceRight()`, `reverse()`, `slice()`, `some()`, `sort()`, `values()`, `[@@iterator]()`
 * Keyed Collection
