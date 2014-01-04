@@ -36,7 +36,7 @@
 //  * Gradually migrating structure from Khronos spec to ES6 spec
 
 (function(global) {
-  "use strict";
+  'use strict';
   var undefined = (void 0); // Paranoia
 
   // Beyond this value, index getters/setters (i.e. array[0], array[1]) are so slow to
@@ -45,10 +45,6 @@
 
   // Approximations of internal ECMAScript conversion functions
   var ECMAScript = (function() {
-    // Stash a copy in case other scripts modify these
-    var $toString = Object.prototype.toString,
-        $hasOwnProperty = Object.prototype.hasOwnProperty;
-
     return {
       Type: function(v) {
         switch(typeof v) {
@@ -60,9 +56,7 @@
         }
       },
       // Class returns internal [[Class]] property, used to avoid cross-frame instanceof issues:
-      Class: function(v) { return $toString.call(v).replace(/^\[object *|\]$/g, ''); },
-      HasProperty: function(o, p) { return p in o; },
-      HasOwnProperty: function(o, p) { return $hasOwnProperty.call(o, p); },
+      Class: function(v) { return Object.prototype.toString.call(v).replace(/^\[object *|\]$/g, ''); },
       IsCallable: function(o) { return typeof o === 'function'; },
       ToInt32: function(v) { return v >> 0; },
       ToUint32: function(v) { return v >>> 0; }
@@ -78,21 +72,6 @@
       pow = Math.pow,
       round = Math.round;
 
-  // ES5: lock down object properties
-  function configureProperties(obj) {
-    if (Object.getOwnPropertyNames && Object.defineProperty) {
-      var props = Object.getOwnPropertyNames(obj), i;
-      for (i = 0; i < props.length; i += 1) {
-        Object.defineProperty(obj, props[i], {
-          value: obj[props[i]],
-          writable: false,
-          enumerable: false,
-          configurable: false
-        });
-      }
-    }
-  }
-
   // emulate ES5 getter/setter API using legacy APIs
   // http://blogs.msdn.com/b/ie/archive/2010/09/07/transitioning-existing-code-to-the-es5-getter-setter-apis.aspx
   // (second clause tests for Object.defineProperty() in IE<9 that only supports extending DOM prototypes, but
@@ -100,7 +79,7 @@
 
   (function() {
     var orig = Object.defineProperty;
-    var dom_only = !(function(){try{return Object.defineProperty({},'x',{});}catch(_){}}());
+    var dom_only = !(function(){try{return Object.defineProperty({},'x',{});}catch(_){return false;}}());
 
     if (!orig || dom_only) {
       Object.defineProperty = function (o, prop, desc) {
@@ -108,7 +87,7 @@
         if (orig)
           try { return orig(o, prop, desc); } catch (_) {}
         if (o !== Object(o))
-          throw TypeError("Object.defineProperty called on non-object");
+          throw TypeError('Object.defineProperty called on non-object');
         if (Object.prototype.__defineGetter__ && ('get' in desc))
           Object.prototype.__defineGetter__.call(o, prop, desc.get);
         if (Object.prototype.__defineSetter__ && ('set' in desc))
@@ -120,25 +99,10 @@
     }
   }());
 
-
-  if (!Object.getOwnPropertyNames) {
-    Object.getOwnPropertyNames = function getOwnPropertyNames(o) {
-      if (o !== Object(o)) throw TypeError("Object.getOwnPropertyNames called on non-object");
-      var props = [], p;
-      for (p in o) {
-        if (ECMAScript.HasOwnProperty(o, p))
-          props.push(p);
-      }
-      return props;
-    };
-  }
-
   // ES5: Make obj[index] an alias for obj._getter(index)/obj._setter(index, value)
   // for index in 0 ... obj.length
   function makeArrayAccessors(obj) {
-    if (!Object.defineProperty) { return; }
-
-    if (obj.length > MAX_ARRAY_LENGTH) throw RangeError("Array too large for polyfill");
+    if (obj.length > MAX_ARRAY_LENGTH) throw RangeError('Array too large for polyfill');
 
     function makeArrayAccessor(index) {
       Object.defineProperty(obj, index, {
@@ -290,7 +254,6 @@
   function unpackF32(b) { return unpackIEEE754(b, 8, 23); }
   function packF32(v) { return packIEEE754(v, 8, 23); }
 
-
   //
   // 3 The ArrayBuffer Type
   //
@@ -301,15 +264,11 @@
     function ArrayBuffer(length) {
       length = ECMAScript.ToInt32(length);
       if (length < 0) throw RangeError('ArrayBuffer size is not a small enough positive integer.');
-      this.byteLength = length;
-      this._bytes = [];
-      this._bytes.length = length;
+      Object.defineProperty(this, 'byteLength', {value: length});
+      Object.defineProperty(this, '_bytes', {value: Array(length)});
 
-      var i;
-      for (i = 0; i < this.byteLength; i += 1)
+      for (var i = 0; i < length; i += 1)
         this._bytes[i] = 0;
-
-      configureProperties(this);
     }
 
     global.ArrayBuffer = global.ArrayBuffer || ArrayBuffer;
@@ -335,13 +294,14 @@
       // %TypedArray% ( length )
       if (!arguments.length || typeof arguments[0] !== 'object') {
         return (function(length) {
-          this.length = ECMAScript.ToInt32(arguments[0]);
+          length = ECMAScript.ToInt32(length);
           if (length < 0) throw RangeError('ArrayBufferView size is not a small enough positive integer.');
+          Object.defineProperty(this, 'length', {value: length});
+          Object.defineProperty(this, 'byteLength', {value: length * this.BYTES_PER_ELEMENT});
+          Object.defineProperty(this, 'buffer', {value: new ArrayBuffer(this.byteLength)});
+          Object.defineProperty(this, 'byteOffset', {value: 0});
 
-          this.byteLength = this.length * this.BYTES_PER_ELEMENT;
-          this.buffer = new ArrayBuffer(this.byteLength);
-          this.byteOffset = 0;
-        }).apply(this, arguments);
+         }).apply(this, arguments);
       }
 
       // %TypedArray% ( typedArray )
@@ -349,16 +309,17 @@
           ECMAScript.Type(arguments[0]) === 'object' &&
           arguments[0] instanceof $TypedArray$) {
         return (function(typedArray){
-
           if (this.constructor !== typedArray.constructor) throw TypeError();
 
-          this.length = typedArray.length;
-          this.byteLength = this.length * this.BYTES_PER_ELEMENT;
-          this.buffer = new ArrayBuffer(this.byteLength);
-          this.byteOffset = 0;
+          var byteLength = typedArray.length * this.BYTES_PER_ELEMENT;
+          Object.defineProperty(this, 'buffer', {value: new ArrayBuffer(byteLength)});
+          Object.defineProperty(this, 'byteLength', {value: byteLength});
+          Object.defineProperty(this, 'byteOffset', {value: 0});
+          Object.defineProperty(this, 'length', {value: typedArray.length});
 
           for (var i = 0; i < this.length; i += 1)
             this._setter(i, typedArray._getter(i));
+
         }).apply(this, arguments);
       }
 
@@ -369,10 +330,11 @@
           !(arguments[0] instanceof ArrayBuffer || ECMAScript.Class(arguments[0]) === 'ArrayBuffer')) {
         return (function(array) {
 
-          this.length = ECMAScript.ToUint32(array.length);
-          this.byteLength = this.length * this.BYTES_PER_ELEMENT;
-          this.buffer = new ArrayBuffer(this.byteLength);
-          this.byteOffset = 0;
+          var byteLength = array.length * this.BYTES_PER_ELEMENT;
+          Object.defineProperty(this, 'buffer', {value: new ArrayBuffer(byteLength)});
+          Object.defineProperty(this, 'byteLength', {value: byteLength});
+          Object.defineProperty(this, 'byteOffset', {value: 0});
+          Object.defineProperty(this, 'length', {value: array.length});
 
           for (var i = 0; i < this.length; i += 1) {
             var s = array[i];
@@ -386,41 +348,41 @@
           ECMAScript.Type(arguments[0]) === 'object' &&
           (arguments[0] instanceof ArrayBuffer || ECMAScript.Class(arguments[0]) === 'ArrayBuffer')) {
         return (function(buffer, byteOffset, length) {
-          this.buffer = buffer;
 
-          this.byteOffset = ECMAScript.ToUint32(byteOffset);
-          if (this.byteOffset > this.buffer.byteLength) {
-            throw RangeError("byteOffset out of range");
-          }
+          byteOffset = ECMAScript.ToUint32(byteOffset);
+          if (byteOffset > buffer.byteLength)
+            throw RangeError('byteOffset out of range');
 
-          if (this.byteOffset % this.BYTES_PER_ELEMENT) {
-            // The given byteOffset must be a multiple of the element
-            // size of the specific type, otherwise an exception is raised.
-            throw RangeError("ArrayBuffer length minus the byteOffset is not a multiple of the element size.");
-          }
+          // The given byteOffset must be a multiple of the element
+          // size of the specific type, otherwise an exception is raised.
+          if (byteOffset % this.BYTES_PER_ELEMENT)
+            throw RangeError('ArrayBuffer length minus the byteOffset is not a multiple of the element size.');
 
-          if (arguments.length < 3) {
-            this.byteLength = this.buffer.byteLength - this.byteOffset;
+          if (length === undefined) {
+            var byteLength = buffer.byteLength - byteOffset;
+            if (byteLength % this.BYTES_PER_ELEMENT)
+              throw RangeError('length of buffer minus byteOffset not a multiple of the element size');
+            length = byteLength / this.BYTES_PER_ELEMENT;
 
-            if (this.byteLength % this.BYTES_PER_ELEMENT) {
-              throw RangeError("length of buffer minus byteOffset not a multiple of the element size");
-            }
-            this.length = this.byteLength / this.BYTES_PER_ELEMENT;
           } else {
-            this.length = ECMAScript.ToUint32(length);
-            this.byteLength = this.length * this.BYTES_PER_ELEMENT;
+            length = ECMAScript.ToUint32(length);
+            byteLength = length * this.BYTES_PER_ELEMENT;
           }
 
-          if ((this.byteOffset + this.byteLength) > this.buffer.byteLength) {
-            throw RangeError("byteOffset and length reference an area beyond the end of the buffer");
-          }
+          if ((byteOffset + byteLength) > buffer.byteLength)
+            throw RangeError('byteOffset and length reference an area beyond the end of the buffer');
+
+          Object.defineProperty(this, 'buffer', {value: buffer});
+          Object.defineProperty(this, 'byteLength', {value: byteLength});
+          Object.defineProperty(this, 'byteOffset', {value: byteOffset});
+          Object.defineProperty(this, 'length', {value: length});
+
         }).apply(this, arguments);
       }
 
       // %TypedArray% ( all other argument combinations )
       throw TypeError();
     }
-
 
     // Properties of the %TypedArray Instrinsic Object
     // %TypedArray%.from ( source , mapfn=undefined, thisArg=undefined )
@@ -432,8 +394,8 @@
     $TypedArray$.prototype = $TypedArrayPrototype$;
 
     // getter type (unsigned long index);
-    $TypedArray$.prototype._getter = function(index) {
-      if (arguments.length < 1) throw SyntaxError("Not enough arguments");
+    Object.defineProperty($TypedArray$.prototype, '_getter', {value: function(index) {
+      if (arguments.length < 1) throw SyntaxError('Not enough arguments');
 
       index = ECMAScript.ToUint32(index);
       if (index >= this.length) {
@@ -447,14 +409,14 @@
         bytes.push(this.buffer._bytes[o]);
       }
       return this._unpack(bytes);
-    };
+    }});
 
     // NONSTANDARD: convenience alias for getter: type get(unsigned long index);
-    $TypedArray$.prototype.get = $TypedArray$.prototype._getter;
+    Object.defineProperty($TypedArray$.prototype, 'get', {value: $TypedArray$.prototype._getter});
 
     // setter void (unsigned long index, type value);
-    $TypedArray$.prototype._setter = function(index, value) {
-      if (arguments.length < 2) throw SyntaxError("Not enough arguments");
+    Object.defineProperty($TypedArray$.prototype, '_setter', {value: function(index, value) {
+      if (arguments.length < 2) throw SyntaxError('Not enough arguments');
 
       index = ECMAScript.ToUint32(index);
       if (index >= this.length) {
@@ -467,7 +429,7 @@
            i += 1, o += 1) {
         this.buffer._bytes[o] = bytes[i];
       }
-    };
+    }});
 
     // get %TypedArray%.prototype.buffer
     // get %TypedArray%.prototype.byteLength
@@ -475,7 +437,7 @@
     // -- above are just applied directly to the object in the constructor
 
     // %TypedArray%.prototype.constructor
-    $TypedArray$.prototype.constructor = $TypedArray$;
+    Object.defineProperty($TypedArray$.prototype, 'constructor', {value: $TypedArray$});
 
     // %TypedArray%.prototype.copyWithin (target, start, end = this.length )
     // %TypedArray%.prototype.entries ( )
@@ -504,8 +466,8 @@
     // %TypedArray%.prototype.set(typedArray, offset = 0 )
     // void set(TypedArray array, optional unsigned long offset);
     // void set(sequence<type> array, optional unsigned long offset);
-    $TypedArray$.prototype.set = function(index, value) {
-      if (arguments.length < 1) throw SyntaxError("Not enough arguments");
+    Object.defineProperty($TypedArray$.prototype, 'set', {value: function(index, value) {
+      if (arguments.length < 1) throw SyntaxError('Not enough arguments');
       var array, sequence, offset, len,
           i, s, d,
           byteOffset, byteLength, tmp;
@@ -516,7 +478,7 @@
         offset = ECMAScript.ToUint32(arguments[1]);
 
         if (offset + array.length > this.length) {
-          throw RangeError("Offset plus length of array is out of range");
+          throw RangeError('Offset plus length of array is out of range');
         }
 
         byteOffset = this.byteOffset + offset * this.BYTES_PER_ELEMENT;
@@ -543,7 +505,7 @@
         offset = ECMAScript.ToUint32(arguments[1]);
 
         if (offset + len > this.length) {
-          throw RangeError("Offset plus length of array is out of range");
+          throw RangeError('Offset plus length of array is out of range');
         }
 
         for (i = 0; i < len; i += 1) {
@@ -551,9 +513,9 @@
           this._setter(offset + i, Number(s));
         }
       } else {
-        throw TypeError("Unexpected argument type(s)");
+        throw TypeError('Unexpected argument type(s)');
       }
-    };
+    }});
 
     // %TypedArray%.prototype.slice ( start, end )
     // %TypedArray%.prototype.some ( callbackfn, thisArg = undefined )
@@ -562,7 +524,7 @@
 
     // %TypedArray%.prototype.subarray(begin = 0, end = this.length )
     // TypedArray subarray(long begin, optional long end);
-    $TypedArray$.prototype.subarray = function(start, end) {
+    Object.defineProperty($TypedArray$.prototype, 'subarray', {value: function(start, end) {
       function clamp(v, min, max) { return v < min ? min : v > max ? max : v; }
 
       start = ECMAScript.ToInt32(start);
@@ -584,7 +546,7 @@
 
       return new this.constructor(
         this.buffer, this.byteOffset + start * this.BYTES_PER_ELEMENT, len);
-    };
+    }});
 
     // %TypedArray%.prototype.toLocaleString ( )
     // %TypedArray%.prototype.toString ( )
@@ -597,9 +559,8 @@
       // Each TypedArray type requires a distinct constructor instance with
       // identical logic, which this produces.
       function TypedArray() {
-        this.constructor = TypedArray;
+        Object.defineProperty(this, 'constructor', {value: TypedArray});
         $TypedArray$.apply(this, arguments);
-        configureProperties(this);
         makeArrayAccessors(this);
       }
 
@@ -610,9 +571,9 @@
 
       TypedArray.prototype = new TypedArrayPrototype();
 
-      TypedArray.prototype.BYTES_PER_ELEMENT = elementSize;
-      TypedArray.prototype._pack = pack;
-      TypedArray.prototype._unpack = unpack;
+      Object.defineProperty(TypedArray.prototype, 'BYTES_PER_ELEMENT', {value: elementSize});
+      Object.defineProperty(TypedArray.prototype, '_pack', {value: pack});
+      Object.defineProperty(TypedArray.prototype, '_unpack', {value: unpack});
 
       return TypedArray;
     }
@@ -661,27 +622,26 @@
       if (arguments.length === 0) {
         buffer = new ArrayBuffer(0);
       } else if (!(buffer instanceof ArrayBuffer || ECMAScript.Class(buffer) === 'ArrayBuffer')) {
-        throw TypeError("TypeError");
+        throw TypeError();
       }
 
-      this.buffer = buffer || new ArrayBuffer(0);
+      buffer = buffer || new ArrayBuffer(0);
 
-      this.byteOffset = ECMAScript.ToUint32(byteOffset);
-      if (this.byteOffset > this.buffer.byteLength) {
-        throw RangeError("byteOffset out of range");
-      }
+      byteOffset = ECMAScript.ToUint32(byteOffset);
+      if (byteOffset > buffer.byteLength)
+        throw RangeError('byteOffset out of range');
 
-      if (arguments.length < 3) {
-        this.byteLength = this.buffer.byteLength - this.byteOffset;
-      } else {
-        this.byteLength = ECMAScript.ToUint32(byteLength);
-      }
+      if (byteLength === undefined)
+        byteLength = buffer.byteLength - byteOffset;
+      else
+        byteLength = ECMAScript.ToUint32(byteLength);
 
-      if ((this.byteOffset + this.byteLength) > this.buffer.byteLength) {
-        throw RangeError("byteOffset and length reference an area beyond the end of the buffer");
-      }
+      if ((byteOffset + byteLength) > buffer.byteLength)
+        throw RangeError('byteOffset and length reference an area beyond the end of the buffer');
 
-      configureProperties(this);
+      Object.defineProperty(this, 'buffer', {value: buffer});
+      Object.defineProperty(this, 'byteLength', {value: byteLength});
+      Object.defineProperty(this, 'byteOffset', {value: byteOffset});
     };
 
     function makeGetter(arrayType) {
@@ -689,55 +649,50 @@
 
         byteOffset = ECMAScript.ToUint32(byteOffset);
 
-        if (byteOffset + arrayType.BYTES_PER_ELEMENT > this.byteLength) {
-          throw RangeError("Array index out of range");
-        }
+        if (byteOffset + arrayType.BYTES_PER_ELEMENT > this.byteLength)
+          throw RangeError('Array index out of range');
+
         byteOffset += this.byteOffset;
 
         var uint8Array = new Uint8Array(this.buffer, byteOffset, arrayType.BYTES_PER_ELEMENT),
             bytes = [], i;
-        for (i = 0; i < arrayType.BYTES_PER_ELEMENT; i += 1) {
+        for (i = 0; i < arrayType.BYTES_PER_ELEMENT; i += 1)
           bytes.push(r(uint8Array, i));
-        }
 
-        if (Boolean(littleEndian) === Boolean(IS_BIG_ENDIAN)) {
+        if (Boolean(littleEndian) === Boolean(IS_BIG_ENDIAN))
           bytes.reverse();
-        }
 
         return r(new arrayType(new Uint8Array(bytes).buffer), 0);
       };
     }
 
-    DataView.prototype.getUint8 = makeGetter(Uint8Array);
-    DataView.prototype.getInt8 = makeGetter(Int8Array);
-    DataView.prototype.getUint16 = makeGetter(Uint16Array);
-    DataView.prototype.getInt16 = makeGetter(Int16Array);
-    DataView.prototype.getUint32 = makeGetter(Uint32Array);
-    DataView.prototype.getInt32 = makeGetter(Int32Array);
-    DataView.prototype.getFloat32 = makeGetter(Float32Array);
-    DataView.prototype.getFloat64 = makeGetter(Float64Array);
+    Object.defineProperty(DataView.prototype, 'getUint8', {value: makeGetter(Uint8Array)});
+    Object.defineProperty(DataView.prototype, 'getInt8', {value: makeGetter(Int8Array)});
+    Object.defineProperty(DataView.prototype, 'getUint16', {value: makeGetter(Uint16Array)});
+    Object.defineProperty(DataView.prototype, 'getInt16', {value: makeGetter(Int16Array)});
+    Object.defineProperty(DataView.prototype, 'getUint32', {value: makeGetter(Uint32Array)});
+    Object.defineProperty(DataView.prototype, 'getInt32', {value: makeGetter(Int32Array)});
+    Object.defineProperty(DataView.prototype, 'getFloat32', {value: makeGetter(Float32Array)});
+    Object.defineProperty(DataView.prototype, 'getFloat64', {value: makeGetter(Float64Array)});
 
     function makeSetter(arrayType) {
       return function(byteOffset, value, littleEndian) {
 
         byteOffset = ECMAScript.ToUint32(byteOffset);
-        if (byteOffset + arrayType.BYTES_PER_ELEMENT > this.byteLength) {
-          throw RangeError("Array index out of range");
-        }
+        if (byteOffset + arrayType.BYTES_PER_ELEMENT > this.byteLength)
+          throw RangeError('Array index out of range');
 
         // Get bytes
         var typeArray = new arrayType([value]),
             byteArray = new Uint8Array(typeArray.buffer),
             bytes = [], i, byteView;
 
-        for (i = 0; i < arrayType.BYTES_PER_ELEMENT; i += 1) {
+        for (i = 0; i < arrayType.BYTES_PER_ELEMENT; i += 1)
           bytes.push(r(byteArray, i));
-        }
 
         // Flip if necessary
-        if (Boolean(littleEndian) === Boolean(IS_BIG_ENDIAN)) {
+        if (Boolean(littleEndian) === Boolean(IS_BIG_ENDIAN))
           bytes.reverse();
-        }
 
         // Write them
         byteView = new Uint8Array(this.buffer, byteOffset, arrayType.BYTES_PER_ELEMENT);
@@ -745,14 +700,14 @@
       };
     }
 
-    DataView.prototype.setUint8 = makeSetter(Uint8Array);
-    DataView.prototype.setInt8 = makeSetter(Int8Array);
-    DataView.prototype.setUint16 = makeSetter(Uint16Array);
-    DataView.prototype.setInt16 = makeSetter(Int16Array);
-    DataView.prototype.setUint32 = makeSetter(Uint32Array);
-    DataView.prototype.setInt32 = makeSetter(Int32Array);
-    DataView.prototype.setFloat32 = makeSetter(Float32Array);
-    DataView.prototype.setFloat64 = makeSetter(Float64Array);
+    Object.defineProperty(DataView.prototype, 'setUint8', {value: makeSetter(Uint8Array)});
+    Object.defineProperty(DataView.prototype, 'setInt8', {value: makeSetter(Int8Array)});
+    Object.defineProperty(DataView.prototype, 'setUint16', {value: makeSetter(Uint16Array)});
+    Object.defineProperty(DataView.prototype, 'setInt16', {value: makeSetter(Int16Array)});
+    Object.defineProperty(DataView.prototype, 'setUint32', {value: makeSetter(Uint32Array)});
+    Object.defineProperty(DataView.prototype, 'setInt32', {value: makeSetter(Int32Array)});
+    Object.defineProperty(DataView.prototype, 'setFloat32', {value: makeSetter(Float32Array)});
+    Object.defineProperty(DataView.prototype, 'setFloat64', {value: makeSetter(Float64Array)});
 
     global.DataView = global.DataView || DataView;
 
