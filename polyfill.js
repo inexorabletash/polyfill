@@ -18,7 +18,7 @@
 // since the constructor property is destroyed.
 if (!Object.getPrototypeOf) {
   Object.getPrototypeOf = function (o) {
-    if (o !== Object(o)) { throw new TypeError("Object.getPrototypeOf called on non-object"); }
+    if (o !== Object(o)) { throw TypeError("Object.getPrototypeOf called on non-object"); }
     return o.__proto__ || o.constructor.prototype || Object.prototype;
   };
 }
@@ -26,7 +26,7 @@ if (!Object.getPrototypeOf) {
 //    // ES5 15.2.3.3 Object.getOwnPropertyDescriptor ( O, P )
 //    if (typeof Object.getOwnPropertyDescriptor !== "function") {
 //        Object.getOwnPropertyDescriptor = function (o, name) {
-//            if (o !== Object(o)) { throw new TypeError(); }
+//            if (o !== Object(o)) { throw TypeError(); }
 //            if (o.hasOwnProperty(name)) {
 //                return {
 //                    value: o[name],
@@ -41,7 +41,7 @@ if (!Object.getPrototypeOf) {
 // ES5 15.2.3.4 Object.getOwnPropertyNames ( O )
 if (typeof Object.getOwnPropertyNames !== "function") {
   Object.getOwnPropertyNames = function (o) {
-    if (o !== Object(o)) { throw new TypeError("Object.getOwnPropertyNames called on non-object"); }
+    if (o !== Object(o)) { throw TypeError("Object.getOwnPropertyNames called on non-object"); }
     var props = [], p;
     for (p in o) {
       if (Object.prototype.hasOwnProperty.call(o, p)) {
@@ -56,14 +56,14 @@ if (typeof Object.getOwnPropertyNames !== "function") {
 if (typeof Object.create !== "function") {
   Object.create = function (prototype, properties) {
     "use strict";
-    if (typeof prototype !== "object") { throw new TypeError(); }
+    if (typeof prototype !== "object") { throw TypeError(); }
     /** @constructor */
     function Ctor() {}
     Ctor.prototype = prototype;
     var o = new Ctor();
     if (prototype) { o.constructor = Ctor; }
     if (arguments.length > 1) {
-      if (properties !== Object(properties)) { throw new TypeError(); }
+      if (properties !== Object(properties)) { throw TypeError(); }
       Object.defineProperties(o, properties);
     }
     return o;
@@ -82,7 +82,7 @@ if (typeof Object.create !== "function") {
       // In IE8 try built-in implementation for defining properties on DOM prototypes.
       if (orig) { try { return orig(o, prop, desc); } catch (e) {} }
 
-      if (o !== Object(o)) { throw new TypeError("Object.defineProperty called on non-object"); }
+      if (o !== Object(o)) { throw TypeError("Object.defineProperty called on non-object"); }
       if (Object.prototype.__defineGetter__ && ('get' in desc)) {
         Object.prototype.__defineGetter__.call(o, prop, desc.get);
       }
@@ -101,7 +101,7 @@ if (typeof Object.create !== "function") {
 if (typeof Object.defineProperties !== "function") {
   Object.defineProperties = function (o, properties) {
     "use strict";
-    if (o !== Object(o)) { throw new TypeError("Object.defineProperties called on non-object"); }
+    if (o !== Object(o)) { throw TypeError("Object.defineProperties called on non-object"); }
     var name;
     for (name in properties) {
       if (Object.prototype.hasOwnProperty.call(properties, name)) {
@@ -117,7 +117,7 @@ if (typeof Object.defineProperties !== "function") {
 // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/keys
 if (!Object.keys) {
   Object.keys = function (o) {
-    if (o !== Object(o)) { throw new TypeError('Object.keys called on non-object'); }
+    if (o !== Object(o)) { throw TypeError('Object.keys called on non-object'); }
     var ret = [], p;
     for (p in o) {
       if (Object.prototype.hasOwnProperty.call(o, p)) {
@@ -140,7 +140,7 @@ if (!Object.keys) {
 // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function/bind
 if (!Function.prototype.bind) {
   Function.prototype.bind = function (o) {
-    if (typeof this !== 'function') { throw new TypeError("Bind must be called on a function"); }
+    if (typeof this !== 'function') { throw TypeError("Bind must be called on a function"); }
     var slice = [].slice,
         args = slice.call(arguments, 1),
         self = this,
@@ -184,7 +184,7 @@ if (!Array.prototype.indexOf) {
   Array.prototype.indexOf = function (searchElement /*, fromIndex */) {
     "use strict";
 
-    if (this === void 0 || this === null) { throw new TypeError(); }
+    if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
     var len = t.length >>> 0;
@@ -219,7 +219,7 @@ if (!Array.prototype.lastIndexOf) {
   Array.prototype.lastIndexOf = function (searchElement /*, fromIndex*/) {
     "use strict";
 
-    if (this === void 0 || this === null) { throw new TypeError(); }
+    if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
     var len = t.length >>> 0;
@@ -252,11 +252,11 @@ if (!Array.prototype.every) {
   Array.prototype.every = function (fun /*, thisp */) {
     "use strict";
 
-    if (this === void 0 || this === null) { throw new TypeError(); }
+    if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
     var len = t.length >>> 0;
-    if (typeof fun !== "function") { throw new TypeError(); }
+    if (typeof fun !== "function") { throw TypeError(); }
 
     var thisp = arguments[1], i;
     for (i = 0; i < len; i++) {
@@ -275,11 +275,11 @@ if (!Array.prototype.some) {
   Array.prototype.some = function (fun /*, thisp */) {
     "use strict";
 
-    if (this === void 0 || this === null) { throw new TypeError(); }
+    if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
     var len = t.length >>> 0;
-    if (typeof fun !== "function") { throw new TypeError(); }
+    if (typeof fun !== "function") { throw TypeError(); }
 
     var thisp = arguments[1], i;
     for (i = 0; i < len; i++) {
@@ -298,11 +298,11 @@ if (!Array.prototype.forEach) {
   Array.prototype.forEach = function (fun /*, thisp */) {
     "use strict";
 
-    if (this === void 0 || this === null) { throw new TypeError(); }
+    if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
     var len = t.length >>> 0;
-    if (typeof fun !== "function") { throw new TypeError(); }
+    if (typeof fun !== "function") { throw TypeError(); }
 
     var thisp = arguments[1], i;
     for (i = 0; i < len; i++) {
@@ -320,11 +320,11 @@ if (!Array.prototype.map) {
   Array.prototype.map = function (fun /*, thisp */) {
     "use strict";
 
-    if (this === void 0 || this === null) { throw new TypeError(); }
+    if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
     var len = t.length >>> 0;
-    if (typeof fun !== "function") { throw new TypeError(); }
+    if (typeof fun !== "function") { throw TypeError(); }
 
     var res = []; res.length = len;
     var thisp = arguments[1], i;
@@ -344,11 +344,11 @@ if (!Array.prototype.filter) {
   Array.prototype.filter = function (fun /*, thisp */) {
     "use strict";
 
-    if (this === void 0 || this === null) { throw new TypeError(); }
+    if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
     var len = t.length >>> 0;
-    if (typeof fun !== "function") { throw new TypeError(); }
+    if (typeof fun !== "function") { throw TypeError(); }
 
     var res = [];
     var thisp = arguments[1], i;
@@ -372,14 +372,14 @@ if (!Array.prototype.reduce) {
   Array.prototype.reduce = function (fun /*, initialValue */) {
     "use strict";
 
-    if (this === void 0 || this === null) { throw new TypeError(); }
+    if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
     var len = t.length >>> 0;
-    if (typeof fun !== "function") { throw new TypeError(); }
+    if (typeof fun !== "function") { throw TypeError(); }
 
     // no value to return if no initial value and an empty array
-    if (len === 0 && arguments.length === 1) { throw new TypeError(); }
+    if (len === 0 && arguments.length === 1) { throw TypeError(); }
 
     var k = 0;
     var accumulator;
@@ -393,7 +393,7 @@ if (!Array.prototype.reduce) {
         }
 
         // if array contains no values, no initial value to return
-        if (++k >= len) { throw new TypeError(); }
+        if (++k >= len) { throw TypeError(); }
       }
       while (true);
     }
@@ -416,14 +416,14 @@ if (!Array.prototype.reduceRight) {
   Array.prototype.reduceRight = function (callbackfn /*, initialValue */) {
     "use strict";
 
-    if (this === void 0 || this === null) { throw new TypeError(); }
+    if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
     var len = t.length >>> 0;
-    if (typeof callbackfn !== "function") { throw new TypeError(); }
+    if (typeof callbackfn !== "function") { throw TypeError(); }
 
     // no value to return if no initial value, empty array
-    if (len === 0 && arguments.length === 1) { throw new TypeError(); }
+    if (len === 0 && arguments.length === 1) { throw TypeError(); }
 
     var k = len - 1;
     var accumulator;
@@ -437,7 +437,7 @@ if (!Array.prototype.reduceRight) {
         }
 
         // if array contains no values, no initial value to return
-        if (--k < 0) { throw new TypeError(); }
+        if (--k < 0) { throw TypeError(); }
       }
       while (true);
     }
@@ -539,7 +539,7 @@ if ('window' in this && 'document' in this) {
     try { return new ActiveXObject("Msxml2.XMLHTTP.6.0"); } catch (e1) { }
     try { return new ActiveXObject("Msxml2.XMLHTTP.3.0"); } catch (e2) { }
     try { return new ActiveXObject("Msxml2.XMLHTTP"); } catch (e3) { }
-    throw new Error("This browser does not support XMLHttpRequest.");
+    throw Error("This browser does not support XMLHttpRequest.");
   };
   XMLHttpRequest.UNSENT = 0;
   XMLHttpRequest.OPENED = 1;
@@ -697,7 +697,7 @@ if ('window' in this && 'document' in this) {
   //
   // DOM Enumerations (http://www.w3.org/TR/DOM-Level-2-Core/)
   //
-  window.Node = window.Node || function Node() { throw new TypeError("Illegal constructor"); };
+  window.Node = window.Node || function Node() { throw TypeError("Illegal constructor"); };
   Node.ELEMENT_NODE = 1;
   Node.ATTRIBUTE_NODE = 2;
   Node.TEXT_NODE = 3;
@@ -711,7 +711,7 @@ if ('window' in this && 'document' in this) {
   Node.DOCUMENT_FRAGMENT_NODE = 11;
   Node.NOTATION_NODE = 12;
 
-  window.DOMException = window.DOMException || function DOMException() { throw new TypeError("Illegal constructor"); };
+  window.DOMException = window.DOMException || function DOMException() { throw TypeError("Illegal constructor"); };
   DOMException.INDEX_SIZE_ERR = 1;
   DOMException.DOMSTRING_SIZE_ERR = 2;
   DOMException.HIERARCHY_REQUEST_ERR = 3;
@@ -944,8 +944,8 @@ if ('window' in this && 'document' in this) {
           contains: {
             value: function (token) {
               token = String(token);
-              if (token.length === 0) { throw new SyntaxError(); }
-              if (/\s/.test(token)) { throw new Error("InvalidCharacterError"); }
+              if (token.length === 0) { throw SyntaxError(); }
+              if (/\s/.test(token)) { throw Error("InvalidCharacterError"); }
               var tokens = split(o[p]);
 
               return tokens.indexOf(token) !== -1;
@@ -956,10 +956,10 @@ if ('window' in this && 'document' in this) {
             value: function (tokens___) {
               tokens = Array.prototype.slice.call(arguments).map(String);
               if (tokens.some(function(token) { return token.length === 0; })) {
-                throw new SyntaxError();
+                throw SyntaxError();
               }
               if (tokens.some(function(token) { return /\s/.test(token); })) {
-                throw new Error("InvalidCharacterError");
+                throw Error("InvalidCharacterError");
               }
 
               try {
@@ -985,10 +985,10 @@ if ('window' in this && 'document' in this) {
             value: function (tokens___) {
               tokens = Array.prototype.slice.call(arguments).map(String);
               if (tokens.some(function(token) { return token.length === 0; })) {
-                throw new SyntaxError();
+                throw SyntaxError();
               }
               if (tokens.some(function(token) { return /\s/.test(token); })) {
-                throw new Error("InvalidCharacterError");
+                throw Error("InvalidCharacterError");
               }
 
               try {
@@ -1008,8 +1008,8 @@ if ('window' in this && 'document' in this) {
             value: function (token, force) {
               try {
                 token = String(token);
-                if (token.length === 0) { throw new SyntaxError(); }
-                if (/\s/.test(token)) { throw new Error("InvalidCharacterError"); }
+                if (token.length === 0) { throw SyntaxError(); }
+                if (/\s/.test(token)) { throw Error("InvalidCharacterError"); }
                 var tokens = split(o[p]),
                     index = tokens.indexOf(token);
 
@@ -1110,8 +1110,8 @@ if ('window' in this && 'document' in this) {
 
     input = input.replace(/\s/g, '');
     if ((input.length % 4) === 0) { input = input.replace(/=+$/, ''); }
-    if ((input.length % 4) === 1) { throw new Error("InvalidCharacterError"); }
-    if (/[^+/0-9A-Za-z]/.test(input)) { throw new Error("InvalidCharacterError"); }
+    if ((input.length % 4) === 1) { throw Error("InvalidCharacterError"); }
+    if (/[^+/0-9A-Za-z]/.test(input)) { throw Error("InvalidCharacterError"); }
 
     while (position < input.length) {
       n = B64_ALPHABET.indexOf(input.charAt(position));
@@ -1147,7 +1147,7 @@ if ('window' in this && 'document' in this) {
         o1, o2, o3,
         e1, e2, e3, e4;
 
-    if (/[^\x00-\xFF]/.test(input)) { throw new Error("InvalidCharacterError"); }
+    if (/[^\x00-\xFF]/.test(input)) { throw Error("InvalidCharacterError"); }
 
     while (position < input.length) {
       o1 = input.charCodeAt(position++);

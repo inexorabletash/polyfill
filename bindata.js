@@ -1,7 +1,7 @@
 // http://wiki.ecmascript.org/doku.php?id=harmony:binary_data
 (function(global){
 
-  function ASSERT(c, m) { if (!c) { throw new Error(m); } }
+  function ASSERT(c, m) { if (!c) { throw Error(m); } }
 
   (function() {
     var orig = Object.prototype.toString;
@@ -13,21 +13,21 @@
     };
   }());
 
-  function Data() { throw new TypeError(); }
+  function Data() { throw TypeError(); }
   Data.prototype = {};
   Object.defineProperties(Data.prototype, {
     buffer: { get: function() { return this.__Value__.buffer; }},
     byteOffset: { get: function() { return this.__Value__.byteOffset; }},
     byteLength: { get: function() { return this.__Value__.byteLength; }},
     update: { value: function(val) {
-      if (this !== Object(this) || !(this instanceof Data)) { throw new TypeError(); }
+      if (this !== Object(this) || !(this instanceof Data)) { throw TypeError(); }
       var r = this.__DataType__.__Convert__(val);
       viewCopy(r, this.__Value__, 0, r.byteLength);
     }}
   });
   global.Data = Data;
 
-  function Type() { throw new TypeError(); }
+  function Type() { throw TypeError(); }
   Type.prototype = Data;
   global.Type = Type;
 
@@ -55,7 +55,7 @@
         bytes = arrayType.BYTES_PER_ELEMENT;
 
     var t = function SomeNumericType(val) {
-      if (this instanceof SomeNumericType) { throw new TypeError("Numeric types should have value semantics"); }
+      if (this instanceof SomeNumericType) { throw TypeError("Numeric types should have value semantics"); }
       var x = t.__Cast__(val);
       return t.__Reify__(x);
     };
@@ -71,7 +71,7 @@
       } else if (typeof value === 'number' && desc.domain(value)) {
         // ok
       } else {
-        throw new TypeError("Value " + value + " is not a " + desc.name);
+        throw TypeError("Value " + value + " is not a " + desc.name);
       }
 
       (new DataView(block.__Value__.buffer, 0, bytes))[setter](0, value, littleEndian);
@@ -96,7 +96,7 @@
         v = Number(val);
         return t.__CCast__(v);
       }
-      throw new TypeError("Cannot cast " + val + " to " + desc.name);
+      throw TypeError("Cannot cast " + val + " to " + desc.name);
     };
     t.__CCast__ = function CCast(n) {
       var a = new arrayType(1);
@@ -127,12 +127,12 @@
   }
 
   function ArrayType(elementType, length) {
-    if (!(this instanceof ArrayType)) { throw new TypeError("ArrayType cannot be called as a function."); }
+    if (!(this instanceof ArrayType)) { throw TypeError("ArrayType cannot be called as a function."); }
 
     var proto = Object.create(ArrayType.prototype.prototype);
     length = length | 0;
 
-    if (!isBlockType(elementType)) { throw new TypeError("Type is not a block type"); }
+    if (!isBlockType(elementType)) { throw TypeError("Type is not a block type"); }
 
     var bytes = elementType.bytes * length;
 
@@ -161,7 +161,7 @@
     }
 
     var t = function SomeArrayType(value) {
-      if (!(this instanceof SomeArrayType)) { throw new TypeError("Cannot call as a function"); }
+      if (!(this instanceof SomeArrayType)) { throw TypeError("Cannot call as a function"); }
       if (value === void 0 || Array.isArray(value)) {
         var a = t.__Construct__();
         if (value !== void 0) {
@@ -214,7 +214,7 @@
     t.prototype.forEach = Array.prototype.forEach;
     t.prototype.fill = function fill(value) {
       if (this !== Object(this) || this.__Class__ !== 'Data' || !(this.__DataType__.__IsSame__(t))) {
-        throw new TypeError();
+        throw TypeError();
       }
       for (var i = 0; i < t.__Length__; ++i) {
         setter(this, i, value);
@@ -247,7 +247,7 @@
 
 
   function StructType(fields) {
-    if (!(this instanceof StructType)) { throw new TypeError("StructType cannot be called as a function."); }
+    if (!(this instanceof StructType)) { throw TypeError("StructType cannot be called as a function."); }
 
     var proto = Object.create(Data.prototype);
 
@@ -255,7 +255,7 @@
     var bytes = 0;
     Object.keys(fields).forEach(function(name) {
       var type = fields[name];
-      if (!isBlockType(type)) { throw new TypeError("Type for '" + name + "' is not a block type"); }
+      if (!isBlockType(type)) { throw TypeError("Type for '" + name + "' is not a block type"); }
       desc[name] = {
         type: type,
         offset: bytes
@@ -287,7 +287,7 @@
     });
 
     var t = function SomeStructType(value) {
-      if (!(this instanceof SomeStructType)) { throw new TypeError("objects have reference semantics"); }
+      if (!(this instanceof SomeStructType)) { throw TypeError("objects have reference semantics"); }
       return t.__Convert__(value);
     };
     t.__Class__ = 'DataType';
@@ -341,8 +341,8 @@
   global.StructType = StructType;
 
   function StructView(type) {
-    if (!(this instanceof StructView)) { throw new TypeError("StructView cannot be called as a function."); }
-    if (Object(type).__DataType__ !== 'StructType') { throw new TypeError("Type is not a StructType"); }
+    if (!(this instanceof StructView)) { throw TypeError("StructView cannot be called as a function."); }
+    if (Object(type).__DataType__ !== 'StructType') { throw TypeError("Type is not a StructType"); }
 
     // TODO: fields in StructView.prototype.setView(array, index, [...fields])
     // TODO: (Lazily) define as StructType.ViewType?
@@ -363,11 +363,11 @@
     Object.keys(type.__Fields__).forEach(function(name) {
       Object.defineProperty(that, name, {
         get: function() {
-          if (!this.__Array__) throw new Error();
+          if (!this.__Array__) throw Error();
           return getter(this.__Array__, this.__Index__, name);
         },
         set: function(value) {
-          if (!this.__Array__) throw new Error();
+          if (!this.__Array__) throw Error();
           setter(this.__Array__, this.__Index__, name, value);
         }
       });
@@ -379,12 +379,12 @@
   }
   StructView.prototype = {};
   Object.defineProperty(StructView.prototype, 'setView', { value: function(array, index) {
-    if (!Object(array).__DataType__) { throw new TypeError(); }
-    if (Object(Object(array).__DataType__).__DataType__ !== 'ArrayType') { throw new TypeError(); }
-    if (Object(Object(array).__DataType__).__ElementType__ !== this.__DataType__) { throw new TypeError(); }
+    if (!Object(array).__DataType__) { throw TypeError(); }
+    if (Object(Object(array).__DataType__).__DataType__ !== 'ArrayType') { throw TypeError(); }
+    if (Object(Object(array).__DataType__).__ElementType__ !== this.__DataType__) { throw TypeError(); }
 
     index = index >> 0;
-    if (index < 0 || index >= array.__Length__) { throw new RangeError(); }
+    if (index < 0 || index >= array.__Length__) { throw RangeError(); }
     this.__Array__ = array;
     this.__Index__ = index;
   }});

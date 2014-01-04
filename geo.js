@@ -105,7 +105,7 @@
 
 
     this.getCurrentPosition = function (successCallback, errorCallback, options) {
-      if (!successCallback) { throw new TypeError("The successCallback parameter is null."); }
+      if (!successCallback) { throw TypeError("The successCallback parameter is null."); }
 
       var maximumAge;
       if (options && hasOwnProperty(options, 'maximumAge') && Number(options.maximumAge) >= 0) {
@@ -172,7 +172,7 @@
     var timers = [], counter = 0;
 
     this.watchPosition = function (successCallback, errorCallback, options) {
-      if (!successCallback) { throw new TypeError("The successCallback parameter is null."); }
+      if (!successCallback) { throw TypeError("The successCallback parameter is null."); }
 
       var maximumAge;
       if (options && hasOwnProperty(options, 'maximumAge') && Number(options.maximumAge) >= 0) {

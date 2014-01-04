@@ -37,7 +37,7 @@
     var args = arguments;
     function nextarg() {
       if (arg >= args.length) {
-        throw new Error("Ran out of arguments: " + arg);
+        throw Error("Ran out of arguments: " + arg);
       }
       return args[arg++];
     }
@@ -105,7 +105,7 @@
         break;
 
       default:
-        throw new Error("Unsupported formatting specifier: " + specifier);
+        throw Error("Unsupported formatting specifier: " + specifier);
       }
 
       // Format

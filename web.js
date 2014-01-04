@@ -27,7 +27,7 @@ if ('window' in this && 'document' in this) {
     try { return new ActiveXObject("Msxml2.XMLHTTP.6.0"); } catch (e1) { }
     try { return new ActiveXObject("Msxml2.XMLHTTP.3.0"); } catch (e2) { }
     try { return new ActiveXObject("Msxml2.XMLHTTP"); } catch (e3) { }
-    throw new Error("This browser does not support XMLHttpRequest.");
+    throw Error("This browser does not support XMLHttpRequest.");
   };
   XMLHttpRequest.UNSENT = 0;
   XMLHttpRequest.OPENED = 1;
@@ -185,7 +185,7 @@ if ('window' in this && 'document' in this) {
   //
   // DOM Enumerations (http://www.w3.org/TR/DOM-Level-2-Core/)
   //
-  window.Node = window.Node || function Node() { throw new TypeError("Illegal constructor"); };
+  window.Node = window.Node || function Node() { throw TypeError("Illegal constructor"); };
   Node.ELEMENT_NODE = 1;
   Node.ATTRIBUTE_NODE = 2;
   Node.TEXT_NODE = 3;
@@ -199,7 +199,7 @@ if ('window' in this && 'document' in this) {
   Node.DOCUMENT_FRAGMENT_NODE = 11;
   Node.NOTATION_NODE = 12;
 
-  window.DOMException = window.DOMException || function DOMException() { throw new TypeError("Illegal constructor"); };
+  window.DOMException = window.DOMException || function DOMException() { throw TypeError("Illegal constructor"); };
   DOMException.INDEX_SIZE_ERR = 1;
   DOMException.DOMSTRING_SIZE_ERR = 2;
   DOMException.HIERARCHY_REQUEST_ERR = 3;
@@ -432,8 +432,8 @@ if ('window' in this && 'document' in this) {
           contains: {
             value: function (token) {
               token = String(token);
-              if (token.length === 0) { throw new SyntaxError(); }
-              if (/\s/.test(token)) { throw new Error("InvalidCharacterError"); }
+              if (token.length === 0) { throw SyntaxError(); }
+              if (/\s/.test(token)) { throw Error("InvalidCharacterError"); }
               var tokens = split(o[p]);
 
               return tokens.indexOf(token) !== -1;
@@ -444,10 +444,10 @@ if ('window' in this && 'document' in this) {
             value: function (/*tokens...*/) {
               var tokens = Array.prototype.slice.call(arguments).map(String);
               if (tokens.some(function(token) { return token.length === 0; })) {
-                throw new SyntaxError();
+                throw SyntaxError();
               }
               if (tokens.some(function(token) { return (/\s/).test(token); })) {
-                throw new Error("InvalidCharacterError");
+                throw Error("InvalidCharacterError");
               }
 
               try {
@@ -473,10 +473,10 @@ if ('window' in this && 'document' in this) {
             value: function (/*tokens...*/) {
               var tokens = Array.prototype.slice.call(arguments).map(String);
               if (tokens.some(function(token) { return token.length === 0; })) {
-                throw new SyntaxError();
+                throw SyntaxError();
               }
               if (tokens.some(function(token) { return (/\s/).test(token); })) {
-                throw new Error("InvalidCharacterError");
+                throw Error("InvalidCharacterError");
               }
 
               try {
@@ -496,8 +496,8 @@ if ('window' in this && 'document' in this) {
             value: function (token, force) {
               try {
                 token = String(token);
-                if (token.length === 0) { throw new SyntaxError(); }
-                if (/\s/.test(token)) { throw new Error("InvalidCharacterError"); }
+                if (token.length === 0) { throw SyntaxError(); }
+                if (/\s/.test(token)) { throw Error("InvalidCharacterError"); }
                 var tokens = split(o[p]),
                     index = tokens.indexOf(token);
 
@@ -598,8 +598,8 @@ if ('window' in this && 'document' in this) {
 
     input = input.replace(/\s/g, '');
     if ((input.length % 4) === 0) { input = input.replace(/=+$/, ''); }
-    if ((input.length % 4) === 1) { throw new Error("InvalidCharacterError"); }
-    if (/[^+/0-9A-Za-z]/.test(input)) { throw new Error("InvalidCharacterError"); }
+    if ((input.length % 4) === 1) { throw Error("InvalidCharacterError"); }
+    if (/[^+/0-9A-Za-z]/.test(input)) { throw Error("InvalidCharacterError"); }
 
     while (position < input.length) {
       n = B64_ALPHABET.indexOf(input.charAt(position));
@@ -635,7 +635,7 @@ if ('window' in this && 'document' in this) {
         o1, o2, o3,
         e1, e2, e3, e4;
 
-    if (/[^\x00-\xFF]/.test(input)) { throw new Error("InvalidCharacterError"); }
+    if (/[^\x00-\xFF]/.test(input)) { throw Error("InvalidCharacterError"); }
 
     while (position < input.length) {
       o1 = input.charCodeAt(position++);

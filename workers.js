@@ -92,7 +92,7 @@ window.Worker = window.Worker || (function () {
           __loadScript(src, function (script) {
             eval(script);
           }, function (error) {
-            throw new Error(error);
+            throw Error(error);
           });
         }
       }

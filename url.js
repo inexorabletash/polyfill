@@ -162,7 +162,7 @@
       }
 
       if (!doc) {
-        throw new Error("baseURL not supported");
+        throw Error("baseURL not supported");
       }
 
       base = doc.createElement("base");

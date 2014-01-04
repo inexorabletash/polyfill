@@ -91,7 +91,7 @@
   if (!Object.defineProperty ||
        !(function() { try { Object.defineProperty({}, 'x', {}); return true; } catch (e) { return false; } }())) {
     Object.defineProperty = function(o, p, desc) {
-      if (!o === Object(o)) throw new TypeError("Object.defineProperty called on non-object");
+      if (!o === Object(o)) throw TypeError("Object.defineProperty called on non-object");
       if (ECMAScript.HasProperty(desc, 'get') && Object.prototype.__defineGetter__) { Object.prototype.__defineGetter__.call(o, p, desc.get); }
       if (ECMAScript.HasProperty(desc, 'set') && Object.prototype.__defineSetter__) { Object.prototype.__defineSetter__.call(o, p, desc.set); }
       if (ECMAScript.HasProperty(desc, 'value')) { o[p] = desc.value; }
@@ -101,7 +101,7 @@
 
   if (!Object.getOwnPropertyNames) {
     Object.getOwnPropertyNames = function getOwnPropertyNames(o) {
-      if (o !== Object(o)) throw new TypeError("Object.getOwnPropertyNames called on non-object");
+      if (o !== Object(o)) throw TypeError("Object.getOwnPropertyNames called on non-object");
       var props = [], p;
       for (p in o) {
         if (ECMAScript.HasOwnProperty(o, p)) {
@@ -117,7 +117,7 @@
   function makeArrayAccessors(obj) {
     if (!Object.defineProperty) { return; }
 
-    if (obj.length > MAX_ARRAY_LENGTH) throw new RangeError("Array too large for polyfill");
+    if (obj.length > MAX_ARRAY_LENGTH) throw RangeError("Array too large for polyfill");
 
     function makeArrayAccessor(index) {
       Object.defineProperty(obj, index, {
@@ -279,7 +279,7 @@
     /** @constructor */
     var ArrayBuffer = function ArrayBuffer(length) {
       length = ECMAScript.ToInt32(length);
-      if (length < 0) throw new RangeError('ArrayBuffer size is not a small enough positive integer.');
+      if (length < 0) throw RangeError('ArrayBuffer size is not a small enough positive integer.');
 
       this.byteLength = length;
       this._bytes = [];
@@ -322,7 +322,7 @@
         if (!arguments.length || typeof arguments[0] === 'number') {
           // Constructor(unsigned long length)
           this.length = ECMAScript.ToInt32(arguments[0]);
-          if (length < 0) throw new RangeError('ArrayBufferView size is not a small enough positive integer.');
+          if (length < 0) throw RangeError('ArrayBufferView size is not a small enough positive integer.');
 
           this.byteLength = this.length * this.BYTES_PER_ELEMENT;
           this.buffer = new ArrayBuffer(this.byteLength);
@@ -361,20 +361,20 @@
 
           this.byteOffset = ECMAScript.ToUint32(byteOffset);
           if (this.byteOffset > this.buffer.byteLength) {
-            throw new RangeError("byteOffset out of range");
+            throw RangeError("byteOffset out of range");
           }
 
           if (this.byteOffset % this.BYTES_PER_ELEMENT) {
             // The given byteOffset must be a multiple of the element
             // size of the specific type, otherwise an exception is raised.
-            throw new RangeError("ArrayBuffer length minus the byteOffset is not a multiple of the element size.");
+            throw RangeError("ArrayBuffer length minus the byteOffset is not a multiple of the element size.");
           }
 
           if (arguments.length < 3) {
             this.byteLength = this.buffer.byteLength - this.byteOffset;
 
             if (this.byteLength % this.BYTES_PER_ELEMENT) {
-              throw new RangeError("length of buffer minus byteOffset not a multiple of the element size");
+              throw RangeError("length of buffer minus byteOffset not a multiple of the element size");
             }
             this.length = this.byteLength / this.BYTES_PER_ELEMENT;
           } else {
@@ -383,10 +383,10 @@
           }
 
           if ((this.byteOffset + this.byteLength) > this.buffer.byteLength) {
-            throw new RangeError("byteOffset and length reference an area beyond the end of the buffer");
+            throw RangeError("byteOffset and length reference an area beyond the end of the buffer");
           }
         } else {
-          throw new TypeError("Unexpected argument type(s)");
+          throw TypeError("Unexpected argument type(s)");
         }
 
         this.constructor = ctor;
@@ -403,7 +403,7 @@
 
       // getter type (unsigned long index);
       ctor.prototype._getter = function(index) {
-        if (arguments.length < 1) throw new SyntaxError("Not enough arguments");
+        if (arguments.length < 1) throw SyntaxError("Not enough arguments");
 
         index = ECMAScript.ToUint32(index);
         if (index >= this.length) {
@@ -424,7 +424,7 @@
 
       // setter void (unsigned long index, type value);
       ctor.prototype._setter = function(index, value) {
-        if (arguments.length < 2) throw new SyntaxError("Not enough arguments");
+        if (arguments.length < 2) throw SyntaxError("Not enough arguments");
 
         index = ECMAScript.ToUint32(index);
         if (index >= this.length) {
@@ -442,7 +442,7 @@
       // void set(TypedArray array, optional unsigned long offset);
       // void set(sequence<type> array, optional unsigned long offset);
       ctor.prototype.set = function(index, value) {
-        if (arguments.length < 1) throw new SyntaxError("Not enough arguments");
+        if (arguments.length < 1) throw SyntaxError("Not enough arguments");
         var array, sequence, offset, len,
             i, s, d,
             byteOffset, byteLength, tmp;
@@ -453,7 +453,7 @@
           offset = ECMAScript.ToUint32(arguments[1]);
 
           if (offset + array.length > this.length) {
-            throw new RangeError("Offset plus length of array is out of range");
+            throw RangeError("Offset plus length of array is out of range");
           }
 
           byteOffset = this.byteOffset + offset * this.BYTES_PER_ELEMENT;
@@ -480,7 +480,7 @@
           offset = ECMAScript.ToUint32(arguments[1]);
 
           if (offset + len > this.length) {
-            throw new RangeError("Offset plus length of array is out of range");
+            throw RangeError("Offset plus length of array is out of range");
           }
 
           for (i = 0; i < len; i += 1) {
@@ -488,7 +488,7 @@
             this._setter(offset + i, Number(s));
           }
         } else {
-          throw new TypeError("Unexpected argument type(s)");
+          throw TypeError("Unexpected argument type(s)");
         }
       };
 
@@ -564,14 +564,14 @@
       if (arguments.length === 0) {
         buffer = new ArrayBuffer(0);
       } else if (!(buffer instanceof ArrayBuffer || ECMAScript.Class(buffer) === 'ArrayBuffer')) {
-        throw new TypeError("TypeError");
+        throw TypeError("TypeError");
       }
 
       this.buffer = buffer || new ArrayBuffer(0);
 
       this.byteOffset = ECMAScript.ToUint32(byteOffset);
       if (this.byteOffset > this.buffer.byteLength) {
-        throw new RangeError("byteOffset out of range");
+        throw RangeError("byteOffset out of range");
       }
 
       if (arguments.length < 3) {
@@ -581,7 +581,7 @@
       }
 
       if ((this.byteOffset + this.byteLength) > this.buffer.byteLength) {
-        throw new RangeError("byteOffset and length reference an area beyond the end of the buffer");
+        throw RangeError("byteOffset and length reference an area beyond the end of the buffer");
       }
 
       configureProperties(this);
@@ -593,7 +593,7 @@
         byteOffset = ECMAScript.ToUint32(byteOffset);
 
         if (byteOffset + arrayType.BYTES_PER_ELEMENT > this.byteLength) {
-          throw new RangeError("Array index out of range");
+          throw RangeError("Array index out of range");
         }
         byteOffset += this.byteOffset;
 
@@ -625,7 +625,7 @@
 
         byteOffset = ECMAScript.ToUint32(byteOffset);
         if (byteOffset + arrayType.BYTES_PER_ELEMENT > this.byteLength) {
-          throw new RangeError("Array index out of range");
+          throw RangeError("Array index out of range");
         }
 
         // Get bytes

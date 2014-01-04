@@ -1,6 +1,6 @@
 (function (global) {
 
-  window.DOMException = window.DOMException || function DOMException() { throw new TypeError("Illegal constructor"); };
+  window.DOMException = window.DOMException || function DOMException() { throw TypeError("Illegal constructor"); };
   var code_to_name = {},
       name_to_code = {
         // Introduced in DOM Level 1:
