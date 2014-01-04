@@ -1109,7 +1109,7 @@
   // 21.1.2.3 String.prototype
   // 21.1.2.4 String.raw ( callSite, ...substitutions)
 
-  // TODO (see Tagged Template String 12.2.6)
+  // See https://githib.com/inexorabletash/uate
 
   // 21.1.2.5 String[ @@create ] ( )
   // 21.1.3 Properties of the String Prototype Object
