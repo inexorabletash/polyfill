@@ -10,15 +10,13 @@
 
   // Helpers
 
-  function assert(c) {
-    if (!c) {
-      throw Error("Internal assertion failure");
-    }
+  function assert(c, m) {
+    if (!c) throw Error("Internal assertion failure" + (m ? ': ' + m : ''));
   }
 
   function hook(o, p, f) {
     var op = o[p];
-    if (typeof op !== 'function') { throw TypeError('Not a function'); }
+    assert(typeof op === 'function', 'Hooking a non-function');
     o[p] = function() {
       var r = f.apply(this, arguments);
       return r !== undefined ? r : op.apply(this, arguments);
@@ -31,8 +29,8 @@
 
     if (typeof v === 'function') {
       // Sanity check that functions are appropriately named (where possible)
-      if ('name' in v && !(p instanceof global.Symbol) && v.name !== p && v.name !== p + "Function")
-        throw Error(v.name + " !== " + p);
+      assert(p instanceof global.Symbol || !('name' in v) || v.name === p || v.name === p + 'Function',
+            'Expected function name "' + p + '", was "' + v.name + '"');
       Object.defineProperty(o, p, {
         value: v,
         configurable: true,
@@ -255,8 +253,8 @@
   // 7.1.4
   function ToInteger(n) {
     n = Number(n);
-    if (global_isNaN(n)) { return 0; }
-    if (n === 0 || n === Infinity || n === -Infinity) { return n; }
+    if (global_isNaN(n)) return 0;
+    if (n === 0 || n === Infinity || n === -Infinity) return n;
     return ((n < 0) ? -1 : 1) * floor(abs(n));
   }
 
@@ -302,15 +300,13 @@
 
   // 7.2.3
   function SameValue(x, y) {
-    if (typeof x !== typeof y) {
-      return false;
-    }
+    if (typeof x !== typeof y) return false;
     switch (typeof x) {
     case 'undefined':
       return true;
     case 'number':
-      if (global_isNaN(x) && global_isNaN(y)) { return true; }
-      if (x === 0 && y === 0) { return 1/x === 1/y; }
+      if (x !== x && y !== y) return true;
+      if (x === 0 && y === 0) return 1/x === 1/y;
       return x === y;
     case 'boolean':
     case 'string':
@@ -322,14 +318,12 @@
 
   // 7.2.4
   function SameValueZero(x, y) {
-    if (typeof x !== typeof y) {
-      return false;
-    }
+    if (typeof x !== typeof y) return false;
     switch (typeof x) {
     case 'undefined':
       return true;
     case 'number':
-      if (global_isNaN(x) && global_isNaN(y)) { return true; }
+      if (x !== x && y !== y) return true;
       return x === y;
     case 'boolean':
     case 'string':
@@ -516,8 +510,8 @@
   define(
     Object, 'setPrototypeOf',
     function setPrototypeOf(o, proto) {
-      if (Type(o) !== 'object') { throw TypeError(); }
-      if (Type(proto) !== 'object' && Type(proto) !== 'null') { throw TypeError(); }
+      if (Type(o) !== 'object') throw TypeError();
+      if (Type(proto) !== 'object' && Type(proto) !== 'null') throw TypeError();
       o.__proto__ = proto;
       return o;
     }
@@ -1561,7 +1555,7 @@
       var o = ToObject(this);
       var lenValue = o.length;
       var len = ToInteger(lenValue);
-      if (!IsCallable(predicate)) { throw TypeError(); }
+      if (!IsCallable(predicate)) throw TypeError();
       var t = arguments.length > 1 ? arguments[1] : undefined;
       var k = 0;
       while (k < len) {
@@ -1586,7 +1580,7 @@
       var o = ToObject(this);
       var lenValue = o.length;
       var len = ToInteger(lenValue);
-      if (!IsCallable(predicate)) { throw TypeError(); }
+      if (!IsCallable(predicate)) throw TypeError();
       var t = arguments.length > 1 ? arguments[1] : undefined;
       var k = 0;
       while (k < len) {
@@ -1670,7 +1664,7 @@
     ArrayIterator.prototype, 'next',
     function next() {
       var o = this;
-      if (Type(o) !== 'object') { throw TypeError; }
+      if (Type(o) !== 'object') throw TypeError();
       var a = o['[[IteratedObject]]'],
           index = o['[[ArrayIteratorNextIndex]]'],
           itemKind = o['[[ArrayIterationKind]]'],
@@ -2040,17 +2034,17 @@
 
       var map = this;
 
-      if (Type(map) !== 'object') { throw TypeError(); }
-      if ('[[MapData]]' in map) { throw TypeError(); }
+      if (Type(map) !== 'object') throw TypeError();
+      if ('[[MapData]]' in map) throw TypeError();
 
       if (iterable !== undefined) {
         iterable = ToObject(iterable);
         var itr = iterable[$$iterator](); // or throw...
         var adder = map['set'];
-        if (!IsCallable(adder)) { throw TypeError(); }
+        if (!IsCallable(adder)) throw TypeError();
       }
       set_internal(map, '[[MapData]]', { keys: [], values: [] });
-      if (comparator !== undefined && comparator !== "is") { throw TypeError(); }
+      if (comparator !== undefined && comparator !== "is") throw TypeError();
       map._mapComparator = comparator;
 
       if (iterable === undefined) {
@@ -2078,7 +2072,7 @@
       }
       // Slow case for NaN/+0/-0
       for (i = 0; i < mapData.keys.length; i += 1) {
-        if (same(mapData.keys[i], key)) { return i; }
+        if (same(mapData.keys[i], key)) return i;
       }
       return -1;
     }
@@ -2117,7 +2111,7 @@
         var same = (m._mapComparator === undefined) ?
               SameValueZero : SameValue;
         var i = indexOf(same, entries, key);
-        if (i < 0) { return false; }
+        if (i < 0) return false;
         entries.keys[i] = empty;
         entries.values[i] = empty;
         return true;
@@ -2204,7 +2198,7 @@
         var same = (m._mapComparator === undefined) ?
               SameValueZero : SameValue;
         var i = indexOf(same, entries, key);
-        if (i < 0) { i = entries.keys.length; }
+        if (i < 0) i = entries.keys.length;
         entries.keys[i] = key;
         entries.values[i] = val;
         return m;
@@ -2275,7 +2269,7 @@
       MapIterator.prototype, 'next',
       function next() {
         var o = this;
-        if (Type(o) !== 'object') { throw TypeError(); }
+        if (Type(o) !== 'object') throw TypeError();
         var m = o['[[Map]]'],
             index = o['[[MapNextIndex]]'],
             itemKind = o['[[MapIterationKind]]'],
@@ -2328,17 +2322,17 @@
 
       var set = this;
 
-      if (Type(set) !== 'object') { throw TypeError(); }
-      if ('[[SetData]]' in set) { throw TypeError(); }
+      if (Type(set) !== 'object') throw TypeError();
+      if ('[[SetData]]' in set) throw TypeError();
 
       if (iterable !== undefined) {
         iterable = ToObject(iterable);
         var itr = HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
         var adder = set['add'];
-        if (!IsCallable(adder)) { throw TypeError(); }
+        if (!IsCallable(adder)) throw TypeError();
       }
       set_internal(set, '[[SetData]]', []);
-      if (comparator !== undefined && comparator !== "is") { throw TypeError(); }
+      if (comparator !== undefined && comparator !== "is") throw TypeError();
       set._setComparator = comparator;
       if (iterable === undefined) {
         return set;
@@ -2362,7 +2356,7 @@
       }
       // Slow case for NaN/+0/-0
       for (i = 0; i < setData.length; i += 1) {
-        if (same(setData[i], key)) { return i; }
+        if (same(setData[i], key)) return i;
       }
       return -1;
     }
@@ -2388,7 +2382,7 @@
         var same = (s._setComparator === undefined) ?
               SameValueZero : SameValue;
         var i = indexOf(same, entries, value);
-        if (i < 0) { i = s['[[SetData]]'].length; }
+        if (i < 0) i = s['[[SetData]]'].length;
         s['[[SetData]]'][i] = value;
 
         return s;
@@ -2420,7 +2414,7 @@
         var same = (s._setComparator === undefined) ?
               SameValueZero : SameValue;
         var i = indexOf(same, entries, value);
-        if (i < 0) { return false; }
+        if (i < 0) return false;
         entries[i] = empty;
         return true;
       });
@@ -2536,7 +2530,7 @@
       SetIterator.prototype, 'next',
       function next() {
         var o = this;
-        if (Type(o) !== 'object') { throw TypeError; }
+        if (Type(o) !== 'object') throw TypeError();
         var s = o['[[IteratedSet]]'],
             index = o['[[SetNextIndex]]'],
             entries = s['[[SetData]]'];
@@ -2582,14 +2576,14 @@
 
       var map = this;
 
-     if (Type(map) !== 'object') { throw TypeError(); }
-      if ('_table' in map) { throw TypeError(); }
+     if (Type(map) !== 'object') throw TypeError();
+      if ('_table' in map) throw TypeError();
 
       if (iterable !== undefined) {
         iterable = ToObject(iterable);
         var itr = iterable[$$iterator](); // or throw...
         var adder = map['set'];
-        if (!IsCallable(adder)) { throw TypeError(); }
+        if (!IsCallable(adder)) throw TypeError();
       }
       map._table = new EphemeronTable;
       if (iterable === undefined) {
@@ -2600,7 +2594,7 @@
         if (next === false)
           return map;
         var nextValue = IteratorValue(next);
-        if (Type(nextValue) !== 'object') { throw TypeError(); }
+        if (Type(nextValue) !== 'object') throw TypeError();
         var k = nextValue[0];
         var v = nextValue[1];
         adder.call(map, k, v);
@@ -2630,7 +2624,7 @@
     define(
       WeakMap.prototype, 'delete',
       function deleteFunction(key) {
-        if (key !== Object(key)) { throw TypeError('Expected object'); }
+        if (Type(key) !== 'object') throw TypeError('Expected object');
         this._table.remove(key);
       });
 
@@ -2638,7 +2632,7 @@
     define(
       WeakMap.prototype, 'get',
       function get(key, defaultValue) {
-        if (key !== Object(key)) { throw TypeError('Expected object'); }
+        if (Type(key) !== 'object') throw TypeError('Expected object');
         return this._table.get(key, defaultValue);
       });
 
@@ -2646,7 +2640,7 @@
     define(
       WeakMap.prototype, 'has',
       function has(key) {
-        if (key !== Object(key)) { throw TypeError('Expected object'); }
+        if (Type(key) !== 'object') throw TypeError('Expected object');
         return this._table.has(key);
       });
 
@@ -2654,7 +2648,7 @@
     define(
       WeakMap.prototype, 'set',
       function set(key, value) {
-        if (key !== Object(key)) { throw TypeError('Expected object'); }
+        if (Type(key) !== 'object') throw TypeError('Expected object');
         this._table.set(key, value);
         return value;
       });
@@ -2682,14 +2676,14 @@
 
       var set = this;
 
-      if (Type(set) !== 'object') { throw TypeError(); }
-      if ('_table' in set) { throw TypeError(); }
+      if (Type(set) !== 'object') throw TypeError();
+      if ('_table' in set) throw TypeError();
 
       if (iterable !== undefined) {
         iterable = ToObject(iterable);
         var itr = HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
         var adder = set['add'];
-        if (!IsCallable(adder)) { throw TypeError(); }
+        if (!IsCallable(adder)) throw TypeError();
       }
       set._table = new EphemeronTable;
       if (iterable === undefined) {
@@ -2717,7 +2711,7 @@
     define(
       WeakSet.prototype, 'add',
       function add(value) {
-        if (value !== Object(value)) { throw TypeError('Expected object'); }
+        if (Type(value) !== 'object') throw TypeError('Expected object');
         this._table.set(value, true);
         return value;
       });
@@ -2734,7 +2728,7 @@
     define(
       WeakSet.prototype, 'delete',
       function deleteFunction(value) {
-        if (value !== Object(value)) { throw TypeError('Expected object'); }
+        if (Type(value) !== 'object') throw TypeError('Expected object');
         this._table.remove(value);
       });
 
@@ -2742,7 +2736,7 @@
     define(
       WeakSet.prototype, 'has',
       function has(key) {
-        if (key !== Object(key)) { throw TypeError('Expected object'); }
+        if (Type(key) !== 'object') throw TypeError('Expected object');
         return this._table.has(key);
       });
 
@@ -2988,7 +2982,7 @@
       function get(target,name,receiver) {
         target = ToObject(target);
         name = String(name);
-        receiver = (receiver === undefined) ? target : Object(receiver);
+        receiver = (receiver === undefined) ? target : ToObject(receiver);
         var desc = Object.getPropertyDescriptor(target, name);
         if ('get' in desc) {
           return Function.prototype.call.call(desc['get'], receiver);
@@ -3010,14 +3004,14 @@
     define(
       Reflect, 'has',
       function has(target,name) {
-        return String(name) in Object(target);
+        return String(name) in ToObject(target);
       });
 
     // 26.1.8 Reflect.hasOwn (target, propertyKey)
     define(
       Reflect, 'hasOwn',
       function hasOwn(target,name) {
-        return Object(target).hasOwnProperty(String(name));
+        return ToObject(target).hasOwnProperty(String(name));
       });
 
     // 26.1.9 Reflect.isExtensible (target)
@@ -3049,7 +3043,7 @@
     define(
       Reflect, 'preventExtensions',
       function preventExtensions(target) {
-        try { Object.preventExtensions(target); return true; } catch (e) { return false; }
+        try { Object.preventExtensions(target); return true; } catch (_) { return false; }
       });
 
     // 26.1.13 Reflect.set (target, propertyKey, V, receiver=target)
@@ -3058,7 +3052,7 @@
       function set(target,name,value,receiver) {
         target = ToObject(target);
         name = String(name);
-        receiver = (receiver === undefined) ? target : Object(receiver);
+        receiver = (receiver === undefined) ? target : ToObject(receiver);
         var desc = Object.getPropertyDescriptor(target, name);
         if ('set' in desc) {
           return Function.prototype.call.call(desc['set'], receiver, value);
@@ -3104,7 +3098,7 @@
     define(
       PropertyIterator.prototype, 'next',
       function next() {
-        if (Type(this) !== 'object') { throw TypeError; }
+        if (Type(this) !== 'object') throw TypeError();
         var o = this.set,
             index = this.nextIndex,
             entries = this.propList;
@@ -3203,7 +3197,7 @@
   define(
     Array.prototype, 'contains',
     function contains(target) {
-      if (this === undefined || this === null) { throw TypeError(); }
+      if (this === undefined || this === null) throw TypeError();
       var t = ToObject(this),
           len = ToUint32(t.length),
           i;
