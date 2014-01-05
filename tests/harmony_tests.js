@@ -505,7 +505,9 @@ test("Object", function () {
   delete testobj2;
 
   var q = 1;
-  var s = { a: 1, get b() { return q * 2; } };
+  var s = { a: 1 };
+  Object.defineProperty(
+    s, 'b', { get: function() { return q * 2; }, configurable: true, enumerable: true });
   var t = Object.assign({c: 3}, s);
   var u = Object.mixin({c: 4}, s);
   q = 5;
@@ -671,7 +673,7 @@ test("Map", function () {
   map = new Map();
   map.set('a', 1);
   map.set('b', 2);
-  map.delete('a');
+  map['delete']('a');
   count = 0;
   map.forEach(function (k, v) {
     ++count;
@@ -762,7 +764,7 @@ test("Set", function () {
   set = new Set();
   set.add('a');
   set.add('b');
-  set.delete('a');
+  set['delete']('a');
   count = 0;
   set.forEach(function(v) {
     ++count;
@@ -980,7 +982,7 @@ asyncTest("Catch", function() {
   var reject;
   var p = new Promise(function (a, b) {
     reject = b;
-  }).catch(function(reason) {
+  })['catch'](function(reason) {
     equal(reason, 5);
     start();
   });
@@ -1015,7 +1017,7 @@ asyncTest("Promise.resolve()", function() {
 });
 
 asyncTest("Promise.reject()", function() {
-  Promise.reject(5).catch(function(value) {
+  Promise.reject(5)['catch'](function(value) {
     equal(value, 5);
     start();
   });
@@ -1036,7 +1038,7 @@ asyncTest("Promise rejected with promise", function() {
   var fulfill;
   new Promise(function (a, b) {
     fulfill = a;
-  }).catch(function(value) {
+  })['catch'](function(value) {
     equal(value, 5);
     start();
   });
@@ -1077,7 +1079,7 @@ asyncTest("Promise.all() reject", function() {
     Promise.resolve(1),
     Promise.reject(2),
     Promise.resolve(3)
-    ]).catch(function(reason) {
+    ])['catch'](function(reason) {
       equal(reason, 2);
       start();
     });

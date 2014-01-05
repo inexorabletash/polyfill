@@ -55,14 +55,13 @@ if (typeof Object.getOwnPropertyNames !== "function") {
 // ES5 15.2.3.5 Object.create ( O [, Properties] )
 if (typeof Object.create !== "function") {
   Object.create = function (prototype, properties) {
-    "use strict";
     if (typeof prototype !== "object") { throw TypeError(); }
     /** @constructor */
     function Ctor() {}
     Ctor.prototype = prototype;
     var o = new Ctor();
     if (prototype) { o.constructor = Ctor; }
-    if (arguments.length > 1) {
+    if (properties !== undefined) {
       if (properties !== Object(properties)) { throw TypeError(); }
       Object.defineProperties(o, properties);
     }
@@ -77,8 +76,6 @@ if (typeof Object.create !== "function") {
       !(function () { try { Object.defineProperty({}, 'x', {}); return true; } catch (e) { return false; } } ())) {
     var orig = Object.defineProperty;
     Object.defineProperty = function (o, prop, desc) {
-      "use strict";
-
       // In IE8 try built-in implementation for defining properties on DOM prototypes.
       if (orig) { try { return orig(o, prop, desc); } catch (e) {} }
 
@@ -100,7 +97,6 @@ if (typeof Object.create !== "function") {
 // ES 15.2.3.7 Object.defineProperties ( O, Properties )
 if (typeof Object.defineProperties !== "function") {
   Object.defineProperties = function (o, properties) {
-    "use strict";
     if (o !== Object(o)) { throw TypeError("Object.defineProperties called on non-object"); }
     var name;
     for (name in properties) {
@@ -182,8 +178,6 @@ Array.isArray = Array.isArray || function (o) { return Boolean(o && Object.proto
 // From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/indexOf
 if (!Array.prototype.indexOf) {
   Array.prototype.indexOf = function (searchElement /*, fromIndex */) {
-    "use strict";
-
     if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
@@ -217,8 +211,6 @@ if (!Array.prototype.indexOf) {
 // From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/lastIndexOf
 if (!Array.prototype.lastIndexOf) {
   Array.prototype.lastIndexOf = function (searchElement /*, fromIndex*/) {
-    "use strict";
-
     if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
@@ -250,8 +242,6 @@ if (!Array.prototype.lastIndexOf) {
 // From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/every
 if (!Array.prototype.every) {
   Array.prototype.every = function (fun /*, thisp */) {
-    "use strict";
-
     if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
@@ -273,8 +263,6 @@ if (!Array.prototype.every) {
 // From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/some
 if (!Array.prototype.some) {
   Array.prototype.some = function (fun /*, thisp */) {
-    "use strict";
-
     if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
@@ -296,8 +284,6 @@ if (!Array.prototype.some) {
 // From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/forEach
 if (!Array.prototype.forEach) {
   Array.prototype.forEach = function (fun /*, thisp */) {
-    "use strict";
-
     if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
@@ -318,8 +304,6 @@ if (!Array.prototype.forEach) {
 // From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/Map
 if (!Array.prototype.map) {
   Array.prototype.map = function (fun /*, thisp */) {
-    "use strict";
-
     if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
@@ -342,8 +326,6 @@ if (!Array.prototype.map) {
 // From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/Filter
 if (!Array.prototype.filter) {
   Array.prototype.filter = function (fun /*, thisp */) {
-    "use strict";
-
     if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
@@ -370,8 +352,6 @@ if (!Array.prototype.filter) {
 // From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/Reduce
 if (!Array.prototype.reduce) {
   Array.prototype.reduce = function (fun /*, initialValue */) {
-    "use strict";
-
     if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
@@ -414,8 +394,6 @@ if (!Array.prototype.reduce) {
 // From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/ReduceRight
 if (!Array.prototype.reduceRight) {
   Array.prototype.reduceRight = function (callbackfn /*, initialValue */) {
-    "use strict";
-
     if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);

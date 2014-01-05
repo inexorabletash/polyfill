@@ -2309,7 +2309,9 @@
 
     // 23.1.5.3 Properties of Map Iterator Instances
 
-    global.Map = global.Map || Map;
+    // Override IE11's divergent implementation
+    if (!global.Map || global.Map.length)
+      global.Map = Map;
   }());
 
   // ---------------------------------------
@@ -2563,9 +2565,10 @@
 
     // 23.2.5.3 Properties of Set Iterator Instances
 
-    global.Set = global.Set || Set;
+    // Override IE11's divergent implementation
+    if (!global.Set || global.Set.length)
+        global.Set = Set;
   }());
-
 
 
   // ---------------------------------------
@@ -2664,7 +2667,9 @@
 
     // 23.3.4 Properties of WeakMap Instances
 
-    global.WeakMap = global.WeakMap || WeakMap;
+    // Override IE11's divergent implementation
+    if (!global.WeakMap || global.WeakMap.length)
+      global.WeakMap = WeakMap;
   }());
 
 
@@ -3396,10 +3401,11 @@
     // Built-in Functions for Promise Objects
 
     function DeferredConstructionFunction() {
-      return function F(resolve, reject) {
+      var F = function(resolve, reject) {
         set_internal(F, '[[Resolve]]', resolve);
         set_internal(F, '[[Reject]]', reject);
       };
+      return F;
     }
 
     function IdentityFunction() {
@@ -3409,7 +3415,7 @@
     }
 
     function PromiseAllCountdownFunction() {
-      return function F(x) {
+      var F =  function(x) {
         var index = F['[[Index]]'];
         var values = F['[[Values]]'];
         var deferred = F['[[Deferred]]'];
@@ -3421,10 +3427,11 @@
         }
         return nothing;
       };
+      return F;
     }
 
     function PromiseResolutionHandlerFunction() {
-      return function F(x) {
+      var F = function(x) {
         var promise = F['[[Promise]]'];
         var fulfillmentHandler = F['[[FulfillmentHandler]]'];
         var rejectionHandler = F['[[RejectionHandler]]'];
@@ -3438,20 +3445,23 @@
         if (updateResult !== "not a thenable") return deferred['[[Promise]]']["then"](fulfillmentHandler, rejectionHandler);
         return fulfillmentHandler.call(undefined, x);
       };
+      return F;
     }
 
     function RejectPromiseFunction() {
-      return function F(reason) {
+      var F = function(reason) {
         var promise = F['[[Promise]]'];
         return PromiseReject(promise, reason);
       };
+      return F;
     }
 
     function ResolvePromiseFunction() {
-      return function F(resolution) {
+      var F = function(resolution) {
         var promise = F['[[Promise]]'];
         return PromiseResolve(promise, resolution);
       };
+      return F;
     }
 
     function ThrowerFunction() {

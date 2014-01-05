@@ -795,11 +795,13 @@ test('DataView endian', 27, function () {
 
 
 test('Typed Array getters/setters', function () {
-  // Only supported if Object.defineProperty() is fully on non-DOM objects.
+  // Only supported if Object.defineProperty() is fully supported on non-DOM objects.
   try {
-    Object.defineProperty({}, 'x', {});
+    var o = {};
+    Object.defineProperty(o, 'x', { get: function() { return 1; } });
+    if (o.x !== 1) throw Error();
   } catch (_) {
-    ok();
+    ok(true);
     return;
   }
 
