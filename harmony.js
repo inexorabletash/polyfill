@@ -25,8 +25,8 @@
     };
   }
 
-  function define(o, p, v) {
-    if (p in o)
+  function define(o, p, v, override) {
+    if (p in o && !override)
       return;
 
     if (typeof v === 'function') {
@@ -335,6 +335,8 @@
 
   // 7.2.5
   function IsConstructor(o) {
+    // Hack for Safari 7 TypedArray XXXConstructor objects
+    if (/Constructor/.test(Object.prototype.toString.call(o))) return true;
     // TODO: Can this be improved on?
     return typeof o === 'function';
   }
@@ -888,7 +890,8 @@
       var bh  = (b >>> 16) & 0xffff;
       var bl = b & 0xffff;
       return ((al * bl) + (((ah * bl + al * bh) << 16) >>> 0)|0);
-    });
+    }, ('imul' in Math && Math.imul(1, 0x80000000) === 0) // Safari 7 bug
+  );
 
   // 20.2.2.18 Math.log (x)
 
