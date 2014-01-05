@@ -14,12 +14,17 @@
     if (!c) throw Error("Internal assertion failure" + (m ? ': ' + m : ''));
   }
 
+  function strict(o) {
+    return o === global ? undefined : o;
+  }
+
   function hook(o, p, f) {
     var op = o[p];
     assert(typeof op === 'function', 'Hooking a non-function');
     o[p] = function() {
-      var r = f.apply(this, arguments);
-      return r !== undefined ? r : op.apply(this, arguments);
+      var o = strict(this);
+      var r = f.apply(o, arguments);
+      return r !== undefined ? r : op.apply(o, arguments);
     };
   }
 
@@ -194,7 +199,7 @@
     // 19.4.3.2 Symbol.prototype.toString ( )
     Object.defineProperty(Symbol.prototype, 'toString', {
       value: function toString() {
-        var s = this;
+        var s = strict(this);
         var desc = s['[[Description]]'] || s['[[SymbolData]]'];
         return 'Symbol(' + desc + ')';
       },
@@ -203,7 +208,7 @@
     // 19.4.3.3 Symbol.prototype.valueOf ( )
     Object.defineProperty(Symbol.prototype, 'valueOf', {
       value: function valueOf() {
-        var s = this;
+        var s = strict(this);
         var sym = s['[[SymbolData]]'];
       },
       configurable: true, writeable: true, enumerable: false });
@@ -527,8 +532,9 @@
   // 19.1.4.6 Object.prototype.toString ( )
   hook(Object.prototype, 'toString',
        function() {
-         if (this === Object(this) && $$toStringTag in this) {
-           return '[object ' + this[$$toStringTag] + ']';
+         var o = strict(this);
+         if (o === Object(o) && $$toStringTag in o) {
+           return '[object ' + o[$$toStringTag] + ']';
          }
          return undefined;
        });
@@ -1148,7 +1154,7 @@
     function contains(searchString) {
       var position = arguments[1];
 
-      var o = this;
+      var o = strict(this);
       var s = String(o);
       var searchStr = String(searchString);
       var pos = ToInteger(position);
@@ -1163,7 +1169,7 @@
     function endsWith(searchString) {
       var endPosition = arguments[1];
 
-      var o = this;
+      var o = strict(this);
       var s = String(o);
       var searchStr = String(searchString);
       var len = s.length;
@@ -1188,7 +1194,7 @@
   define(
     String.prototype, 'repeat',
     function repeat(count) {
-      var o = this;
+      var o = strict(this);
       var s = String(o);
       var n = ToInteger(count);
       if (n < 0) throw RangeError();
@@ -1208,7 +1214,7 @@
     function startsWith(searchString) {
       var position = arguments[1];
 
-      var o = this;
+      var o = strict(this);
       var s = String(o);
       var searchStr = String(searchString);
       var pos = ToInteger(position);
@@ -1351,7 +1357,7 @@
       var mapfn = arguments[1];
       var thisArg = arguments[2];
 
-      var c = this;
+      var c = strict(this);
       var items = ToObject(arrayLike);
       if (mapfn === undefined) {
         var mapping = false;
@@ -1663,7 +1669,7 @@
   define(
     ArrayIterator.prototype, 'next',
     function next() {
-      var o = this;
+      var o = strict(this);
       if (Type(o) !== 'object') throw TypeError();
       var a = o['[[IteratedObject]]'],
           index = o['[[ArrayIteratorNextIndex]]'],
@@ -1743,7 +1749,7 @@
          var mapfn = arguments[1];
          var thisArg = arguments[2];
 
-         var c = this;
+         var c = strict(this);
          if (!IsConstructor(c)) throw TypeError();
          var items = ToObject(source);
          if (mapfn === undefined) {
@@ -1805,7 +1811,7 @@
          var items = arguments;
 
          var len = items.length;
-         var c = this;
+         var c = strict(this);
          var newObj = new c(len);
          var k = 0;
          while (k < len) {
@@ -2032,7 +2038,7 @@
       var iterable = arguments[0];
       var comparator = arguments[1];
 
-      var map = this;
+      var map = strict(this);
 
       if (Type(map) !== 'object') throw TypeError();
       if ('[[MapData]]' in map) throw TypeError();
@@ -2088,7 +2094,7 @@
     define(
       Map.prototype, 'clear',
       function clear() {
-        var m = this;
+        var m = strict(this);
         if (Type(m) !== 'object') throw TypeError();
         if (!('[[MapData]]' in m)) throw TypeError();
         if (m['[[MapData]]'] === undefined) throw TypeError();
@@ -2103,7 +2109,7 @@
     define(
       Map.prototype, 'delete',
       function deleteFunction(key) {
-        var m = this;
+        var m = strict(this);
         if (Type(m) !== 'object') throw TypeError();
         if (!('[[MapData]]' in m)) throw TypeError();
         if (m['[[MapData]]'] === undefined) throw TypeError();
@@ -2121,7 +2127,7 @@
      define(
       Map.prototype, 'entries',
       function entries() {
-        var m = this;
+        var m = strict(this);
         if (Type(m) !== 'object') throw TypeError();
         return CreateMapIterator(m, 'key+value');
       });
@@ -2132,7 +2138,7 @@
       function forEach(callbackfn /*, thisArg*/) {
         var thisArg = arguments[1];
 
-        var m = this;
+        var m = strict(this);
         if (Type(m) !== 'object') throw TypeError();
         if (!('[[MapData]]' in m)) throw TypeError();
         if (m['[[MapData]]'] === undefined) throw TypeError();
@@ -2152,7 +2158,7 @@
     define(
       Map.prototype, 'get',
       function get(key) {
-        var m = this;
+        var m = strict(this);
         if (Type(m) !== 'object') throw TypeError();
         if (!('[[MapData]]' in m)) throw TypeError();
         if (m['[[MapData]]'] === undefined) throw TypeError();
@@ -2167,7 +2173,7 @@
     define(
       Map.prototype, 'has',
       function has(key) {
-        var m = this;
+        var m = strict(this);
         if (Type(m) !== 'object') throw TypeError();
         if (!('[[MapData]]' in m)) throw TypeError();
         if (m['[[MapData]]'] === undefined) throw TypeError();
@@ -2181,7 +2187,7 @@
     define(
       Map.prototype, 'keys',
       function keys() {
-        var m = this;
+        var m = strict(this);
         if (Type(m) !== 'object') throw TypeError();
         return CreateMapIterator(m, 'key');
       });
@@ -2190,7 +2196,7 @@
     define(
       Map.prototype, 'set',
       function set(key, val) {
-        var m = this;
+        var m = strict(this);
         if (Type(m) !== 'object') throw TypeError();
         if (!('[[MapData]]' in m)) throw TypeError();
         if (m['[[MapData]]'] === undefined) throw TypeError();
@@ -2208,7 +2214,7 @@
     Object.defineProperty(
       Map.prototype, 'size', {
         get: function() {
-          var m = this;
+          var m = strict(this);
           if (Type(m) !== 'object') throw TypeError();
           if (!('[[MapData]]' in m)) throw TypeError();
           if (m['[[MapData]]'] === undefined) throw TypeError();
@@ -2226,7 +2232,7 @@
     define(
       Map.prototype, 'values',
       function values() {
-        var m = this;
+        var m = strict(this);
         if (Type(m) !== 'object') throw TypeError();
         return CreateMapIterator(m, 'value');
       });
@@ -2235,7 +2241,7 @@
     define(
       Map.prototype, $$iterator,
       function() {
-        var m = this;
+        var m = strict(this);
         if (Type(m) !== 'object') throw TypeError();
         return CreateMapIterator(m, 'key+value');
       });
@@ -2268,7 +2274,7 @@
     define(
       MapIterator.prototype, 'next',
       function next() {
-        var o = this;
+        var o = strict(this);
         if (Type(o) !== 'object') throw TypeError();
         var m = o['[[Map]]'],
             index = o['[[MapNextIndex]]'],
@@ -2320,7 +2326,7 @@
       var iterable = arguments[0];
       var comparator = arguments[1];
 
-      var set = this;
+      var set = strict(this);
 
       if (Type(set) !== 'object') throw TypeError();
       if ('[[SetData]]' in set) throw TypeError();
@@ -2374,7 +2380,7 @@
     define(
       Set.prototype, 'add',
       function add(value) {
-        var s = this;
+        var s = strict(this);
         if (Type(s) !== 'object') throw TypeError();
         if (!('[[SetData]]' in s)) throw TypeError();
         if (s['[[SetData]]'] === undefined) throw TypeError();
@@ -2392,7 +2398,7 @@
     define(
       Set.prototype, 'clear',
       function clear() {
-        var s = this;
+        var s = strict(this);
         if (Type(s) !== 'object') throw TypeError();
         if (!('[[SetData]]' in s)) throw TypeError();
         if (s['[[SetData]]'] === undefined) throw TypeError();
@@ -2406,7 +2412,7 @@
     define(
       Set.prototype, 'delete',
       function deleteFunction(value) {
-        var s = this;
+        var s = strict(this);
         if (Type(s) !== 'object') throw TypeError();
         if (!('[[SetData]]' in s)) throw TypeError();
         if (s['[[SetData]]'] === undefined) throw TypeError();
@@ -2423,7 +2429,7 @@
     define(
       Set.prototype, 'entries',
       function entries() {
-        var s = this;
+        var s = strict(this);
         if (Type(s) !== 'object') throw TypeError();
         return CreateSetIterator(s, 'key+value');
       });
@@ -2434,7 +2440,7 @@
       function forEach(callbackfn/*, thisArg*/) {
         var thisArg = arguments[1];
 
-        var s = this;
+        var s = strict(this);
         if (Type(s) !== 'object') throw TypeError();
         if (!('[[SetData]]' in s)) throw TypeError();
         if (s['[[SetData]]'] === undefined) throw TypeError();
@@ -2454,7 +2460,7 @@
     define(
       Set.prototype, 'has',
       function has(key) {
-        var s = this;
+        var s = strict(this);
         if (Type(s) !== 'object') throw TypeError();
         if (!('[[SetData]]' in s)) throw TypeError();
         if (s['[[SetData]]'] === undefined) throw TypeError();
@@ -2469,7 +2475,7 @@
     Object.defineProperty(
       Set.prototype, 'size', {
         get: function() {
-          var s = this;
+          var s = strict(this);
           if (Type(s) !== 'object') throw TypeError();
           if (!('[[SetData]]' in s)) throw TypeError();
           if (s['[[SetData]]'] === undefined) throw TypeError();
@@ -2487,7 +2493,7 @@
     define(
       Set.prototype, 'values',
       function values() {
-        var s = this;
+        var s = strict(this);
         if (Type(s) !== 'object') throw TypeError();
         return CreateSetIterator(s);
       });
@@ -2496,7 +2502,7 @@
     define(
       Set.prototype, $$iterator,
       function() {
-        var s = this;
+        var s = strict(this);
         if (Type(s) !== 'object') throw TypeError();
         return CreateSetIterator(s);
       });
@@ -2529,7 +2535,7 @@
     define(
       SetIterator.prototype, 'next',
       function next() {
-        var o = this;
+        var o = strict(this);
         if (Type(o) !== 'object') throw TypeError();
         var s = o['[[IteratedSet]]'],
             index = o['[[SetNextIndex]]'],
@@ -2574,7 +2580,7 @@
     function WeakMap() {
       var iterable = arguments[0];
 
-      var map = this;
+      var map = strict(this);
 
      if (Type(map) !== 'object') throw TypeError();
       if ('_table' in map) throw TypeError();
@@ -2674,7 +2680,7 @@
     function WeakSet() {
       var iterable = arguments[0];
 
-      var set = this;
+      var set = strict(this);
 
       if (Type(set) !== 'object') throw TypeError();
       if ('_table' in set) throw TypeError();
@@ -3479,7 +3485,7 @@
     function Promise(resolver) {
       set_internal(this, '[[PromiseConstructor]]', Promise);
 
-      var promise = this;
+      var promise = strict(this);
       if (Type(promise) !== 'object') throw TypeError();
       if (!IsCallable(resolver)) throw TypeError();
       set_internal(promise, '[[PromiseStatus]]', "unresolved");
@@ -3498,7 +3504,7 @@
     }
 
     define(Promise, 'all', function all(iterable) {
-      var C = this;
+      var C = strict(this);
       var deferred = GetDeferred(C);
       var iterator = GetIterator(iterable);
       var values = Array(0);
@@ -3526,7 +3532,7 @@
     });
 
     define(Promise, 'cast', function cast(x) {
-      var C = this;
+      var C = strict(this);
       if (IsPromise(x)) {
         var constructor = x['[[PromiseConstructor]]'];
         if (SameValue(constructor, C)) return x;
@@ -3537,7 +3543,7 @@
     });
 
     define(Promise, 'race', function race(iterable) {
-      var C = this;
+      var C = strict(this);
       var deferred = GetDeferred(C);
       var iterator = GetIterator(iterable);
       while (true) {
@@ -3550,14 +3556,14 @@
     });
 
     define(Promise, 'reject', function reject(r) {
-      var C = this;
+      var C = strict(this);
       var deferred = GetDeferred(C);
       var rejectResult = deferred['[[Reject]]'].call(undefined, r);
       return deferred['[[Promise]]'];
     });
 
     define(Promise, 'resolve', function resolve(x) {
-      var C = this;
+      var C = strict(this);
       var deferred = GetDeferred(C);
       var resolveResult = deferred['[[Resolve]]'].call(undefined, x);
       return deferred['[[Promise]]'];
@@ -3570,12 +3576,12 @@
     Promise.prototype.constructor = Promise;
 
     define(Promise.prototype, 'catch', function catchFunction(onRejected) {
-      var promise = this;
+      var promise = strict(this);
       promise["then"](undefined, onRejected);
     });
 
     define(Promise.prototype, 'then', function then(onFulfilled, onRejected) {
-      var promise = this;
+      var promise = strict(this);
       if (!IsPromise(promise)) throw TypeError();
       var C = promise.constructor;
       var deferred = GetDeferred(C);
@@ -3609,4 +3615,4 @@
     global.Promise = global.Promise || Promise;
   }());
 
-}(self));
+}(this));

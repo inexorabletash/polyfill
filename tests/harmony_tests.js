@@ -910,6 +910,8 @@ test("Branding", function() {
 
   // Make sure these aren't broken:
   assertEqual("Object.prototype.toString.call(undefined)", "[object Undefined]");
+
+  // Fails in IE9-; in non-strict mode, |this| is the global and can't be distinguished from undefined
   assertEqual("Object.prototype.toString.call(null)", "[object Null]");
 
   assertEqual("Object.prototype.toString.call(0)", "[object Number]");
