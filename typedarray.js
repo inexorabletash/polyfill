@@ -215,7 +215,6 @@
   }
 
   function unpackIEEE754(bytes, ebits, fbits) {
-
     // Bytes to bits
     var bits = [], i, j, b, str,
         bias, s, e, f;
@@ -260,7 +259,6 @@
 
   (function() {
 
-    /** @constructor */
     function ArrayBuffer(length) {
       length = ECMAScript.ToInt32(length);
       if (length < 0) throw RangeError('ArrayBuffer size is not a small enough positive integer.');
@@ -274,18 +272,6 @@
     global.ArrayBuffer = global.ArrayBuffer || ArrayBuffer;
 
     //
-    // 4 The ArrayBufferView Type
-    //
-
-    // NOTE: this constructor is not exported
-    /** @constructor */
-    function ArrayBufferView() {
-      //this.buffer = null;
-      //this.byteOffset = 0;
-      //this.byteLength = 0;
-    };
-
-    //
     // 5 The Typed Array View Types
     //
 
@@ -295,7 +281,7 @@
       if (!arguments.length || typeof arguments[0] !== 'object') {
         return (function(length) {
           length = ECMAScript.ToInt32(length);
-          if (length < 0) throw RangeError('ArrayBufferView size is not a small enough positive integer.');
+          if (length < 0) throw RangeError('length is not a small enough positive integer.');
           Object.defineProperty(this, 'length', {value: length});
           Object.defineProperty(this, 'byteLength', {value: length * this.BYTES_PER_ELEMENT});
           Object.defineProperty(this, 'buffer', {value: new ArrayBuffer(this.byteLength)});
@@ -356,7 +342,7 @@
           // The given byteOffset must be a multiple of the element
           // size of the specific type, otherwise an exception is raised.
           if (byteOffset % this.BYTES_PER_ELEMENT)
-            throw RangeError('ArrayBuffer length minus the byteOffset is not a multiple of the element size.');
+            throw RangeError('buffer length minus the byteOffset is not a multiple of the element size.');
 
           if (length === undefined) {
             var byteLength = buffer.byteLength - byteOffset;
@@ -393,7 +379,7 @@
     var $TypedArrayPrototype$ = {};
     $TypedArray$.prototype = $TypedArrayPrototype$;
 
-    // getter type (unsigned long index);
+    // WebIDL: getter type (unsigned long index);
     Object.defineProperty($TypedArray$.prototype, '_getter', {value: function(index) {
       if (arguments.length < 1) throw SyntaxError('Not enough arguments');
 
@@ -414,7 +400,7 @@
     // NONSTANDARD: convenience alias for getter: type get(unsigned long index);
     Object.defineProperty($TypedArray$.prototype, 'get', {value: $TypedArray$.prototype._getter});
 
-    // setter void (unsigned long index, type value);
+    // WebIDL: setter void (unsigned long index, type value);
     Object.defineProperty($TypedArray$.prototype, '_setter', {value: function(index, value) {
       if (arguments.length < 2) throw SyntaxError('Not enough arguments');
 
@@ -460,12 +446,12 @@
     // %TypedArray%.prototype.reduce ( callbackfn [, initialValue] )
     // %TypedArray%.prototype.reduceRight ( callbackfn [, initialValue] )
     // %TypedArray%.prototype.reverse ( )
-
+    // -- above are defined in harmony.js to shim browsers w/ native TypedArrays
 
     // %TypedArray%.prototype.set(array, offset = 0 )
     // %TypedArray%.prototype.set(typedArray, offset = 0 )
-    // void set(TypedArray array, optional unsigned long offset);
-    // void set(sequence<type> array, optional unsigned long offset);
+    // WebIDL: void set(TypedArray array, optional unsigned long offset);
+    // WebIDL: void set(sequence<type> array, optional unsigned long offset);
     Object.defineProperty($TypedArray$.prototype, 'set', {value: function(index, value) {
       if (arguments.length < 1) throw SyntaxError('Not enough arguments');
       var array, sequence, offset, len,
@@ -523,7 +509,7 @@
     // -- above are defined in harmony.js to shim browsers w/ native TypedArrays
 
     // %TypedArray%.prototype.subarray(begin = 0, end = this.length )
-    // TypedArray subarray(long begin, optional long end);
+    // WebIDL: TypedArray subarray(long begin, optional long end);
     Object.defineProperty($TypedArray$.prototype, 'subarray', {value: function(start, end) {
       function clamp(v, min, max) { return v < min ? min : v > max ? max : v; }
 
@@ -614,18 +600,12 @@
       return r(u8array, 0) === 0x12;
     }());
 
-    // Constructor(ArrayBuffer buffer,
-    //             optional unsigned long byteOffset,
-    //             optional unsigned long byteLength)
-    /** @constructor */
+    // DataView(buffer, byteOffset=0, byteLength=undefined)
+    // WebIDL: Constructor(ArrayBuffer buffer,
+    //                     optional unsigned long byteOffset,
+    //                     optional unsigned long byteLength)
     function DataView(buffer, byteOffset, byteLength) {
-      if (arguments.length === 0) {
-        buffer = new ArrayBuffer(0);
-      } else if (!(buffer instanceof ArrayBuffer || ECMAScript.Class(buffer) === 'ArrayBuffer')) {
-        throw TypeError();
-      }
-
-      buffer = buffer || new ArrayBuffer(0);
+      if (!(buffer instanceof ArrayBuffer || ECMAScript.Class(buffer) === 'ArrayBuffer')) throw TypeError();
 
       byteOffset = ECMAScript.ToUint32(byteOffset);
       if (byteOffset > buffer.byteLength)
@@ -644,9 +624,13 @@
       Object.defineProperty(this, 'byteOffset', {value: byteOffset});
     };
 
-    function makeGetter(arrayType) {
-      return function(byteOffset, littleEndian) {
+    // get DataView.prototype.buffer
+    // get DataView.prototype.byteLength
+    // get get DataView.prototype.byteOffset
+    // -- above are applied directly to instances by the constructor
 
+    function makeGetter(arrayType) {
+      return function GetViewValue(byteOffset, littleEndian) {
         byteOffset = ECMAScript.ToUint32(byteOffset);
 
         if (byteOffset + arrayType.BYTES_PER_ELEMENT > this.byteLength)
@@ -676,8 +660,7 @@
     Object.defineProperty(DataView.prototype, 'getFloat64', {value: makeGetter(Float64Array)});
 
     function makeSetter(arrayType) {
-      return function(byteOffset, value, littleEndian) {
-
+      return function SetViewValue(byteOffset, value, littleEndian) {
         byteOffset = ECMAScript.ToUint32(byteOffset);
         if (byteOffset + arrayType.BYTES_PER_ELEMENT > this.byteLength)
           throw RangeError('Array index out of range');
