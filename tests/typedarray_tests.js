@@ -72,7 +72,7 @@ function extractbits(bytes, lo, hi) {
 test('ArrayBuffer', 7, function () {
   var b;
 
-  stricterEqual((new ArrayBuffer()).byteLength, 0, 'no length');
+  stricterEqual(new ArrayBuffer().byteLength, 0, 'no length');
   ok(b = new ArrayBuffer(0), 'creation');
   ok(b = new ArrayBuffer(1), 'creation');
   ok(b = new ArrayBuffer(123), 'creation');
@@ -829,4 +829,71 @@ test('Regression Tests', function() {
   var minFloat32 = 1.401298464324817e-45;
   var truncated = new Float32Array([-minFloat32 / 2 - Math.pow(2, -202)]).get(0);
   stricterEqual(truncated, -minFloat32, 'smallest 32 bit float should not truncate to zero');
+});
+
+test('ES6 Typed Array Extras', function() {
+  arrayEqual(Uint16Array.from([1, 2, 3]), [1, 2, 3]);
+  equal(Uint16Array.from([1, 2, 3]).byteLength, 6);
+
+  arrayEqual(Uint16Array.of(1, 2, 3), [1, 2, 3]);
+  equal(Uint16Array.of(1, 2, 3).byteLength, 6);
+
+  var sample = new Uint16Array([1,2,3]);
+
+  ok(sample.every(function(n) { return n < 5; }));
+  ok(!sample.every(function(n) { return n < 2; }));
+
+  ok(sample.some(function(n) { return n === 2; }));
+  ok(!sample.some(function(n) { return n === 5; }));
+
+  var sum = 0;
+  sample.forEach(function(n) { sum += n; });
+  equal(sum, 6);
+
+  var search = new Uint8Array([1, 2, 3, 1, 2, 3]);
+  equal(search.indexOf(0), -1);
+  equal(search.indexOf(1), 0);
+  equal(search.indexOf(2), 1);
+
+  equal(search.lastIndexOf(0), -1);
+  equal(search.lastIndexOf(1), 3);
+  equal(search.lastIndexOf(2), 4);
+
+  equal(sample.reduce(function(a, b) { return a / b; }), 1/6);
+  equal(sample.reduce(function(a, b) { return a + b; }, ''), '123');
+
+  equal(sample.reduceRight(function(a, b) { return a / b; }), 1.5);
+  equal(sample.reduceRight(function(a, b) { return a + b; }, ''), '321');
+
+  arrayEqual(sample.filter(function(n) { return n % 2; }), [1, 3]);
+  equal(sample.filter(function(n) { return n % 2; }).byteLength, 4);
+
+  arrayEqual(sample.map(function(n) { return n * 2; }), [2, 4, 6]);
+  equal(sample.map(function(n) { return n * 2; }).byteLength, 6);
+
+  arrayEqual(new Uint16Array([1,2,3]).reverse(), [3, 2, 1]);
+  arrayEqual(new Uint16Array([1,2,3,4]).reverse(), [4, 3, 2, 1]);
+
+  arrayEqual(new Uint16Array([4,3,2,1]).sort(), [1, 2, 3, 4]);
+  arrayEqual(new Uint16Array([1,2,3,4]).sort(function(a, b) { return b - a;}), [4, 3, 2, 1]);
+
+  arrayEqual(new Uint16Array([1,2,3,4]).fill(9), [9,9,9,9]);
+  arrayEqual(new Uint16Array([1,2,3,4]).fill(9, 2), [1,2,9,9]);
+  arrayEqual(new Uint16Array([1,2,3,4]).fill(9, 2, 3), [1,2,9,4]);
+
+  equal(sample.find(function(n) { return n > 2; }), 3);
+  equal(sample.find(function(n) { return n === 5; }), undefined);
+  equal(sample.findIndex(function(n) { return n > 2; }), 2);
+  equal(sample.findIndex(function(n) { return n === 5; }), -1);
+
+  equal(sample.join(), "1,2,3");
+  equal(sample.join(''), "123");
+
+  arrayEqual(new Uint16Array([0,1,2,3,4]).copyWithin(3, 0, 2), [0,1,2,0,1]);
+  arrayEqual(new Uint16Array([0,1,2,3,4]).copyWithin(0, 3), [3,4,2,3,4]);
+  arrayEqual(new Uint16Array([0,1,2,3,4]).copyWithin(0, 2, 5), [2,3,4,3,4]);
+  arrayEqual(new Uint16Array([0,1,2,3,4]).copyWithin(2, 0, 3), [0,1,0,1,2]);
+
+  arrayEqual(new Uint16Array([1,2,3,4]).slice(), [1,2,3,4]);
+  arrayEqual(new Uint16Array([1,2,3,4]).slice(2,4), [3,4]);
 });

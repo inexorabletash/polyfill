@@ -1585,7 +1585,7 @@
     function findIndex(predicate) {
       var o = ToObject(this);
       var lenValue = o.length;
-      var len = ToInteger(lenValue);
+      var len = ToLength(lenValue);
       if (!IsCallable(predicate)) throw TypeError();
       var t = arguments.length > 1 ? arguments[1] : undefined;
       var k = 0;
@@ -1788,7 +1788,7 @@
            return newObj;
          }
          var lenValue = items.length;
-         len = ToInteger(lenValue);
+         len = ToLength(lenValue);
          newObj = new c(len);
          k = 0;
          while (k < len) {
