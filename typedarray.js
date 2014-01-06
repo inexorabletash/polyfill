@@ -522,8 +522,7 @@
       else
         final = min(relativeEnd, len);
       while (k < final) {
-        var pk = String(k);
-        o._setter(pk, value);
+        o._setter(k, value);
         k += 1;
       }
       return o;
@@ -625,7 +624,7 @@
       var tmp = Array(len);
       for (var i = 0; i < len; ++i)
         tmp[i] = t._getter(i);
-      return tmp.join(separator);
+      return tmp.join(separator === undefined ? ',' : separator); // Hack for IE7
     }});
 
     // %TypedArray%.prototype.keys ( )
@@ -828,8 +827,8 @@
       var tmp = Array(len);
       for (var i = 0; i < len; ++i)
         tmp[i] = t._getter(i);
-      tmp.sort(comparefn);
-      for (var i = 0; i < len; ++i)
+      if (comparefn) tmp.sort(comparefn); else tmp.sort(); // Hack for IE8/9
+      for (i = 0; i < len; ++i)
         t._setter(i, tmp[i]);
       return t;
     }});
@@ -870,14 +869,14 @@
     function makeTypedArray(elementSize, pack, unpack) {
       // Each TypedArray type requires a distinct constructor instance with
       // identical logic, which this produces.
-      function TypedArray() {
+      var TypedArray = function() {
         Object.defineProperty(this, 'constructor', {value: TypedArray});
         $TypedArray$.apply(this, arguments);
         makeArrayAccessors(this);
-      }
-      try {
+      };
+      if ('__proto__' in {}) {
         TypedArray.__proto__ = $TypedArray$;
-      } catch (_) {
+      } else {
         TypedArray.from = $TypedArray$.from;
         TypedArray.of = $TypedArray$.of;
       }
