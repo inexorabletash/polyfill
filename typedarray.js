@@ -874,7 +874,7 @@
         $TypedArray$.apply(this, arguments);
         makeArrayAccessors(this);
       };
-      if ('__proto__' in {}) {
+      if ('__proto__' in TypedArray) {
         TypedArray.__proto__ = $TypedArray$;
       } else {
         TypedArray.from = $TypedArray$.from;
@@ -883,7 +883,7 @@
 
       TypedArray.BYTES_PER_ELEMENT = elementSize;
 
-      function TypedArrayPrototype() {}
+      var TypedArrayPrototype = function() {};
       TypedArrayPrototype.prototype = $TypedArrayPrototype$;
 
       TypedArray.prototype = new TypedArrayPrototype();
@@ -957,7 +957,7 @@
 
     // get DataView.prototype.buffer
     // get DataView.prototype.byteLength
-    // get get DataView.prototype.byteOffset
+    // get DataView.prototype.byteOffset
     // -- applied directly to instances by the constructor
 
     function makeGetter(arrayType) {
