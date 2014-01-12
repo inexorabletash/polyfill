@@ -493,6 +493,7 @@ if (!Date.prototype.toISOString) {
 // Browser Polyfills
 //
 // This assumes ES5 or ES3 + es5.js
+// (polyfill.js is es5.js + web.js for convenience)
 //
 //----------------------------------------------------------------------
 
