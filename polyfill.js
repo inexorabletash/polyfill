@@ -55,14 +55,13 @@ if (typeof Object.getOwnPropertyNames !== "function") {
 // ES5 15.2.3.5 Object.create ( O [, Properties] )
 if (typeof Object.create !== "function") {
   Object.create = function (prototype, properties) {
-    "use strict";
     if (typeof prototype !== "object") { throw TypeError(); }
     /** @constructor */
     function Ctor() {}
     Ctor.prototype = prototype;
     var o = new Ctor();
     if (prototype) { o.constructor = Ctor; }
-    if (arguments.length > 1) {
+    if (properties !== undefined) {
       if (properties !== Object(properties)) { throw TypeError(); }
       Object.defineProperties(o, properties);
     }
@@ -77,8 +76,6 @@ if (typeof Object.create !== "function") {
       !(function () { try { Object.defineProperty({}, 'x', {}); return true; } catch (e) { return false; } } ())) {
     var orig = Object.defineProperty;
     Object.defineProperty = function (o, prop, desc) {
-      "use strict";
-
       // In IE8 try built-in implementation for defining properties on DOM prototypes.
       if (orig) { try { return orig(o, prop, desc); } catch (e) {} }
 
@@ -100,7 +97,6 @@ if (typeof Object.create !== "function") {
 // ES 15.2.3.7 Object.defineProperties ( O, Properties )
 if (typeof Object.defineProperties !== "function") {
   Object.defineProperties = function (o, properties) {
-    "use strict";
     if (o !== Object(o)) { throw TypeError("Object.defineProperties called on non-object"); }
     var name;
     for (name in properties) {
@@ -182,8 +178,6 @@ Array.isArray = Array.isArray || function (o) { return Boolean(o && Object.proto
 // From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/indexOf
 if (!Array.prototype.indexOf) {
   Array.prototype.indexOf = function (searchElement /*, fromIndex */) {
-    "use strict";
-
     if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
@@ -217,8 +211,6 @@ if (!Array.prototype.indexOf) {
 // From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/lastIndexOf
 if (!Array.prototype.lastIndexOf) {
   Array.prototype.lastIndexOf = function (searchElement /*, fromIndex*/) {
-    "use strict";
-
     if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
@@ -250,8 +242,6 @@ if (!Array.prototype.lastIndexOf) {
 // From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/every
 if (!Array.prototype.every) {
   Array.prototype.every = function (fun /*, thisp */) {
-    "use strict";
-
     if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
@@ -273,8 +263,6 @@ if (!Array.prototype.every) {
 // From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/some
 if (!Array.prototype.some) {
   Array.prototype.some = function (fun /*, thisp */) {
-    "use strict";
-
     if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
@@ -296,8 +284,6 @@ if (!Array.prototype.some) {
 // From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/forEach
 if (!Array.prototype.forEach) {
   Array.prototype.forEach = function (fun /*, thisp */) {
-    "use strict";
-
     if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
@@ -318,8 +304,6 @@ if (!Array.prototype.forEach) {
 // From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/Map
 if (!Array.prototype.map) {
   Array.prototype.map = function (fun /*, thisp */) {
-    "use strict";
-
     if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
@@ -342,8 +326,6 @@ if (!Array.prototype.map) {
 // From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/Filter
 if (!Array.prototype.filter) {
   Array.prototype.filter = function (fun /*, thisp */) {
-    "use strict";
-
     if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
@@ -370,8 +352,6 @@ if (!Array.prototype.filter) {
 // From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/Reduce
 if (!Array.prototype.reduce) {
   Array.prototype.reduce = function (fun /*, initialValue */) {
-    "use strict";
-
     if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
@@ -414,8 +394,6 @@ if (!Array.prototype.reduce) {
 // From https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/ReduceRight
 if (!Array.prototype.reduceRight) {
   Array.prototype.reduceRight = function (callbackfn /*, initialValue */) {
-    "use strict";
-
     if (this === void 0 || this === null) { throw TypeError(); }
 
     var t = Object(this);
@@ -547,6 +525,41 @@ if ('window' in this && 'document' in this) {
   XMLHttpRequest.LOADING = 3;
   XMLHttpRequest.DONE = 4;
 
+  //
+  // FormData (http://www.w3.org/TR/XMLHttpRequest2/#interface-formdata)
+  //
+  if (!('FormData' in window)) {
+    function FormData(form) {
+      this._data = [];
+      if (!form) return;
+      for (var i = 0; i < form.elements.length; ++i)
+        this.append(form.elements[i].name, form.elements[i].value);
+    }
+
+    FormData.prototype.append = function(name, value /*, filename */) {
+      if ('Blob' in window && value instanceof window.Blob) throw TypeError("Blob not supported");
+      name = String(name);
+      this._data.push([name, value]);
+    };
+
+    FormData.prototype.toString = function() {
+      return this._data.map(function(pair) {
+        return encodeURIComponent(pair[0]) + '=' + encodeURIComponent(pair[1]);
+      }).join('&');
+    };
+
+    window.FormData = FormData;
+    var send = window.XMLHttpRequest.prototype.send;
+    window.XMLHttpRequest.prototype.send = function(body) {
+      if (body instanceof FormData) {
+        this.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        arguments[0] = body.toString();
+      }
+      return send.apply(this, arguments);
+    };
+  }
+
+
   //----------------------------------------------------------------------
   //
   // Performance
@@ -555,7 +568,7 @@ if ('window' in this && 'document' in this) {
 
   // requestAnimationFrame
   // http://www.w3.org/TR/animation-timing/
-  (function() {
+  (function(global) {
     var TARGET_FPS = 60,
         requests = Object.create(null),
         raf_handle = 1,
@@ -584,7 +597,7 @@ if ('window' in this && 'document' in this) {
       requests[cb_handle] = {callback: callback, element: element};
 
       if (timeout_handle === -1) {
-        timeout_handle = window.setTimeout(onFrameTimer, 1000 / TARGET_FPS);
+        timeout_handle = global.setTimeout(onFrameTimer, 1000 / TARGET_FPS);
       }
 
       return cb_handle;
@@ -594,53 +607,53 @@ if ('window' in this && 'document' in this) {
       delete requests[handle];
 
       if (Object.keys(requests).length === 0) {
-        window.clearTimeout(timeout_handle);
+        global.clearTimeout(timeout_handle);
         timeout_handle = -1;
       }
     }
 
-    window.requestAnimationFrame =
-      window.requestAnimationFrame ||
-      window.webkitRequestAnimationFrame ||
-      window.mozRequestAnimationFrame ||
-      window.oRequestAnimationFrame ||
-      window.msRequestAnimationFrame ||
+    global.requestAnimationFrame =
+      global.requestAnimationFrame ||
+      global.webkitRequestAnimationFrame ||
+      global.mozRequestAnimationFrame ||
+      global.oRequestAnimationFrame ||
+      global.msRequestAnimationFrame ||
       requestAnimationFrame;
 
     // NOTE: Older versions of the spec called this "cancelRequestAnimationFrame"
-    window.cancelAnimationFrame = window.cancelRequestAnimationFrame =
-      window.cancelAnimationFrame || window.cancelRequestAnimationFrame ||
-      window.webkitCancelAnimationFrame || window.webkitCancelRequestAnimationFrame ||
-      window.mozCancelAnimationFrame || window.mozCancelRequestAnimationFrame ||
-      window.oCancelAnimationFrame || window.oCancelRequestAnimationFrame ||
-      window.msCancelAnimationFrame || window.msCancelRequestAnimationFrame ||
+    global.cancelAnimationFrame = global.cancelRequestAnimationFrame =
+      global.cancelAnimationFrame || global.cancelRequestAnimationFrame ||
+      global.webkitCancelAnimationFrame || global.webkitCancelRequestAnimationFrame ||
+      global.mozCancelAnimationFrame || global.mozCancelRequestAnimationFrame ||
+      global.oCancelAnimationFrame || global.oCancelRequestAnimationFrame ||
+      global.msCancelAnimationFrame || global.msCancelRequestAnimationFrame ||
       cancelAnimationFrame;
-  }());
+  }(this));
 
   // setImmediate
   // https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html
-  (function () {
+  (function (global) {
     function setImmediate(callback/*, args*/) {
       var params = [].slice.call(arguments, 1);
-      return window.setTimeout(function() {
+      return global.setTimeout(function() {
         callback.apply(null, params);
       }, 0);
     }
 
     function clearImmediate(handle) {
-      window.clearTimeout(handle);
+      global.clearTimeout(handle);
     }
 
-    window.setImmediate =
-      window.setImmediate ||
-      window.msSetImmediate ||
+    global.setImmediate =
+      global.setImmediate ||
+      global.msSetImmediate ||
       setImmediate;
 
-    window.clearImmediate =
-      window.clearImmediate ||
-      window.msClearImmediate ||
+    global.clearImmediate =
+      global.clearImmediate ||
+      global.msClearImmediate ||
       clearImmediate;
-  } ());
+  }(this));
 
   //----------------------------------------------------------------------
   //
@@ -863,9 +876,10 @@ if ('window' in this && 'document' in this) {
       }
     }
 
-    var p1 = Window.prototype, p2 = HTMLDocument.prototype, p3 = Element.prototype;
-    p1.addEventListener    = p2.addEventListener    = p3.addEventListener    = addEventListener;
-    p1.removeEventListener = p2.removeEventListener = p3.removeEventListener = removeEventListener;
+    [Window, HTMLDocument, Element].forEach(function(o) {
+      o.prototype.addEventListener = addEventListener;
+      o.prototype.removeEventListener = removeEventListener;
+    });
 
   }());
 
@@ -1175,7 +1189,7 @@ if ('window' in this && 'document' in this) {
 
     return out.join('');
   };
-} (this));
+}(this));
 
 
 //----------------------------------------------------------------------

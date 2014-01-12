@@ -35,6 +35,41 @@ if ('window' in this && 'document' in this) {
   XMLHttpRequest.LOADING = 3;
   XMLHttpRequest.DONE = 4;
 
+  //
+  // FormData (http://www.w3.org/TR/XMLHttpRequest2/#interface-formdata)
+  //
+  if (!('FormData' in window)) {
+    function FormData(form) {
+      this._data = [];
+      if (!form) return;
+      for (var i = 0; i < form.elements.length; ++i)
+        this.append(form.elements[i].name, form.elements[i].value);
+    }
+
+    FormData.prototype.append = function(name, value /*, filename */) {
+      if ('Blob' in window && value instanceof window.Blob) throw TypeError("Blob not supported");
+      name = String(name);
+      this._data.push([name, value]);
+    };
+
+    FormData.prototype.toString = function() {
+      return this._data.map(function(pair) {
+        return encodeURIComponent(pair[0]) + '=' + encodeURIComponent(pair[1]);
+      }).join('&');
+    };
+
+    window.FormData = FormData;
+    var send = window.XMLHttpRequest.prototype.send;
+    window.XMLHttpRequest.prototype.send = function(body) {
+      if (body instanceof FormData) {
+        this.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        arguments[0] = body.toString();
+      }
+      return send.apply(this, arguments);
+    };
+  }
+
+
   //----------------------------------------------------------------------
   //
   // Performance
@@ -43,7 +78,7 @@ if ('window' in this && 'document' in this) {
 
   // requestAnimationFrame
   // http://www.w3.org/TR/animation-timing/
-  (function() {
+  (function(global) {
     var TARGET_FPS = 60,
         requests = Object.create(null),
         raf_handle = 1,
@@ -72,7 +107,7 @@ if ('window' in this && 'document' in this) {
       requests[cb_handle] = {callback: callback, element: element};
 
       if (timeout_handle === -1) {
-        timeout_handle = window.setTimeout(onFrameTimer, 1000 / TARGET_FPS);
+        timeout_handle = global.setTimeout(onFrameTimer, 1000 / TARGET_FPS);
       }
 
       return cb_handle;
@@ -82,53 +117,53 @@ if ('window' in this && 'document' in this) {
       delete requests[handle];
 
       if (Object.keys(requests).length === 0) {
-        window.clearTimeout(timeout_handle);
+        global.clearTimeout(timeout_handle);
         timeout_handle = -1;
       }
     }
 
-    window.requestAnimationFrame =
-      window.requestAnimationFrame ||
-      window.webkitRequestAnimationFrame ||
-      window.mozRequestAnimationFrame ||
-      window.oRequestAnimationFrame ||
-      window.msRequestAnimationFrame ||
+    global.requestAnimationFrame =
+      global.requestAnimationFrame ||
+      global.webkitRequestAnimationFrame ||
+      global.mozRequestAnimationFrame ||
+      global.oRequestAnimationFrame ||
+      global.msRequestAnimationFrame ||
       requestAnimationFrame;
 
     // NOTE: Older versions of the spec called this "cancelRequestAnimationFrame"
-    window.cancelAnimationFrame = window.cancelRequestAnimationFrame =
-      window.cancelAnimationFrame || window.cancelRequestAnimationFrame ||
-      window.webkitCancelAnimationFrame || window.webkitCancelRequestAnimationFrame ||
-      window.mozCancelAnimationFrame || window.mozCancelRequestAnimationFrame ||
-      window.oCancelAnimationFrame || window.oCancelRequestAnimationFrame ||
-      window.msCancelAnimationFrame || window.msCancelRequestAnimationFrame ||
+    global.cancelAnimationFrame = global.cancelRequestAnimationFrame =
+      global.cancelAnimationFrame || global.cancelRequestAnimationFrame ||
+      global.webkitCancelAnimationFrame || global.webkitCancelRequestAnimationFrame ||
+      global.mozCancelAnimationFrame || global.mozCancelRequestAnimationFrame ||
+      global.oCancelAnimationFrame || global.oCancelRequestAnimationFrame ||
+      global.msCancelAnimationFrame || global.msCancelRequestAnimationFrame ||
       cancelAnimationFrame;
-  }());
+  }(this));
 
   // setImmediate
   // https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html
-  (function () {
+  (function (global) {
     function setImmediate(callback/*, args*/) {
       var params = [].slice.call(arguments, 1);
-      return window.setTimeout(function() {
+      return global.setTimeout(function() {
         callback.apply(null, params);
       }, 0);
     }
 
     function clearImmediate(handle) {
-      window.clearTimeout(handle);
+      global.clearTimeout(handle);
     }
 
-    window.setImmediate =
-      window.setImmediate ||
-      window.msSetImmediate ||
+    global.setImmediate =
+      global.setImmediate ||
+      global.msSetImmediate ||
       setImmediate;
 
-    window.clearImmediate =
-      window.clearImmediate ||
-      window.msClearImmediate ||
+    global.clearImmediate =
+      global.clearImmediate ||
+      global.msClearImmediate ||
       clearImmediate;
-  } ());
+  }(this));
 
   //----------------------------------------------------------------------
   //
@@ -351,9 +386,10 @@ if ('window' in this && 'document' in this) {
       }
     }
 
-    var p1 = Window.prototype, p2 = HTMLDocument.prototype, p3 = Element.prototype;
-    p1.addEventListener    = p2.addEventListener    = p3.addEventListener    = addEventListener;
-    p1.removeEventListener = p2.removeEventListener = p3.removeEventListener = removeEventListener;
+    [Window, HTMLDocument, Element].forEach(function(o) {
+      o.prototype.addEventListener = addEventListener;
+      o.prototype.removeEventListener = removeEventListener;
+    });
 
   }());
 
@@ -663,7 +699,7 @@ if ('window' in this && 'document' in this) {
 
     return out.join('');
   };
-} (this));
+}(this));
 
 
 //----------------------------------------------------------------------

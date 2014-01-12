@@ -19,6 +19,7 @@ Bundled together; nearly every page I create needs at least some of these. These
 and going forward I will only target IE8 and later.
 
 * [`XMLHttpRequest`](http://xhr.spec.whatwg.org/) (for IE6-)
+* [`FormData`](http://xhr.spec.whatwg.org/) (for IE9-)
 * [Selector API](http://www.w3.org/TR/selectors-api/) (for IE7-) - adapted from [Paul Young](http://ajaxian.com/archives/creating-a-queryselector-for-ie-that-runs-at-native-speed)
   * `element = document.querySelector(selector)`
   * `elementArray = document.querySelectorAll(selector)`
