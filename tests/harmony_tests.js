@@ -533,8 +533,8 @@ test("Typed Array", function() {
   assertTrue("new Uint8Array([1,3,5]).every(function(n){return n%2;})");
   assertFalse("new Uint8Array([1,3,6]).every(function(n){return n%2;})");
 
-  deepEqual(new Uint8Array(3).fill(9), new Uint8Array([9,9,9]));
-  deepEqual(new Uint8Array([0,1,2,3,4]).filter(function(n){return n%2;}), new Uint8Array([1,3]));
+  arrayEqual(new Uint8Array(3).fill(9), [9,9,9]);
+  arrayEqual(new Uint8Array([0,1,2,3,4]).filter(function(n){return n%2;}), [1,3]);
   deepEqual(new Uint8Array([1,2,3,4]).find(function(n){return n>2;}), 3);
   deepEqual(new Uint8Array([1,2,3,4]).findIndex(function(n){return n>2;}), 2);
 
@@ -552,18 +552,18 @@ test("Typed Array", function() {
   deepEqual(new Uint8Array([1,2,3,4]).join('-'), "1-2-3-4");
 
   deepEqual(new Uint8Array([1,2,3,1,2,3]).lastIndexOf(3), 5);
-  deepEqual(new Uint8Array([0,1,2,3]).map(function(n){return n*2;}), new Uint8Array([0,2,4,6]));
+  arrayEqual(new Uint8Array([0,1,2,3]).map(function(n){return n*2;}), [0,2,4,6]);
   deepEqual(new Uint8Array([0,1,2,3]).reduce(function(a,b){return a-b;}), -6);
   deepEqual(new Uint8Array([0,1,2,3]).reduceRight(function(a,b){return a-b;}), 0);
-  deepEqual(new Uint8Array([0,1,2,3]).reverse(), new Uint8Array([3,2,1,0]));
+  arrayEqual(new Uint8Array([0,1,2,3]).reverse(), [3,2,1,0]);
 
-  deepEqual(new Uint8Array([1,2,3,4]).slice(), new Uint8Array([1,2,3,4]));
-  deepEqual(new Uint8Array([1,2,3,4]).slice(2,4), new Uint8Array([3,4]));
+  arrayEqual(new Uint8Array([1,2,3,4]).slice(), [1,2,3,4]);
+  arrayEqual(new Uint8Array([1,2,3,4]).slice(2,4), [3,4]);
 
   assertFalse("new Uint8Array([1,3,5]).some(function(n){return n%2===0;})");
   assertTrue("new Uint8Array([1,3,6]).some(function(n){return n%2===0;})");
 
-  deepEqual(new Float32Array([Infinity,NaN,10,2]).sort(), new Float32Array([2,10,Infinity,NaN]));
+  arrayEqual(new Float32Array([Infinity,NaN,10,2]).sort(), [2,10,Infinity,NaN]);
 
   verifyIterator(new Uint8Array([11,22,33]).values(), [11,22,33]);
   verifyIterator(new Uint8Array([11,22,33]).keys(), [0,1,2]);

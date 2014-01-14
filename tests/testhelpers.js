@@ -45,3 +45,48 @@ function assertEpsilon(_expr, _value, _epsilon) {
 
   ok(p, _expr + " was " + _x + ", expected approximately " + _value);
 }
+
+// Like QUnit's strictEqual, but NaN and -0 savvy
+function stricterEqual(actual, expected, message) {
+
+  function isPositiveZero(x) { return x === 0 && 1 / x === +Infinity; }
+  function isNegativeZero(x) { return x === 0 && 1 / x === -Infinity; }
+  function isReallyNaN(x) { return typeof x === 'number' && x !== x; }
+  function str(x) { return isNegativeZero(x) ? "-0" : String(x); }
+
+  if (isReallyNaN(expected)) {
+    message = arguments.length > 2 ? message : "Expected " + str(expected) + " , saw: " + str(actual);
+    ok(isReallyNaN(actual), message);
+  } else if (expected === 0) {
+    message = arguments.length > 2 ? message : "Expected " + str(expected) + " , saw: " + str(actual);
+    ok(isPositiveZero(actual) === isPositiveZero(expected), message);
+  } else {
+    strictEqual(actual, expected, message);
+  }
+}
+
+// Compare Typed Array with JavaScript array
+function arrayEqual(typed_array, test) {
+  var array = [], i, length = typed_array.length;
+  for (i = 0; i < length; i += 1) {
+    array[i] = typed_array.get(i); // See shim below
+  }
+  deepEqual(array, test, JSON.stringify(array) + " == " + JSON.stringify(test) + " ?");
+}
+
+var array_types = [Int8Array, Uint8Array, Int16Array, Uint16Array, Int32Array, Uint32Array, Float32Array, Float64Array];
+array_types.forEach(function(type) {
+  if (type) {
+    // Add a TypedArray.get(index) accessor if not present, for
+    // testing native implementations.
+    if (typeof type.prototype.get !== 'function') {
+      type.prototype.get = function(idx) {
+        return this[idx];
+      };
+    }
+    // Shim to work with older impls that use "slice" instead of "subarray"
+    if (typeof type.prototype.subarray !== 'function') {
+      type.prototype.subarray = type.prototype.slice;
+    }
+  }
+});

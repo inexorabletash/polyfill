@@ -1086,6 +1086,7 @@ if ('window' in this && 'document' in this) {
         var attr = this.attributes[i];
         if (attr.specified && attr.name.substring(0, 5) === 'data-') {
           (function(element, name) {
+            result[name] = element.getAttribute('data-' + name); // Read-only, for IE8-
             Object.defineProperty(result, name, {
               get: function() {
                 return element.getAttribute('data-' + name);
@@ -1096,7 +1097,7 @@ if ('window' in this && 'document' in this) {
           }(this, attr.name.substring(5)));
         }
       }
-        return result;
+      return result;
     }});
   }
 }
