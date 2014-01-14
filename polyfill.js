@@ -759,101 +759,88 @@ if ('window' in this && 'document' in this) {
     Event.AT_TARGET       = 2;
     Event.BUBBLING_PHASE  = 3;
 
-    Object.defineProperty(Event.prototype, 'CAPTURING_PHASE', { get: function() { return 1; } });
-    Object.defineProperty(Event.prototype, 'AT_TARGET',       { get: function() { return 2; } });
-    Object.defineProperty(Event.prototype, 'BUBBLING_HASE',   { get: function() { return 3; } });
-
-    Object.defineProperty(Event.prototype, 'target', {
-      get: function() {
-        return this.srcElement;
-      }
+    Object.defineProperties(Event.prototype, {
+      CAPTURING_PHASE: { get: function() { return 1; } },
+      AT_TARGET:       { get: function() { return 2; } },
+      BUBBLING_HASE:   { get: function() { return 3; } },
+      target: {
+        get: function() {
+          return this.srcElement;
+        }},
+      currentTarget: {
+        get: function() {
+          return this._currentTarget;
+        }},
+      eventPhase: {
+        get: function() {
+          return (this.srcElement === this.currentTarget) ? Event.AT_TARGET : Event.BUBBLING_PHASE;
+        }},
+      bubbles: {
+        get: function() {
+          switch (this.type) {
+            // Mouse
+          case 'click':
+          case 'dblclick':
+          case 'mousedown':
+          case 'mouseup':
+          case 'mouseover':
+          case 'mousemove':
+          case 'mouseout':
+          case 'mousewheel':
+            // Keyboard
+          case 'keydown':
+          case 'keypress':
+          case 'keyup':
+            // Frame/Object
+          case 'resize':
+          case 'scroll':
+            // Form
+          case 'select':
+          case 'change':
+          case 'submit':
+          case 'reset':
+            return true;
+          }
+          return false;
+        }},
+      cancelable: {
+        get: function() {
+          switch (this.type) {
+            // Mouse
+          case 'click':
+          case 'dblclick':
+          case 'mousedown':
+          case 'mouseup':
+          case 'mouseover':
+          case 'mouseout':
+          case 'mousewheel':
+            // Keyboard
+          case 'keydown':
+          case 'keypress':
+          case 'keyup':
+            // Form
+          case 'submit':
+            return true;
+          }
+          return false;
+        }},
+      timeStamp: {
+        get: function() {
+          return this._timeStamp;
+        }},
+      stopPropagation: {
+        value: function() {
+          this.cancelBubble = true;
+        }},
+      preventDefault: {
+        value: function() {
+          this.returnValue = false;
+        }},
+      defaultPrevented: {
+        get: function() {
+          return this.returnValue === false;
+        }}
     });
-
-    Object.defineProperty(Event.prototype, 'currentTarget', {
-      get: function() {
-        return this._currentTarget;
-      }
-    });
-
-    Object.defineProperty(Event.prototype, 'eventPhase', {
-      get: function() {
-        return (this.srcElement === this.currentTarget) ? Event.AT_TARGET : Event.BUBBLING_PHASE;
-      }
-    });
-
-    Object.defineProperty(Event.prototype, 'bubbles', {
-      get: function() {
-        switch (this.type) {
-          // Mouse
-        case 'click':
-        case 'dblclick':
-        case 'mousedown':
-        case 'mouseup':
-        case 'mouseover':
-        case 'mousemove':
-        case 'mouseout':
-        case 'mousewheel':
-          // Keyboard
-        case 'keydown':
-        case 'keypress':
-        case 'keyup':
-          // Frame/Object
-        case 'resize':
-        case 'scroll':
-          // Form
-        case 'select':
-        case 'change':
-        case 'submit':
-        case 'reset':
-          return true;
-        }
-        return false;
-      }
-    });
-
-    Object.defineProperty(Event.prototype, 'cancelable', {
-      get: function() {
-        switch (this.type) {
-          // Mouse
-        case 'click':
-        case 'dblclick':
-        case 'mousedown':
-        case 'mouseup':
-        case 'mouseover':
-        case 'mouseout':
-        case 'mousewheel':
-          // Keyboard
-        case 'keydown':
-        case 'keypress':
-        case 'keyup':
-          // Form
-        case 'submit':
-          return true;
-        }
-        return false;
-      }
-    });
-
-    Object.defineProperty(Event.prototype, 'timeStamp', {
-      get: function() {
-        return this._timeStamp;
-      }
-    });
-
-    Event.prototype.stopPropagation = function() {
-      this.cancelBubble = true;
-    };
-
-    Event.prototype.preventDefault = function() {
-      this.returnValue = false;
-    };
-
-    Object.defineProperty(Event.prototype, 'defaultPrevented', {
-      get: function() {
-        return this.returnValue === false;
-      }
-    });
-
 
     // interface EventTarget
 
