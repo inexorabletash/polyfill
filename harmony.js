@@ -3620,9 +3620,9 @@
       return deferred['[[Promise]]'];
     });
 
-    define(Promise.prototype, $$toStringTag, 'Promise');
-
     global.Promise = global.Promise || Promise;
   }());
+
+  define(Promise.prototype, $$toStringTag, 'Promise');
 
 }(this));
