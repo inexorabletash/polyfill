@@ -590,6 +590,20 @@ test("Symbol", function() {
   assertTrue('Symbol.iterator in Map.prototype');
   assertTrue('Symbol.iterator in Set.prototype');
 
+  o = {};
+  o['a'] = 1;
+  o['b'] = 2;
+  o[s] = 3;
+  o[t] = 3;
+  assertEqual('Object.getOwnPropertyNames(o).length', 2);
+  assertFalse('Object.getOwnPropertyNames(o).indexOf("a") === -1');
+  assertFalse('Object.getOwnPropertyNames(o).indexOf("b") === -1');
+  assertEqual('Object.getOwnPropertyNames(o).indexOf(s)', -1);
+  assertEqual('Object.getOwnPropertySymbols(o).length', 2);
+  assertFalse('Object.getOwnPropertySymbols(o).indexOf(s) === -1');
+  assertFalse('Object.getOwnPropertySymbols(o).indexOf(t) === -1');
+  assertEqual('Object.getOwnPropertySymbols(o).indexOf("a")', -1);
+
   delete s;
   delete t;
   delete o;

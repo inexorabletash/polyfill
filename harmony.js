@@ -62,10 +62,10 @@
   }
 
   // Snapshot intrinsic functions
-  var global_isNaN = global.isNaN,
-      global_isFinite = global.isFinite,
-      global_parseInt = global.parseInt,
-      global_parseFloat = global.parseFloat;
+  var $isNaN = global.isNaN,
+      $isFinite = global.isFinite,
+      $parseInt = global.parseInt,
+      $parseFloat = global.parseFloat;
 
   var E = Math.E,
       LOG10E = Math.LOG10E,
@@ -154,8 +154,13 @@
   // 19.4.1.1 Symbol ( description=undefined )
   // 19.4.1.2 new Symbol ( ... argumentsList )
 
+  var symbolForKey;
   (function() {
     var secret = Object.create(null);
+    var symbolMap = {};
+    symbolForKey = function(k) {
+      return symbolMap[k];
+    };
 
     function uuid() {
       // http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
@@ -173,6 +178,8 @@
 
       set_internal(this, '[[SymbolData]]', uuid());
       set_internal(this, '[[Description]]', descString);
+
+      symbolMap[this] = this;
       return this;
     }
 
@@ -200,7 +207,7 @@
     Object.defineProperty(Symbol.prototype, 'toString', {
       value: function toString() {
         var s = strict(this);
-        var desc = s['[[Description]]'] || s['[[SymbolData]]'];
+        var desc = s['[[Description]]'] + '/' + s['[[SymbolData]]'];
         return 'Symbol(' + desc + ')';
       },
       configurable: true, writeable: true, enumerable: false });
@@ -219,7 +226,10 @@
     // 19.4.4 Properties of Symbol Instances
 
     global.Symbol = global.Symbol || Symbol;
+
   }());
+
+  assert(symbolForKey(String(global.Symbol('x'))));
 
   //----------------------------------------
   // 6 ECMAScript Data Types and Values
@@ -258,7 +268,7 @@
   // 7.1.4
   function ToInteger(n) {
     n = Number(n);
-    if (global_isNaN(n)) return 0;
+    if ($isNaN(n)) return 0;
     if (n === 0 || n === Infinity || n === -Infinity) return n;
     return ((n < 0) ? -1 : 1) * floor(abs(n));
   }
@@ -443,11 +453,27 @@
   // 19.1.3.4 Object.defineProperty ( O, P, Attributes )
   // 19.1.3.5 Object.freeze ( O )
   // 19.1.3.6 Object.getOwnPropertyDescriptor ( O, P )
-  // 19.1.3.7 Object.getOwnPropertyNames ( O )
-  // TODO: Detect Symbol-like strings, filter them out
 
-  // 19.1.3.8 Object.getOwnPropertySymbols ( O )
-  // TODO: Detect Symbol-like strings, look up in registry, return Symbols
+  (function() {
+    var s = global.Symbol(), o = {};
+    o[s] = 1;
+    var nativeSymbols = (Object.getOwnPropertyNames(o).length === 0),
+        $getOwnPropertyNames = Object.getOwnPropertyNames;
+
+    // 19.1.3.7 Object.getOwnPropertyNames ( O )
+    define(
+      Object, 'getOwnPropertyNames',
+      function getOwnPropertyNames(o) {
+        return $getOwnPropertyNames(o).filter(function(n) { return !symbolForKey(n); });
+      }, !nativeSymbols);
+
+    // 19.1.3.8 Object.getOwnPropertySymbols ( O )
+    define(
+      Object, 'getOwnPropertySymbols',
+      function getOwnPropertySymbols(o) {
+        return $getOwnPropertyNames(o).filter(symbolForKey).map(symbolForKey);
+      }, !nativeSymbols);
+  }());
 
   // 19.1.3.9 Object.getPrototypeOf ( O )
   // 19.1.3.10 Object.is ( value1, value2 )
@@ -657,7 +683,7 @@
   define(
     Number, 'isFinite',
     function isFinite(value) {
-      return typeof value === 'number' && global_isFinite(value);
+      return typeof value === 'number' && $isFinite(value);
     });
 
   // 20.1.2.3 Number.isInteger (number)
@@ -667,7 +693,7 @@
       if (typeof number !== 'number') {
         return false;
       }
-      if (global_isNaN(number) || number === +Infinity || number === -Infinity) {
+      if ($isNaN(number) || number === +Infinity || number === -Infinity) {
         return false;
       }
       var integer = ToInteger(number);
@@ -681,7 +707,7 @@
   define(
     Number, 'isNaN',
     function isNaN(value) {
-      return typeof value === 'number' && global_isNaN(value);
+      return typeof value === 'number' && $isNaN(value);
     });
 
   // 20.1.2.5 Number.isSafeInteger (number)
@@ -723,14 +749,14 @@
   define(
     Number, 'parseFloat',
     function parseFloat(string) {
-      return global_parseFloat(string);
+      return $parseFloat(string);
     });
 
   // 20.1.2.13 Number.parseInt (string, radix)
   define(
     Number, 'parseInt',
     function parseInt(string) {
-      return global_parseInt(string);
+      return $parseInt(string);
     });
 
   // 20.1.2.14 Number.POSITIVE_INFINITY
@@ -823,10 +849,10 @@
     Math, 'cbrt',
     function cbrt(x) {
       x = Number(x);
-      if (global_isNaN(x/x)) {
+      if ($isNaN(x/x)) {
         return x;
       }
-      var r = pow( abs(x), 1/3 );
+      var r = pow(abs(x), 1/3);
       var t = x/r/r;
       return r + (r * (t-r) / (2*r + t));
     });
@@ -944,7 +970,7 @@
   define(
     Math, 'fround',
     function fround(x) {
-      if (global_isNaN(x)) {
+      if ($isNaN(x)) {
         return NaN;
       }
       if (1/x === +Infinity || 1/x === -Infinity || x === +Infinity || x === -Infinity) {
@@ -991,7 +1017,7 @@
     Math, 'trunc',
     function trunc(x) {
       x = Number(x);
-      return global_isNaN(x) ? NaN :
+      return $isNaN(x) ? NaN :
         x < 0 ? ceil(x) : floor(x);
     });
 
