@@ -65,7 +65,6 @@ function show(selector, e) {
         keyIdentifier: e.keyIdentifier,
         keyLocation: e.keyLocation,
         keyName: e.keyName,
-        usbUsage: e.usbUsage !== undefined ? hex(e.usbUsage, 6) : undefined,
         which: hex(e.which),
         altKey: e.altKey,
         charCode: e.charCode,

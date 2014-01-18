@@ -123,10 +123,6 @@
 //   |code| is a standardized key identifier mapping to a physical key
 //   on the device, rather like a USB code.
 //
-// Earlier versions of the spec identified specific keys using
-// |usbUsage|, which used the actual USB code to identify a physical
-// key.
-//
 // D3E Spec: http://www.w3.org/TR/DOM-Level-3-Events#keys
 // D4E Spec: https://dvcs.w3.org/hg/d4e/raw-file/tip/source_respec.htm#keyboard-events
 //
@@ -161,9 +157,13 @@ window.KeyboardEvent.DOM_KEY_LOCATION_NUMPAD        = 0x03; // e.g. Numpad 0 or 
 // Optionally set these to true for properties from older proposals.
 var IDENTIFY_KEY_ASSIGN_KEY_IDENTIFIER;
 var IDENTIFY_KEY_ASSIGN_KEY_LOCATION;
-var IDENTIFY_KEY_ASSIGN_USB_USAGE;
 
 (function(global) {
+
+  var STANDARD = window.KeyboardEvent.DOM_KEY_LOCATION_STANDARD,
+      LEFT = window.KeyboardEvent.DOM_KEY_LOCATION_LEFT,
+      RIGHT = window.KeyboardEvent.DOM_KEY_LOCATION_RIGHT,
+      NUMPAD = window.KeyboardEvent.DOM_KEY_LOCATION_NUMPAD;
 
   //--------------------------------------------------------------------
   //
@@ -230,201 +230,203 @@ var IDENTIFY_KEY_ASSIGN_USB_USAGE;
   //   code: string - name from D4E or other spec
   //   location (optional): number - one of the DOM_KEY_LOCATION values
   //   keyCap (optional): string - keyboard label in en-US locale
+  // USB code Usage ID from page 0x07 unless otherwise noted (Informative)
 
   // Map of keyCode to keyInfo
   var keyCodeToInfoTable = {
     // 0x01 - VK_LBUTTON
     // 0x02 - VK_RBUTTON
-    0x03: { code: 'Cancel' }, // char \x0018 ??? - In D3E, not in D4E
+    0x03: { code: 'Cancel' }, // [USB: 0x9b] char \x0018 ??? - In D3E, not in D4E
     // 0x04 - VK_MBUTTON
     // 0x05 - VK_XBUTTON1
     // 0x06 - VK_XBUTTON2
-    0x06: { code: 'Help' }, // ???
+    0x06: { code: 'Help' }, // [USB: 0x75] ???
     // 0x07 - undefined
-    0x08: { code: 'Backspace' },
-    0x09: { code: 'Tab' },
+    0x08: { code: 'Backspace' }, // [USB: 0x2a] Labelled Delete on Macintosh keyboards.
+    0x09: { code: 'Tab' }, // [USB: 0x2b]
     // 0x0A-0x0B - reserved
-    0X0C: { code: 'Clear' }, // NumPad Center - In D3E, not in D4E
-    0X0D: { code: 'Enter' },
+    0X0C: { code: 'Clear' }, // [USB: 0x9c] NumPad Center - In D3E, not in D4E
+    0X0D: { code: 'Enter' }, // [USB: 0x28]
     // 0x0E-0x0F - undefined
 
     0x10: { code: 'Shift' },
     0x11: { code: 'Control' },
     0x12: { code: 'Alt' },
-    0x13: { code: 'Pause' },
-    0x14: { code: 'CapsLock' },
-    0x15: { code: 'KanaMode' },
-    0x16: { code: 'HangulMode' }, // 0x15 as well in MSDN VK table ???
+    0x13: { code: 'Pause' }, // [USB: 0x48]
+    0x14: { code: 'CapsLock' }, // [USB: 0x39]
+    0x15: { code: 'KanaMode' }, // [USB: 0x88]
+    0x16: { code: 'HangulMode' }, // [USB: 0x90] 0x15 as well in MSDN VK table ???
     0x17: { code: 'JunjaMode' }, // In D3E, not in D4E
     0x18: { code: 'FinalMode' }, // In D3E, not in D4E
-    0x19: { code: 'Hanja' },
-    // 0x19: { code: 'KanjiMode', location: KeyboardEvent.DOM_KEY_LOCATION_STANDARD }, // duplicate on Windows
+    0x19: { code: 'Hanja' }, // [USB: 0x91]
+    // 0x19: { code: 'KanjiMode', location: STANDARD }, // duplicate on Windows
     // 0x1A - undefined
-    0x1B: { code: 'Escape' },
-    0x1C: { code: 'Convert' },
-    0x1D: { code: 'NoConvert' },
+    0x1B: { code: 'Escape' }, // [USB: 0x29]
+    0x1C: { code: 'Convert' }, // [USB: 0x8a]
+    0x1D: { code: 'NoConvert' }, // [USB: 0x8b]
     0x1E: { code: 'Accept' }, // In D3E, not in D4E
     0x1F: { code: 'ModeChange' }, // In D3E, not in D4E
 
-    0x20: { code: 'Space' },
-    0x21: { code: 'PageUp' },
-    0x22: { code: 'PageDown' },
-    0x23: { code: 'End' },
-    0x24: { code: 'Home' },
-    0x25: { code: 'ArrowLeft' },
-    0x26: { code: 'ArrowUp' },
-    0x27: { code: 'ArrowRight' },
-    0x28: { code: 'ArrowDown' },
+    0x20: { code: 'Space' }, // [USB: 0x2c]
+    0x21: { code: 'PageUp' }, // [USB: 0x4b]
+    0x22: { code: 'PageDown' }, // [USB: 0x4e]
+    0x23: { code: 'End' }, // [USB: 0x4d]
+    0x24: { code: 'Home' }, // [USB: 0x4a]
+    0x25: { code: 'ArrowLeft' }, // [USB: 0x50]
+    0x26: { code: 'ArrowUp' }, // [USB: 0x52]
+    0x27: { code: 'ArrowRight' }, // [USB: 0x4f]
+    0x28: { code: 'ArrowDown' }, // [USB: 0x51]
     0x29: { code: 'Select' }, // In D3E, not in D4E
     0x2A: { code: 'Print' }, // In D3E, not in D4E
-    0x2B: { code: 'Execute' }, // In D3E, not in D4E
-    0x2C: { code: 'PrintScreen' },
-    0x2D: { code: 'Insert' },
-    0x2E: { code: 'Delete' },
-    0x2F: { code: 'Help' }, // ???
+    0x2B: { code: 'Execute' }, // [USB: 0x74] In D3E, not in D4E
+    0x2C: { code: 'PrintScreen' }, // [USB: 0x46]
+    0x2D: { code: 'Insert' }, // [USB: 0x49]
+    0x2E: { code: 'Delete' }, // [USB: 0x4c]
+    0x2F: { code: 'Help' }, // [USB: 0x75] ???
 
-    0x30: { code: 'Digit0', keyCap: '0' }, // 0)
-    0x31: { code: 'Digit1', keyCap: '1' }, // 1!
-    0x32: { code: 'Digit2', keyCap: '2' }, // 2@
-    0x33: { code: 'Digit3', keyCap: '3' }, // 3#
-    0x34: { code: 'Digit4', keyCap: '4' }, // 4$
-    0x35: { code: 'Digit5', keyCap: '5' }, // 5%
-    0x36: { code: 'Digit6', keyCap: '6' }, // 6^
-    0x37: { code: 'Digit7', keyCap: '7' }, // 7&
-    0x38: { code: 'Digit8', keyCap: '8' }, // 8*
-    0x39: { code: 'Digit9', keyCap: '9' }, // 9(
+    0x30: { code: 'Digit0', keyCap: '0' }, // [USB: 0x27] 0)
+    0x31: { code: 'Digit1', keyCap: '1' }, // [USB: 0x1e] 1!
+    0x32: { code: 'Digit2', keyCap: '2' }, // [USB: 0x1f] 2@
+    0x33: { code: 'Digit3', keyCap: '3' }, // [USB: 0x20] 3#
+    0x34: { code: 'Digit4', keyCap: '4' }, // [USB: 0x21] 4$
+    0x35: { code: 'Digit5', keyCap: '5' }, // [USB: 0x22] 5%
+    0x36: { code: 'Digit6', keyCap: '6' }, // [USB: 0x23] 6^
+    0x37: { code: 'Digit7', keyCap: '7' }, // [USB: 0x24] 7&
+    0x38: { code: 'Digit8', keyCap: '8' }, // [USB: 0x25] 8*
+    0x39: { code: 'Digit9', keyCap: '9' }, // [USB: 0x26] 9(
     // 0x3A-0x40 - undefined
 
-    0x41: { code: 'KeyA', keyCap: 'A' },
-    0x42: { code: 'KeyB', keyCap: 'B' },
-    0x43: { code: 'KeyC', keyCap: 'C' },
-    0x44: { code: 'KeyD', keyCap: 'D' },
-    0x45: { code: 'KeyE', keyCap: 'E' },
-    0x46: { code: 'KeyF', keyCap: 'F' },
-    0x47: { code: 'KeyG', keyCap: 'G' },
-    0x48: { code: 'KeyH', keyCap: 'H' },
-    0x49: { code: 'KeyI', keyCap: 'I' },
-    0x4A: { code: 'KeyJ', keyCap: 'J' },
-    0x4B: { code: 'KeyK', keyCap: 'K' },
-    0x4C: { code: 'KeyL', keyCap: 'L' },
-    0x4D: { code: 'KeyM', keyCap: 'M' },
-    0x4E: { code: 'KeyN', keyCap: 'N' },
-    0x4F: { code: 'KeyO', keyCap: 'O' },
+    0x41: { code: 'KeyA', keyCap: 'A' }, // [USB: 0x04]
+    0x42: { code: 'KeyB', keyCap: 'B' }, // [USB: 0x05]
+    0x43: { code: 'KeyC', keyCap: 'C' }, // [USB: 0x06]
+    0x44: { code: 'KeyD', keyCap: 'D' }, // [USB: 0x07]
+    0x45: { code: 'KeyE', keyCap: 'E' }, // [USB: 0x08]
+    0x46: { code: 'KeyF', keyCap: 'F' }, // [USB: 0x09]
+    0x47: { code: 'KeyG', keyCap: 'G' }, // [USB: 0x0a]
+    0x48: { code: 'KeyH', keyCap: 'H' }, // [USB: 0x0b]
+    0x49: { code: 'KeyI', keyCap: 'I' }, // [USB: 0x0c]
+    0x4A: { code: 'KeyJ', keyCap: 'J' }, // [USB: 0x0d]
+    0x4B: { code: 'KeyK', keyCap: 'K' }, // [USB: 0x0e]
+    0x4C: { code: 'KeyL', keyCap: 'L' }, // [USB: 0x0f]
+    0x4D: { code: 'KeyM', keyCap: 'M' }, // [USB: 0x10]
+    0x4E: { code: 'KeyN', keyCap: 'N' }, // [USB: 0x11]
+    0x4F: { code: 'KeyO', keyCap: 'O' }, // [USB: 0x12]
 
-    0x50: { code: 'KeyP', keyCap: 'P' },
-    0x51: { code: 'KeyQ', keyCap: 'Q' },
-    0x52: { code: 'KeyR', keyCap: 'R' },
-    0x53: { code: 'KeyS', keyCap: 'S' },
-    0x54: { code: 'KeyT', keyCap: 'T' },
-    0x55: { code: 'KeyU', keyCap: 'U' },
-    0x56: { code: 'KeyV', keyCap: 'V' },
-    0x57: { code: 'KeyW', keyCap: 'W' },
-    0x58: { code: 'KeyX', keyCap: 'X' },
-    0x59: { code: 'KeyY', keyCap: 'Y' },
-    0x5A: { code: 'KeyZ', keyCap: 'Z' },
-    0x5B: { code: 'OSLeft', location: KeyboardEvent.DOM_KEY_LOCATION_LEFT },
-    0x5C: { code: 'OSRight', location: KeyboardEvent.DOM_KEY_LOCATION_RIGHT },
-    0x5D: { code: 'ContextMenu' }, // Context Menu
+    0x50: { code: 'KeyP', keyCap: 'P' }, // [USB: 0x13]
+    0x51: { code: 'KeyQ', keyCap: 'Q' }, // [USB: 0x14]
+    0x52: { code: 'KeyR', keyCap: 'R' }, // [USB: 0x15]
+    0x53: { code: 'KeyS', keyCap: 'S' }, // [USB: 0x16]
+    0x54: { code: 'KeyT', keyCap: 'T' }, // [USB: 0x17]
+    0x55: { code: 'KeyU', keyCap: 'U' }, // [USB: 0x18]
+    0x56: { code: 'KeyV', keyCap: 'V' }, // [USB: 0x19]
+    0x57: { code: 'KeyW', keyCap: 'W' }, // [USB: 0x1a]
+    0x58: { code: 'KeyX', keyCap: 'X' }, // [USB: 0x1b]
+    0x59: { code: 'KeyY', keyCap: 'Y' }, // [USB: 0x1c]
+    0x5A: { code: 'KeyZ', keyCap: 'Z' }, // [USB: 0x1d]
+    0x5B: { code: 'OSLeft', location: LEFT }, // [USB: 0xe3]
+    0x5C: { code: 'OSRight', location: RIGHT }, // [USB: 0xe7]
+    0x5D: { code: 'ContextMenu' }, // [USB: 0x65] Context Menu
     // 0x5E - reserved
     // 0x5F - VK_SLEEP 'Sleep' TODO ???
 
-    0x60: { code: 'Numpad0', keyCap: '0', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0x61: { code: 'Numpad1', keyCap: '1', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0x62: { code: 'Numpad2', keyCap: '2', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0x63: { code: 'Numpad3', keyCap: '3', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0x64: { code: 'Numpad4', keyCap: '4', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0x65: { code: 'Numpad5', keyCap: '5', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0x66: { code: 'Numpad6', keyCap: '6', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0x67: { code: 'Numpad7', keyCap: '7', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0x68: { code: 'Numpad8', keyCap: '8', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0x69: { code: 'Numpad9', keyCap: '9', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0x6A: { code: 'NumpadMultiply', keyCap: '*', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0x6B: { code: 'NumpadAdd', keyCap: '+', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0x6C: { code: 'NumpadComma', keyCap: ',', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD }, // In D3E, not in D4E
-    0x6D: { code: 'NumpadSubtract', keyCap: '-', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0x6E: { code: 'NumpadDecimal', keyCap: '.', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0x6F: { code: 'NumpadDivide', keyCap: '/', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
+    0x60: { code: 'Numpad0', keyCap: '0', location: NUMPAD }, // [USB: 0x62]
+    0x61: { code: 'Numpad1', keyCap: '1', location: NUMPAD }, // [USB: 0x59]
+    0x62: { code: 'Numpad2', keyCap: '2', location: NUMPAD }, // [USB: 0x5a]
+    0x63: { code: 'Numpad3', keyCap: '3', location: NUMPAD }, // [USB: 0x5b]
+    0x64: { code: 'Numpad4', keyCap: '4', location: NUMPAD }, // [USB: 0x5c]
+    0x65: { code: 'Numpad5', keyCap: '5', location: NUMPAD }, // [USB: 0x5d]
+    0x66: { code: 'Numpad6', keyCap: '6', location: NUMPAD }, // [USB: 0x5e]
+    0x67: { code: 'Numpad7', keyCap: '7', location: NUMPAD }, // [USB: 0x5f]
+    0x68: { code: 'Numpad8', keyCap: '8', location: NUMPAD }, // [USB: 0x60]
+    0x69: { code: 'Numpad9', keyCap: '9', location: NUMPAD }, // [USB: 0x61]
+    0x6A: { code: 'NumpadMultiply', keyCap: '*', location: NUMPAD }, // [USB: 0x55]
+    0x6B: { code: 'NumpadAdd', keyCap: '+', location: NUMPAD }, // [USB: 0x57]
+    0x6C: { code: 'NumpadComma', keyCap: ',', location: NUMPAD }, // [USB: 0x85] In D3E, not in D4E
+    0x6D: { code: 'NumpadSubtract', keyCap: '-', location: NUMPAD }, // [USB: 0x56]
+    0x6E: { code: 'NumpadDecimal', keyCap: '.', location: NUMPAD }, // [USB: 0x63]
+    0x6F: { code: 'NumpadDivide', keyCap: '/', location: NUMPAD }, // [USB: 0x54]
 
-    0x70: { code: 'F1' },
-    0x71: { code: 'F2' },
-    0x72: { code: 'F3' },
-    0x73: { code: 'F4' },
-    0x74: { code: 'F5' },
-    0x75: { code: 'F6' },
-    0x76: { code: 'F7' },
-    0x77: { code: 'F8' },
-    0x78: { code: 'F9' },
-    0x79: { code: 'F10' },
-    0x7A: { code: 'F11' },
-    0x7B: { code: 'F12' },
-    0x7C: { code: 'F13' },
-    0x7D: { code: 'F14' },
-    0x7E: { code: 'F15' },
-    0x7F: { code: 'F16' },
+    0x70: { code: 'F1' }, // [USB: 0x3a]
+    0x71: { code: 'F2' }, // [USB: 0x3b]
+    0x72: { code: 'F3' }, // [USB: 0x3c]
+    0x73: { code: 'F4' }, // [USB: 0x3d]
+    0x74: { code: 'F5' }, // [USB: 0x3e]
+    0x75: { code: 'F6' }, // [USB: 0x3f]
+    0x76: { code: 'F7' }, // [USB: 0x40]
+    0x77: { code: 'F8' }, // [USB: 0x41]
+    0x78: { code: 'F9' }, // [USB: 0x42]
+    0x79: { code: 'F10' }, // [USB: 0x43]
+    0x7A: { code: 'F11' }, // [USB: 0x44]
+    0x7B: { code: 'F12' }, // [USB: 0x45]
+    0x7C: { code: 'F13' }, // [USB: 0x68]
+    0x7D: { code: 'F14' }, // [USB: 0x69]
+    0x7E: { code: 'F15' }, // [USB: 0x6a]
+    0x7F: { code: 'F16' }, // [USB: 0x6b]
 
-    0x80: { code: 'F17' },
-    0x81: { code: 'F18' },
-    0x82: { code: 'F19' },
-    0x83: { code: 'F20' },
-    0x84: { code: 'F21' },
-    0x85: { code: 'F22' },
-    0x86: { code: 'F23' },
-    0x87: { code: 'F24' },
+    0x80: { code: 'F17' }, // [USB: 0x6c]
+    0x81: { code: 'F18' }, // [USB: 0x6d]
+    0x82: { code: 'F19' }, // [USB: 0x6e]
+    0x83: { code: 'F20' }, // [USB: 0x6f]
+    0x84: { code: 'F21' }, // [USB: 0x70]
+    0x85: { code: 'F22' }, // [USB: 0x71]
+    0x86: { code: 'F23' }, // [USB: 0x72]
+    0x87: { code: 'F24' }, // [USB: 0x73]
     // 0x88-0x8F - unassigned
 
-    0x90: { code: 'NumLock', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0x91: { code: 'ScrollLock' },
+    0x90: { code: 'NumLock', location: NUMPAD }, // [USB: 0x53]
+    0x91: { code: 'ScrollLock' }, // [USB: 0x47]
     // 0x92-0x96 - OEM specific
     // 0x97-0x9F - unassigned
 
     // NOTE: 0xA0-0xA5 usually mapped to 0x10-0x12 in browsers
-    0xA0: { code: 'ShiftLeft', location: KeyboardEvent.DOM_KEY_LOCATION_LEFT },
-    0xA1: { code: 'ShiftRight', location: KeyboardEvent.DOM_KEY_LOCATION_RIGHT },
-    0xA2: { code: 'ControlLeft', location: KeyboardEvent.DOM_KEY_LOCATION_LEFT },
-    0xA3: { code: 'ControlRight', location: KeyboardEvent.DOM_KEY_LOCATION_RIGHT },
-    0xA4: { code: 'AltLeft', location: KeyboardEvent.DOM_KEY_LOCATION_LEFT },
-    0xA5: { code: 'AltRight', location: KeyboardEvent.DOM_KEY_LOCATION_RIGHT },
-    0xA6: { code: 'BrowserBack' },
-    0xA7: { code: 'BrowserForward' },
-    0xA8: { code: 'BrowserRefresh' },
-    0xA9: { code: 'BrowserStop' },
-    0xAA: { code: 'BrowserSearch' },
-    0xAB: { code: 'BrowserFavorites' },
-    0xAC: { code: 'BrowserHome' },
-    0xAD: { code: 'VolumeMute' },
-    0xAE: { code: 'VolumeDown' },
-    0xAF: { code: 'VolumeUp' },
+    0xA0: { code: 'ShiftLeft', location: LEFT }, // [USB: 0xe1]
+    0xA1: { code: 'ShiftRight', location: RIGHT }, // [USB: 0xe5]
+    0xA2: { code: 'ControlLeft', location: LEFT }, // [USB: 0xe0]
+    0xA3: { code: 'ControlRight', location: RIGHT }, // [USB: 0xe4]
+    0xA4: { code: 'AltLeft', location: LEFT }, // [USB: 0xe2]
+    0xA5: { code: 'AltRight', location: RIGHT }, // [USB: 0xe6]
 
-    0xB0: { code: 'MediaNextTrack' },
-    0xB1: { code: 'MediaPreviousTrack' },
-    0xB2: { code: 'MediaStop' },
-    0xB3: { code: 'MediaPlayPause' },
-    0xB4: { code: 'LaunchMail' },
+    0xA6: { code: 'BrowserBack' }, // [USB: 0x0c/0x0224]
+    0xA7: { code: 'BrowserForward' }, // [USB: 0x0c/0x0225]
+    0xA8: { code: 'BrowserRefresh' }, // [USB: 0x0c/0x0227]
+    0xA9: { code: 'BrowserStop' }, // [USB: 0x0c/0x0226]
+    0xAA: { code: 'BrowserSearch' }, // [USB: 0x0c/0x0221]
+    0xAB: { code: 'BrowserFavorites' }, // [USB: 0x0c/0x0228]
+    0xAC: { code: 'BrowserHome' }, // [USB: 0x0c/0x0222]
+    0xAD: { code: 'VolumeMute' }, // [USB: 0x7f]
+    0xAE: { code: 'VolumeDown' }, // [USB: 0x81]
+    0xAF: { code: 'VolumeUp' }, // [USB: 0x80]
+
+    0xB0: { code: 'MediaNextTrack' }, // [USB: 0x0c/0x00b5]
+    0xB1: { code: 'MediaPreviousTrack' }, // [USB: 0x0c/0x00b6]
+    0xB2: { code: 'MediaStop' }, // [USB: 0x0c/0x00b7]
+    0xB3: { code: 'MediaPlayPause' }, // [USB: 0x0c/0x00cd]
+    0xB4: { code: 'LaunchMail' }, // [USB: 0x0c/0x018a]
     0xB5: { code: 'MediaSelect' },
     0xB6: { code: 'LaunchApp1' },
     0xB7: { code: 'LaunchApp2' },
     // 0xB8-0xB9 - reserved
-    0xBA: { code: 'Semicolon',  keyCap: ';' }, // ;: (US Standard 101)
-    0xBB: { code: 'Equal', keyCap: '=' }, // =+
-    0xBC: { code: 'Comma', keyCap: ',' }, // ,<
-    0xBD: { code: 'Minus', keyCap: '-' }, // -_
-    0xBE: { code: 'Period', keyCap: '.' }, // .>
-    0xBF: { code: 'Slash', keyCap: '/' }, // /? (US Standard 101)
+    0xBA: { code: 'Semicolon',  keyCap: ';' }, // [USB: 0x33] ;: (US Standard 101)
+    0xBB: { code: 'Equal', keyCap: '=' }, // [USB: 0x2e] =+
+    0xBC: { code: 'Comma', keyCap: ',' }, // [USB: 0x36] ,<
+    0xBD: { code: 'Minus', keyCap: '-' }, // [USB: 0x2d] -_
+    0xBE: { code: 'Period', keyCap: '.' }, // [USB: 0x37] .>
+    0xBF: { code: 'Slash', keyCap: '/' }, // [USB: 0x38] /? (US Standard 101)
 
-    0xC0: { code: 'Backquote', keyCap: '`' }, // `~ (US Standard 101)
+    0xC0: { code: 'Backquote', keyCap: '`' }, // [USB: 0x35] `~ (US Standard 101)
     // 0xC1-0xCF - reserved
 
     // 0xD0-0xD7 - reserved
     // 0xD8-0xDA - unassigned
-    0xDB: { code: 'BracketLeft', keyCap: '[' }, // [{ (US Standard 101)
-    0xDC: { code: 'Backslash',  keyCap: '\\' }, // \| (US Standard 101)
-    0xDD: { code: 'BracketRight', keyCap: ']' }, // ]} (US Standard 101)
-    0xDE: { code: 'Quote', keyCap: '\'' }, // '" (US Standard 101)
+    0xDB: { code: 'BracketLeft', keyCap: '[' }, // [USB: 0x2f] [{ (US Standard 101)
+    0xDC: { code: 'Backslash',  keyCap: '\\' }, // [USB: 0x31] \| (US Standard 101)
+    0xDD: { code: 'BracketRight', keyCap: ']' }, // [USB: 0x30] ]} (US Standard 101)
+    0xDE: { code: 'Quote', keyCap: '\'' }, // [USB: 0x34] '" (US Standard 101)
     // 0xDF - miscellaneous/varies
 
     // 0xE0 - reserved
     // 0xE1 - OEM specific
-    0xE2: { code: 'IntlBackslash',  keyCap: '\\' }, // \| (UK Standard 102)
+    0xE2: { code: 'IntlBackslash',  keyCap: '\\' }, // [USB: 0x64] \| (UK Standard 102)
     // 0xE3-0xE4 - OEM specific
     0xE5: { code: 'Process' }, // In D3E, not in D4E
     // 0xE6 - OEM specific
@@ -433,15 +435,15 @@ var IDENTIFY_KEY_ASSIGN_USB_USAGE;
     // 0xE9-0xEF - OEM specific
 
     // 0xF0-0xF5 - OEM specific
-    0xF6: { code: 'Attn' }, // In D3E, not in D4E
-    0xF7: { code: 'Crsel' }, // In D3E, not in D4E
-    0xF8: { code: 'Exsel' }, // In D3E, not in D4E
+    0xF6: { code: 'Attn' }, // [USB: 0x9a] In D3E, not in D4E
+    0xF7: { code: 'Crsel' }, // [USB: 0xa3] In D3E, not in D4E
+    0xF8: { code: 'Exsel' }, // [USB: 0xa4] In D3E, not in D4E
     0xF9: { code: 'EraseEof' }, // In D3E, not in D4E
     0xFA: { code: 'Play' }, // In D3E, not in D4E
     0xFB: { code: 'Zoom' }, // In D3E, not in D4E
     // 0xFC - VK_NONAME - reserved
     // 0xFD - VK_PA1
-    0xFE: { code: 'Clear' } // In D3E, not in D4E
+    0xFE: { code: 'Clear' } // [USB: 0x9c] In D3E, not in D4E
   };
 
   // In D4E spec, but legacy keyCode is unknown:
@@ -469,275 +471,77 @@ var IDENTIFY_KEY_ASSIGN_USB_USAGE;
 
   mergeIf(keyCodeToInfoTable,
           'moz', {
-            0x3B: { code: 'Semicolon', keyCap: ';' }, // ;: (US Standard 101)
-            0x3D: { code: 'Equal', keyCap: '=' }, // =+
-            0x6B: { code: 'Equal', keyCap: '=' }, // =+
-            0x6D: { code: 'Minus', keyCap: '-' }, // -_
-            0xBB: { code: 'NumpadAdd', keyCap: '+', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-            0xBD: { code: 'NumpadSubtract', keyCap: '-', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD }
+            0x3B: { code: 'Semicolon', keyCap: ';' }, // [USB: 0x33] ;: (US Standard 101)
+            0x3D: { code: 'Equal', keyCap: '=' }, // [USB: 0x2e] =+
+            0x6B: { code: 'Equal', keyCap: '=' }, // [USB: 0x2e] =+
+            0x6D: { code: 'Minus', keyCap: '-' }, // [USB: 0x2d] -_
+            0xBB: { code: 'NumpadAdd', keyCap: '+', location: NUMPAD }, // [USB: 0x57]
+            0xBD: { code: 'NumpadSubtract', keyCap: '-', location: NUMPAD } // [USB: 0x56]
           });
 
   mergeIf(keyCodeToInfoTable,
           'moz-mac', {
-            0x0C: { code: 'NumLock', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-            0xAD: { code: 'Minus', keyCap: '-' } // -_
+            0x0C: { code: 'NumLock', location: NUMPAD }, // [USB: 0x53]
+            0xAD: { code: 'Minus', keyCap: '-' } // [USB: 0x2d] -_
           });
 
   mergeIf(keyCodeToInfoTable,
           'moz-win', {
-            0xAD: { code: 'Minus', keyCap: '-' } // -_
+            0xAD: { code: 'Minus', keyCap: '-' } // [USB: 0x2d] -_
           });
 
   mergeIf(keyCodeToInfoTable,
           'chrome-mac', {
-            0x5D: { code: 'OSRight', location: KeyboardEvent.DOM_KEY_LOCATION_RIGHT }
+            0x5D: { code: 'OSRight', location: RIGHT } // [USB: 0xe7]
           });
 
   // Windows via Bootcamp (!)
   if (0) {
     mergeIf(keyCodeToInfoTable,
             'chrome-win', {
-              0xC0: { code: 'Quote', keyCap: '\'' }, // '" (US Standard 101)
-              0xDE: { code: 'Backslash',  keyCap: '\\' }, // \| (US Standard 101)
-              0xDF: { code: 'Backquote', keyCap: '`' } // `~ (US Standard 101)
+              0xC0: { code: 'Quote', keyCap: '\'' }, // [USB: 0x34] '" (US Standard 101)
+              0xDE: { code: 'Backslash',  keyCap: '\\' }, // [USB: 0x31] \| (US Standard 101)
+              0xDF: { code: 'Backquote', keyCap: '`' } // [USB: 0x35] `~ (US Standard 101)
             });
 
     mergeIf(keyCodeToInfoTable,
             'ie', {
-              0xC0: { code: 'Quote', keyCap: '\'' }, // '" (US Standard 101)
-              0xDE: { code: 'Backslash',  keyCap: '\\' }, // \| (US Standard 101)
-              0xDF: { code: 'Backquote', keyCap: '`' } // `~ (US Standard 101)
+              0xC0: { code: 'Quote', keyCap: '\'' }, // [USB: 0x34] '" (US Standard 101)
+              0xDE: { code: 'Backslash',  keyCap: '\\' }, // [USB: 0x31] \| (US Standard 101)
+              0xDF: { code: 'Backquote', keyCap: '`' } // [USB: 0x35] `~ (US Standard 101)
             });
   }
 
   mergeIf(keyCodeToInfoTable,
           'safari', {
-            0x03: { code: 'Enter' }, // old Safari
-            0x19: { code: 'Tab' } // old Safari for Shift+Tab
+            0x03: { code: 'Enter' }, // [USB: 0x28] old Safari
+            0x19: { code: 'Tab' } // [USB: 0x2b] old Safari for Shift+Tab
           });
 
   mergeIf(keyCodeToInfoTable,
           'ios', {
-            0x0A: { code: 'Enter', location: KeyboardEvent.DOM_KEY_LOCATION_STANDARD }
+            0x0A: { code: 'Enter', location: STANDARD } // [USB: 0x28]
           });
 
   mergeIf(keyCodeToInfoTable,
           'safari-mac', {
-            0x5B: { code: 'OSLeft', location: KeyboardEvent.DOM_KEY_LOCATION_LEFT },
-            0x5D: { code: 'OSRight', location: KeyboardEvent.DOM_KEY_LOCATION_RIGHT },
-            0xE5: { code: 'KeyQ', keyCap: 'Q' } // On alternate presses, Ctrl+Q sends this
+            0x5B: { code: 'OSLeft', location: LEFT }, // [USB: 0xe3]
+            0x5D: { code: 'OSRight', location: RIGHT }, // [USB: 0xe7]
+            0xE5: { code: 'KeyQ', keyCap: 'Q' } // [USB: 0x14] On alternate presses, Ctrl+Q sends this
           });
 
   // TODO: Haven't tested Opera in a while, probably obsolete:
   mergeIf(keyCodeToInfoTable,
           'opera', {
             // NOTE: several of these collide in theory, but most other keys are unrepresented
-            0x2F: { code: 'NumpadDivide', keyCap: '/', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD }, // Same as 'Help'
-            0x2A: { code: 'NumpadMultiply', keyCap: '*', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD }, // Same as 'Print'
-            //0x2D: { code: 'NumpadSubtract', keyCap: '-', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD }, // Same as 'Insert'
-            0x2B: { code: 'NumpaddAdd', keyCap: '+', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD }, // Same as 'Execute'
-            0x3B: { code: 'Semicolon', keyCap: ';' }, // ;: (US Standard 101)
-            0x3D: { code: 'Equal', keyCap: '=' }, // =+
-            0x6D: { code: 'Minus', keyCap: '-'} // -_
+            0x2F: { code: 'NumpadDivide', keyCap: '/', location: NUMPAD }, // [USB: 0x54] Same as 'Help'
+            0x2A: { code: 'NumpadMultiply', keyCap: '*', location: NUMPAD }, // [USB: 0x55] Same as 'Print'
+            //0x2D: { code: 'NumpadSubtract', keyCap: '-', location: NUMPAD }, // [USB: 0x56] Same as 'Insert'
+            0x2B: { code: 'NumpaddAdd', keyCap: '+', location: NUMPAD }, // Same as 'Execute'
+            0x3B: { code: 'Semicolon', keyCap: ';' }, // [USB: 0x33] ;: (US Standard 101)
+            0x3D: { code: 'Equal', keyCap: '=' }, // [USB: 0x2e] =+
+            0x6D: { code: 'Minus', keyCap: '-'} // [USB: 0x2d] -_
           });
-
-
-  //--------------------------------------------------------------------
-  //
-  // USB Usage IDs
-  //
-  //--------------------------------------------------------------------
-
-  // (Purely informative, but fun!)
-
-  // codeToUsbTable[code] -> usbUsageId (high 16 bits are page, low 16 bits are ID)
-
-  var PAGE7 = 0x070000; // Keyboard/Keypad Page (0x07)
-  var PAGEC = 0x0C0000; // Consumer page (0x0C)
-  var codeToUsbTable = {
-
-    // Writing System Keys
-    'Backquote':            PAGE7 + 0x35, // ` and ~ on a US keyboard. This is the 半角/全角/漢字 (hankaku/zenkaku/kanji) key on Japanese keyboards
-    'Backslash':            PAGE7 + 0x31, // \ and | on a US keyboard. Found only on standard 101-key layouts.
-    'Backspace':            PAGE7 + 0x2a, // Labelled Delete on Macintosh keyboards.
-    'BracketLeft':          PAGE7 + 0x2f, // [ and { on a US keyboard.
-    'BracketRight':         PAGE7 + 0x30, // ] and } on a US keyboard.
-    'Comma':                PAGE7 + 0x36, // , and < on a US keyboard.
-    'Digit0':               PAGE7 + 0x27, // 0 and ) on a US keyboard.
-    'Digit1':               PAGE7 + 0x1e, // 1 and ! on a US keyboard.
-    'Digit2':               PAGE7 + 0x1f, // 2 and @ on a US keyboard.
-    'Digit3':               PAGE7 + 0x20, // 3 and # on a US keyboard.
-    'Digit4':               PAGE7 + 0x21, // 4 and $ on a US keyboard.
-    'Digit5':               PAGE7 + 0x22, // 5 and % on a US keyboard.
-    'Digit6':               PAGE7 + 0x23, // 6 and ^ on a US keyboard.
-    'Digit7':               PAGE7 + 0x24, // 7 and & on a US keyboard.
-    'Digit8':               PAGE7 + 0x25, // 8 and * on a US keyboard.
-    'Digit9':               PAGE7 + 0x26, // 9 and ( on a US keyboard.
-    'Equal':                PAGE7 + 0x2e, // = and + on a US keyboard.
-    'IntlBackslash':        PAGE7 + 0x64, // Located between the 'ShiftLeft' and 'KeyZ' keys. The \ and | key on a UK keyboard.
-    'IntlHash':             PAGE7 + 0x32, // Located between the 'Quote' and 'Enter' keys on row E of the keyboard. The # and ~ key on a UK keyboard.
-    'IntlRo':               PAGE7 + 0x87, // Located between the 'Slash' and 'ShiftRight' keys. The \ and ろ (ro) key on a Japanese keyboard.
-    'IntlYen':              PAGE7 + 0x89, // Located between the 'Equal' and 'Backspace' keys. The ¥ (yen) key on a Japanese keyboard. The \ and / key on a Russian keyboard.
-    'KeyA':                 PAGE7 + 0x04, // a on a US keyboard. Labelled q on an AZERTY (e.g., French) keyboard.
-    'KeyB':                 PAGE7 + 0x05, // b on a US keyboard.
-    'KeyC':                 PAGE7 + 0x06, // c on a US keyboard.
-    'KeyD':                 PAGE7 + 0x07, // d on a US keyboard.
-    'KeyE':                 PAGE7 + 0x08, // e on a US keyboard.
-    'KeyF':                 PAGE7 + 0x09, // f on a US keyboard.
-    'KeyG':                 PAGE7 + 0x0a, // g on a US keyboard.
-    'KeyH':                 PAGE7 + 0x0b, // h on a US keyboard.
-    'KeyI':                 PAGE7 + 0x0c, // i on a US keyboard.
-    'KeyJ':                 PAGE7 + 0x0d, // j on a US keyboard.
-    'KeyK':                 PAGE7 + 0x0e, // k on a US keyboard.
-    'KeyL':                 PAGE7 + 0x0f, // l on a US keyboard.
-    'KeyM':                 PAGE7 + 0x10, // m on a US keyboard.
-    'KeyN':                 PAGE7 + 0x11, // n on a US keyboard.
-    'KeyO':                 PAGE7 + 0x12, // o on a US keyboard.
-    'KeyP':                 PAGE7 + 0x13, // p on a US keyboard.
-    'KeyQ':                 PAGE7 + 0x14, // q on a US keyboard. Labelled a on an AZERTY (e.g., French) keyboard.
-    'KeyR':                 PAGE7 + 0x15, // r on a US keyboard.
-    'KeyS':                 PAGE7 + 0x16, // s on a US keyboard.
-    'KeyT':                 PAGE7 + 0x17, // t on a US keyboard.
-    'KeyU':                 PAGE7 + 0x18, // u on a US keyboard.
-    'KeyV':                 PAGE7 + 0x19, // v on a US keyboard.
-    'KeyW':                 PAGE7 + 0x1a, // w on a US keyboard. Labelled z on an AZERTY (e.g., French) keyboard.
-    'KeyX':                 PAGE7 + 0x1b, // x on a US keyboard.
-    'KeyY':                 PAGE7 + 0x1c, // y on a US keyboard. Labelled z on a QWERTZ (e.g., German) keyboard.
-    'KeyZ':                 PAGE7 + 0x1d, // z on a US keyboard. Labelled w on an AZERTY (e.g., French) keyboard, and y on a QWERTZ (e.g., German) keyboard.
-    'Minus':                PAGE7 + 0x2d, // - and _ on a US keyboard.
-    'Period':               PAGE7 + 0x37, // . and > on a US keyboard.
-    'Quote':                PAGE7 + 0x34, // ' and " on a US keyboard.
-    'Semicolon':            PAGE7 + 0x33, // ; and : on a US keyboard.
-    'Slash':                PAGE7 + 0x38, // / and ? on a US keyboard.
-
-    // Functional Keys
-    'AltLeft':              PAGE7 + 0xe2, // Labelled Alt or Option.
-    'AltRight':             PAGE7 + 0xe6, // Labelled Alt or Option. This is the AltGr key on many keyboard layouts.
-    'CapsLock':             PAGE7 + 0x39,
-    'ContextMenu':          PAGE7 + 0x65, // The application context menu key, which is typically found between the right OS key and the right Control key.
-    'ControlLeft':          PAGE7 + 0xe0,
-    'ControlRight':         PAGE7 + 0xe4,
-
-    'Enter':                PAGE7 + 0x28, // Labelled Enter and Return on Macintosh keyboards.
-    'OSLeft':               PAGE7 + 0xe3, // The Windows, ⌘, Command or other OS symbol key.
-    'OSRight':              PAGE7 + 0xe7, // The Windows, ⌘, Command or other OS symbol key.
-    'ShiftLeft':            PAGE7 + 0xe1,
-    'ShiftRight':           PAGE7 + 0xe5,
-    'Space':                PAGE7 + 0x2c, // The   key.
-    'Tab':                  PAGE7 + 0x2b,
-
-    // Japanese/Korean
-    'Convert':              PAGE7 + 0x8a, // Japanese: 変換 (henkan)
-    'HangulMode':           PAGE7 + 0x90, // Korean: 한/영 (han/yeong)
-    'Hanja':                PAGE7 + 0x91, // Korean: 한자 (hanja)
-    'KanaMode':             PAGE7 + 0x88, // Japanese: カタカナ/ひらがな/ローマ字 (katakana/hiragana/romaji)
-    'NoConvert':            PAGE7 + 0x8b, // Japanese: 無変換 (muhenkan)
-
-    // Control Pad
-    'Delete':               PAGE7 + 0x4c,
-    'End':                  PAGE7 + 0x4d,
-    'Help':                 PAGE7 + 0x75, // Not present on standard PC keyboards.
-    'Home':                 PAGE7 + 0x4a,
-    'Insert':               PAGE7 + 0x49, // Not present on Apple keyboards.
-    'PageDown':             PAGE7 + 0x4e,
-    'PageUp':               PAGE7 + 0x4b,
-
-    // Arrow Pad
-    'ArrowDown':            PAGE7 + 0x51,
-    'ArrowLeft':            PAGE7 + 0x50,
-    'ArrowRight':           PAGE7 + 0x4f,
-    'ArrowUp':              PAGE7 + 0x52,
-
-    // Numpad
-    'NumLock':              PAGE7 + 0x53,
-    'Numpad0':              PAGE7 + 0x62, // 0 and Insert
-    'Numpad1':              PAGE7 + 0x59, // 1 and End
-    'Numpad2':              PAGE7 + 0x5a, // 2 and ArrowDown
-    'Numpad3':              PAGE7 + 0x5b, // 3 and PageDown
-    'Numpad4':              PAGE7 + 0x5c, // 4 and ArrowLeft
-    'Numpad5':              PAGE7 + 0x5d, // 5
-    'Numpad6':              PAGE7 + 0x5e, // 6 and ArrowRight
-    'Numpad7':              PAGE7 + 0x5f, // 7 and Home
-    'Numpad8':              PAGE7 + 0x60, // 8 and ArrowUp
-    'Numpad9':              PAGE7 + 0x61, // 9 and PageUp
-    'NumpadAdd':            PAGE7 + 0x57, // +
-    'NumpadBackspace':      PAGE7 + 0xbb, // Found on the Microsoft Natural Keyboard.
-    'NumpadClear':          PAGE7 + 0xd8,
-    'NumpadClearEntry':     PAGE7 + 0xd9,
-    'NumpadComma':          PAGE7 + 0x85, // , (thousands separator). For locales where the thousands separator is a '.' (e.g., Brazil), this key may generate a '.'.
-    'NumpadDecimal':        PAGE7 + 0x63, // . (decimal separator) and Delete. For locales where the decimal separator is ',' (e.g., Brazil), this key may generate a ','.
-    'NumpadDivide':         PAGE7 + 0x54, // /
-    'NumpadEnter':          PAGE7 + 0x58,
-    'NumpadMemoryAdd':      PAGE7 + 0xd3,
-    'NumpadMemoryClear':    PAGE7 + 0xd2,
-    'NumpadMemoryRecall':   PAGE7 + 0xd1,
-    'NumpadMemoryStore':    PAGE7 + 0xd0,
-    'NumpadMemorySubtract': PAGE7 + 0xd4,
-    'NumpadMultiply':       PAGE7 + 0x55, // *
-    'NumpadParenLeft':      PAGE7 + 0xb6, // ( Found on the Microsoft Natural Keyboard.
-    'NumpadParenRight':     PAGE7 + 0xb7, // ) Found on the Microsoft Natural Keyboard.
-    'NumpadSubtract':       PAGE7 + 0x56, // -
-
-    // Function
-    'Escape':               PAGE7 + 0x29,
-    'F1':                   PAGE7 + 0x3a,
-    'F2':                   PAGE7 + 0x3b,
-    'F3':                   PAGE7 + 0x3c,
-    'F4':                   PAGE7 + 0x3d,
-    'F5':                   PAGE7 + 0x3e,
-    'F6':                   PAGE7 + 0x3f,
-    'F7':                   PAGE7 + 0x40,
-    'F8':                   PAGE7 + 0x41,
-    'F9':                   PAGE7 + 0x42,
-    'F10':                  PAGE7 + 0x43,
-    'F11':                  PAGE7 + 0x44,
-    'F12':                  PAGE7 + 0x45,
-
-    // Not in D4E
-    'F13':                  PAGE7 + 0x68,
-    'F14':                  PAGE7 + 0x69,
-    'F15':                  PAGE7 + 0x6a,
-    'F16':                  PAGE7 + 0x6b,
-    'F17':                  PAGE7 + 0x6c,
-    'F18':                  PAGE7 + 0x6d,
-    'F19':                  PAGE7 + 0x6e,
-    'F20':                  PAGE7 + 0x6f,
-    'F21':                  PAGE7 + 0x70,
-    'F22':                  PAGE7 + 0x71,
-    'F23':                  PAGE7 + 0x72,
-    'F24':                  PAGE7 + 0x73,
-
-    'PrintScreen':          PAGE7 + 0x46, // PrintScreen and SysReq
-    'ScrollLock':           PAGE7 + 0x47,
-    'Pause':                PAGE7 + 0x48, // Pause and Break
-
-    // Media keyys
-    'BrowserBack':          PAGEC + 0x0224,
-    'BrowserFavorites':     PAGEC + 0x0228,
-    'BrowserForward':       PAGEC + 0x0225,
-    'BrowserHome':          PAGEC + 0x0223,
-    'BrowserRefresh':       PAGEC + 0x0227,
-    'BrowserSearch':        PAGEC + 0x0221,
-    'BrowserStop':          PAGEC + 0x0226,
-    'LaunchMail':           PAGEC + 0x018a,
-    'MediaNextTrack':       PAGEC + 0x00b5,
-    'MediaPlayPause':       PAGEC + 0x00cd,
-    'MediaPreviousTrack':   PAGEC + 0x00b6,
-    'MediaStop':            PAGEC + 0x00b7,
-    'VolumeDown':           PAGE7 + 0x81,
-    'VolumeMute':           PAGE7 + 0x7f,
-    'VolumeUp':             PAGE7 + 0x80,
-
-    // In D3E, not in D4E, but known legacy keyCode/USB
-    'Attn':                 PAGE7 + 0x9a,
-    'Cancel':               PAGE7 + 0x9b,
-    'Clear':                PAGE7 + 0x9c,
-    'Crsel':                PAGE7 + 0xa3,
-    'Execute':              PAGE7 + 0x74,
-    'Exsel':                PAGE7 + 0xa4,
-    'Select':               PAGE7 + 0x77
-  };
-
 
   //--------------------------------------------------------------------
   //
@@ -752,12 +556,12 @@ var IDENTIFY_KEY_ASSIGN_USB_USAGE;
 
   var keyIdentifierTable = {};
   if ('cros' === os) {
-    keyIdentifierTable['U+00A0'] = { code: 'ShiftLeft', location: KeyboardEvent.DOM_KEY_LOCATION_LEFT };
-    keyIdentifierTable['U+00A1'] = { code: 'ShiftRight', location: KeyboardEvent.DOM_KEY_LOCATION_RIGHT };
-    keyIdentifierTable['U+00A2'] = { code: 'ControlLeft', location: KeyboardEvent.DOM_KEY_LOCATION_LEFT };
-    keyIdentifierTable['U+00A3'] = { code: 'ControlRight', location: KeyboardEvent.DOM_KEY_LOCATION_RIGHT };
-    keyIdentifierTable['U+00A4'] = { code: 'AltLeft', location: KeyboardEvent.DOM_KEY_LOCATION_LEFT };
-    keyIdentifierTable['U+00A5'] = { code: 'AltRight', location: KeyboardEvent.DOM_KEY_LOCATION_RIGHT };
+    keyIdentifierTable['U+00A0'] = { code: 'ShiftLeft', location: LEFT };
+    keyIdentifierTable['U+00A1'] = { code: 'ShiftRight', location: RIGHT };
+    keyIdentifierTable['U+00A2'] = { code: 'ControlLeft', location: LEFT };
+    keyIdentifierTable['U+00A3'] = { code: 'ControlRight', location: RIGHT };
+    keyIdentifierTable['U+00A4'] = { code: 'AltLeft', location: LEFT };
+    keyIdentifierTable['U+00A5'] = { code: 'AltRight', location: RIGHT };
   }
   if ('chrome-mac' === browser_os) {
     keyIdentifierTable['U+0010'] = { code: 'ContextMenu' };
@@ -774,10 +578,10 @@ var IDENTIFY_KEY_ASSIGN_USB_USAGE;
     keyIdentifierTable['U+001E'] = { code: 'ArrowUp' };
     keyIdentifierTable['U+001F'] = { code: 'ArrowDown' };
 
-    keyIdentifierTable['U+0001'] = { code: 'Home' }; // Fn + ArrowLeft
-    keyIdentifierTable['U+0004'] = { code: 'End' }; // Fn + ArrowRight
-    keyIdentifierTable['U+000B'] = { code: 'PageUp' }; // Fn + ArrowUp
-    keyIdentifierTable['U+000C'] = { code: 'PageDown' }; // Fn + ArrowDown
+    keyIdentifierTable['U+0001'] = { code: 'Home' }; // [USB: 0x4a] Fn + ArrowLeft
+    keyIdentifierTable['U+0004'] = { code: 'End' }; // [USB: 0x4d] Fn + ArrowRight
+    keyIdentifierTable['U+000B'] = { code: 'PageUp' }; // [USB: 0x4b] Fn + ArrowUp
+    keyIdentifierTable['U+000C'] = { code: 'PageDown' }; // [USB: 0x4e] Fn + ArrowDown
   }
 
   //--------------------------------------------------------------------
@@ -791,49 +595,49 @@ var IDENTIFY_KEY_ASSIGN_USB_USAGE;
 
   // locationTable[location][keyCode] -> keyInfo
   var locationTable = [];
-  locationTable[KeyboardEvent.DOM_KEY_LOCATION_LEFT] = {
-    0x10: { code: 'ShiftLeft', location: KeyboardEvent.DOM_KEY_LOCATION_LEFT },
-    0x11: { code: 'ControlLeft', location: KeyboardEvent.DOM_KEY_LOCATION_LEFT },
-    0x12: { code: 'AltLeft', location: KeyboardEvent.DOM_KEY_LOCATION_LEFT }
+  locationTable[LEFT] = {
+    0x10: { code: 'ShiftLeft', location: LEFT }, // [USB: 0xe1]
+    0x11: { code: 'ControlLeft', location: LEFT }, // [USB: 0xe0]
+    0x12: { code: 'AltLeft', location: LEFT } // [USB: 0xe2]
   };
-  locationTable[KeyboardEvent.DOM_KEY_LOCATION_RIGHT] = {
-    0x10: { code: 'ShiftRight', location: KeyboardEvent.DOM_KEY_LOCATION_RIGHT },
-    0x11: { code: 'ControlRight', location: KeyboardEvent.DOM_KEY_LOCATION_RIGHT },
-    0x12: { code: 'AltRight', location: KeyboardEvent.DOM_KEY_LOCATION_RIGHT }
+  locationTable[RIGHT] = {
+    0x10: { code: 'ShiftRight', location: RIGHT }, // [USB: 0xe5]
+    0x11: { code: 'ControlRight', location: RIGHT }, // [USB: 0xe4]
+    0x12: { code: 'AltRight', location: RIGHT } // [USB: 0xe6]
   };
-  locationTable[KeyboardEvent.DOM_KEY_LOCATION_NUMPAD] = {
-    0x0D: { code: 'NumpadEnter', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD }
+  locationTable[NUMPAD] = {
+    0x0D: { code: 'NumpadEnter', location: NUMPAD } // [USB: 0x58]
   };
 
-  mergeIf(locationTable[KeyboardEvent.DOM_KEY_LOCATION_NUMPAD], 'moz', {
-    0x6D: { code: 'NumpadSubtract', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0x6B: { code: 'NumpadAdd', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD }
+  mergeIf(locationTable[NUMPAD], 'moz', {
+    0x6D: { code: 'NumpadSubtract', location: NUMPAD }, // [USB: 0x56]
+    0x6B: { code: 'NumpadAdd', location: NUMPAD } // [USB: 0x57]
   });
-  mergeIf(locationTable[KeyboardEvent.DOM_KEY_LOCATION_LEFT], 'moz-mac', {
-    0xE0: { code: 'OSLeft', location: KeyboardEvent.DOM_KEY_LOCATION_LEFT }
+  mergeIf(locationTable[LEFT], 'moz-mac', {
+    0xE0: { code: 'OSLeft', location: LEFT } // [USB: 0xe3]
   });
-  mergeIf(locationTable[KeyboardEvent.DOM_KEY_LOCATION_RIGHT], 'moz-mac', {
-    0xE0: { code: 'OSRight', location: KeyboardEvent.DOM_KEY_LOCATION_RIGHT }
+  mergeIf(locationTable[RIGHT], 'moz-mac', {
+    0xE0: { code: 'OSRight', location: RIGHT } // [USB: 0xe7]
   });
-  mergeIf(locationTable[KeyboardEvent.DOM_KEY_LOCATION_RIGHT], 'moz-win', {
-    0x5B: { code: 'OSRight', location: KeyboardEvent.DOM_KEY_LOCATION_RIGHT }
-  });
-
-
-  mergeIf(locationTable[KeyboardEvent.DOM_KEY_LOCATION_RIGHT], 'mac', {
-    0x5D: { code: 'OSRight', location: KeyboardEvent.DOM_KEY_LOCATION_RIGHT }
+  mergeIf(locationTable[RIGHT], 'moz-win', {
+    0x5B: { code: 'OSRight', location: RIGHT } // [USB: 0xe7]
   });
 
-  mergeIf(locationTable[KeyboardEvent.DOM_KEY_LOCATION_NUMPAD], 'chrome-mac', {
-    0x0C: { code: 'NumLock', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD }
+
+  mergeIf(locationTable[RIGHT], 'mac', {
+    0x5D: { code: 'OSRight', location: RIGHT } // [USB: 0xe7]
   });
 
-  mergeIf(locationTable[KeyboardEvent.DOM_KEY_LOCATION_NUMPAD], 'safari-mac', {
-    0x0C: { code: 'NumLock', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0xBB: { code: 'NumpadAdd', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0xBD: { code: 'NumpadSubtract', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0xBE: { code: 'NumpadDecimal', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD },
-    0xBF: { code: 'NumpadDivide', location: KeyboardEvent.DOM_KEY_LOCATION_NUMPAD }
+  mergeIf(locationTable[NUMPAD], 'chrome-mac', {
+    0x0C: { code: 'NumLock', location: NUMPAD } // [USB: 0x53]
+  });
+
+  mergeIf(locationTable[NUMPAD], 'safari-mac', {
+    0x0C: { code: 'NumLock', location: NUMPAD }, // [USB: 0x53]
+    0xBB: { code: 'NumpadAdd', location: NUMPAD }, // [USB: 0x57]
+    0xBD: { code: 'NumpadSubtract', location: NUMPAD }, // [USB: 0x56]
+    0xBE: { code: 'NumpadDecimal', location: NUMPAD }, // [USB: 0x63]
+    0xBF: { code: 'NumpadDivide', location: NUMPAD } // [USB: 0x54]
   });
 
 
@@ -891,7 +695,7 @@ var IDENTIFY_KEY_ASSIGN_USB_USAGE;
     event.code = event.code || keyInfo.code || '';
     event.location = ('location' in event) ? event.location :
       ('keyLocation' in event) ? event.keyLocation :
-      ('location' in keyInfo) ? keyInfo.location : KeyboardEvent.DOM_KEY_LOCATION_STANDARD;
+      ('location' in keyInfo) ? keyInfo.location : STANDARD;
     event.queryKeyCap = event.queryKeyCap || function(code, locale) {
       code = String(code);
       if (!codeTable.hasOwnProperty(code)) {
@@ -909,7 +713,5 @@ var IDENTIFY_KEY_ASSIGN_USB_USAGE;
       event.keyIdentifier = event.keyIdentifier || event.code;
     if (IDENTIFY_KEY_ASSIGN_KEY_LOCATION)
       event.keyLocation = event.location;
-    if (IDENTIFY_KEY_ASSIGN_USB_USAGE)
-      event.usbUsage = event.usbUsage || codeToUsbTable[event.code];
   };
 } (window));
