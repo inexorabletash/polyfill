@@ -592,9 +592,9 @@ test("Symbol", function() {
 
   o = {};
   o['a'] = 1;
-  o['b'] = 2;
+  Object.defineProperty(o, 'b', {value: 2});
   o[s] = 3;
-  o[t] = 3;
+  Object.defineProperty(o, t, {value: 2});
   assertEqual('Object.getOwnPropertyNames(o).length', 2);
   assertFalse('Object.getOwnPropertyNames(o).indexOf("a") === -1');
   assertFalse('Object.getOwnPropertyNames(o).indexOf("b") === -1');
@@ -603,6 +603,10 @@ test("Symbol", function() {
   assertFalse('Object.getOwnPropertySymbols(o).indexOf(s) === -1');
   assertFalse('Object.getOwnPropertySymbols(o).indexOf(t) === -1');
   assertEqual('Object.getOwnPropertySymbols(o).indexOf("a")', -1);
+  assertEqual('Object.keys(o).length', 1);
+  assertFalse('Object.keys(o).indexOf("a") === -1');
+  assertEqual('Object.keys(o).indexOf("b")', -1);
+  assertEqual('Object.keys(o).indexOf(s)', -1);
 
   delete s;
   delete t;

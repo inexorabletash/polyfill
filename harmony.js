@@ -458,13 +458,16 @@
     var s = global.Symbol(), o = {};
     o[s] = 1;
     var nativeSymbols = (Object.getOwnPropertyNames(o).length === 0),
-        $getOwnPropertyNames = Object.getOwnPropertyNames;
+        $getOwnPropertyNames = Object.getOwnPropertyNames,
+        $keys = Object.keys;
+
+    function isStringKey(k) { return !symbolForKey(k); }
 
     // 19.1.3.7 Object.getOwnPropertyNames ( O )
     define(
       Object, 'getOwnPropertyNames',
       function getOwnPropertyNames(o) {
-        return $getOwnPropertyNames(o).filter(function(n) { return !symbolForKey(n); });
+        return $getOwnPropertyNames(o).filter(isStringKey);
       }, !nativeSymbols);
 
     // 19.1.3.8 Object.getOwnPropertySymbols ( O )
@@ -472,6 +475,13 @@
       Object, 'getOwnPropertySymbols',
       function getOwnPropertySymbols(o) {
         return $getOwnPropertyNames(o).filter(symbolForKey).map(symbolForKey);
+      }, !nativeSymbols);
+
+    // 19.1.3.14 Object.keys ( O )
+    define(
+      Object, 'keys',
+      function keys(o) {
+        return $keys(o).filter(isStringKey);
       }, !nativeSymbols);
   }());
 
@@ -486,8 +496,9 @@
   // 19.1.3.11 Object.isExtensible ( O )
   // 19.1.3.12 Object.isFrozen ( O )
   // 19.1.3.13 Object.isSealed ( O )
+
   // 19.1.3.14 Object.keys ( O )
-  // TODO: Detect Symbol-like keys, filter them out
+  // see above
 
   // 19.1.3.15 Object.mixin ( target, source )
   define(
