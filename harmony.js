@@ -34,8 +34,7 @@
 
     if (typeof v === 'function') {
       // Sanity check that functions are appropriately named (where possible)
-      assert(p instanceof global.Symbol || !('name' in v) || v.name === p || v.name === p + 'Function',
-            'Expected function name "' + p + '", was "' + v.name + '"');
+      assert((global.Symbol && p instanceof global.Symbol) || !('name' in v) || v.name === p || v.name === p + '_', 'Expected function name "' + p + '", was "' + v.name + '"');
       Object.defineProperty(o, p, {
         value: v,
         configurable: true,
@@ -162,6 +161,8 @@
       return symbolMap[k];
     };
 
+    var GlobalSymbolRegistry = [];
+
     function uuid() {
       // http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -185,20 +186,44 @@
 
     // 19.4.2 Properties of the Symbol Constructor
     // 19.4.2.1 Symbol.create
-    // 19.4.2.2 Symbol.hasInstance
-    // 19.4.2.3 Symbol.isRegExp
 
-    // 19.4.2.4 Symbol.iterator
+    // 19.4.2.2 Symbol.for (key)
+    define(Symbol, 'for', function for_(key) {
+      var stringKey = String(key);
+      for (var i = 0; i < GlobalSymbolRegistry.length; ++i) {
+        var e = GlobalSymbolRegistry[i];
+        if (SameValue(e['[[key]]'], stringKey)) return e['[[symbol]]'];
+      }
+      var newSymbol = Symbol(key);
+      GlobalSymbolRegistry.push({'[[key]]': stringKey, '[[symbol]]': newSymbol});
+      return newSymbol;
+    });
+
+    // 19.4.2.3 Symbol.hasInstance
+    // 19.4.2.4 Symbol.isConcatSpreadable
+    // 19.4.2.5 Symbol.isRegExp
+
+    // 19.4.2.6 Symbol.iterator
     define(Symbol, 'iterator', Symbol('iterator'));
 
-    // 19.4.2.5 Symbol.prototype
-    // 19.4.2.6 Symbol.toPrimitive
+    // 19.4.2.7 Symbol.keyFor (sym)
+    define(Symbol, 'keyFor', function keyFor(sym) {
+      if (!(sym instanceof Symbol)) throw TypeError();
+      for (var i = 0; i < GlobalSymbolRegistry.length; ++i) {
+        var e = GlobalSymbolRegistry[i];
+        if (SameValue(e['[[symbol]]'], sym)) return e['[[key]]'];
+      }
+      return undefined;
+    });
 
-    // 19.4.2.7 Symbol.toStringTag
+    // 19.4.2.8 Symbol.prototype
+    // 19.4.2.9 Symbol.toPrimitive
+
+    // 19.4.2.10 Symbol.toStringTag
     define(Symbol, 'toStringTag', Symbol('toStringTag'));
 
-    // 19.4.2.8 Symbol.unscopables
-    // 19.4.2.9 Symbol [ @@create ] ()
+    // 19.4.2.11 Symbol.unscopables
+    // 19.4.2.12 Symbol [ @@create ] ()
 
     // 19.4.3 Properties of the Symbol Prototype Object
     // 19.4.3.1 Symbol.prototype.constructor
@@ -499,50 +524,6 @@
 
   // 19.1.3.14 Object.keys ( O )
   // see above
-
-  // 19.1.3.15 Object.mixin ( target, source )
-  define(
-    Object, 'mixin',
-    function mixin(target, source) {
-      var to = ToObject(target);
-      var from = ToObject(source);
-      return MixinProperties(to, from);
-
-      function MixinProperties(target, source) {
-        var keys = OwnPropertyKeys(source);
-        var gotAllNames = false;
-        var pendingException = undefined;
-        while (gotAllNames === false) {
-          var next = IteratorStep(keys);
-          if (next === false) {
-            gotAllNames = true;
-          } else {
-            var nextKey = IteratorValue(next);
-            try {
-              var desc = Object.getOwnPropertyDescriptor(source, nextKey);
-            } catch (desc) {
-              if (pendingException === undefined)
-                pendingException = desc;
-              continue;
-            }
-            if (desc !== undefined && desc.enumerable === true) {
-              // TODO: Can super rebinding be polyfilled?
-              try {
-                Object.defineProperty(target, nextKey, desc);
-              } catch (status) {
-                if (pendingException === undefined)
-                  pendingException = status;
-                continue;
-              }
-            }
-          }
-        }
-        if (pendingException !== undefined) {
-          throw pendingException;
-        }
-        return to;
-      }
-    });
 
   // 19.1.3.16 Object.preventExtensions ( O )
   // 19.1.3.17 Object.prototype
@@ -1357,10 +1338,27 @@
   // 21.2.5.2 RegExp.prototype.exec(string)
   // 21.2.5.3 get RegExp.prototype.global
   // 21.2.5.4 get RegExp.prototype.ignoreCase
+
   // 21.2.5.5 RegExp.prototype.match (string)
+  define(RegExp.prototype, 'match', function match(string) {
+    var o = strict(this);
+    return String(string).match(o);
+  });
+
   // 21.2.5.6 get RegExp.prototype.multiline
+
   // 21.2.5.7 RegExp.prototype.replace (S, replaceValue)
+  define(RegExp.prototype, 'replace', function replace(S, replaceValue) {
+    var o = strict(this);
+    return String(S).replace(o, replaceValue);
+  });
+
   // 21.2.5.8 RegExp.prototype.search (S)
+  define(RegExp.prototype, 'search', function search(S) {
+    var o = strict(this);
+    return String(S).search(o);
+  });
+
   // 21.2.5.9 get RegExp.prototype.source
   // 21.2.5.10 RegExp.prototype.split (string, limit)
   // 21.2.5.11 get RegExp.prototype.sticky
@@ -2145,7 +2143,7 @@
     // 23.1.3.3 Map.prototype.delete ( key )
     define(
       Map.prototype, 'delete',
-      function deleteFunction(key) {
+      function delete_(key) {
         var m = strict(this);
         if (Type(m) !== 'object') throw TypeError();
         if (!('[[MapData]]' in m)) throw TypeError();
@@ -2450,7 +2448,7 @@
     // 23.2.3.4 Set.prototype.delete ( value )
     define(
       Set.prototype, 'delete',
-      function deleteFunction(value) {
+      function delete_(value) {
         var s = strict(this);
         if (Type(s) !== 'object') throw TypeError();
         if (!('[[SetData]]' in s)) throw TypeError();
@@ -2669,7 +2667,7 @@
     // 23.3.3.3 WeakMap.prototype.delete ( key )
     define(
       WeakMap.prototype, 'delete',
-      function deleteFunction(key) {
+      function delete_(key) {
         if (Type(key) !== 'object') throw TypeError('Expected object');
         this._table.remove(key);
       });
@@ -2775,7 +2773,7 @@
     // 23.4.3.4 WeakSet.prototype.delete ( value )
     define(
       WeakSet.prototype, 'delete',
-      function deleteFunction(value) {
+      function delete_(value) {
         if (Type(value) !== 'object') throw TypeError('Expected object');
         this._table.remove(value);
       });
@@ -2901,7 +2899,7 @@
   define(JSON, $$toStringTag, 'JSON');
 
   // ---------------------------------------
-  // 25 The "std:iteration" Module
+  // 25 Control Abstraction Objects
   // ---------------------------------------
 
   // 25.1 Common Iteration Interfaces
@@ -2910,46 +2908,42 @@
   // 25.1.3 The ItrResult Iterface
 
   // ---------------------------------------
-  // 25.2 "std:iteration" Exports
+  // 25.2 GeneratorFunction Objects
   // ---------------------------------------
 
-  // ---------------------------------------
-  // 25.3 GeneratorFunction Objects
-  // ---------------------------------------
-
-  // 25.3.1 The GeneratorFunction Constructor
-  // 25.3.1.1 GeneratorFunction (p1, p2, ... , pn, body)
-  // 25.3.1.2 new GeneratorFunction ( ... argumentsList)
-  // 25.3.2 Properties of the GeneratorFunction Constructor
-  // 25.3.2.1 GeneratorFunction.length
-  // 25.3.2.2 GeneratorFunction.prototype
-  // 25.3.2.3 GeneratorFunction[ @@create ] ( )
-  // 25.3.3 Properties of the GeneratorFunction Prototype Object
-  // 25.3.3.1 GeneratorFunction.prototype.constructor
-  // 25.3.3.2 GeneratorFunction.prototype.prototype
-  // 25.3.3.3 GeneratorFunction.prototype [ @@toStringTag ]
-  // 25.3.3.4 GeneratorFunction.prototype [ @@create ] ( )
-  // 25.3.4 GeneratorFunction Instances
-  // 25.3.4.1 length
-  // 25.3.4.2 prototype
+  // 25.2.1 The GeneratorFunction Constructor
+  // 25.2.1.1 GeneratorFunction (p1, p2, ... , pn, body)
+  // 25.2.1.2 new GeneratorFunction ( ... argumentsList)
+  // 25.2.2 Properties of the GeneratorFunction Constructor
+  // 25.2.2.1 GeneratorFunction.length
+  // 25.2.2.2 GeneratorFunction.prototype
+  // 25.2.2.3 GeneratorFunction[ @@create ] ( )
+  // 25.2.3 Properties of the GeneratorFunction Prototype Object
+  // 25.2.3.1 GeneratorFunction.prototype.constructor
+  // 25.2.3.2 GeneratorFunction.prototype.prototype
+  // 25.2.3.3 GeneratorFunction.prototype [ @@toStringTag ]
+  // 25.2.3.4 GeneratorFunction.prototype [ @@create ] ( )
+  // 25.2.4 GeneratorFunction Instances
+  // 25.2.4.1 length
+  // 25.2.4.2 prototype
 
   // ---------------------------------------
-  // 25.4 Generator Objects
+  // 25.3 Generator Objects
   // ---------------------------------------
 
-  // 25.4.1 Properties of Generator Prototype
-  // 25.4.1.1 Generator.prototype.constructor
-  // 25.4.1.2 Generator.prototype.next ( value )
-  // 25.4.1.3 Generator.prototype.throw ( exception )
-  // 25.4.1.4 Generator.prototype [ @@iterator ] ( )
-  // 25.4.1.5 Generator.prototype [ @@toStringTag ]
-  // 25.4.2 Properties of Generator Instances
-  // 25.4.3 Iteration Related Abstract Operations
-  // 25.4.3.1 GeneratorStart (generator, generatorBody)
-  // 25.4.3.2 GeneratorResume ( generator, value )
-  // 25.4.3.3 GeneratorYield ( itrNextObj )
+  // 25.3.1 Properties of Generator Prototype
+  // 25.3.1.1 Generator.prototype.constructor
+  // 25.3.1.2 Generator.prototype.next ( value )
+  // 25.3.1.3 Generator.prototype.throw ( exception )
+  // 25.3.1.4 Generator.prototype [ @@iterator ] ( )
+  // 25.3.1.5 Generator.prototype [ @@toStringTag ]
+  // 25.3.2 Properties of Generator Instances
+  // 25.3.3 Iteration Related Abstract Operations
+  // 25.3.3.1 GeneratorStart (generator, generatorBody)
+  // 25.3.3.2 GeneratorResume ( generator, value )
+  // 25.3.3.3 GeneratorYield ( itrNextObj )
 
-  // 25.4.3.4 CreateItrResultObject (value, done)
+  // 25.3.3.4 CreateItrResultObject (value, done)
   function CreateItrResultObject(value, done) {
     assert(Type(done) === 'boolean');
     var obj = {};
@@ -2958,33 +2952,33 @@
     return obj;
   }
 
-  // 25.4.3.5 GetIterator ( obj )
+  // 25.3.3.5 GetIterator ( obj )
   function GetIterator(obj) {
     var iterator = obj[$$iterator]();
     if (Type(iterator) !== 'object') throw TypeError();
     return iterator;
   }
 
-  // 25.4.3.6 IteratorNext ( iterator, value )
+  // 25.3.3.6 IteratorNext ( iterator, value )
   function IteratorNext(iterator, value) {
     var result = iterator.next(value);
     if (Type(result) !== 'object') throw TypeError();
     return result;
   }
 
-  // 25.4.3.7 IteratorComplete ( iterResult )
+  // 25.3.3.7 IteratorComplete ( iterResult )
   function IteratorComplete(iterResult) {
     assert(Type(iterResult) === 'object');
     return Boolean(iterResult.done);
   }
 
-  // 25.4.3.8 IteratorValue ( iterResult )
+  // 25.3.3.8 IteratorValue ( iterResult )
   function IteratorValue(iterResult) {
     assert(Type(iterResult) === 'object');
     return iterResult.value;
   }
 
-  // 25.4.3.9 IteratorStep ( iterator, value )
+  // 25.3.3.9 IteratorStep ( iterator, value )
   function IteratorStep( iterator, value ) {
     var result = IteratorNext(iterator, value);
     var done = result['done'];
@@ -2992,7 +2986,365 @@
     return result;
   }
 
-  // 25.4.3.10 CreateEmptyIterator ( )
+  // 25.3.3.10 CreateEmptyIterator ( )
+
+  // ---------------------------------------
+  // 25.4 Promise Objects
+  // ---------------------------------------
+
+  (function(){
+
+    function QueueMicrotask(microtask, argumentsList) {
+     // TODO: Use MutationObservers or setImmediate if available
+     setTimeout(function() {
+       microtask.apply(null, argumentsList);
+     }, 0);
+    }
+
+    // To satisy js2-mode linter that requires consistent return values.
+    var nothing = undefined;
+
+    // 25.4.1 Abstract Operations for Promise Objects
+
+    // 25.4.1.1 PromiseCapability Records
+    // 25.4.1.1.1 IfAbruptRejectPromise ( value, capablity )
+    // 25.4.1.2 PromiseReaction Records
+
+    // 25.4.1.3 CreateRejectFunction ( promise )
+    function CreateRejectFunction(promise) {
+      var F = function(reason) {
+        var promise = F['[[Promise]]'];
+        return PromiseReject(promise, reason);
+      };
+      set_internal(F, '[[Promise]]', promise);
+      return F;
+    }
+
+    // 25.4.1.3.1 Promise Reject Functions
+    function PromiseReject(promise, reason) {
+      if (promise['[[PromiseStatus]]'] !== "unresolved") return nothing;
+      var reactions = promise['[[PromiseRejectReactions]]'];
+      set_internal(promise, '[[PromiseResult]]', reason);
+      set_internal(promise, '[[PromiseResolveReactions]]', undefined);
+      set_internal(promise, '[[PromiseRejectReactions]]', undefined);
+      set_internal(promise, '[[PromiseStatus]]', "has-rejection");
+      return TriggerPromiseReactions(reactions, reason);
+    }
+
+    // 25.4.1.4 CreateResolveFunction ( promise )
+    function CreateResolveFunction(promise) {
+      var F = function(resolution) {
+        var promise = F['[[Promise]]'];
+        return PromiseResolve(promise, resolution);
+      };
+      set_internal(F, '[[Promise]]', promise);
+      return F;
+    }
+
+    // 25.4.1.4.1 PromiseResolveFunctions
+    function PromiseResolve(promise, resolution) {
+      if (promise['[[PromiseStatus]]'] !== "unresolved") return nothing;
+      var reactions = promise['[[PromiseResolveReactions]]'];
+      set_internal(promise, '[[PromiseResult]]', resolution);
+      set_internal(promise, '[[PromiseResolveReactions]]', undefined);
+      set_internal(promise, '[[PromiseRejectReactions]]', undefined);
+      set_internal(promise, '[[PromiseStatus]]', "has-resolution");
+      return TriggerPromiseReactions(reactions, resolution);
+    }
+
+    // 25.4.1.5 NewPromiseCapability ( C )
+    function NewPromiseCapability(C) {
+      if (!IsConstructor(C)) throw TypeError();
+      var promise = Object.create(C.prototype);
+      return CreatePromiseCapabilityRecord(promise, C);
+    }
+
+    // 25.4.1.5.1 CreatePromiseCapabilityRecord ( promise, constructor )
+    function CreatePromiseCapabilityRecord(promise, constructor) {
+      var promiseCapability = { '[[Promise]]': promise, '[[Resolve]]': undefined, '[[Reject]]': undefined };
+      var executor = new GetCapabilitiesExecutor;
+      set_internal(executor, '[[Capability]]', promiseCapability);
+      var constructorResult = constructor.call(promise, executor);
+      if (!IsCallable(promiseCapability['[[Resolve]]'])) throw TypeError();
+      if (!IsCallable(promiseCapability['[[Reject]]'])) throw TypeError();
+      if (Type(constructorResult) === 'object' && promise !== constructorResult) throw TypeError();
+      return promiseCapability;
+    }
+
+    // 25.4.1.5.2 GetCapabilitiesExecutor Functions
+    function GetCapabilitiesExecutor() {
+      var F = function(resolve, reject) {
+        var promiseCapability = F['[[Capability]]'];
+        set_internal(promiseCapability, '[[Resolve]]', resolve);
+        set_internal(promiseCapability, '[[Reject]]', reject);
+      };
+      return F;
+    }
+
+    // 25.4.1.6 IsPromise ( x )
+    function IsPromise(x) {
+      if (Type(x) !== 'object') return false;
+      if (!x.hasOwnProperty('[[PromiseStatus]]')) return false;
+      if (x['[[PromiseStatus]]'] === undefined) return false;
+      return true;
+    };
+
+    // 25.4.1.7 TriggerPromiseReactions ( reactions, argument )
+    function TriggerPromiseReactions(reactions, argument) {
+      reactions.forEach(function(reaction) {
+        QueueMicrotask(PromiseReactionTask, [reaction, argument]);
+      });
+    }
+
+    // 25.4.1.8 UpdatePromiseFromPotentialThenable ( x, promiseCapability)
+    function UpdatePromiseFromPotentialThenable(x, promiseCapability) {
+      if (Type(x) !== 'object') return "not a thenable";
+      try {
+        var then = x["then"];
+      } catch (_) {
+        var rejectResult = promiseCapability['[[Reject]]'].call(undefined, then);
+        return nothing;
+      }
+      if (!IsCallable(then)) return "not a thenable";
+      try {
+        var thenCallResult = then.call(x, promiseCapability['[[Resolve]]'], promiseCapability['[[Reject]]']);
+      } catch (_) {
+        rejectResult = promiseCapability['[[Reject]]'].call(undefined, thenCallResult);
+        return nothing;
+      }
+      return nothing;
+    }
+
+    // 25.4.2 Promise Tasks
+
+    // 25.4.2.1 PromiseReactionTask( reaction, argument )
+
+    function PromiseReactionTask(reaction, argument) {
+      var promiseCapability = reaction['[[Capabilities]]'];
+      var handler = reaction['[[Handler]]'];
+      try {
+        var handlerResult = handler.call(undefined, argument);
+      } catch (handlerResult) {
+        return promiseCapability['[[Reject]]'].call(undefined, handlerResult);
+      }
+      if (SameValue(handlerResult, promiseCapability['[[Promise]]'])) {
+        var selfResolutionError = TypeError();
+        return promiseCapability['[[Reject]]'].call(undefined, selfResolutionError);
+      }
+      var updateResult = UpdatePromiseFromPotentialThenable(handlerResult, promiseCapability);
+      if (updateResult === "not a thenable")
+        return promiseCapability['[[Resolve]]'].call(undefined, handlerResult);
+      return nothing;
+    }
+
+    // 25.4.3 The Promise Constructor
+
+    // 25.4.3.1 Promise ( executor )
+
+    function Promise(executor) {
+      set_internal(this, '[[PromiseConstructor]]', Promise);
+
+      var promise = strict(this);
+      if (!IsCallable(executor)) throw TypeError();
+      if (Type(promise) !== 'object') throw TypeError();
+      return InitializePromise(promise, executor);
+    }
+
+    // 25.4.3.1.1 InitialisePromise ( promise, executor ) AbstractOperation
+    function InitializePromise(promise, executor) {
+      set_internal(promise, '[[PromiseStatus]]', "unresolved");
+      set_internal(promise, '[[PromiseResolveReactions]]', []);
+      set_internal(promise, '[[PromiseRejectReactions]]', []);
+      var resolve = CreateResolveFunction(promise);
+      var reject = CreateRejectFunction(promise);
+      try {
+        var result = executor.call(undefined, resolve, reject);
+      } catch (result) {
+        PromiseReject(promise, result);
+      }
+      return promise;
+    }
+
+    // 25.4.3.2 new Promise ( ... argumentsList )
+
+    // 25.4.4 Properties of the Promise Constructor
+
+    // 25.4.4.1 Promise.all ( iterable )
+    define(Promise, 'all', function all(iterable) {
+      var C = strict(this);
+      var promiseCapability = NewPromiseCapability(C);
+      var iterator = GetIterator(iterable);
+      var values = Array(0);
+      var remainingElementsCount = { '[[value]]': 0 };
+      var index = 0;
+      while (true) {
+        var next = IteratorStep(iterator);
+        if (next === false) {
+          if (index === 0) {
+            var resolveResult = promiseCapability['[[Resolve]]'].call(undefined, values);
+          }
+          return promiseCapability['[[Promise]]'];
+        }
+        var nextValue = IteratorValue(next);
+        var nextPromise = C["cast"](nextValue);
+        var resolveElement = new PromiseAllResolveElementFunction;
+        set_internal(resolveElement, '[[Index]]', index);
+        set_internal(resolveElement, '[[Values]]', values);
+        set_internal(resolveElement, '[[Capabilities]]', promiseCapability);
+        set_internal(resolveElement, '[[RemainingElements]]', remainingElementsCount);
+        var result = nextPromise["then"](resolveElement, promiseCapability['[[Reject]]']);
+        index += 1;
+        remainingElementsCount['[[value]]'] += 1;
+      }
+    });
+
+    // 25.4.4.1.1 Promise.all Resolve Element Functions
+    function PromiseAllResolveElementFunction() {
+      var F =  function(x) {
+        var index = F['[[Index]]'];
+        var values = F['[[Values]]'];
+        var promiseCapability = F['[[Capabilities]]'];
+        var remainingElementsCount = F['[[RemainingElements]]'];
+        values[index] = x;
+        remainingElementsCount['[[value]]'] -= 1;
+        if (remainingElementsCount['[[value]]'] === 0) {
+          promiseCapability['[[Resolve]]'].call(undefined, values);
+        }
+        return nothing;
+      };
+      return F;
+    }
+
+    // 25.4.4.2 Promise.cast ( x )
+    define(Promise, 'cast', function cast(x) {
+      var C = strict(this);
+      if (IsPromise(x)) {
+        var constructor = x['[[PromiseConstructor]]'];
+        if (SameValue(constructor, C)) return x;
+      }
+      var promiseCapability = NewPromiseCapability(C);
+      var resolveResult = promiseCapability['[[Resolve]]'].call(undefined, x);
+      return promiseCapability['[[Promise]]'];
+    });
+
+    // 25.4.4.3 Promise.prototype
+    define(Promise, 'prototype', {});
+
+    // 25.4.4.4 Promise.race ( iterable )
+    define(Promise, 'race', function race(iterable) {
+      var C = strict(this);
+      var promiseCapability = NewPromiseCapability(C);
+      var iterator = GetIterator(iterable);
+      while (true) {
+        var next = IteratorStep(iterator);
+        if (next === false) return promiseCapability['[[Promise]]'];
+        var nextValue = IteratorValue(next);
+        var nextPromise = C["cast"](nextValue);
+        var result = nextPromise["then"](promiseCapability['[[Resolve]]'], promiseCapability['[[Reject]]']);
+      }
+    });
+
+    // 25.4.4.5 Promise.reject ( r )
+    define(Promise, 'reject', function reject(r) {
+      var C = strict(this);
+      var promiseCapability = NewPromiseCapability(C);
+      var rejectResult = promiseCapability['[[Reject]]'].call(undefined, r);
+      return promiseCapability['[[Promise]]'];
+    });
+
+    // 25.4.4.6 Promise.resolve ( x )
+    define(Promise, 'resolve', function resolve(x) {
+      var C = strict(this);
+      var promiseCapability = NewPromiseCapability(C);
+      var resolveResult = promiseCapability['[[Resolve]]'].call(undefined, x);
+      return promiseCapability['[[Promise]]'];
+    });
+
+    // 25.4.4.7 Promise [ @@create ] ( )
+    // 25.4.4.7.1 AllocatePromise( constructor ) Abstraction Operation
+
+    // 25.4.5 Properties of the Promise Prototype Object
+
+    // 25.4.5.1 Promise.prototype.catch ( onRejected )
+    define(Promise.prototype, 'catch', function catch_(onRejected) {
+      var promise = strict(this);
+      promise["then"](undefined, onRejected);
+    });
+
+    // 25.4.5.2 Promise.prototype.constructor
+    Promise.prototype.constructor = Promise;
+
+    // 25.4.5.3 Promise.prototype.then ( onFulfilled , onRejected )
+    define(Promise.prototype, 'then', function then(onFulfilled, onRejected) {
+      var promise = strict(this);
+      if (!IsPromise(promise)) throw TypeError();
+      var C = promise.constructor;
+      var promiseCapability = NewPromiseCapability(C);
+      var rejectionHandler = new ThrowerFunction;
+      if (IsCallable(onRejected)) rejectionHandler = onRejected;
+      var fulfillmentHandler = new IdentityFunction;
+      if (IsCallable(onFulfilled)) fulfillmentHandler = onFulfilled;
+      var resolutionHandler = new PromiseResolutionHandlerFunction;
+      set_internal(resolutionHandler, '[[Promise]]', promise);
+      set_internal(resolutionHandler, '[[FulfillmentHandler]]', fulfillmentHandler);
+      set_internal(resolutionHandler, '[[RejectionHandler]]', rejectionHandler);
+      var resolveReaction = { '[[Capabilities]]': promiseCapability, '[[Handler]]': resolutionHandler };
+      var rejectReaction = { '[[Capabilities]]': promiseCapability, '[[Handler]]': rejectionHandler };
+      if (promise['[[PromiseStatus]]'] === "unresolved") {
+        promise['[[PromiseResolveReactions]]'].push(resolveReaction);
+        promise['[[PromiseRejectReactions]]'].push(rejectReaction);
+      }
+      if (promise['[[PromiseStatus]]'] === "has-resolution") {
+        var resolution = promise['[[PromiseResult]]'];
+        QueueMicrotask(PromiseReactionTask, [resolveReaction, resolution]);
+      }
+      if (promise['[[PromiseStatus]]'] === "has-rejection") {
+        resolution = promise['[[PromiseResult]]'];
+        QueueMicrotask(PromiseReactionTask, [rejectReaction, resolution]);
+      }
+      return promiseCapability['[[Promise]]'];
+    });
+
+    // 25.4.5.3.1 IdentityFunctions
+    function IdentityFunction() {
+      var F = function (x) {
+        return x;
+      };
+      return F;
+    }
+
+    // 25.4.5.3.2 PromiseResolutionHandlerFunctions
+    function PromiseResolutionHandlerFunction() {
+      var F = function(x) {
+        var promise = F['[[Promise]]'];
+        var fulfillmentHandler = F['[[FulfillmentHandler]]'];
+        var rejectionHandler = F['[[RejectionHandler]]'];
+        if (SameValue(x, promise)) {
+          var selfResolutionError = TypeError();
+          return rejectionHandler.call(undefined, selfResolutionError);
+        }
+        var C = promise['[[PromiseConstructor]]'];
+        var promiseCapability = NewPromiseCapability(C);
+        var updateResult = UpdatePromiseFromPotentialThenable(x, promiseCapability);
+        if (updateResult !== "not a thenable") return promiseCapability['[[Promise]]']["then"](fulfillmentHandler, rejectionHandler);
+        return fulfillmentHandler.call(undefined, x);
+      };
+      return F;
+    }
+
+    // 25.4.5.3.3 Thrower Functions
+    function ThrowerFunction() {
+      var F = function(e) {
+        throw e;
+      };
+      return F;
+    }
+
+    global.Promise = global.Promise || Promise;
+  }());
+
+  // 25.4.5.1 Promise.prototype [ @@toStringTag ]
+  define(Promise.prototype, $$toStringTag, 'Promise');
 
   // ---------------------------------------
   // 26 The Reflect Module
@@ -3351,315 +3703,5 @@
     }
   }
   global.forOf = forOf; // Since for( ... of ... ) can't be shimmed w/o a transpiler.
-
-  //----------------------------------------
-  // Promises
-  //----------------------------------------
-
-  // Approved at September 2013 TC-39 meeting, but not yet in the spec
-  // Tentative spec: https://github.com/domenic/promises-unwrapping
-
-  (function(){
-
-    function QueueMicrotask(microtask, argumentsList) {
-     // TODO: Use MutationObservers or setImmediate if available
-     setTimeout(function() {
-       microtask.apply(null, argumentsList);
-     }, 0);
-    }
-
-    // To satisy js2-mode linter that requires consistent return values.
-    var nothing = undefined;
-
-    // Abstract Operations for Promise Objects
-
-    function GetDeferred(C) {
-      if (!IsConstructor(C)) throw TypeError();
-      var resolver = new DeferredConstructionFunction;
-      var promise = new C(resolver);
-      var resolve = resolver['[[Resolve]]'];
-      if (!IsCallable(resolve)) throw TypeError();
-      var reject = resolver['[[Reject]]'];
-      if (!IsCallable(reject)) throw TypeError();
-      return { '[[Promise]]': promise, '[[Resolve]]': resolve, '[[Reject]]': reject };
-    }
-
-    function IsPromise(x) {
-      if (Type(x) !== 'object') return false;
-      if (!x.hasOwnProperty('[[PromiseStatus]]')) return false;
-      if (x['[[PromiseStatus]]'] === undefined) return false;
-      return true;
-    };
-
-    function PromiseReject(promise, reason) {
-      if (promise['[[PromiseStatus]]'] !== "unresolved") return nothing;
-      var reactions = promise['[[RejectReactions]]'];
-      set_internal(promise, '[[Result]]', reason);
-      set_internal(promise, '[[ResolveReactions]]', undefined);
-      set_internal(promise, '[[RejectReactions]]', undefined);
-      set_internal(promise, '[[PromiseStatus]]', "has-rejection");
-      return TriggerPromiseReactions(reactions, reason);
-    }
-
-    function PromiseResolve(promise, resolution) {
-      if (promise['[[PromiseStatus]]'] !== "unresolved") return nothing;
-      var reactions = promise['[[ResolveReactions]]'];
-      set_internal(promise, '[[Result]]', resolution);
-      set_internal(promise, '[[ResolveReactions]]', undefined);
-      set_internal(promise, '[[RejectReactions]]', undefined);
-      set_internal(promise, '[[PromiseStatus]]', "has-resolution");
-      return TriggerPromiseReactions(reactions, resolution);
-    }
-
-    function TriggerPromiseReactions(reactions, argument) {
-      reactions.forEach(function(reaction) {
-        QueueMicrotask(ExecutePromiseReaction, [reaction, argument]);
-      });
-    }
-
-    function UpdateDeferredFromPotentialThenable(x, deferred) {
-      if (Type(x) !== 'object') return "not a thenable";
-      try {
-        var then = x["then"];
-      } catch (_) {
-        var rejectResult = deferred['[[Reject]]'].call(undefined, then);
-        return nothing;
-      }
-      if (!IsCallable(then)) return "not a thenable";
-      try {
-        var thenCallResult = then.call(x, deferred['[[Resolve]]'], deferred['[[Reject]]']);
-      } catch (_) {
-        rejectResult = deferred['[[Reject]]'].call(undefined, thenCallResult);
-        return nothing;
-      }
-      return nothing;
-    }
-
-    // Built-in Functions for Promise Objects
-
-    function DeferredConstructionFunction() {
-      var F = function(resolve, reject) {
-        set_internal(F, '[[Resolve]]', resolve);
-        set_internal(F, '[[Reject]]', reject);
-      };
-      return F;
-    }
-
-    function IdentityFunction() {
-      return function (x) {
-        return x;
-      };
-    }
-
-    function PromiseAllCountdownFunction() {
-      var F =  function(x) {
-        var index = F['[[Index]]'];
-        var values = F['[[Values]]'];
-        var deferred = F['[[Deferred]]'];
-        var countdownHolder = F['[[CountdownHolder]]'];
-        values[index] = x;
-        countdownHolder['[[Countdown]]'] -= 1;
-        if (countdownHolder['[[Countdown]]'] === 0) {
-          deferred['[[Resolve]]'].call(undefined, values);
-        }
-        return nothing;
-      };
-      return F;
-    }
-
-    function PromiseResolutionHandlerFunction() {
-      var F = function(x) {
-        var promise = F['[[Promise]]'];
-        var fulfillmentHandler = F['[[FulfillmentHandler]]'];
-        var rejectionHandler = F['[[RejectionHandler]]'];
-        if (SameValue(x, promise)) {
-          var selfResolutionError = TypeError();
-          return rejectionHandler.call(undefined, selfResolutionError);
-        }
-        var C = promise['[[PromiseConstructor]]'];
-        var deferred = GetDeferred(C);
-        var updateResult = UpdateDeferredFromPotentialThenable(x, deferred);
-        if (updateResult !== "not a thenable") return deferred['[[Promise]]']["then"](fulfillmentHandler, rejectionHandler);
-        return fulfillmentHandler.call(undefined, x);
-      };
-      return F;
-    }
-
-    function RejectPromiseFunction() {
-      var F = function(reason) {
-        var promise = F['[[Promise]]'];
-        return PromiseReject(promise, reason);
-      };
-      return F;
-    }
-
-    function ResolvePromiseFunction() {
-      var F = function(resolution) {
-        var promise = F['[[Promise]]'];
-        return PromiseResolve(promise, resolution);
-      };
-      return F;
-    }
-
-    function ThrowerFunction() {
-      return function(e) {
-        throw e;
-      };
-    }
-
-    // Microtasks for Promise Objects
-
-    function ExecutePromiseReaction(reaction, argument) {
-      var deferred = reaction['[[Deferred]]'];
-      var handler = reaction['[[Handler]]'];
-      try {
-        var handlerResult = handler.call(undefined, argument);
-      } catch (handlerResult) {
-        return deferred['[[Reject]]'].call(undefined, handlerResult);
-      }
-      if (SameValue(handlerResult, deferred['[[Promise]]'])) {
-        var selfResolutionError = TypeError();
-        return deferred['[[Reject]]'].call(undefined, selfResolutionError);
-      }
-      var updateResult = UpdateDeferredFromPotentialThenable(handlerResult, deferred);
-      if (updateResult === "not a thenable")
-        return deferred['[[Resolve]]'].call(undefined, handlerResult);
-      return nothing;
-    }
-
-    // The Promise Constructor
-
-    function Promise(resolver) {
-      set_internal(this, '[[PromiseConstructor]]', Promise);
-
-      var promise = strict(this);
-      if (Type(promise) !== 'object') throw TypeError();
-      if (!IsCallable(resolver)) throw TypeError();
-      set_internal(promise, '[[PromiseStatus]]', "unresolved");
-      set_internal(promise, '[[ResolveReactions]]', []);
-      set_internal(promise, '[[RejectReactions]]', []);
-      var resolve = new ResolvePromiseFunction;
-      set_internal(resolve, '[[Promise]]', promise);
-      var reject = new RejectPromiseFunction;
-      set_internal(reject, '[[Promise]]', promise);
-      try {
-        var result = resolver.call(undefined, resolve, reject);
-      } catch (result) {
-        PromiseReject(promise, result);
-      }
-      return promise;
-    }
-
-    define(Promise, 'all', function all(iterable) {
-      var C = strict(this);
-      var deferred = GetDeferred(C);
-      var iterator = GetIterator(iterable);
-      var values = Array(0);
-      var countdownHolder = { '[[Countdown]]': 0 };
-      var index = 0;
-      while (true) {
-        var next = IteratorStep(iterator);
-        if (next === false) {
-          if (index === 0) {
-            var resolveResult = deferred['[[Resolve]]'].call(undefined, values);
-          }
-          return deferred['[[Promise]]'];
-        }
-        var nextValue = IteratorValue(next);
-        var nextPromise = C["cast"](nextValue);
-        var countdownFunction = new PromiseAllCountdownFunction;
-        set_internal(countdownFunction, '[[Index]]', index);
-        set_internal(countdownFunction, '[[Values]]', values);
-        set_internal(countdownFunction, '[[Deferred]]', deferred);
-        set_internal(countdownFunction, '[[CountdownHolder]]', countdownHolder);
-        var result = nextPromise["then"](countdownFunction, deferred['[[Reject]]']);
-        index += 1;
-        countdownHolder['[[Countdown]]'] += 1;
-      }
-    });
-
-    define(Promise, 'cast', function cast(x) {
-      var C = strict(this);
-      if (IsPromise(x)) {
-        var constructor = x['[[PromiseConstructor]]'];
-        if (SameValue(constructor, C)) return x;
-      }
-      var deferred = GetDeferred(C);
-      var resolveResult = deferred['[[Resolve]]'].call(undefined, x);
-      return deferred['[[Promise]]'];
-    });
-
-    define(Promise, 'race', function race(iterable) {
-      var C = strict(this);
-      var deferred = GetDeferred(C);
-      var iterator = GetIterator(iterable);
-      while (true) {
-        var next = IteratorStep(iterator);
-        if (next === false) return deferred['[[Promise]]'];
-        var nextValue = IteratorValue(next);
-        var nextPromise = C["cast"](nextValue);
-        var result = nextPromise["then"](deferred['[[Resolve]]'], deferred['[[Reject]]']);
-      }
-    });
-
-    define(Promise, 'reject', function reject(r) {
-      var C = strict(this);
-      var deferred = GetDeferred(C);
-      var rejectResult = deferred['[[Reject]]'].call(undefined, r);
-      return deferred['[[Promise]]'];
-    });
-
-    define(Promise, 'resolve', function resolve(x) {
-      var C = strict(this);
-      var deferred = GetDeferred(C);
-      var resolveResult = deferred['[[Resolve]]'].call(undefined, x);
-      return deferred['[[Promise]]'];
-    });
-
-    // Properties of the Promise Prototype Object
-
-    Promise.prototype = {};
-
-    Promise.prototype.constructor = Promise;
-
-    define(Promise.prototype, 'catch', function catchFunction(onRejected) {
-      var promise = strict(this);
-      promise["then"](undefined, onRejected);
-    });
-
-    define(Promise.prototype, 'then', function then(onFulfilled, onRejected) {
-      var promise = strict(this);
-      if (!IsPromise(promise)) throw TypeError();
-      var C = promise.constructor;
-      var deferred = GetDeferred(C);
-      var rejectionHandler = new ThrowerFunction;
-      if (IsCallable(onRejected)) rejectionHandler = onRejected;
-      var fulfillmentHandler = new IdentityFunction;
-      if (IsCallable(onFulfilled)) fulfillmentHandler = onFulfilled;
-      var resolutionHandler = new PromiseResolutionHandlerFunction;
-      set_internal(resolutionHandler, '[[Promise]]', promise);
-      set_internal(resolutionHandler, '[[FulfillmentHandler]]', fulfillmentHandler);
-      set_internal(resolutionHandler, '[[RejectionHandler]]', rejectionHandler);
-      var resolveReaction = { '[[Deferred]]': deferred, '[[Handler]]': resolutionHandler };
-      var rejectReaction = { '[[Deferred]]': deferred, '[[Handler]]': rejectionHandler };
-      if (promise['[[PromiseStatus]]'] === "unresolved") {
-        promise['[[ResolveReactions]]'].push(resolveReaction);
-        promise['[[RejectReactions]]'].push(rejectReaction);
-      }
-      if (promise['[[PromiseStatus]]'] === "has-resolution") {
-        var resolution = promise['[[Result]]'];
-        QueueMicrotask(ExecutePromiseReaction, [resolveReaction, resolution]);
-      }
-      if (promise['[[PromiseStatus]]'] === "has-rejection") {
-        resolution = promise['[[Result]]'];
-        QueueMicrotask(ExecutePromiseReaction, [rejectReaction, resolution]);
-      }
-      return deferred['[[Promise]]'];
-    });
-
-    global.Promise = global.Promise || Promise;
-  }());
-
-  define(Promise.prototype, $$toStringTag, 'Promise');
 
 }(this));

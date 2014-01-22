@@ -509,14 +509,10 @@ test("Object", function () {
   Object.defineProperty(
     s, 'b', { get: function() { return q * 2; }, configurable: true, enumerable: true });
   var t = Object.assign({c: 3}, s);
-  var u = Object.mixin({c: 4}, s);
   q = 5;
   equal(t.a, 1, "Object.assign copies basic properties");
   equal(t.b, 2, "Object.assign copies getters by value");
   equal(t.c, 3, "Object.assign leaves existing properties intact");
-  equal(u.a, 1, "Object.mixin copies basic properties");
-  equal(u.b, 10, "Object.mixin copies properties by description");
-  equal(u.c, 4, "Object.mixin leaves existing properties intact");
 });
 
 test("Typed Array", function() {
