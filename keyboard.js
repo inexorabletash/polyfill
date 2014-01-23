@@ -708,7 +708,7 @@ window.KeyboardEvent.DOM_KEY_LOCATION_NUMPAD        = 0x03; // e.g. Numpad 0 or 
       }});
 
       define(KeyboardEvent.prototype, 'locale', { get: function() {
-        return 'en-US';
+        return '';
       }});
 
       define(KeyboardEvent, 'queryKeyCap', { value: queryKeyCap });
@@ -729,7 +729,7 @@ window.KeyboardEvent.DOM_KEY_LOCATION_NUMPAD        = 0x03; // e.g. Numpad 0 or 
     event.location = ('location' in event) ? event.location :
       ('keyLocation' in event) ? event.keyLocation :
       (keyInfo && 'location' in keyInfo) ? keyInfo.location : STANDARD;
-    event.locale = 'en-US';
+    event.locale = '';
   };
 
 } (window));
