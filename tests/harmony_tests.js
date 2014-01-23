@@ -823,8 +823,10 @@ test("WeakMap", function () {
   wm1.clear();
   assertFalse("wm1.has(x)");
   assertTrue("wm2.has(y)");
+  assertTrue("wm2.delete(y)");
+  assertFalse("wm2.delete(y)");
 
-  assertEqual("wm1.set(x, v)", v);
+  assertEqual("wm1.set(x, v)", wm1);
 
   delete wm1;
   delete wm2;
@@ -863,7 +865,9 @@ test("WeakSet", function () {
   assertTrue("set.has(x)");
   assertTrue("set.has(y)");
 
-  assertEqual("set.add(x)", x);
+  assertEqual("set.add(x)", set);
+  assertTrue("set.delete(x)");
+  assertFalse("set.delete(x)");
 
   delete set;
   delete x;

@@ -112,9 +112,11 @@
       },
       remove: function(key) {
         var secrets = reveal(key);
-        if (secrets) {
+        if (secrets && HasOwnProperty(secrets, 'value')) {
           delete secrets.value;
+          return true;
         }
+        return false;
       },
       get: function(key, defaultValue) {
         var secrets = reveal(key);
@@ -2179,6 +2181,7 @@
             callbackfn.call(thisArg, entries.keys[i], entries.values[i], m);
           }
         }
+        return undefined;
       });
 
     // 23.1.3.6 Map.prototype.get ( key )
@@ -2191,7 +2194,8 @@
         if (m['[[MapData]]'] === undefined) throw TypeError();
         var entries = m['[[MapData]]'];
         var i = indexOf(entries, key);
-        return i < 0 ? undefined : entries.values[i];
+        if (i >= 0) return entries.values[i];
+        return undefined;
       });
 
     // 23.1.3.7 Map.prototype.has ( key )
@@ -2203,7 +2207,8 @@
         if (!('[[MapData]]' in m)) throw TypeError();
         if (m['[[MapData]]'] === undefined) throw TypeError();
         var entries = m['[[MapData]]'];
-        return indexOf(entries, key) >= 0;
+        if (indexOf(entries, key) >= 0) return true;
+        return false;
       });
 
     // 23.1.3.8 Map.prototype.keys ( )
@@ -2592,8 +2597,8 @@
 
       var map = strict(this);
 
-     if (Type(map) !== 'object') throw TypeError();
-      if ('_table' in map) throw TypeError();
+      if (Type(map) !== 'object') throw TypeError();
+      if ('[[WeakMapData]]' in map) throw TypeError();
 
       if (iterable !== undefined) {
         iterable = ToObject(iterable);
@@ -2601,10 +2606,8 @@
         var adder = map['set'];
         if (!IsCallable(adder)) throw TypeError();
       }
-      map._table = new EphemeronTable;
-      if (iterable === undefined) {
-        return map;
-      }
+      set_internal(map, '[[WeakMapData]]', new EphemeronTable);
+      if (iterable === undefined) return map;
       while (true) {
         var next = IteratorStep(itr);
         if (next === false)
@@ -2631,7 +2634,10 @@
     define(
       WeakMap.prototype, 'clear',
       function clear() {
-        this._table.clear();
+        var M = strict(this);
+        if (Type(M) !== 'object') throw TypeError;
+        if (M['[[WeakMapData]]'] === undefined) throw TypeError;
+        M['[[WeakMapData]]'].clear();
       });
 
     // 23.3.3.2 WeakMap.prototype.constructor
@@ -2640,33 +2646,45 @@
     define(
       WeakMap.prototype, 'delete',
       function delete_(key) {
+        var M = strict(this);
+        if (Type(M) !== 'object') throw TypeError;
+        if (M['[[WeakMapData]]'] === undefined) throw TypeError;
         if (Type(key) !== 'object') throw TypeError('Expected object');
-        this._table.remove(key);
+        return M['[[WeakMapData]]'].remove(key);
       });
 
     // 23.3.3.4 WeakMap.prototype.get ( key )
     define(
       WeakMap.prototype, 'get',
       function get(key, defaultValue) {
+        var M = strict(this);
+        if (Type(M) !== 'object') throw TypeError;
+        if (M['[[WeakMapData]]'] === undefined) throw TypeError;
         if (Type(key) !== 'object') throw TypeError('Expected object');
-        return this._table.get(key, defaultValue);
+        return M['[[WeakMapData]]'].get(key, defaultValue);
       });
 
     // 23.3.3.5 WeakMap.prototype.has ( key )
     define(
       WeakMap.prototype, 'has',
       function has(key) {
+        var M = strict(this);
+        if (Type(M) !== 'object') throw TypeError;
+        if (M['[[WeakMapData]]'] === undefined) throw TypeError;
         if (Type(key) !== 'object') throw TypeError('Expected object');
-        return this._table.has(key);
+        return M['[[WeakMapData]]'].has(key);
       });
 
     // 23.3.3.6 WeakMap.prototype.set ( key , value )
     define(
       WeakMap.prototype, 'set',
       function set(key, value) {
+        var M = strict(this);
+        if (Type(M) !== 'object') throw TypeError;
+        if (M['[[WeakMapData]]'] === undefined) throw TypeError;
         if (Type(key) !== 'object') throw TypeError('Expected object');
-        this._table.set(key, value);
-        return value;
+        M['[[WeakMapData]]'].set(key, value);
+        return M;
       });
 
     // 23.3.3.7 WeakMap.prototype [ @@toStringTag ]
@@ -2695,7 +2713,7 @@
       var set = strict(this);
 
       if (Type(set) !== 'object') throw TypeError();
-      if ('_table' in set) throw TypeError();
+      if ('[[WeakSetData]]' in set) throw TypeError();
 
       if (iterable !== undefined) {
         iterable = ToObject(iterable);
@@ -2703,10 +2721,8 @@
         var adder = set['add'];
         if (!IsCallable(adder)) throw TypeError();
       }
-      set._table = new EphemeronTable;
-      if (iterable === undefined) {
-        return set;
-      }
+      set_internal(set, '[[WeakSetData]]', new EphemeronTable);
+      if (iterable === undefined) return set;
       while (true) {
         var next = IteratorStep(itr);
         if (next === false)
@@ -2729,16 +2745,22 @@
     define(
       WeakSet.prototype, 'add',
       function add(value) {
+        var S = strict(this);
+        if (Type(S) !== 'object') throw TypeError;
+        if (S['[[WeakSetData]]'] === undefined) throw TypeError;
         if (Type(value) !== 'object') throw TypeError('Expected object');
-        this._table.set(value, true);
-        return value;
+        S['[[WeakSetData]]'].set(value, true);
+        return S;
       });
 
     // 23.4.3.2 WeakSet.prototype.clear ()
     define(
       WeakSet.prototype, 'clear',
       function clear() {
-        this._table.clear();
+        var S = strict(this);
+        if (Type(S) !== 'object') throw TypeError;
+        if (S['[[WeakSetData]]'] === undefined) throw TypeError;
+        S['[[WeakSetData]]'].clear();
       });
 
     // 23.4.3.3 WeakSet.prototype.constructor
@@ -2746,16 +2768,22 @@
     define(
       WeakSet.prototype, 'delete',
       function delete_(value) {
+        var S = strict(this);
+        if (Type(S) !== 'object') throw TypeError;
+        if (S['[[WeakSetData]]'] === undefined) throw TypeError;
         if (Type(value) !== 'object') throw TypeError('Expected object');
-        this._table.remove(value);
+        return S['[[WeakSetData]]'].remove(value);
       });
 
     // 23.4.3.5 WeakSet.prototype.has ( value )
     define(
       WeakSet.prototype, 'has',
       function has(key) {
+        var S = strict(this);
+        if (Type(S) !== 'object') throw TypeError;
+        if (S['[[WeakSetData]]'] === undefined) throw TypeError;
         if (Type(key) !== 'object') throw TypeError('Expected object');
-        return this._table.has(key);
+        return S['[[WeakSetData]]'].has(key);
       });
 
     // 23.4.3.6 WeakSet.prototype [ @@toStringTag ]
