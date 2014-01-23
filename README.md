@@ -191,26 +191,23 @@ URL objects have properties:
 * `href`
 
 
-W3C Keyboard Events (helper)
+W3C Keyboard Events (polyfill)
 ----------------------------
 [script](keyboard.js) -
 [demo page](http://calormen.com/polyfill/demos/keyboard.html) -
 [draft spec](https://dvcs.w3.org/hg/d4e/raw-file/tip/source_respec.htm#keyboard-events)
 
 ```javascript
-// In your keydown/keyup handler, call:
-window.identifyKey(keyboardEvent);
-
-// Or listen during the capture phase (IE9+):
-window.addEventListener('keydown', identifyKey, true);
-window.addEventListener('keyup', identifyKey, true);
-
-// This adds the following properties to each KeyboardEvent:
+// Adds the following properties to each KeyboardEvent:
 event.code
 event.location
 
 // You can get a label for the key using:
 KeyboardEvent.queryKeyCap(code);
+
+// IE7- only: In your keydown/keyup handler, call this in your handler
+// before accessing the `code` or `location` properties:
+window.identifyKey(keyboardEvent);
 ```
 
 W3C Web Storage

@@ -2,10 +2,7 @@
 <meta charset="UTF-8">
 
 <script type="text/javascript" src="../polyfill.js"></script>
-<script>
-var IDENTIFY_KEY_ASSIGN_KEY_IDENTIFIER = true;
-var IDENTIFY_KEY_ASSIGN_KEY_LOCATION = true;
-</script>
+<script type="text/javascript" src="../harmony.js"></script>
 <script type="text/javascript" src="../keyboard.js"></script>
 
 <style>
@@ -222,8 +219,7 @@ body.os-cros .key.os-cros { display: inline-block }
 <style>
 .event { border: 1px solid black; margin: 10px; padding: 4px; }
 </style>
-<pre class="event">Raw Event:<br><span id="eventdata"></span></pre>
-<pre class="event">Augmented Event:<br><span id="identifydata"></span></pre>
+<pre class="event">Event:<br><span id="eventdata"></span></pre>
 
 <script src="keyboard_test.js"></script>
 

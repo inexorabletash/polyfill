@@ -154,10 +154,6 @@ window.KeyboardEvent.DOM_KEY_LOCATION_LEFT          = 0x01; // e.g. Left Alt key
 window.KeyboardEvent.DOM_KEY_LOCATION_RIGHT         = 0x02; // e.g. Right Alt key
 window.KeyboardEvent.DOM_KEY_LOCATION_NUMPAD        = 0x03; // e.g. Numpad 0 or +
 
-// Optionally set these to true for properties from older proposals.
-var IDENTIFY_KEY_ASSIGN_KEY_IDENTIFIER;
-var IDENTIFY_KEY_ASSIGN_KEY_LOCATION;
-
 (function(global) {
 
   var STANDARD = window.KeyboardEvent.DOM_KEY_LOCATION_STANDARD,
@@ -650,12 +646,8 @@ var IDENTIFY_KEY_ASSIGN_KEY_LOCATION;
 
 
   var codeTable = remap(keyCodeToInfoTable, 'code');
-  global.identifyKey = function(event) {
 
-    if ('code' in event) {
-      return;
-    }
-
+  function keyInfoForEvent(event) {
     var keyCode = 'keyCode' in event ? event.keyCode : 'which' in event ? event.which : 0;
 
     var keyInfo = (function(){
@@ -687,31 +679,57 @@ var IDENTIFY_KEY_ASSIGN_KEY_LOCATION;
       case 'U+001F': keyInfo = { code: 'ArrowDown' }; break;
       }
     }
+    return keyInfo;
+  }
 
-    if (!keyInfo)
+  function queryKeyCap(code, locale) {
+    code = String(code);
+    if (!codeTable.hasOwnProperty(code)) return 'Undefined';
+    if (locale && String(locale).toLowerCase() !== 'en-us') throw Error('Unsupported locale');
+    var keyInfo = codeTable[code];
+    return keyInfo.keyCap || keyInfo.code || 'Undefined';
+  }
+
+  if ('KeyboardEvent' in global && 'defineProperty' in Object) {
+    (function() {
+      function define(o, p, v) {
+        if (p in o) return;
+        Object.defineProperty(o, p, v);
+      }
+
+      define(KeyboardEvent.prototype, 'code', { get: function() {
+        var keyInfo = keyInfoForEvent(this);
+        return (keyInfo && 'code' in keyInfo) ? keyInfo.code : '';
+      }});
+
+      define(KeyboardEvent.prototype, 'location', { get: function() {
+        var keyInfo = keyInfoForEvent(this);
+        return (keyInfo && 'location' in keyInfo) ? keyInfo.location : STANDARD;
+      }});
+
+      define(KeyboardEvent.prototype, 'locale', { get: function() {
+        return 'en-US';
+      }});
+
+      define(KeyboardEvent, 'queryKeyCap', { value: queryKeyCap });
+    }());
+
+  } else {
+    // Shim for IE7-
+    global.KeyboardEvent = { queryKeyCap: queryKeyCap };
+  }
+
+  // Helper for IE7-
+  global.identifyKey = function(event) {
+    if ('code' in event)
       return;
 
-    // Current version of the spec:
-    event.code = event.code || keyInfo.code || '';
+    var keyInfo = keyInfoForEvent(event);
+    event.code = (keyInfo && 'code' in keyInfo) ? keyInfo.code : '';
     event.location = ('location' in event) ? event.location :
       ('keyLocation' in event) ? event.keyLocation :
-      ('location' in keyInfo) ? keyInfo.location : STANDARD;
-    event.queryKeyCap = event.queryKeyCap || function(code, locale) {
-      code = String(code);
-      if (!codeTable.hasOwnProperty(code)) {
-        return 'Undefined';
-      }
-      if (locale && String(locale).toLowerCase() !== 'en-us') {
-        throw Error('Unsupported locale');
-      }
-
-      var keyInfo = codeTable[code];
-      return keyInfo.keyCap || keyInfo.code || 'Undefined';
-    };
-
-    if (IDENTIFY_KEY_ASSIGN_KEY_IDENTIFIER)
-      event.keyIdentifier = event.keyIdentifier || event.code;
-    if (IDENTIFY_KEY_ASSIGN_KEY_LOCATION)
-      event.keyLocation = event.location;
+      (keyInfo && 'location' in keyInfo) ? keyInfo.location : STANDARD;
+    event.locale = 'en-US';
   };
+
 } (window));

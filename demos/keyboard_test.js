@@ -1,11 +1,11 @@
 
 function contains(s, ss) { return s.indexOf(ss) != -1; }
 if (contains(navigator.platform, 'Win'))
-  getClassList(document.body).add('os-win');
+  document.body.classList.add('os-win');
 if (contains(navigator.platform, 'Mac'))
-  getClassList(document.body).add('os-mac');
+  document.body.classList.add('os-mac');
 if (contains(navigator.userAgent, 'CrOS'))
-  getClassList(document.body).add('os-cros');
+  document.body.classList.add('os-cros');
 
 function select(event) {
   var id = event.code;
@@ -14,14 +14,6 @@ function select(event) {
 
   // Can't override |location| on KeyboardEvent in some browsers, so it
   // may be wrong, e.g. NumLock in moz-mac
-
-  /*
-  if (event.keyLocation === KeyboardEvent.DOM_KEY_LOCATION_NUMPAD) {
-    return [].slice.call(document.querySelectorAll('.numpad .' + id));
-  } else {
-   return [].slice.call(document.querySelectorAll('.standard .' + id));
-   }
-   */
 }
 
 var target = document.getElementById('target');
@@ -39,17 +31,15 @@ var lastKey = -1;
 
 // Workaround for Opera which doesn't allow cancelling Tab, IE/Apps
 target.addEventListener('blur', function (e) {
-  if (lastKey === 0x09 || lastKey === 0x5D) {
+  if (lastKey === 0x09 || lastKey === 0x5D)
     target.focus();
-  }
   lastKey = -1;
 });
 
 function hex(x, w) {
   x = Number(x);
-  if (!w) { w = 2; }
-  var pad = new Array(w+1).join('0');
-  return '0x' + (pad + x.toString(16)).slice(-w);
+  w = Number(w) || 2;
+  return '0x' + ('0'.repeat(w) + x.toString(16)).slice(-w);
 }
 
 function show(selector, e) {
@@ -57,7 +47,7 @@ function show(selector, e) {
       data = {
         code: e.code,
         location: e.location,
-        cap: e.queryKeyCap ? e.queryKeyCap(e.code) : undefined,
+        cap: KeyboardEvent.queryKeyCap(e.code),
         key: e.key,
         char: e.char,
         keyChar: e.keyChar,
@@ -73,9 +63,9 @@ function show(selector, e) {
         shiftKey: e.shiftKey
       };
 
-  while (elem.hasChildNodes()) {
+  while (elem.hasChildNodes())
     elem.removeChild(elem.firstChild);
-  }
+
   var s = Object.keys(data).filter(function(k){
     return typeof data[k] !== 'undefined';
   }).map(function(k){
@@ -88,8 +78,6 @@ target.addEventListener('keydown', function (e) {
   lastKey = e.keyCode;
 
   show('#eventdata', e);
-  identifyKey(e);
-  show('#identifydata', e);
 
   select(e).forEach(
     function (elem) {
@@ -105,8 +93,6 @@ target.addEventListener('keyup', function (e) {
   if (lastKey == e.keyCode) { lastKey = -1; }
 
   show('#eventdata', e);
-  identifyKey(e);
-  show('#identifydata', e);
 
   select(e).forEach(
     function (elem) {
