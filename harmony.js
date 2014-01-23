@@ -2067,11 +2067,10 @@
 
     // 23.1.1 The Map Constructor
 
-    // 23.1.1.1 Map (iterable = undefined , comparator = undefined )
+    // 23.1.1.1 Map (iterable = undefined )
     /** @constructor */
     function Map() {
       var iterable = arguments[0];
-      var comparator = arguments[1];
 
       var map = strict(this);
 
@@ -2085,8 +2084,6 @@
         if (!IsCallable(adder)) throw TypeError();
       }
       set_internal(map, '[[MapData]]', { keys: [], values: [] });
-      if (comparator !== undefined && comparator !== "is") throw TypeError();
-      map._mapComparator = comparator;
 
       if (iterable === undefined) {
         return map;
@@ -2105,16 +2102,12 @@
       return map;
     }
 
-    function indexOf(same, mapData, key) {
+    function indexOf(mapData, key) {
       var i;
-      // NOTE: Assumed invariant over all supported comparators
-      if (key === key && key !== 0) {
-        return mapData.keys.indexOf(key);
-      }
-      // Slow case for NaN/+0/-0
-      for (i = 0; i < mapData.keys.length; i += 1) {
-        if (same(mapData.keys[i], key)) return i;
-      }
+      if (key === key) return mapData.keys.indexOf(key);
+      // Slow case for NaN
+      for (i = 0; i < mapData.keys.length; i += 1)
+        if (SameValueZero(mapData.keys[i], key)) return i;
       return -1;
     }
 
@@ -2136,6 +2129,7 @@
         var entries = m['[[MapData]]'];
         entries.keys.length = 0;
         entries.values.length = 0;
+        return undefined;
       });
 
     // 23.1.3.2 Map.prototype.constructor
@@ -2149,9 +2143,7 @@
         if (!('[[MapData]]' in m)) throw TypeError();
         if (m['[[MapData]]'] === undefined) throw TypeError();
         var entries = m['[[MapData]]'];
-        var same = (m._mapComparator === undefined) ?
-              SameValueZero : SameValue;
-        var i = indexOf(same, entries, key);
+        var i = indexOf(entries, key);
         if (i < 0) return false;
         entries.keys[i] = empty;
         entries.values[i] = empty;
@@ -2198,9 +2190,7 @@
         if (!('[[MapData]]' in m)) throw TypeError();
         if (m['[[MapData]]'] === undefined) throw TypeError();
         var entries = m['[[MapData]]'];
-        var same = (m._mapComparator === undefined) ?
-              SameValueZero : SameValue;
-        var i = indexOf(same, entries, key);
+        var i = indexOf(entries, key);
         return i < 0 ? undefined : entries.values[i];
       });
 
@@ -2213,9 +2203,7 @@
         if (!('[[MapData]]' in m)) throw TypeError();
         if (m['[[MapData]]'] === undefined) throw TypeError();
         var entries = m['[[MapData]]'];
-        var same = (m._mapComparator === undefined) ?
-              SameValueZero : SameValue;
-        return indexOf(same, entries, key) >= 0;
+        return indexOf(entries, key) >= 0;
       });
 
     // 23.1.3.8 Map.prototype.keys ( )
@@ -2236,9 +2224,7 @@
         if (!('[[MapData]]' in m)) throw TypeError();
         if (m['[[MapData]]'] === undefined) throw TypeError();
         var entries = m['[[MapData]]'];
-        var same = (m._mapComparator === undefined) ?
-              SameValueZero : SameValue;
-        var i = indexOf(same, entries, key);
+        var i = indexOf(entries, key);
         if (i < 0) i = entries.keys.length;
         entries.keys[i] = key;
         entries.values[i] = val;
@@ -2356,12 +2342,11 @@
   (function() {
 
     // 23.2.1 The Set Constructor
-    // 23.2.1.1 Set (iterable = undefined, comparator = undefined )
+    // 23.2.1.1 Set (iterable = undefined )
 
     /** @constructor */
     function Set() {
       var iterable = arguments[0];
-      var comparator = arguments[1];
 
       var set = strict(this);
 
@@ -2375,11 +2360,7 @@
         if (!IsCallable(adder)) throw TypeError();
       }
       set_internal(set, '[[SetData]]', []);
-      if (comparator !== undefined && comparator !== "is") throw TypeError();
-      set._setComparator = comparator;
-      if (iterable === undefined) {
-        return set;
-      }
+      if (iterable === undefined) return set;
       while (true) {
         var next = IteratorStep(itr);
         if (next === false)
@@ -2391,16 +2372,13 @@
       return set;
     }
 
-    function indexOf(same, setData, key) {
+    function indexOf(setData, key) {
       var i;
-      // NOTE: Assumed invariant over all supported comparators
-      if (key === key && key !== 0) {
+      if (key === key)
         return setData.indexOf(key);
-      }
-      // Slow case for NaN/+0/-0
-      for (i = 0; i < setData.length; i += 1) {
-        if (same(setData[i], key)) return i;
-      }
+      // Slow case for NaN
+      for (i = 0; i < setData.length; i += 1)
+        if (SameValueZero(setData[i], key)) return i;
       return -1;
     }
 
@@ -2422,9 +2400,7 @@
         if (!('[[SetData]]' in s)) throw TypeError();
         if (s['[[SetData]]'] === undefined) throw TypeError();
         var entries = s['[[SetData]]'];
-        var same = (s._setComparator === undefined) ?
-              SameValueZero : SameValue;
-        var i = indexOf(same, entries, value);
+        var i = indexOf(entries, value);
         if (i < 0) i = s['[[SetData]]'].length;
         s['[[SetData]]'][i] = value;
 
@@ -2454,9 +2430,7 @@
         if (!('[[SetData]]' in s)) throw TypeError();
         if (s['[[SetData]]'] === undefined) throw TypeError();
         var entries = s['[[SetData]]'];
-        var same = (s._setComparator === undefined) ?
-              SameValueZero : SameValue;
-        var i = indexOf(same, entries, value);
+        var i = indexOf(entries, value);
         if (i < 0) return false;
         entries[i] = empty;
         return true;
@@ -2502,9 +2476,7 @@
         if (!('[[SetData]]' in s)) throw TypeError();
         if (s['[[SetData]]'] === undefined) throw TypeError();
         var entries = s['[[SetData]]'];
-        var same = (s._setComparator === undefined) ?
-              SameValueZero : SameValue;
-        return indexOf(same, entries, key) !== -1;
+        return indexOf(entries, key) !== -1;
       });
 
     // 23.2.3.8 Set.prototype.keys ( )

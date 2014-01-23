@@ -636,23 +636,6 @@ test("Map", function () {
   assertEqual("map.size", 0);
   assertEqual("map.set('key', 'value')", map);
 
-  map = new Map(undefined, "is");
-  assertFalse("map.has(-0)");
-  assertFalse("map.has(0)");
-  map.set(0, 1234);
-  assertEqual("map.size", 1);
-  assertFalse("map.has(-0)");
-  assertTrue("map.has(0)");
-  assertEqual("map.get(0)", 1234);
-  map['delete'](0);
-  assertFalse("map.has(-0)");
-  assertFalse("map.has(0)");
-  map.set(0, 1234);
-  map.clear();
-  assertFalse("map.has(0)");
-  assertEqual("map.size", 0);
-  assertEqual("map.set('key', 'value')", map);
-
   var data = [[0, "a"], [1, "b"]], count = 0;
   map = new Map(data);
   map.forEach(function(k, v, m) {
@@ -722,24 +705,6 @@ test("Set", function () {
   assertFalse("set.has(0)");
   assertEqual("set.size", 0);
   set.add(-0);
-  set.clear();
-  assertFalse("set.has(0)");
-  assertEqual("set.size", 0);
-  assertEqual("set.add('key')", set);
-
-  set = new Set(undefined, "is");
-  assertFalse("set.has(-0)");
-  assertFalse("set.has(0)");
-  assertEqual("set.size", 0);
-  set.add(0);
-  assertFalse("set.has(-0)");
-  assertTrue("set.has(0)");
-  assertEqual("set.size", 1);
-  set['delete'](0);
-  assertFalse("set.has(-0)");
-  assertFalse("set.has(0)");
-  assertEqual("set.size", 0);
-  set.add(0);
   set.clear();
   assertFalse("set.has(0)");
   assertEqual("set.size", 0);
