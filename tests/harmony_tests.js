@@ -566,6 +566,19 @@ test("Typed Array", function() {
   verifyIterator(new Uint8Array([11,22,33]).entries(), [[0,11], [1,22], [2,33]]);
 });
 
+test("RegExp", function() {
+  assertTrue("'replace' in /.*/");
+
+  assertEqual("/a/.replace('california', 'x')", 'cxlifornia');
+  assertEqual("/a/g.replace('california', 'x')", 'cxlifornix');
+
+  assertTrue("'search' in /.*/");
+  assertEqual("/a/.search('california', 'x')", 1);
+
+  assertTrue("'match' in /.*/");
+  deepEqual(/(.a)/g.match('california'), ['ca', 'ia']);
+});
+
 module("Symbols");
 
 test("Symbol", function() {
@@ -585,6 +598,8 @@ test("Symbol", function() {
   assertTrue('Symbol.iterator in Array.prototype');
   assertTrue('Symbol.iterator in Map.prototype');
   assertTrue('Symbol.iterator in Set.prototype');
+
+  assertEqual("Symbol.keyFor(Symbol.for('key'))", 'key');
 
   o = {};
   o['a'] = 1;
