@@ -99,8 +99,8 @@ This assumes ES5, so use es5.js for older browsers (IE9-).
 
 In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts):
 #### Fundamental Objects
-* Object: `assign()`, `is()`, `mixin()`, `setPrototypeOf()`
-* Symbol: `Symbol(description)`, `Symbol.iterator`, `Symbol.toStringTag`
+* Object: `assign()`, `is()`, `setPrototypeOf()`
+* Symbol: `Symbol(description)`, `Symbol.for()`, `Symbol.keyFor()`, `Symbol.iterator`, `Symbol.toStringTag`
   * No security, just creates an object with a unique string representation. `typeof Symbol()` will incorrectly report `"object"` but `Symbol() instanceof Symbol` will return `true`
 
 #### Numbers and Dates
@@ -112,6 +112,7 @@ In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification
 * String: `fromCodePoint()`
 * String prototype: `codePointAt()`, `contains()`, `endsWith()`, `repeat()`, `startsWith()`, `[@@iterator]()`
 * See also: [uate - ES5 "Tagged Template Strings"](https://github.com/inexorabletash/uate)
+* RegExp prototype: `replace()`, `search()`, `match()`
 
 #### Indexed Collections
 * Array: `from()`, `of()`
