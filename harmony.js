@@ -1362,7 +1362,13 @@
   });
 
   // 21.2.5.9 get RegExp.prototype.source
+
   // 21.2.5.10 RegExp.prototype.split (string, limit)
+  define(RegExp.prototype, 'split', function split(S) {
+    var o = strict(this);
+    return String(S).split(o);
+  });
+
   // 21.2.5.11 get RegExp.prototype.sticky
   // 21.2.5.12 RegExp.prototype.test(string)
   // 21.2.5.13 RegExp.prototype.toString()
@@ -1763,7 +1769,7 @@
 
   // See typedarray.js for TypedArray polyfill
 
-  ['Int8Array', 'Uint8Array', 'Uint8ArrayClamped',
+  ['Int8Array', 'Uint8Array', 'Uint8ClampedArray',
    'Int16Array', 'Uint16Array',
    'Int32Array', 'Uint32Array',
    'Float32Array', 'Float64Array'].forEach(function ($TypedArrayName$) {
@@ -2485,6 +2491,8 @@
       });
 
     // 23.2.3.8 Set.prototype.keys ( )
+    // See Set.prototype.values
+
     // 23.2.3.9 get Set.prototype.size
     Object.defineProperty(
       Set.prototype, 'size', {
@@ -2511,6 +2519,8 @@
         if (Type(s) !== 'object') throw TypeError();
         return CreateSetIterator(s);
       });
+    // NOTE: function name is still 'values':
+    Set.prototype.keys = Set.prototype.values;
 
     // 23.2.3.11 Set.prototype [@@iterator ] ( )
     define(

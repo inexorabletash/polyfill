@@ -564,6 +564,21 @@ test("Typed Array", function() {
   verifyIterator(new Uint8Array([11,22,33]).values(), [11,22,33]);
   verifyIterator(new Uint8Array([11,22,33]).keys(), [0,1,2]);
   verifyIterator(new Uint8Array([11,22,33]).entries(), [[0,11], [1,22], [2,33]]);
+
+  [Int8Array, Uint8Array, Uint8ClampedArray,
+   Int16Array, Uint16Array,
+   Int32Array, Uint32Array,
+   Float32Array, Float64Array].forEach(function(type) {
+     ['from', 'of'].forEach(function(member) {
+       ok(member in type);
+     });
+     ['copyWithin', 'entries', 'every', 'fill', 'filter',
+      'find','findIndex', 'forEach', 'indexOf', 'join',
+      'keys', 'lastIndexOf', 'map', 'reduce', 'reduceRight',
+      'reverse', 'slice', 'some', 'sort', 'values' ].forEach(function(member) {
+        ok(member in type.prototype);
+      });
+   });
 });
 
 test("RegExp", function() {
@@ -574,6 +589,9 @@ test("RegExp", function() {
 
   assertTrue("'search' in /.*/");
   assertEqual("/a/.search('california', 'x')", 1);
+
+  assertTrue("'split' in /.*/");
+  deepEqual(/a/.split('california'), ['c', 'liforni', '']);
 
   assertTrue("'match' in /.*/");
   deepEqual(/(.a)/g.match('california'), ['ca', 'ia']);
@@ -737,6 +755,7 @@ test("Set", function () {
   equal(3, count);
 
   verifyIterator(new Set("ABC").values(), ['A', 'B', 'C']);
+  verifyIterator(new Set("ABC").keys(), ['A', 'B', 'C']);
 
   // Verify |empty| behavior
   set = new Set();
