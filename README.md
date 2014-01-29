@@ -13,7 +13,7 @@ I use these in various pages on my sites; most are by me, or I have at least twe
 Web Standards / Browser Compat
 ------------------------------
 [script](web.js) -
-[unit tests](http://calormen.com/polyfill/tests/web.html)
+[unit tests](http://inexorabletash.github.io/polyfill/tests/web.html)
 
 Bundled together; nearly every page I create needs at least some of these. These will change over time,
 and going forward I will only target IE8 and later.
@@ -55,7 +55,7 @@ and going forward I will only target IE8 and later.
   * `tokenList.add(token)`
   * `tokenList.remove(token)`
   * `tokenList.toggle(token)`
-* [W3C Timing control for script-based animations](http://www.w3.org/TR/animation-timing/) - [demo page](http://calormen.com/polyfill/demos/raf.html)
+* [W3C Timing control for script-based animations](http://www.w3.org/TR/animation-timing/) - [demo page](http://inexorabletash.github.io/polyfill/demos/raf.html)
   * `id = window.requestAnimationFrame()`
   * `window.cancelAnimationFrame(id)`
 * [Efficient Script Yielding](https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html)
@@ -70,7 +70,7 @@ and going forward I will only target IE8 and later.
 ECMAScript 5 (polyfill)
 -----------------------------------
 [script](es5.js) -
-[unit tests](http://calormen.com/polyfill/tests/es5.html)
+[unit tests](http://inexorabletash.github.io/polyfill/tests/es5.html)
 
 [ECMAScript 5](http://www.ecma-international.org/publications/standards/Ecma-262.htm) Object, Function, String and Date extras:
 * Object: `getPrototypeOf`, `getOwnPropertyNames`, `create`, `defineProperty`, `defineProperties`, `keys`
@@ -91,7 +91,7 @@ ECMAScript "Harmony" (prollyfills)
 ### ES6
 
 [script](harmony.js) -
-[unit tests](http://calormen.com/polyfill/tests/harmony.html)
+[unit tests](http://inexorabletash.github.io/polyfill/tests/harmony.html)
 
 The standardization of ES6 is currently in progress.
 This will attempt to track the evolving spec, so may change at any time.
@@ -145,7 +145,7 @@ See also: [uate - ES5 "tagged template strings"](https://github.com/inexorableta
 <a name="typedarray"></name>
 ### Typed Arrays
 [script](typedarray.js) -
-[unit tests](http://calormen.com/polyfill/tests/typedarray.html) -
+[unit tests](http://inexorabletash.github.io/polyfill/tests/typedarray.html) -
 [spec](http://www.khronos.org/registry/typedarray/specs/latest/)
 
 Originally specified separately, Typed Arrays are now included in ES6.
@@ -159,7 +159,7 @@ Creating index getter/setters (i.e. `array[0]`, `array[1]`, etc) is slow and con
 ### Binary Data
 
 [script](bindata.js) -
-[demo page](http://calormen.com/polyfill/demos/bindata.html)
+[demo page](http://inexorabletash.github.io/polyfill/demos/bindata.html)
 
 Proposed for ES7 - http://wiki.ecmascript.org/doku.php?id=harmony:binary_data
 
@@ -167,7 +167,7 @@ Proposed for ES7 - http://wiki.ecmascript.org/doku.php?id=harmony:binary_data
 WHATWG URL API
 --------------
 [script](url.js) -
-[unit tests](http://calormen.com/polyfill/tests/url.html) -
+[unit tests](http://inexorabletash.github.io/polyfill/tests/url.html) -
 [draft spec](http://url.spec.whatwg.org/) - See script for cross-browser quirks
 
 ```javascript
@@ -194,7 +194,7 @@ URL objects have properties:
 W3C Keyboard Events (polyfill)
 ----------------------------
 [script](keyboard.js) -
-[demo page](http://calormen.com/polyfill/demos/keyboard.html) -
+[demo page](http://inexorabletash.github.io/polyfill/demos/keyboard.html) -
 [draft spec](https://dvcs.w3.org/hg/d4e/raw-file/tip/source_respec.htm#keyboard-events)
 
 ```javascript
@@ -230,7 +230,7 @@ storage.length
 W3C Geolocation API
 -------------------
 [script](geo.js) -
-[demo page](http://calormen.com/polyfill/demos/geo.html) -
+[demo page](http://inexorabletash.github.io/polyfill/demos/geo.html) -
 [spec](http://www.w3.org/TR/geolocation-API/) -
 uses [freegeoip.net](http://freegeoip.net/)
 
@@ -250,7 +250,7 @@ just for kicks; you probably don't want to use this
 Console
 -------
 [script](console.js) -
-[unit tests](http://calormen.com/polyfill/tests/console.html) -
+[unit tests](http://inexorabletash.github.io/polyfill/tests/console.html) -
 *de facto* standard in modern browsers based on [FireBug Console API](http://getfirebug.com/wiki/index.php/Console_API)
 
 ```javascript
@@ -282,7 +282,7 @@ document.deleteCookie(name, errorCallback);
 DOMException (helper)
 ---------------------
 [script](https://github.com/inexorabletash/polyfill/edit/master/domexception.js) -
-[demo page](http://calormen.com/polyfill/demos/domexception.html) -
+[demo page](http://inexorabletash.github.io/polyfill/demos/domexception.html) -
 
 Creates a native DOMException of the specified type if possible,
 otherwise a similar looking object. Useful when implementing other polyfills.
@@ -294,7 +294,7 @@ exception = DOMException.create(code)
 sprintf (other)
 ---------------
 [script](sprintf.js) -
-[unit tests](http://calormen.com/polyfill/tests/sprintf.html) -
+[unit tests](http://inexorabletash.github.io/polyfill/tests/sprintf.html) -
 used for a few C-to-JavaScript porting projects
 
 ```javascript

@@ -1,7 +1,7 @@
 
 // W3C Geolocation API (Level 1) "Polyfill" Implementation
 // This uses freegeoip.org to estimate location from IP address
-// by Joshua Bell - http://calormen.com/polyfill
+// by Joshua Bell - https://github.com/inexorabletash.polyfill
 
 // PUBLIC DOMAIN
 
