@@ -647,12 +647,14 @@ window.KeyboardEvent.DOM_KEY_LOCATION_NUMPAD        = 0x03; // e.g. Numpad 0 or 
 
   var codeTable = remap(keyCodeToInfoTable, 'code');
 
+  var nativeLocation = 'KeyboardEvent' in global && 'location' in global.KeyboardEvent.prototype;
+
   function keyInfoForEvent(event) {
     var keyCode = 'keyCode' in event ? event.keyCode : 'which' in event ? event.which : 0;
 
     var keyInfo = (function(){
-      if ('location' in event || 'keyLocation' in event) {
-        var location = 'location' in event ? event.location : event.keyLocation;
+      if (nativeLocation || 'keyLocation' in event) {
+        var location = nativeLocation ? event.location : event.keyLocation;
         if (location && keyCode in locationTable[location]) {
           return locationTable[location][keyCode];
         }
