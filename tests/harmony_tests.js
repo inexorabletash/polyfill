@@ -220,6 +220,45 @@ test("Math", function () {
   assertEqual("Math.imul(-123,456)", -56088);
   assertEqual("Math.imul(123,-456)", -56088);
   assertEqual("Math.imul(0x01234567, 0xfedcba98)", 602016552);
+
+
+  // Number.prototype.clz()
+  assertEqual("Math.clz32(-1)", 0);
+  assertEqual("Math.clz32(0xffffffff)", 0);
+  assertEqual("Math.clz32(0x80000000)", 0);
+  assertEqual("Math.clz32(1<<31)", 0);
+  assertEqual("Math.clz32(1<<30)", 1);
+  assertEqual("Math.clz32(1<<29)", 2);
+  assertEqual("Math.clz32(1<<28)", 3);
+  assertEqual("Math.clz32(1<<27)", 4);
+  assertEqual("Math.clz32(1<<26)", 5);
+  assertEqual("Math.clz32(1<<25)", 6);
+  assertEqual("Math.clz32(1<<24)", 7);
+  assertEqual("Math.clz32(1<<23)", 8);
+  assertEqual("Math.clz32(1<<22)", 9);
+  assertEqual("Math.clz32(1<<21)", 10);
+  assertEqual("Math.clz32(1<<20)", 11);
+  assertEqual("Math.clz32(1<<19)", 12);
+  assertEqual("Math.clz32(1<<18)", 13);
+  assertEqual("Math.clz32(1<<17)", 14);
+  assertEqual("Math.clz32(1<<16)", 15);
+  assertEqual("Math.clz32(1<<15)", 16);
+  assertEqual("Math.clz32(1<<14)", 17);
+  assertEqual("Math.clz32(1<<13)", 18);
+  assertEqual("Math.clz32(1<<12)", 19);
+  assertEqual("Math.clz32(1<<11)", 20);
+  assertEqual("Math.clz32(1<<10)", 21);
+  assertEqual("Math.clz32(1<<9)", 22);
+  assertEqual("Math.clz32(1<<8)", 23);
+  assertEqual("Math.clz32(1<<7)", 24);
+  assertEqual("Math.clz32(1<<6)", 25);
+  assertEqual("Math.clz32(1<<5)", 26);
+  assertEqual("Math.clz32(1<<4)", 27);
+  assertEqual("Math.clz32(1<<3)", 28);
+  assertEqual("Math.clz32(1<<2)", 29);
+  assertEqual("Math.clz32(1<<1)", 30);
+  assertEqual("Math.clz32(1)", 31);
+  assertEqual("Math.clz32(0)", 32);
 });
 
 test("Number", function () {
@@ -283,46 +322,6 @@ test("Number", function () {
   assertFalse("Number.isSafeInteger(-Math.pow(2,53))", 1);
 });
 
-test("Number.prototype", function () {
-  // Number.prototype.clz()
-  assertEqual("typeof Number.prototype.clz", "function");
-  assertEqual("(-1).clz()", 0);
-  assertEqual("(0xffffffff).clz()", 0);
-  assertEqual("(0x80000000).clz()", 0);
-  assertEqual("(1<<31).clz()", 0);
-  assertEqual("(1<<30).clz()", 1);
-  assertEqual("(1<<29).clz()", 2);
-  assertEqual("(1<<28).clz()", 3);
-  assertEqual("(1<<27).clz()", 4);
-  assertEqual("(1<<26).clz()", 5);
-  assertEqual("(1<<25).clz()", 6);
-  assertEqual("(1<<24).clz()", 7);
-  assertEqual("(1<<23).clz()", 8);
-  assertEqual("(1<<22).clz()", 9);
-  assertEqual("(1<<21).clz()", 10);
-  assertEqual("(1<<20).clz()", 11);
-  assertEqual("(1<<19).clz()", 12);
-  assertEqual("(1<<18).clz()", 13);
-  assertEqual("(1<<17).clz()", 14);
-  assertEqual("(1<<16).clz()", 15);
-  assertEqual("(1<<15).clz()", 16);
-  assertEqual("(1<<14).clz()", 17);
-  assertEqual("(1<<13).clz()", 18);
-  assertEqual("(1<<12).clz()", 19);
-  assertEqual("(1<<11).clz()", 20);
-  assertEqual("(1<<10).clz()", 21);
-  assertEqual("(1<<9).clz()", 22);
-  assertEqual("(1<<8).clz()", 23);
-  assertEqual("(1<<7).clz()", 24);
-  assertEqual("(1<<6).clz()", 25);
-  assertEqual("(1<<5).clz()", 26);
-  assertEqual("(1<<4).clz()", 27);
-  assertEqual("(1<<3).clz()", 28);
-  assertEqual("(1<<2).clz()", 29);
-  assertEqual("(1<<1).clz()", 30);
-  assertEqual("(1).clz()", 31);
-  assertEqual("(0).clz()", 32);
-});
 
 test("String", function () {
   // String.prototype.repeat

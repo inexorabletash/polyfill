@@ -760,19 +760,7 @@
   // 20.1.3 Properties of the Number Prototype Object
 
   // 20.1.3.1 Number.prototype.clz ()
-  define(
-    Number.prototype, 'clz',
-    function clz() {
-      function clz8(x) {
-        return (x & 0xf0) ? (x & 0x80 ? 0 : x & 0x40 ? 1 : x & 0x20 ? 2 : 3) :
-        (x & 0x08 ? 4 : x & 0x04 ? 5 : x & 0x02 ? 6 : x & 0x01 ? 7 : 8);
-      }
-      var x = Number(this);
-      x = ToUint32(x);
-      return x & 0xff000000 ? clz8(x >> 24) :
-        x & 0xff0000 ? clz8(x >> 16) + 8 :
-        x & 0xff00 ? clz8(x >> 8) + 16 : clz8(x) + 24;
-    });
+  // TC39 2014-01-21: Changed to Math.clz32
 
   // 20.1.3.2 Number.prototype.constructor
   // 20.1.3.3 Number.prototype.toExponential (fractionDigits)
@@ -852,6 +840,24 @@
     });
 
   // 20.2.2.10 Math.ceil (x)
+
+  // TC39 2014-01-28: Changed from Number.prototype.clz()
+  define(
+    Math, 'clz32',
+    function clz32(x) {
+      function clz8(x) {
+        return (x & 0xf0) ? (x & 0x80 ? 0 : x & 0x40 ? 1 : x & 0x20 ? 2 : 3) :
+        (x & 0x08 ? 4 : x & 0x04 ? 5 : x & 0x02 ? 6 : x & 0x01 ? 7 : 8);
+      }
+      var x = Number(x);
+      x = ToUint32(x);
+      return x & 0xff000000 ? clz8(x >> 24) :
+        x & 0xff0000 ? clz8(x >> 16) + 8 :
+        x & 0xff00 ? clz8(x >> 8) + 16 : clz8(x) + 24;
+    });
+
+
+
   // 20.2.2.11 Math.cos (x)
 
   // 20.2.2.12 Math.cosh(x)
