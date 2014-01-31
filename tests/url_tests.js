@@ -12,9 +12,6 @@ if (/MSIE/.test(navigator.userAgent)) {
   engine = 'presto'; // Opera
 }
 
-// Firefox, IE, Opera and older WebKit do not support |origin|
-var testOrigin = 'origin' in document.createElement('a');
-
 // IE does not include leading '/' in |pathname|
 var expectLeadingSlash = engine !== 'trident';
 
@@ -24,7 +21,7 @@ var expectDefaultPort = engine === 'trident';
 // Presto does not support observing property changes
 var testPropertyChanges = engine !== 'presto';
 
-test("URL IDL", testOrigin ? 16 : 15, function () {
+test("URL IDL", function () {
   var url = new URL("http://example.com:8080/foo/bar?a=1&b=2#p1");
   equal(typeof url.protocol, 'string', 'protocol');
   equal(typeof url.host, 'string', 'host');
@@ -33,18 +30,11 @@ test("URL IDL", testOrigin ? 16 : 15, function () {
   equal(typeof url.pathname, 'string', 'pathname');
   equal(typeof url.search, 'string', 'search');
   equal(typeof url.hash, 'string', 'hash');
-  equal(typeof url.filename, 'string', 'filename');
-  if (testOrigin) equal(typeof url.origin, 'string', 'origin');
-  equal(typeof url.parameterNames, 'object', 'parameterNames');
-  ok(typeof url.parameterNames.length, 'number', 'parameterNames');
-  equal(typeof url.getParameter, 'function', 'getParameter');
-  equal(typeof url.getParameterAll, 'function', 'getParameterAll');
-  equal(typeof url.appendParameter, 'function', 'appendParameter');
-  equal(typeof url.clearParameter, 'function', 'clearParameter');
+  equal(typeof url.origin, 'string', 'origin');
   equal(typeof url.href, 'string', 'href');
 });
 
-test("URL Parsing", testOrigin ? 11 : 10, function () {
+test("URL Parsing", function () {
   var url = new URL("http://example.com:8080/foo/bar?a=1&b=2#p1");
   equal(url.protocol, "http:");
   equal(url.hostname, "example.com");
@@ -53,116 +43,108 @@ test("URL Parsing", testOrigin ? 11 : 10, function () {
   equal(url.pathname, expectLeadingSlash ? "/foo/bar" : "foo/bar");
   equal(url.search, "?a=1&b=2");
   equal(url.hash, "#p1");
-  if (testOrigin) equal(url.origin, "http://example.com:8080");
+  equal(url.origin, "http://example.com:8080");
   equal(url.href, "http://example.com:8080/foo/bar?a=1&b=2#p1");
-
-  deepEqual(url.parameterNames, ["a", "b"]);
-  equal(url.filename, "bar");
 });
 
-test("URL Mutation", testOrigin ? 37 : 23, function () {
+test("URL Mutation", function () {
   var url = new URL("http://example.com");
   equal(url.href, "http://example.com/");
-  if (testOrigin) equal(url.origin, "http://example.com");
+  equal(url.origin, "http://example.com");
   equal(url.host, expectDefaultPort ? "example.com:80" : "example.com");
 
   url.protocol = "ftp";
   equal(url.protocol, "ftp:");
   equal(url.href, "ftp://example.com/");
-  if (testOrigin) equal(url.origin, "ftp://example.com");
+  equal(url.origin, "ftp://example.com");
   equal(url.host, expectDefaultPort ? "example.com:21" : "example.com");
   url.protocol = "http";
   equal(url.protocol, "http:");
   equal(url.href, "http://example.com/");
-  if (testOrigin) equal(url.origin, "http://example.com");
+  equal(url.origin, "http://example.com");
   equal(url.host, expectDefaultPort ? "example.com:80" : "example.com");
 
   url = new URL("http://example.com");
   url.hostname = "example.org";
   equal(url.href, "http://example.org/");
-  if (testOrigin) equal(url.origin, "http://example.org");
+  equal(url.origin, "http://example.org");
   equal(url.host, expectDefaultPort ? "example.org:80" : "example.org");
   url.hostname = "example.com";
   equal(url.href, "http://example.com/");
-  if (testOrigin) equal(url.origin, "http://example.com");
+  equal(url.origin, "http://example.com");
   equal(url.host, expectDefaultPort ? "example.com:80" : "example.com");
 
   url = new URL("http://example.com");
   url.port = 8080;
   equal(url.href, "http://example.com:8080/");
-  if (testOrigin) equal(url.origin, "http://example.com:8080");
+  equal(url.origin, "http://example.com:8080");
   equal(url.host, "example.com:8080");
   url.port = 80;
   equal(url.href, "http://example.com/");
-  if (testOrigin) equal(url.origin, "http://example.com");
+  equal(url.origin, "http://example.com");
   equal(url.host, expectDefaultPort ? "example.com:80" : "example.com");
 
   url = new URL("http://example.com");
   url.pathname = "foo";
   equal(url.href, "http://example.com/foo");
-  if (testOrigin) equal(url.origin, "http://example.com");
+  equal(url.origin, "http://example.com");
   url.pathname = "foo/bar";
   equal(url.href, "http://example.com/foo/bar");
-  if (testOrigin) equal(url.origin, "http://example.com");
+  equal(url.origin, "http://example.com");
   url.pathname = "";
   equal(url.href, "http://example.com/");
-  if (testOrigin) equal(url.origin, "http://example.com");
+  equal(url.origin, "http://example.com");
 
   url = new URL("http://example.com");
   url.search = "a=1&b=2";
   equal(url.href, "http://example.com/?a=1&b=2");
-  if (testOrigin) equal(url.origin, "http://example.com");
+  equal(url.origin, "http://example.com");
   url.search = "";
   equal(url.href, "http://example.com/");
-  if (testOrigin) equal(url.origin, "http://example.com");
+  equal(url.origin, "http://example.com");
 
   url = new URL("http://example.com");
   url.hash = "p1";
   equal(url.href, "http://example.com/#p1");
-  if (testOrigin) equal(url.origin, "http://example.com");
+  equal(url.origin, "http://example.com");
   url.hash = "";
   equal(url.href, "http://example.com/");
-  if (testOrigin) equal(url.origin, "http://example.com");
+  equal(url.origin, "http://example.com");
 });
 
-test("Parameter Mutation", 24, function () {
+test("Parameter Mutation", function () {
   var url = new URL("http://example.com");
   equal(url.href, "http://example.com/");
   equal(url.search, "");
-  equal(url.getParameter("a"), "");
-  equal(url.getParameter("b"), "");
+  equal(url.searchParams.get("a"), null);
+  equal(url.searchParams.get("b"), null);
 
-  url.appendParameter("a", "1");
-  equal(url.getParameter("a"), "1");
-  deepEqual(url.getParameterAll("a"), ["1"]);
+  url.searchParams.append("a", "1");
+  equal(url.searchParams.get("a"), "1");
+  deepEqual(url.searchParams.getAll("a"), ["1"]);
   equal(url.search, "?a=1");
   equal(url.href, "http://example.com/?a=1");
 
-  url.appendParameter("b", "2");
-  equal(url.getParameter("b"), "2");
-  deepEqual(url.getParameterAll("b"), ["2"]);
+  url.searchParams.append("b", "2");
+  equal(url.searchParams.get("b"), "2");
+  deepEqual(url.searchParams.getAll("b"), ["2"]);
   equal(url.search, "?a=1&b=2");
   equal(url.href, "http://example.com/?a=1&b=2");
 
-  url.appendParameter("a", "3");
-  equal(url.getParameter("a"), "3");
-  deepEqual(url.getParameterAll("a"), ["1", "3"]);
+  url.searchParams.append("a", "3");
+  equal(url.searchParams.get("a"), "1");
+  deepEqual(url.searchParams.getAll("a"), ["1", "3"]);
   equal(url.search, "?a=1&b=2&a=3");
   equal(url.href, "http://example.com/?a=1&b=2&a=3");
 
-  url.clearParameter("a");
+  url.searchParams.delete("a");
   equal(url.search, "?b=2");
-  deepEqual(url.getParameterAll("a"), []);
+  deepEqual(url.searchParams.getAll("a"), []);
   equal(url.href, "http://example.com/?b=2");
 
-  url.clearParameter("b");
-  deepEqual(url.getParameterAll("b"), []);
+  url.searchParams.delete("b");
+  deepEqual(url.searchParams.getAll("b"), []);
   equal(url.href, "http://example.com/");
-
-  url.appendParameter("c", ["7", "8", "9"]);
-  deepEqual(url.getParameter("c"), "9");
-  deepEqual(url.getParameterAll("c"), ["7", "8", "9"]);
-  equal(url.search, "?c=7&c=8&c=9");
 });
 
 test("Parameter Encoding", 5, function () {
@@ -170,8 +152,8 @@ test("Parameter Encoding", 5, function () {
   var url = new URL("http://example.com");
   equal(url.href, "http://example.com/");
   equal(url.search, "");
-  url.appendParameter("this\x00&that\x7f\xff", "1+2=3");
-  equal(url.getParameter("this\x00&that\x7f\xff"), "1+2=3");
+  url.searchParams.append("this\x00&that\x7f\xff", "1+2=3");
+  equal(url.searchParams.get("this\x00&that\x7f\xff"), "1+2=3");
   equal(url.search, "?this%00%26that%7F%C3%BF=1%2B2%3D3");
   equal(url.href, "http://example.com/?this%00%26that%7F%C3%BF=1%2B2%3D3");
 });
@@ -204,17 +186,4 @@ test("Base URL", 20, function () {
   equal(URL("?ab#cd", "https://example.org/foo").href, "https://example.org/foo?ab#cd");
   equal(URL("?ab", "https://example.org/foo").href, "https://example.org/foo?ab");
   equal(URL("#cd", "https://example.org/foo").href, "https://example.org/foo#cd");
-});
-
-test("Property changes", testPropertyChanges ? 4 : 2, function() {
-  var url = new URL("http://example.com/foo");
-  equal(url.filename, "foo");
-  deepEqual(url.parameterNames, []);
-
-  if (testPropertyChanges) {
-    url.pathname = "/bar";
-    url.search = "a=1&b=1";
-    equal(url.filename, "bar");
-    deepEqual(url.parameterNames, ["a", "b"]);
-  }
 });

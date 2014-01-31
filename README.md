@@ -172,24 +172,31 @@ WHATWG URL API
 
 ```javascript
 var url = new URL(url, base);
-var value = url.getParameter(name);
-var valueArray = url.getParameterAll(name);
-url.appendParameter(name, valueOrValues);
-url.clearParameter(name);
-var nameArray = url.parameterNames;
+var value = url.searchParams.get(name);
+var valueArray = url.searchParams.getAll(name);
+url.searchParams.append(name, valueOrValues);
+url.searchParams.delete(name);
 ```
 
 URL objects have properties:
+* `href`
+* `origin`
 * `protocol`
+* `username`
+* `password`
 * `host`
 * `hostname`
 * `port`
 * `pathname`
 * `search`
+* `searchParams`
+  * `append(name, value)`
+  * `delete(name)`
+  * `get(name)`
+  * `getAll(name)`
+  * `has(name)`
+  * `set(name, value)`
 * `hash`
-* `filename`
-* `href`
-
 
 W3C Keyboard Events (polyfill)
 ----------------------------
