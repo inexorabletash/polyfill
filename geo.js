@@ -5,7 +5,7 @@
 
 // PUBLIC DOMAIN
 
-(function () {
+(function() {
   "use strict";
   if (!navigator || !window || !document) { return; }
 
@@ -23,7 +23,6 @@
     return Object.prototype.hasOwnProperty.call(o, p);
   }
 
-  /** @constructor */
   function PositionError(code, message) {
     this.code = code;
     this.message = message;
@@ -33,7 +32,6 @@
   PositionError.TIMEOUT = 3;
   PositionError.prototype = new Error();
 
-  /** @constructor */
   function Coordinates(data) {
     this.accuracy = EARTH_RADIUS_M * Math.PI;
     this.altitude = null;
@@ -44,7 +42,6 @@
     this.speed = null;
   }
 
-  /** @constructor */
   function Geoposition(data) {
     this.timestamp = Number(new Date());
     this.coords = new Coordinates(data);
@@ -69,17 +66,15 @@
                                   p2.coords.latitude, p2.coords.longitude);
   };
 
-  /** @constructor */
   function GeolocationPolyfill() {
-
     var cached = null;
 
     function dispatch(handler, data) {
       if (typeof handler === 'function') {
-        setTimeout(function () { handler(data); }, 0);
+        setTimeout(function() { handler(data); }, 0);
       } else if (typeof handler === 'object' && handler && 'handleEvent' in handler) {
         handler = handler.handleEvent;
-        setTimeout(function () { handler(data); }, 0);
+        setTimeout(function() { handler(data); }, 0);
       }
     }
 
@@ -90,13 +85,13 @@
         if (script.parentNode) { script.parentNode.removeChild(script); }
         try { delete window[cbname]; } catch (ex) { window[cbname] = (void 0); /*IE8-*/ }
       }
-      window[cbname] = function (data) {
+      window[cbname] = function(data) {
         cleanup();
         onSuccess(new Geoposition(data));
       };
-      script.onerror = function (e) {
+      script.onerror = function(e) {
         cleanup();
-        onError(e);
+        onFailure(e);
       };
       script.src = GEOIP_SERVICE_JSONP + encodeURIComponent(cbname);
       (document.head || document.body || document.documentElement).appendChild(script);
@@ -104,7 +99,7 @@
     }
 
 
-    this.getCurrentPosition = function (successCallback, errorCallback, options) {
+    this.getCurrentPosition = function(successCallback, errorCallback, options) {
       if (!successCallback) { throw TypeError("The successCallback parameter is null."); }
 
       var maximumAge;
@@ -146,7 +141,7 @@
 
       var timedOut = false, timerId = 0;
       if (isFinite(timeout)) {
-        timerId = setTimeout(function () {
+        timerId = setTimeout(function() {
           timedOut = true;
           cancelOperation();
           dispatch(errorCallback, new PositionError(PositionError.TIMEOUT, "Timed out"));
@@ -171,7 +166,7 @@
 
     var timers = [], counter = 0;
 
-    this.watchPosition = function (successCallback, errorCallback, options) {
+    this.watchPosition = function(successCallback, errorCallback, options) {
       if (!successCallback) { throw TypeError("The successCallback parameter is null."); }
 
       var maximumAge;
@@ -216,7 +211,7 @@
 
         var timedOut = false;
         if (isFinite(timeout) && !timerId) {
-          timerId = setTimeout(function () {
+          timerId = setTimeout(function() {
             timedOut = true;
             timerId = 0;
             cancelOperation();
@@ -255,7 +250,7 @@
       return watchId;
     };
 
-    this.clearWatch = function (watchId) {
+    this.clearWatch = function(watchId) {
       watchId = Number(watchId);
       if (!hasOwnProperty(timers, watchId)) {
         return;
@@ -273,5 +268,4 @@
     navigator.geolocation = new GeolocationPolyfill();
     window.PositionError = PositionError;
   }
-
 }());
