@@ -30,7 +30,7 @@ just for kicks; you probably don't want to use this
 Console
 -------
 [script](console.js) -
-[unit tests](http://inexorabletash.github.io/polyfill/tests/console.html) -
+[unit tests](http://inexorabletash.github.io/polyfill/obsolete/tests/console.html) -
 *de facto* standard in modern browsers based on [FireBug Console API](http://getfirebug.com/wiki/index.php/Console_API)
 
 ```javascript
@@ -61,8 +61,8 @@ document.deleteCookie(name, errorCallback);
 
 DOMException (helper)
 ---------------------
-[script](https://github.com/inexorabletash/polyfill/edit/master/domexception.js) -
-[demo page](http://inexorabletash.github.io/polyfill/demos/domexception.html) -
+[script](https://github.com/inexorabletash/polyfill/edit/master/obsolete/domexception.js) -
+[demo page](http://inexorabletash.github.io/polyfill/obsolete/demos/domexception.html) -
 
 Creates a native DOMException of the specified type if possible,
 otherwise a similar looking object. Useful when implementing other polyfills.
@@ -74,7 +74,7 @@ exception = DOMException.create(code)
 sprintf (other)
 ---------------
 [script](sprintf.js) -
-[unit tests](http://inexorabletash.github.io/polyfill/tests/sprintf.html) -
+[unit tests](http://inexorabletash.github.io/polyfill/obsolete/tests/sprintf.html) -
 used for a few C-to-JavaScript porting projects
 
 ```javascript
