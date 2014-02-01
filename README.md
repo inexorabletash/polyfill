@@ -102,6 +102,7 @@ In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification
 * Object: `assign()`, `is()`, `setPrototypeOf()`
 * Symbol: `Symbol(description)`, `Symbol.for()`, `Symbol.keyFor()`, `Symbol.iterator`, `Symbol.toStringTag`
   * No security, just creates an object with a unique string representation. `typeof Symbol()` will incorrectly report `"object"` but `Symbol() instanceof Symbol` will return `true`
+* Not supported: `Function.prototype.toMethod()`
 
 #### Numbers and Dates
 * Number: `EPILON`, `isFinite()`, `isInteger()`, `isNaN()`, `isSafeInteger()`, `MAX_SAFE_INTEGER`, `MIN_SAFE_INTEGER`, `parseFloat()`, `parseInt()`
@@ -109,7 +110,9 @@ In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification
 
 #### Text Processing
 * String: `fromCodePoint()`
+** Not supported: `String.raw` - only makes sense with tagged template strings, which are syntax additions
 * String prototype: `codePointAt()`, `contains()`, `endsWith()`, `repeat()`, `startsWith()`, `[@@iterator]()`
+** Not supported: `String.prototype.normalize()` - see https://github.com/walling/unorm/
 * See also: [uate - ES5 "Tagged Template Strings"](https://github.com/inexorabletash/uate)
 * RegExp prototype: `replace()`, `search()`, `match()`
 
