@@ -109,11 +109,10 @@ In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification
 * Math: `acosh()`, `asinh()`, `atanh()`, `cbrt()`, `clz32()`, `cosh()`, `expm1()`, `fround`, `hypot()`, `imul()`, `log1p()`, `log10()`, `log2()`, `sign()`, `sinh()`, `tanh()`, `trunc()`
 
 #### Text Processing
-* String: `fromCodePoint()`
-** Not supported: `String.raw` - only makes sense with tagged template strings, which are syntax additions
+* See also: [uate - ES5 "Tagged Template Strings"](https://github.com/inexorabletash/uate)
+* String: `fromCodePoint()`, `raw`
 * String prototype: `codePointAt()`, `contains()`, `endsWith()`, `repeat()`, `startsWith()`, `[@@iterator]()`
 ** Not supported: `String.prototype.normalize()` - see https://github.com/walling/unorm/
-* See also: [uate - ES5 "Tagged Template Strings"](https://github.com/inexorabletash/uate)
 * RegExp prototype: `replace()`, `search()`, `match()`
 
 #### Indexed Collections

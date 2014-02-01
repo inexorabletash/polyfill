@@ -1141,9 +1141,35 @@
     });
 
   // 21.1.2.3 String.prototype
-  // 21.1.2.4 String.raw ( callSite, ...substitutions)
 
-  // See https://githib.com/inexorabletash/uate
+  // 21.1.2.4 String.raw ( callSite, ...substitutions)
+  define(
+    String, 'raw',
+    function raw(callSite /*, ...substitutions*/) {
+      var substitutions = [].slice.call(arguments, 1);
+
+      var cooked = Object(callSite);
+      var rawValue = cooked['raw'];
+      var raw = Object(rawValue);
+      var len = raw['length'];
+      var literalSegments = ToLength(len);
+      if (literalSegments <= 0) return '';
+      var stringElements = [];
+      var nextIndex = 0;
+      while (true) {
+        var next = raw[nextIndex];
+        var nextSeg = String(next);
+        stringElements.push(nextSeg);
+        if (nextIndex + 1 === literalSegments)
+          return stringElements.join('');
+        next = substitutions[nextIndex];
+        var nextSub = String(next);
+        stringElements.push(nextSub);
+        nextIndex = nextIndex + 1;
+      }
+    });
+
+  // See https://githib.com/inexorabletash/uate for a more useful version.
 
   // 21.1.2.5 String[ @@create ] ( )
   // 21.1.3 Properties of the String Prototype Object
