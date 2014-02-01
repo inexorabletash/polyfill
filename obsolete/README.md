@@ -61,7 +61,7 @@ document.deleteCookie(name, errorCallback);
 
 DOMException (helper)
 ---------------------
-[script](https://github.com/inexorabletash/polyfill/edit/master/obsolete/domexception.js) -
+[script](domexception.js) -
 [demo page](http://inexorabletash.github.io/polyfill/obsolete/demos/domexception.html) -
 
 Creates a native DOMException of the specified type if possible,
