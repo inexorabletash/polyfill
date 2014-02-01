@@ -85,7 +85,6 @@ Does not include JSON - use [json2.js](https://github.com/douglascrockford/JSON-
 
 ECMAScript "Harmony" (prollyfills)
 -------------------------------------
-
 "Harmony" is the aspirational term for the future of ECMAScript (the standardized version of JavaScript) beyond ES5.
 
 ### ES6
@@ -158,13 +157,9 @@ Originally specified separately, Typed Arrays are now included in ES6.
 
 Creating index getter/setters (i.e. `array[0]`, `array[1]`, etc) is slow and consumes significant memory. Arrays larger than 100k entries will be too slow to initialize in most cases so an upper limit is placed on the size of arrays and exception is thrown on construction.
 
-### Binary Data
+### Experimental
 
-[script](bindata.js) -
-[demo page](http://inexorabletash.github.io/polyfill/demos/bindata.html)
-
-Proposed for ES7 - http://wiki.ecmascript.org/doku.php?id=harmony:binary_data
-
+[ES7 Proposals](experimental/README.md)
 
 WHATWG URL API
 --------------
@@ -219,23 +214,6 @@ KeyboardEvent.queryKeyCap(code);
 window.identifyKey(keyboardEvent);
 ```
 
-W3C Web Storage
----------------
-[script](storage.js) -
-[spec](http://dev.w3.org/html5/webstorage/) -
-adapted from [Remy Sharp](https://gist.github.com/350433)
-
-```javascript
-storage = window.localStorage
-storage = window.sessionStorage
-storage.clear()
-valueString = storage.getItem(keyString)
-valueString = storage.key(index)
-storage.removeItem(keyString)
-storage.setItem(keyString, valueString)
-storage.length
-````
-
 W3C Geolocation API
 -------------------
 [script](geo.js) -
@@ -249,63 +227,6 @@ var watchId = navigator.geolocation.watchPosition(successCallback, errorCallback
 navigator.geolocation.clearWatch(watchId);
 ```
 
-W3C Workers
------------
-[script](workers.js) -
-[spec](http://dev.w3.org/html5/workers/) -
-just for kicks; you probably don't want to use this
-
-
-Console
--------
-[script](console.js) -
-[unit tests](http://inexorabletash.github.io/polyfill/tests/console.html) -
-*de facto* standard in modern browsers based on [FireBug Console API](http://getfirebug.com/wiki/index.php/Console_API)
-
-```javascript
-console.log(messageObject, arguments...); // and variations: debug, info, warn, error
-console.assert(assertion, messageObject, arguments...);
-console.count(name);
-console.time(name); console.timeEnd(name);
-console.group(name); console.groupEnd();
-console.trace();
-console.clear();
-```
-
-Cookie API
-----------
-[script](cookie.js) -
-Adam Barth's [Cookie API proposal](https://docs.google.com/Doc?docid=0AZpchfQ5mBrEZGQ0cDh3YzRfMTRmdHFma21kMg&hl=en&pli=1) -
-abandoned
-
-```javascript
-var cookie = document.getCookie(name, callback);
-alert(cookie.name);
-alert(cookie.value);
-
-var cookieArray = document.getAllCookies(callback);
-document.setCookie(cookie, errorCallback);
-document.deleteCookie(name, errorCallback);
-```
-
-DOMException (helper)
----------------------
-[script](https://github.com/inexorabletash/polyfill/edit/master/domexception.js) -
-[demo page](http://inexorabletash.github.io/polyfill/demos/domexception.html) -
-
-Creates a native DOMException of the specified type if possible,
-otherwise a similar looking object. Useful when implementing other polyfills.
-
-```javascript
-exception = DOMException.create(code)
-```
-
-sprintf (other)
----------------
-[script](sprintf.js) -
-[unit tests](http://inexorabletash.github.io/polyfill/tests/sprintf.html) -
-used for a few C-to-JavaScript porting projects
-
-```javascript
-var str = sprintf("Foo %s bar %d", "hello", 123);
-```
+Obsolete
+--------
+[Obsolete and Unmaintained Polyfills](obsolete/README.md)
