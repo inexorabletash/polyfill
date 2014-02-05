@@ -3259,7 +3259,8 @@
     }
 
     // 25.4.4.2 Promise.cast ( x )
-    define(Promise, 'cast', function cast(x) {
+    // Per TC-39, Promise.cast renamed Promise.resolve
+    define(Promise, 'resolve', function resolve(x) {
       var C = strict(this);
       if (IsPromise(x)) {
         var constructor = x['[[PromiseConstructor]]'];
@@ -3296,12 +3297,7 @@
     });
 
     // 25.4.4.6 Promise.resolve ( x )
-    define(Promise, 'resolve', function resolve(x) {
-      var C = strict(this);
-      var promiseCapability = NewPromiseCapability(C);
-      var resolveResult = promiseCapability['[[Resolve]]'].call(undefined, x);
-      return promiseCapability['[[Promise]]'];
-    });
+    // Per TC-39, remove old Promise.resolve
 
     // 25.4.4.7 Promise [ @@create ] ( )
     // 25.4.4.7.1 AllocatePromise( constructor ) Abstraction Operation
@@ -3384,6 +3380,10 @@
     }
 
     global.Promise = global.Promise || Promise;
+
+    // Patch early Promise.cast vs. Promise.resolve implementations
+    if ('cast' in global.Promise) global.Promise.resolve = global.Promise.cast;
+
   }());
 
   // 25.4.5.1 Promise.prototype [ @@toStringTag ]

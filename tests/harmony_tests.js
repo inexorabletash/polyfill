@@ -1032,6 +1032,10 @@ asyncTest("Multiple thens", function() {
 });
 
 asyncTest("Promise.resolve()", function() {
+
+  var p = new Promise(function(){});
+  ok(Promise.resolve(p) === p);
+
   Promise.resolve(5).then(function(value) {
     equal(value, 5);
     start();
@@ -1065,12 +1069,6 @@ asyncTest("Promise rejected with promise", function() {
     start();
   });
   fulfill(Promise.reject(5));
-});
-
-test("Promise.cast()", function() {
-  var p = new Promise(function(){});
-  equal(Promise.cast(p), p);
-  ok(Promise.cast(5) instanceof Promise);
 });
 
 asyncTest("Promise.race()", function() {
