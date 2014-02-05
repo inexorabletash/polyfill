@@ -668,6 +668,9 @@ test("Map", function () {
   assertEqual("map.size", 0);
   assertEqual("map.set('key', 'value')", map);
 
+  assertEqual("1/(new Map([['key', 0]]).values().next().value)", Infinity);
+  assertEqual("1/(new Map([['key', -0]]).values().next().value)", Infinity);
+
   var data = [[0, "a"], [1, "b"]], count = 0;
   map = new Map(data);
   map.forEach(function(k, v, m) {
@@ -741,6 +744,9 @@ test("Set", function () {
   assertFalse("set.has(0)");
   assertEqual("set.size", 0);
   assertEqual("set.add('key')", set);
+
+  assertEqual("1/(new Set([0]).values().next().value)", Infinity);
+  assertEqual("1/(new Set([-0]).values().next().value)", Infinity);
 
   var data = [1, 2, 3], count = 0;
   set = new Set(data);

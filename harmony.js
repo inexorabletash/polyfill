@@ -2260,16 +2260,17 @@
     // 23.1.3.9 Map.prototype.set ( key , value )
     define(
       Map.prototype, 'set',
-      function set(key, val) {
+      function set(key, value) {
         var m = strict(this);
         if (Type(m) !== 'object') throw TypeError();
         if (!('[[MapData]]' in m)) throw TypeError();
         if (m['[[MapData]]'] === undefined) throw TypeError();
+        if (SameValue(value, -0)) value = 0;
         var entries = m['[[MapData]]'];
         var i = indexOf(entries, key);
         if (i < 0) i = entries.keys.length;
         entries.keys[i] = key;
-        entries.values[i] = val;
+        entries.values[i] = value;
         return m;
       });
 
@@ -2441,6 +2442,7 @@
         if (Type(s) !== 'object') throw TypeError();
         if (!('[[SetData]]' in s)) throw TypeError();
         if (s['[[SetData]]'] === undefined) throw TypeError();
+        if (SameValue(value, -0)) value = 0;
         var entries = s['[[SetData]]'];
         var i = indexOf(entries, value);
         if (i < 0) i = s['[[SetData]]'].length;
