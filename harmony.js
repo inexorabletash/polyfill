@@ -3229,7 +3229,7 @@
           return promiseCapability['[[Promise]]'];
         }
         var nextValue = IteratorValue(next);
-        var nextPromise = C["cast"](nextValue);
+        var nextPromise = C["resolve"](nextValue);
         var resolveElement = new PromiseAllResolveElementFunction;
         set_internal(resolveElement, '[[Index]]', index);
         set_internal(resolveElement, '[[Values]]', values);
@@ -3283,7 +3283,7 @@
         var next = IteratorStep(iterator);
         if (next === false) return promiseCapability['[[Promise]]'];
         var nextValue = IteratorValue(next);
-        var nextPromise = C["cast"](nextValue);
+        var nextPromise = C["resolve"](nextValue);
         var result = nextPromise["then"](promiseCapability['[[Resolve]]'], promiseCapability['[[Reject]]']);
       }
     });
