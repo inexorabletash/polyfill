@@ -878,6 +878,8 @@ test("WeakMap", function () {
   assertEqual("WeakMap.prototype[Symbol.toStringTag]", "WeakMap");
   assertEqual("String(new WeakMap)", "[object WeakMap]");
   assertEqual("Object.prototype.toString.call(new WeakMap)", "[object WeakMap]");
+
+  assertEqual("new WeakMap().get(Object.create(null))", undefined);
 });
 
 test("WeakSet", function () {
