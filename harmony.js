@@ -102,7 +102,7 @@
     }
 
     function reveal(o) {
-      var v = o.valueOf(secretKey);
+      var v = o.valueOf && o.valueOf(secretKey);
       return v === o ? null : v;
     }
 
