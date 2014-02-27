@@ -3747,4 +3747,4 @@
   }
   global.forOf = forOf; // Since for( ... of ... ) can't be shimmed w/o a transpiler.
 
-}(this));
+}(typeof global !== 'undefined' ? global : this));
