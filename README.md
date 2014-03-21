@@ -89,8 +89,8 @@ ECMAScript "Harmony" (prollyfills)
 
 ### ES6
 
-[script](harmony.js) -
-[unit tests](http://inexorabletash.github.io/polyfill/tests/harmony.html)
+[script](es6.js) -
+[unit tests](http://inexorabletash.github.io/polyfill/tests/es6.html)
 
 The standardization of ES6 is currently in progress.
 This will attempt to track the evolving spec, so may change at any time.
@@ -132,16 +132,22 @@ In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification
 * Promise: `p = new Promise()`, `Promise.resolve()`, `Promise.reject()`, `Promise.cast()`, `Promise.race()`, `Promise.all()`, `p.then()`, `p.catch()`
 * [promises spec](https://github.com/domenic/promises-unwrapping)
 
+#### Syntax Helpers
+* `forOf(o, function(i) { ... })` - since `for (i of o) { ... }` can't be polyfilled. Uses iterators, so works with arrays, maps, sets, and strings, via implicit @@iterator and explicit iterators returned by keys/values/entries methods and functions.
+
+See also: [uate - ES5 "tagged template strings"](https://github.com/inexorabletash/uate)
+
+<a name="es7"></name>
+### ES7
+
+[script](es7.js) -
+[unit tests](http://inexorabletash.github.io/polyfill/tests/es7.html)
+
 #### Not Yet Approved
 * Number: `compare()` - _probably won't be in ES6_
 * Array prototype: `pushAll()`, `contains()` [ref](https://mail.mozilla.org/pipermail/es-discuss/2011-December/019099.html)
 * @dict module: `keys(dict)`, `values(dict)`, `entries(dict)`
   * `dict()` is shortcut for `Object.create(null)` - _this needs a rework_
-
-#### Syntax Helpers
-* `forOf(o, function(i) { ... })` - since `for (i of o) { ... }` can't be polyfilled. Uses iterators, so works with arrays, maps, sets, and strings, via implicit @@iterator and explicit iterators returned by keys/values/entries methods and functions.
-
-See also: [uate - ES5 "tagged template strings"](https://github.com/inexorabletash/uate)
 
 <a name="typedarray"></name>
 ### Typed Arrays

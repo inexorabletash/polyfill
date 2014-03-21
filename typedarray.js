@@ -480,7 +480,7 @@
     }});
 
     // %TypedArray%.prototype.entries ( )
-    // -- defined in harmony.js to shim browsers w/ native TypedArrays
+    // -- defined in es6.js to shim browsers w/ native TypedArrays
 
     // %TypedArray%.prototype.every ( callbackfn, thisArg = undefined )
     Object.defineProperty($TypedArray$.prototype, 'every', {value: function(callbackfn) {
@@ -628,7 +628,7 @@
     }});
 
     // %TypedArray%.prototype.keys ( )
-    // -- defined in harmony.js to shim browsers w/ native TypedArrays
+    // -- defined in es6.js to shim browsers w/ native TypedArrays
 
     // %TypedArray%.prototype.lastIndexOf ( searchElement, fromIndex = this.length-1 )
     Object.defineProperty($TypedArray$.prototype, 'lastIndexOf', {value: function(searchElement) {
@@ -864,7 +864,7 @@
     // %TypedArray%.prototype.values ( )
     // %TypedArray%.prototype [ @@iterator ] ( )
     // get %TypedArray%.prototype [ @@toStringTag ]
-    // -- defined in harmony.js to shim browsers w/ native TypedArrays
+    // -- defined in es6.js to shim browsers w/ native TypedArrays
 
     function makeTypedArray(elementSize, pack, unpack) {
       // Each TypedArray type requires a distinct constructor instance with
