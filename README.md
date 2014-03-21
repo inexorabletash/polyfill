@@ -144,10 +144,11 @@ See also: [uate - ES5 "tagged template strings"](https://github.com/inexorableta
 [unit tests](http://inexorabletash.github.io/polyfill/tests/es7.html)
 
 #### Not Yet Approved
-* Number: `compare()` - _probably won't be in ES6_
+* Number: `compare()`
 * Array prototype: `pushAll()`, `contains()` [ref](https://mail.mozilla.org/pipermail/es-discuss/2011-December/019099.html)
-* @dict module: `keys(dict)`, `values(dict)`, `entries(dict)`
-  * `dict()` is shortcut for `Object.create(null)` - _this needs a rework_
+* Object iterators: `Object.values(dict)`, `Object.entries(dict)`
+* Reflection: `Object.getPropertyDescriptor(o)`, `Object.getPropertyNames(o)`
+
 
 <a name="typedarray"></name>
 ### Typed Arrays
