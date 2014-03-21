@@ -312,4 +312,12 @@
       return CreateItrResultObject(undefined, true);
     });
 
+  // http://esdiscuss.org/topic/regexp-escape
+  define(
+    RegExp, 'escape',
+    function escape(s) {
+      return String(s).replace(/[^a-zA-Z0-9]/g, '\\$&');
+    });
+
+
 }(this));

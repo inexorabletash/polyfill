@@ -65,3 +65,7 @@ test("Proposed Object Iterator Helpers", function() {
   verifyIterator(Object.entries(d), [['a', 1], ['b', 2]]);
   delete d;
 });
+
+test("Proposed RegExp Extras", function() {
+  assertTrue("new RegExp(RegExp.escape('[]{}()*+?.^$|')).test('[]{}()*+?.^$|')");
+});
