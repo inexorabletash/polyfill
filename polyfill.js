@@ -762,7 +762,7 @@ if ('window' in this && 'document' in this) {
     Object.defineProperties(Event.prototype, {
       CAPTURING_PHASE: { get: function() { return 1; } },
       AT_TARGET:       { get: function() { return 2; } },
-      BUBBLING_HASE:   { get: function() { return 3; } },
+      BUBBLING_PHASE:   { get: function() { return 3; } },
       target: {
         get: function() {
           return this.srcElement;
