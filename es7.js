@@ -60,7 +60,24 @@
     });
   }
 
-  var abs = Math.abs;
+  // Snapshot intrinsic functions
+  var $isNaN = global.isNaN,
+      $isFinite = global.isFinite,
+      $parseInt = global.parseInt,
+      $parseFloat = global.parseFloat;
+
+   var E = Math.E,
+      LOG10E = Math.LOG10E,
+      LOG2E = Math.LOG2E,
+      abs = Math.abs,
+      ceil = Math.ceil,
+      exp = Math.exp,
+      floor = Math.floor,
+      log = Math.log,
+      max = Math.max,
+      min = Math.min,
+      pow = Math.pow,
+      sqrt = Math.sqrt;
 
   var empty = Object.create(null);
 
@@ -89,6 +106,14 @@
   //----------------------------------------
   // 7 Abstract Operations
   //----------------------------------------
+
+  // 7.1.4
+  function ToInteger(n) {
+    n = Number(n);
+    if ($isNaN(n)) return 0;
+    if (n === 0 || n === Infinity || n === -Infinity) return n;
+    return ((n < 0) ? -1 : 1) * floor(abs(n));
+  }
 
   // 7.1.6
   function ToUint32(v) { return v >>> 0; }
@@ -319,5 +344,62 @@
       return String(s).replace(/[^a-zA-Z0-9]/g, '\\$&');
     });
 
+  // http://wiki.ecmascript.org/doku.php?id=strawman:string_at
+  define(
+    String.prototype, 'at',
+    function at(pos) {
+      var s = String(this);
+      var position = ToInteger(pos);
+      var size = s.length;
+      if (position < 0 || position >= size) return "";
+      var first = s.charAt(position);
+      var cuFirst = first.charCodeAt(0);
+      if (cuFirst < 0xD800 || cuFirst > 0xDBFF || position + 1 === size) return first;
+      var cuSecond = s.charCodeAt(position + 1);
+      if (cuSecond < 0xDC00 || cuSecond > 0xDFFF) return first;
+      var second = s.charAt(position + 1);
+      var cp = (first - 0xD800) * 0x400 + (second - 0xDC00) + 0x10000;
+      return String.fromCharCode(cuFirst, cuSecond);
+    });
+
+  // http://wiki.ecmascript.org/doku.php?id=strawman:string_padding
+  define(
+    String.prototype, 'lpad',
+    function lpad() {
+      var minLength = arguments[0];
+      var fillStr = arguments[1];
+
+      var s = String(this);
+      if (minLength === undefined) return s; // NOTE: Wiki is bogus here
+      var intMinLength = ToInteger(minLength);
+      var fillLen = intMinLength - s.length; // NOTE: Wiki is bogus here
+      if (fillLen < 0) throw RangeError();
+      if (fillLen === Infinity) throw RangeError();
+      var sFillStr = String(fillStr);
+      if (fillStr === undefined) sFillStr = ' '; // NOTE: Wiki is bogus here
+      var sFillVal = '';
+      while (sFillVal.length < fillLen) sFillVal += sFillStr;
+      return sFillVal + s;
+    });
+
+  // http://wiki.ecmascript.org/doku.php?id=strawman:string_padding
+  define(
+    String.prototype, 'rpad',
+    function rpad() {
+      var minLength = arguments[0];
+      var fillStr = arguments[1];
+
+      var s = String(this);
+      if (minLength === undefined) return s; // NOTE: Wiki is bogus here
+      var intMinLength = ToInteger(minLength);
+      var fillLen = intMinLength - s.length; // NOTE: Wiki is bogus here
+      if (fillLen < 0) throw RangeError();
+      if (fillLen === Infinity) throw RangeError();
+      var sFillStr = String(fillStr);
+      if (fillStr === undefined) sFillStr = ' '; // NOTE: Wiki is bogus here
+      var sFillVal = '';
+      while (sFillVal.length < fillLen) sFillVal += sFillStr;
+      return s + sFillVal;
+    });
 
 }(this));

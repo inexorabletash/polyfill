@@ -69,3 +69,28 @@ test("Proposed Object Iterator Helpers", function() {
 test("Proposed RegExp Extras", function() {
   assertTrue("new RegExp(RegExp.escape('[]{}()*+?.^$|')).test('[]{}()*+?.^$|')");
 });
+
+test("Proposed String Extras", function() {
+  assertEqual("'a'.at(0)", 'a');
+  assertEqual("'a'.at(-1)", '');
+  assertEqual("'a'.at(2)", '');
+  assertEqual("'\uD800\uDC00'.at(0)", '\uD800\uDC00');
+  assertEqual("'\uD800'.at(0)", '\uD800');
+  assertEqual("'\uDC00'.at(0)", '\uDC00');
+  assertEqual("'\uD800\uDC00'.at(1)", '\uDC00');
+
+  assertEqual("'a'.lpad()", 'a');
+  assertEqual("'a'.lpad(1)", 'a');
+  assertEqual("'a'.lpad(2)", ' a');
+  assertEqual("'a'.lpad(2, '_')", '_a');
+  assertEqual("'a'.lpad(3, '_')", '__a');
+  assertEqual("'a'.lpad(2, '[]')", '[]a');
+
+  assertEqual("'a'.rpad()", 'a');
+  assertEqual("'a'.rpad(1)", 'a');
+  assertEqual("'a'.rpad(2)", 'a ');
+  assertEqual("'a'.rpad(2, '_')", 'a_');
+  assertEqual("'a'.rpad(3, '__')", 'a__');
+  assertEqual("'a'.rpad(2, '[]')", 'a[]');
+
+});
