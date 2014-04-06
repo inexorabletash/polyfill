@@ -1,18 +1,3 @@
-function verifyIterator(iterator, expected) {
-  while (true) {
-    var result = iterator.next();
-    if (result.done) {
-      ok(expected.length === 0);
-      return;
-    } else {
-      var ex = expected.shift();
-      equal(result.done, false);
-      deepEqual(result.value, ex);
-    }
-  }
-}
-
-
 module("Not Yet Approved");
 
 test("Proposed Number extras", function () {
@@ -55,14 +40,19 @@ test("Proposed Array extras", function () {
 
 });
 
-test("Proposed Object Iterator Helpers", function() {
+test("Proposed Object Extras", function() {
   d = Object.create(null);
   d['a'] = 1;
   d['b'] = 2;
 
-  verifyIterator(Object.keys(d)[Symbol.iterator](), ['a', 'b']);
-  verifyIterator(Object.values(d), [1, 2]);
-  verifyIterator(Object.entries(d), [['a', 1], ['b', 2]]);
+  assertTrue("Array.isArray(Object.keys(d))");
+  assertTrue("Array.isArray(Object.values(d))");
+  assertTrue("Array.isArray(Object.entries(d))");
+
+  deepEqual(Object.keys(d), ['a', 'b']);
+  deepEqual(Object.values(d), [1, 2]);
+  deepEqual(Object.entries(d), [['a', 1], ['b', 2]]);
+
   delete d;
 });
 

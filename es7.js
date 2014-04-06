@@ -286,13 +286,13 @@
   define(
     Object, 'values',
     function values(o) {
-      return CreateObjectIterator(o, 'value');
+      return Object.keys(o).map(function(p) { return o[p]; });
     });
 
   define(
     Object, 'entries',
     function entries(o) {
-      return CreateObjectIterator(o, 'key+value');
+      return Object.keys(o).map(function(p) { return [p, o[p]]; });
     });
 
   function CreateObjectIterator(dict, kind) {
