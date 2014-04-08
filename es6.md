@@ -1,4 +1,4 @@
-# ES6
+# ECMAScript 6 Polyfill
 
 [script](es6.js) -
 [unit tests](http://inexorabletash.github.io/polyfill/tests/es6.html)
