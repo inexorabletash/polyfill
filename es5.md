@@ -1,4 +1,4 @@
-# ECMAScript 5 (polyfill) #
+# ECMAScript 5 Polyfill
 
 [script](es5.js) -
 [unit tests](http://inexorabletash.github.io/polyfill/tests/es5.html)
