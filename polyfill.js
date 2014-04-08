@@ -1181,8 +1181,6 @@ if ('window' in this && 'document' in this) {
     return out.join('');
   };
 }(this));
-
-
 //----------------------------------------------------------------------
 //
 // Non-standard JavaScript (Mozilla) functions
@@ -1213,13 +1211,12 @@ if ('window' in this && 'document' in this) {
   };
   String.prototype.quote = String.prototype.quote || function() {
     return '"' + String(this).replace(/[\x00-\x1F"\\\x7F-\uFFFF]/g, function(c) {
-      if (Object.prototype.hasOwnProperty.call(ESCAPES, c)) {
+      if (Object.prototype.hasOwnProperty.call(ESCAPES, c))
         return ESCAPES[c];
-      } else if (c.charCodeAt(0) <= 0xFF) {
-        return '\\x' + ('00' + c.charCodeAt(0).toString(16).toUpperCase()).slice(-2);
-      } else {
-        return '\\u' + ('0000' + c.charCodeAt(0).toString(16).toUpperCase()).slice(-4);
-      }
+      var cc = c.charCodeAt(0);
+      if (cc <= 0xFF)
+        return '\\x' + ('00' + cc.toString(16).toUpperCase()).slice(-2);
+      return '\\u' + ('0000' + cc.toString(16).toUpperCase()).slice(-4);
     }) + '"';
   };
 }());

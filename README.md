@@ -20,6 +20,9 @@ ECMAScript / JavaScript Polyfills
 
 [ECMAScript 7](es7.md) - At the initial proposal/strawman stage. Here there be dragons.
 
+[JavaScript 1.X String Extras](js.js) - [ref](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String)
+  * String prototype: `trimLeft`, `trimRight`, `quote`
+
 
 Web Standards / Browser Compat
 ------------------------------
@@ -75,9 +78,6 @@ and going forward I will only target IE8 and later.
 * `dataset` and `data-*` attributes [spec](http://www.whatwg.org/specs/web-apps/current-work/multipage/elements.html#embedding-custom-non-visible-data-with-the-data-*-attributes) (for IE8+, not available in IE7-)
   * `str = element.dataset[key]` - yields undefined if data-key attribute not present
   * `element.dataset[key] = str` - fails unless data-key attribute already present
-* [JavaScript 1.X String Extras](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String)
-  * String prototype: `trimLeft`, `trimRight`, `quote`
-
 
 WHATWG URL API
 --------------

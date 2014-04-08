@@ -295,48 +295,6 @@
       return Object.keys(o).map(function(p) { return [p, o[p]]; });
     });
 
-  function CreateObjectIterator(dict, kind) {
-    var d = ToObject(dict);
-    var iterator = new ObjectIterator();
-    set_internal(iterator, '[[IteratedObject]]', d);
-    set_internal(iterator, '[[ObjectNextIndex]]', 0);
-    set_internal(iterator, '[[ObjectIterationKind]]', kind);
-    // TODO: Use Enumerate()
-    set_internal(iterator, '[[PropertyList]]', Object.keys(d));
-    return iterator;
-  }
-
-  /** @constructor */
-  function ObjectIterator() {}
-
-  ObjectIterator.prototype = new function $ObjectIteratorPrototype$() {};
-  define(ObjectIterator.prototype, $$toStringTag, 'Object Iterator');
-  define(
-    ObjectIterator.prototype, 'next',
-    function next() {
-      var o = ToObject(this);
-      var d = ToObject(o['[[IteratedObject]]']),
-          index = o['[[ObjectNextIndex]]'],
-          entries = o['[[PropertyList]]'],
-          len = entries.length,
-          itemKind = o['[[ObjectIterationKind]]'];
-      while (index < len) {
-        var e = {key: entries[index], value: d[entries[index]]};
-        index = index += 1;
-        set_internal(o, '[[ObjectNextIndex]]', index);
-        if (e.key !== empty) {
-          if (itemKind === 'key') {
-            return CreateItrResultObject(e.key, false);
-          } else if (itemKind === 'value') {
-            return CreateItrResultObject(e.value, false);
-          } else {
-            return CreateItrResultObject([e.key, e.value], false);
-          }
-        }
-      }
-      return CreateItrResultObject(undefined, true);
-    });
-
   // http://esdiscuss.org/topic/regexp-escape
   define(
     RegExp, 'escape',
