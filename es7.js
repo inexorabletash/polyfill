@@ -243,6 +243,21 @@
       return Object.keys(names);
     });
 
+  // https://gist.github.com/WebReflection/9353781
+  define(
+    Object, 'getOwnPropertyDescriptors',
+    function getOwnPropertyDescriptors(o) {
+      var obj = ToObject(o);
+      var keys = Object.getOwnPropertyNames(obj);
+      var descriptors = {};
+      for (var i = 0; i < keys.length; ++i) {
+        var nextKey = keys[i];
+        var desc = Object.getOwnPropertyDescriptor(obj, nextKey);
+        descriptors[nextKey] = desc;
+      }
+      return descriptors;
+    });
+
   // http://wiki.ecmascript.org/doku.php?id=strawman:array.prototype.pushall
   define(
     Array.prototype, 'pushAll',

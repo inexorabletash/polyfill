@@ -53,6 +53,18 @@ test("Proposed Object Extras", function() {
   deepEqual(Object.values(d), [1, 2]);
   deepEqual(Object.entries(d), [['a', 1], ['b', 2]]);
 
+  deepEqual(Object.getOwnPropertyDescriptors(d),
+            {a: {configurable: true,
+                 enumerable: true,
+                 writable: true,
+                 value: 1
+                },
+             b: {configurable: true,
+                 enumerable: true,
+                 writable: true,
+                 value: 2
+                }
+             });
   delete d;
 });
 
