@@ -129,22 +129,7 @@
   //----------------------------------------
 
   // 7.2.3
-  function SameValue(x, y) {
-    if (typeof x !== typeof y) return false;
-    switch (typeof x) {
-    case 'undefined':
-      return true;
-    case 'number':
-      if (x !== x && y !== y) return true;
-      if (x === 0 && y === 0) return 1/x === 1/y;
-      return x === y;
-    case 'boolean':
-    case 'string':
-    case 'object':
-    default:
-      return x === y;
-    }
-  }
+  var SameValue = Object.is;
 
   //----------------------------------------
   // 9 ECMAScript Ordinary and Exotic Objects Behaviors
@@ -154,51 +139,6 @@
   function ObjectCreate(proto, internalDataList) {
     return Object.create(proto, internalDataList);
   }
-
-  // 25.3.3.4 CreateItrResultObject (value, done)
-  function CreateItrResultObject(value, done) {
-    assert(Type(done) === 'boolean');
-    var obj = {};
-    obj["value"] = value;
-    obj["done"] = done;
-    return obj;
-  }
-
-  // 25.3.3.5 GetIterator ( obj )
-  function GetIterator(obj) {
-    var iterator = obj[$$iterator]();
-    if (Type(iterator) !== 'object') throw TypeError();
-    return iterator;
-  }
-
-  // 25.3.3.6 IteratorNext ( iterator, value )
-  function IteratorNext(iterator, value) {
-    var result = iterator.next(value);
-    if (Type(result) !== 'object') throw TypeError();
-    return result;
-  }
-
-  // 25.3.3.7 IteratorComplete ( iterResult )
-  function IteratorComplete(iterResult) {
-    assert(Type(iterResult) === 'object');
-    return Boolean(iterResult.done);
-  }
-
-  // 25.3.3.8 IteratorValue ( iterResult )
-  function IteratorValue(iterResult) {
-    assert(Type(iterResult) === 'object');
-    return iterResult.value;
-  }
-
-  // 25.3.3.9 IteratorStep ( iterator, value )
-  function IteratorStep( iterator, value ) {
-    var result = IteratorNext(iterator, value);
-    var done = result['done'];
-    if (Boolean(done) === true) return false;
-    return result;
-  }
-
-  // 25.3.3.10 CreateEmptyIterator ( )
 
 
   //----------------------------------------------------------------------
