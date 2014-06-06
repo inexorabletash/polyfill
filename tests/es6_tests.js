@@ -512,6 +512,9 @@ test("Object", function () {
   equal(t.a, 1, "Object.assign copies basic properties");
   equal(t.b, 2, "Object.assign copies getters by value");
   equal(t.c, 3, "Object.assign leaves existing properties intact");
+
+  t = Object.assign({a: 1}, {b: 2}, {c: 3});
+  deepEqual(t, {a: 1, b: 2, c: 3}, "Object.assign copies multiple sources");
 });
 
 test("Typed Array", function() {

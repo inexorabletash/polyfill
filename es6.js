@@ -434,38 +434,42 @@
   // 19.1.3.1 Object.assign ( target, source )
   define(
     Object, 'assign',
-    function assign(target, source) {
-      var to = ToObject(target);
-      var from = ToObject(source);
-      var keys = OwnPropertyKeys(from);
-      var gotAllNames = false;
-      var pendingException = undefined;
-      while (!gotAllNames) {
-        var next = IteratorStep(keys);
-        if (next === false) {
-          gotAllNames = true;
-        } else {
-          var nextKey = IteratorValue(next);
-          try {
-            var desc = Object.getOwnPropertyDescriptor(from, nextKey);
-          } catch (desc) {
-            if (pendingException === undefined)
-              pendingException = desc;
-            continue;
-          }
-          if (desc !== undefined && desc.enumerable === true) {
+    function assign(target, /*...*/sources) {
+      sources = [].slice.call(arguments, 1);
+      while (sources.length) {
+        var nextSource = sources.shift();
+        var to = ToObject(target);
+        var from = ToObject(nextSource);
+        var keys = OwnPropertyKeys(from);
+        var gotAllNames = false;
+        var pendingException = undefined;
+        while (!gotAllNames) {
+          var next = IteratorStep(keys);
+          if (next === false) {
+            gotAllNames = true;
+          } else {
+            var nextKey = IteratorValue(next);
             try {
-              var propValue = from[nextKey];
-            } catch (propValue) {
+              var desc = Object.getOwnPropertyDescriptor(from, nextKey);
+            } catch (desc) {
               if (pendingException === undefined)
-                  pendingException = propValue;
+                pendingException = desc;
               continue;
             }
-            try {
-              to[nextKey] = propValue;
-            } catch (status) {
-              if (pendingException === undefined)
-                pendingException = status;
+            if (desc !== undefined && desc.enumerable === true) {
+              try {
+                var propValue = from[nextKey];
+              } catch (propValue) {
+                if (pendingException === undefined)
+                  pendingException = propValue;
+                continue;
+              }
+              try {
+                to[nextKey] = propValue;
+              } catch (status) {
+                if (pendingException === undefined)
+                  pendingException = status;
+              }
             }
           }
         }
