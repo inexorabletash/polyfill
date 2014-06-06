@@ -673,7 +673,7 @@ test("Map", function () {
 
   var data = [[0, "a"], [1, "b"]], count = 0;
   map = new Map(data);
-  map.forEach(function(k, v, m) {
+  map.forEach(function(v, k, m) {
     assertEqual("map", m);
     self.k = k;
     self.v = v;
@@ -750,11 +750,14 @@ test("Set", function () {
 
   var data = [1, 2, 3], count = 0;
   set = new Set(data);
-  set.forEach(function(i, s) {
+  set.forEach(function(e1, e2, s) {
     assertEqual("set", s);
-    self.i = i;
-    assertEqual("i", data[count]);
-    delete self.i;
+    self.e1 = e1;
+    self.e2 = e2;
+    assertEqual("e1", data[count]);
+    assertEqual("e2", data[count]);
+    delete self.e1;
+    delete self.e2;
     ++count;
   });
   equal(3, count);

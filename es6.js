@@ -2215,7 +2215,7 @@
         }
         for (var i = 0; i < entries.keys.length; ++i) {
           if (entries.keys[i] !== empty) {
-            callbackfn.call(thisArg, entries.keys[i], entries.values[i], m);
+            callbackfn.call(thisArg, entries.values[i], entries.keys[i], m);
           }
         }
         return undefined;
@@ -2506,7 +2506,7 @@
         }
         for (var i = 0; i < entries.length; ++i) {
           if (entries[i] !== empty) {
-            callbackfn.call(thisArg, entries[i], s);
+            callbackfn.call(thisArg, entries[i], entries[i], s);
           }
         }
       });
