@@ -1,5 +1,7 @@
 Unless otherwise stated, the code provided here is in the **Public Domain**; no attribution necessary, and no warranty given.
 
+In countries where the Public Domain status of the work may not be valid, its author hereby grants a copyright licence to the general public to deal in the work without restriction and permission to sublicence derivates under the terms of any (OSI approved) Open Source licence.
+
 
 ### Typed Arrays - typedarray.js
 Copyright (C) 2010 Linden Research, Inc.
