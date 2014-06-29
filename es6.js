@@ -28,13 +28,17 @@
     };
   }
 
+  function isSymbol(s) {
+    return (typeof s === 'symbol') || ('Symbol' in global && s instanceof global.Symbol);
+  }
+
   function define(o, p, v, override) {
     if (p in o && !override)
       return;
 
     if (typeof v === 'function') {
       // Sanity check that functions are appropriately named (where possible)
-      assert((global.Symbol && p instanceof global.Symbol) || !('name' in v) || v.name === p || v.name === p + '_', 'Expected function name "' + p + '", was "' + v.name + '"');
+      assert(isSymbol(p) || !('name' in v) || v.name === p || v.name === p + '_', 'Expected function name "' + p.toString() + '", was "' + v.name + '"');
       Object.defineProperty(o, p, {
         value: v,
         configurable: true,
@@ -206,7 +210,7 @@
     // 19.4.2.5 Symbol.isRegExp
 
     // 19.4.2.6 Symbol.iterator
-    define(Symbol, 'iterator', Symbol('iterator'));
+    define(Symbol, 'iterator', Symbol('Symbol.iterator'));
 
     // 19.4.2.7 Symbol.keyFor (sym)
     define(Symbol, 'keyFor', function keyFor(sym) {
@@ -222,7 +226,7 @@
     // 19.4.2.9 Symbol.toPrimitive
 
     // 19.4.2.10 Symbol.toStringTag
-    define(Symbol, 'toStringTag', Symbol('toStringTag'));
+    define(Symbol, 'toStringTag', Symbol('Symbol.toStringTag'));
 
     // 19.4.2.11 Symbol.unscopables
     // 19.4.2.12 Symbol [ @@create ] ()
@@ -248,7 +252,7 @@
       configurable: true, writeable: true, enumerable: false });
 
     // 19.4.3.4 Symbol.prototype [ @@toStringTag ]
-    define(Symbol.prototype, Symbol.toStringTag, 'Symbol');
+    // (Done later to polyfill partial implementations)
 
     // 19.4.4 Properties of Symbol Instances
 
@@ -256,7 +260,7 @@
 
   }());
 
-  assert(symbolForKey(String(global.Symbol('x'))));
+  assert(typeof global.Symbol() === 'symbol' || symbolForKey(String(global.Symbol('x'))));
 
   //----------------------------------------
   // 6 ECMAScript Data Types and Values
@@ -486,9 +490,7 @@
   // 19.1.3.6 Object.getOwnPropertyDescriptor ( O, P )
 
   (function() {
-    var s = global.Symbol(), o = {};
-    o[s] = 1;
-    var nativeSymbols = (Object.getOwnPropertyNames(o).length === 0),
+    var nativeSymbols = (typeof global.Symbol() === 'symbol'),
         $getOwnPropertyNames = Object.getOwnPropertyNames,
         $keys = Object.keys;
 
@@ -614,6 +616,9 @@
   // ---------------------------------------
 
   // Moved earlier in this script, so that other polyfills can depend on them.
+
+  // 19.4.3.4 Symbol.prototype [ @@toStringTag ]
+  define(global.Symbol.prototype, global.Symbol.toStringTag, 'Symbol');
 
   // ---------------------------------------
   // 19.5 Error Objects
@@ -2734,16 +2739,25 @@
         return M;
       });
 
-    // 23.3.3.7 WeakMap.prototype [ @@toStringTag ]
-    define(WeakMap.prototype, $$toStringTag, 'WeakMap');
-
-    // 23.3.4 Properties of WeakMap Instances
-
     // Override IE11's divergent implementation
     if (!global.WeakMap || global.WeakMap.length)
       global.WeakMap = WeakMap;
   }());
 
+  // 23.3.3.7 WeakMap.prototype [ @@toStringTag ]
+  define(global.WeakMap.prototype, $$toStringTag, 'WeakMap');
+
+  // 23.3.4 Properties of WeakMap Instances
+
+  // Polyfills for incomplete implementations:
+  (function() {
+    var wm = new global.WeakMap();
+    var orig = global.WeakMap.prototype.set;
+    define(global.WeakMap.prototype, 'set', function set() {
+      orig.apply(this, arguments);
+      return this;
+    }, wm.set({}, 0) !== wm);
+  }());
 
   // ---------------------------------------
   // 23.4 WeakSet Objects
@@ -2833,12 +2847,22 @@
         return S['[[WeakSetData]]'].has(key);
       });
 
-    // 23.4.3.6 WeakSet.prototype [ @@toStringTag ]
-    define(WeakSet.prototype, $$toStringTag, 'WeakSet');
-
-    // 23.4.4 Properties of WeakSet Instances
-
     global.WeakSet = global.WeakSet || WeakSet;
+  }());
+
+  // 23.4.3.6 WeakSet.prototype [ @@toStringTag ]
+  define(global.WeakSet.prototype, $$toStringTag, 'WeakSet');
+
+  // 23.4.4 Properties of WeakSet Instances
+
+  // Polyfills for incomplete implementations:
+  (function() {
+    var ws = new global.WeakSet();
+    var orig = global.WeakSet.prototype.add;
+    define(global.WeakSet.prototype, 'add', function add() {
+      orig.apply(this, arguments);
+      return this;
+    }, ws.add({}) !== ws);
   }());
 
   // ---------------------------------------
