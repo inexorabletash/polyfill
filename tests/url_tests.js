@@ -137,12 +137,12 @@ test("Parameter Mutation", function () {
   equal(url.search, "?a=1&b=2&a=3");
   equal(url.href, "http://example.com/?a=1&b=2&a=3");
 
-  url.searchParams.delete("a");
+  url.searchParams['delete']("a");
   equal(url.search, "?b=2");
   deepEqual(url.searchParams.getAll("a"), []);
   equal(url.href, "http://example.com/?b=2");
 
-  url.searchParams.delete("b");
+  url.searchParams['delete']("b");
   deepEqual(url.searchParams.getAll("b"), []);
   equal(url.href, "http://example.com/");
 });

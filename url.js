@@ -141,7 +141,7 @@
           updateSteps();
         }},
 
-        delete: { value: function(name) {
+        'delete': { value: function(name) {
           for (var i = 0; i < pairs.length;) {
             if (pairs[i].name === name)
               pairs.splice(i, 1);
