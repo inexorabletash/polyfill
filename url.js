@@ -217,9 +217,7 @@
         origin: {
           get: function () {
             if ('origin' in anchor) return anchor.origin;
-            var origin = anchor.protocol + '://';
-            if (anchor.port) origin += ':' + anchor.port;
-            return origin;
+            return anchor.protocol + '//' + anchor.host;
           }
         },
         protocol: {
@@ -308,9 +306,7 @@
 
       if (!anchor.origin && Object.defineProperty) {
         Object.defineProperty(anchor, 'origin', { get: function() {
-          var origin = anchor.protocol + '://';
-          if (anchor.port) origin += ':' + anchor.port;
-          return origin;
+            return anchor.protocol + '//' + anchor.host;
         }});
       }
 
