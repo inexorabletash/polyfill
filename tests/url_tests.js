@@ -16,7 +16,7 @@ if (/MSIE/.test(navigator.userAgent)) {
 var expectLeadingSlash = engine !== 'trident';
 
 // IE includes default port in |host|
-var expectDefaultPort = false;//engine === 'trident';
+var expectDefaultPort = engine === 'trident';
 
 // Presto does not support observing property changes
 var testPropertyChanges = engine !== 'presto';
