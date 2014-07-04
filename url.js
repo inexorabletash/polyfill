@@ -306,6 +306,14 @@
         document.appendChild(anchor);
       }
 
+      if (!anchor.origin && Object.defineProperty) {
+        Object.defineProperty(anchor, 'origin', { get: function() {
+          var origin = anchor.protocol + '://';
+          if (anchor.port) origin += ':' + anchor.port;
+          return origin;
+        }});
+      }
+
       // Add URL API methods
       anchor.searchParams = queryObject;
 
