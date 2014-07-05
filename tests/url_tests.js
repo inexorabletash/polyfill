@@ -123,6 +123,12 @@ test("Parameter Mutation", function () {
   url.searchParams['delete']("b");
   deepEqual(url.searchParams.getAll("b"), []);
   equal(url.href, "http://example.com/");
+
+  url.href = 'http://example.com?m=9&n=3';
+  equal(url.searchParams.has('a'), false);
+  equal(url.searchParams.has('b'), false);
+  equal(url.searchParams.get('m'), 9);
+  equal(url.searchParams.get('n'), 3);
 });
 
 test("Parameter Encoding", 5, function () {
