@@ -1,16 +1,9 @@
 // URL Polyfill
-// Draft specification: http://dvcs.w3.org/hg/url/raw-file/tip/Overview.html
+// Draft specification: http://url.spec.whatwg.org
 
 // Notes:
 // - Primarily useful for parsing URLs and modifying query parameters
 // - The |username| and |password| attribute are not supported
-
-// Browser variations not normalized:
-// - Firefox (6-9) does not support |origin| attribute
-// - Opera (~11) does not support |origin| attribute
-// - IE (8+/-?) does not support |origin| attribute
-// - IE (8+/-?) does not include leading '/' in |pathname| attribute
-// - IE (8+/-?) includes default port in |host| attribute
 
 (function (global) {
   "use strict";
@@ -33,48 +26,53 @@
 
   // Detect for ES5 getter/setter support
   var ES5_GET_SET = (Object.defineProperties && (function () {
-    var o = {}; Object.defineProperties(o, {p: {'get': function () { return true; }}}); return o.p; }()));
+    var o = {}; Object.defineProperties(o, {p: {'get': function () { return true; }}}); return o.p;
+  }()));
 
 
   // Strip empty query/hash
   function tidy(anchor) {
     var href = anchor.href.replace(/#$|\?$|\?(?=#)/g, '');
-    if (anchor.href !== href)
+    if (anchor.href !== href) {
       anchor.href = href;
+    }
   }
-
 
   var origURL = global.URL;
   global.URL = function URL(url, baseURL) {
+    if (!(this instanceof URL))
+      throw new TypeError("Failed to construct 'URL': Please use the 'new' operator.");
 
-    var doc, base, anchor;
     if (baseURL) {
-      // Use another document/base tag/anchor for relative URL resolution, if possible
-      if (document.implementation && document.implementation.createHTMLDocument) {
-        doc = document.implementation.createHTMLDocument("");
-      } else if (document.implementation && document.implementation.createDocument) {
-        doc = document.implementation.createElement('http://www.w3.org/1999/xhtml', 'html', null);
-        doc.documentElement.appendChild(doc.createElement('head'));
-        doc.documentElement.appendChild(doc.createElement('body'));
-      } else if (window.ActiveXObject) {
-        doc = new ActiveXObject("htmlfile");
-        doc.write("<head></head><body></body>");
-        doc.close();
-      }
+      url = (function() {
+        var doc, base, anchor;
+        // Use another document/base tag/anchor for relative URL resolution, if possible
+        if (document.implementation && document.implementation.createHTMLDocument) {
+          doc = document.implementation.createHTMLDocument("");
+        } else if (document.implementation && document.implementation.createDocument) {
+          doc = document.implementation.createElement('http://www.w3.org/1999/xhtml', 'html', null);
+          doc.documentElement.appendChild(doc.createElement('head'));
+          doc.documentElement.appendChild(doc.createElement('body'));
+        } else if (window.ActiveXObject) {
+          doc = new window.ActiveXObject("htmlfile");
+          doc.write("<head></head><body></body>");
+          doc.close();
+        }
 
-      if (!doc) throw Error("baseURL not supported");
+        if (!doc) throw Error("baseURL not supported");
 
-      base = doc.createElement("base");
-      base.href = baseURL;
-      doc.getElementsByTagName("head")[0].appendChild(base);
-      anchor = doc.createElement("a");
-      anchor.href = url;
-      url = anchor.href;
+        base = doc.createElement("base");
+        base.href = baseURL;
+        doc.getElementsByTagName("head")[0].appendChild(base);
+        anchor = doc.createElement("a");
+        anchor.href = url;
+        return anchor.href;
+      }());
     }
 
     // Use an actual HTMLAnchorElement instance since the semantics
     // are pretty close.
-    anchor = document.createElement('a');
+    var anchor = document.createElement('a');
     anchor.href = url || "";
 
     // NOTE: Doesn't do the encoding/decoding dance
@@ -202,80 +200,92 @@
     var queryObject = new URLSearchParams(
       anchor, anchor.search ? anchor.search.substring(1) : null);
 
-    if (ES5_GET_SET) {
-      // Use ES5 getters/setters to provide full API if supported, wrapping anchor
-      // functionality
+    // An inner HTMLAnchorElement is used to perform the URL algorithms.
+    // With full ES5 getter/setter support, return a regular object
+    // For IE8's limited getter/setter support, a different HTMLAnchorElement
+    // is returned with properties overridden
 
-      // Allow calling as function or constructor
-      if (!(this instanceof URL)) { return new URL(url); }
+    var self = ES5_GET_SET ? this : document.createElement('a');
 
-      Object.defineProperties(this, {
-        href: {
-          get: function () { return anchor.href; },
-          set: function (v) { anchor.href = v; tidy(anchor); }
-        },
-        origin: {
-          get: function () {
-            if ('origin' in anchor) return anchor.origin;
-            return anchor.protocol + '//' + anchor.host;
-          }
-        },
-        protocol: {
-          get: function () { return anchor.protocol; },
-          set: function (v) { anchor.protocol = v; }
-        },
-        username: {
-          get: function () { return anchor.username; },
-          set: function (v) { anchor.username = v; }
-        },
-        password: {
-          get: function () { return anchor.password; },
-          set: function (v) { anchor.password = v; }
-        },
-        host: {
-          get: function () { return anchor.host; },
-          set: function (v) { anchor.host = v; }
-        },
-        hostname: {
-          get: function () { return anchor.hostname; },
-          set: function (v) { anchor.hostname = v; }
-        },
-        port: {
-          get: function () { return anchor.port; },
-          set: function (v) { anchor.port = v; }
-        },
-        pathname: {
-          get: function () { return anchor.pathname; },
-          set: function (v) { anchor.pathname = v; }
-        },
-        search: {
-          get: function () { return anchor.search; },
-          set: function (value) {
-            if (value === '') {
-              anchor.search = '';
-              queryObject._setPairs([]);
-              queryObject._updateSteps();
-              return;
-            }
-            var input = value.charAt(0) === '?' ? value.substring(1) : value;
-            queryObject._setPairs(parse(input));
-            queryObject._updateSteps();
-          }
-        },
-        searchParams: {
-          get: function () { return queryObject; }
-          // TODO: implement setter
-        },
-        hash: {
-          get: function () { return anchor.hash; },
-          set: function (v) { anchor.hash = v; tidy(anchor); }
+    Object.defineProperties(self, {
+      href: {
+        get: function () { return anchor.href; },
+        set: function (v) { anchor.href = v; tidy(anchor); }
+      },
+      origin: {
+        get: function () {
+          if ('origin' in anchor) return anchor.origin;
+          var host = anchor.host;
+          if (anchor.protocol === 'http:') host = host.replace(/:80$/, '');
+          if (anchor.protocol === 'https:') host = host.replace(/:443$/, '');
+          if (anchor.protocol === 'ftp:') host = host.replace(/:21$/, '');
+          return anchor.protocol + '//' + host;
         }
-      });
+      },
+      protocol: {
+        get: function () { return anchor.protocol; },
+        set: function (v) { anchor.protocol = v; }
+      },
+      username: {
+        get: function () { return anchor.username; },
+        set: function (v) { anchor.username = v; }
+      },
+      password: {
+        get: function () { return anchor.password; },
+        set: function (v) { anchor.password = v; }
+      },
+      host: {
+        get: function () {
+          // IE returns default port in |host|
+          if (anchor.protocol === 'http:') return anchor.host.replace(/:80$/, '');
+          if (anchor.protocol === 'https:') return anchor.host.replace(/:443$/, '');
+          if (anchor.protocol === 'ftp:') return anchor.host.replace(/:21$/, '');
+          return anchor.host;
+        },
+        set: function (v) { anchor.host = v; }
+      },
+      hostname: {
+        get: function () { return anchor.hostname; },
+        set: function (v) { anchor.hostname = v; }
+      },
+      port: {
+        get: function () { return anchor.port; },
+        set: function (v) { anchor.port = v; }
+      },
+      pathname: {
+        get: function () {
+          // IE does not include leading '/' in |pathname|
+          if (anchor.pathname.charAt(0) !== '/') return '/' + anchor.pathname;
+          return anchor.pathname;
+        },
+        set: function (v) { anchor.pathname = v; }
+      },
+      search: {
+        get: function () { return anchor.search; },
+        set: function (value) {
+          if (value === '') {
+            anchor.search = '';
+            queryObject._setPairs([]);
+            queryObject._updateSteps();
+            return;
+          }
+          var input = value.charAt(0) === '?' ? value.substring(1) : value;
+          queryObject._setPairs(parse(input));
+          queryObject._updateSteps();
+        }
+      },
+      searchParams: {
+        get: function () { return queryObject; }
+        // TODO: implement setter
+      },
+      hash: {
+        get: function () { return anchor.hash; },
+        set: function (v) { anchor.hash = v; tidy(anchor); }
+      }
+    });
 
-      return this;
-
-    } else {
-      // If no ES5 getter/setter support, return the anchor tag itself, augmented with additional properties
+    if (!ES5_GET_SET) {
+      // Limited ES5 getter/setter support, return an an anchor tag proxying to the real thing, augmented with additional properties
 
       var update = function() {
         tidy(anchor);
@@ -304,17 +314,11 @@
         document.appendChild(anchor);
       }
 
-      if (!anchor.origin && Object.defineProperty) {
-        Object.defineProperty(anchor, 'origin', { get: function() {
-            return anchor.protocol + '//' + anchor.host;
-        }});
-      }
-
       // Add URL API methods
       anchor.searchParams = queryObject;
-
-      return anchor;
     }
+
+    return self;
   };
 
   if (origURL) {

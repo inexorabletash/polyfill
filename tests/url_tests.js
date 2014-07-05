@@ -1,26 +1,4 @@
 
-// Test around browser quirks:
-//
-var engine = '';
-if (/MSIE/.test(navigator.userAgent)) {
-  engine = 'trident'; // Internet Explorer
-} else if (/WebKit\//.test(navigator.userAgent)) {
-  engine = 'webkit'; // Safari/Chrome
-} else if (/Gecko\//.test(navigator.userAgent)) {
-  engine = 'gecko'; // Firefox
-} else if (/Presto\//.test(navigator.userAgent)) {
-  engine = 'presto'; // Opera
-}
-
-// IE does not include leading '/' in |pathname|
-var expectLeadingSlash = engine !== 'trident';
-
-// IE includes default port in |host|
-var expectDefaultPort = engine === 'trident';
-
-// Presto does not support observing property changes
-var testPropertyChanges = engine !== 'presto';
-
 test("URL IDL", function () {
   var url = new URL("http://example.com:8080/foo/bar?a=1&b=2#p1");
   equal(typeof url.protocol, 'string', 'protocol');
@@ -40,7 +18,7 @@ test("URL Parsing", function () {
   equal(url.hostname, "example.com");
   equal(url.port, "8080");
   equal(url.host, "example.com:8080");
-  equal(url.pathname, expectLeadingSlash ? "/foo/bar" : "foo/bar");
+  equal(url.pathname, "/foo/bar");
   equal(url.search, "?a=1&b=2");
   equal(url.hash, "#p1");
   equal(url.origin, "http://example.com:8080");
@@ -51,28 +29,28 @@ test("URL Mutation", function () {
   var url = new URL("http://example.com");
   equal(url.href, "http://example.com/");
   equal(url.origin, "http://example.com");
-  equal(url.host, expectDefaultPort ? "example.com:80" : "example.com");
+  equal(url.host, "example.com");
 
   url.protocol = "ftp";
   equal(url.protocol, "ftp:");
   equal(url.href, "ftp://example.com/");
   equal(url.origin, "ftp://example.com");
-  equal(url.host, expectDefaultPort ? "example.com:21" : "example.com");
+  equal(url.host, "example.com");
   url.protocol = "http";
   equal(url.protocol, "http:");
   equal(url.href, "http://example.com/");
   equal(url.origin, "http://example.com");
-  equal(url.host, expectDefaultPort ? "example.com:80" : "example.com");
+  equal(url.host, "example.com");
 
   url = new URL("http://example.com");
   url.hostname = "example.org";
   equal(url.href, "http://example.org/");
   equal(url.origin, "http://example.org");
-  equal(url.host, expectDefaultPort ? "example.org:80" : "example.org");
+  equal(url.host, "example.org");
   url.hostname = "example.com";
   equal(url.href, "http://example.com/");
   equal(url.origin, "http://example.com");
-  equal(url.host, expectDefaultPort ? "example.com:80" : "example.com");
+  equal(url.host, "example.com");
 
   url = new URL("http://example.com");
   url.port = 8080;
@@ -82,7 +60,7 @@ test("URL Mutation", function () {
   url.port = 80;
   equal(url.href, "http://example.com/");
   equal(url.origin, "http://example.com");
-  equal(url.host, expectDefaultPort ? "example.com:80" : "example.com");
+  equal(url.host, "example.com");
 
   url = new URL("http://example.com");
   url.pathname = "foo";
@@ -148,7 +126,6 @@ test("Parameter Mutation", function () {
 });
 
 test("Parameter Encoding", 5, function () {
-
   var url = new URL("http://example.com");
   equal(url.href, "http://example.com/");
   equal(url.search, "");
@@ -160,30 +137,30 @@ test("Parameter Encoding", 5, function () {
 
 test("Base URL", 20, function () {
   // fully qualified URL
-  equal(URL("http://example.com", "https://example.org").href, "http://example.com/");
-  equal(URL("http://example.com/foo/bar", "https://example.org").href, "http://example.com/foo/bar");
+  equal(new URL("http://example.com", "https://example.org").href, "http://example.com/");
+  equal(new URL("http://example.com/foo/bar", "https://example.org").href, "http://example.com/foo/bar");
 
   // protocol relative
-  equal(URL("//example.com", "https://example.org").href, "https://example.com/");
+  equal(new URL("//example.com", "https://example.org").href, "https://example.com/");
 
   // path relative
-  equal(URL("/foo/bar", "https://example.org").href, "https://example.org/foo/bar");
-  equal(URL("/foo/bar", "https://example.org/baz/bat").href, "https://example.org/foo/bar");
-  equal(URL("./bar", "https://example.org").href, "https://example.org/bar");
-  equal(URL("./bar", "https://example.org/foo/").href, "https://example.org/foo/bar");
-  equal(URL("bar", "https://example.org/foo/").href, "https://example.org/foo/bar");
-  equal(URL("../bar", "https://example.org/foo/").href, "https://example.org/bar");
-  equal(URL("../bar", "https://example.org/foo/").href, "https://example.org/bar");
-  equal(URL("../../bar", "https://example.org/foo/baz/bat/").href, "https://example.org/foo/bar");
-  equal(URL("../../bar", "https://example.org/foo/baz/bat").href, "https://example.org/bar");
-  equal(URL("../../bar", "https://example.org/foo/baz/").href, "https://example.org/bar");
-  equal(URL("../../bar", "https://example.org/foo/").href, "https://example.org/bar");
-  equal(URL("../../bar", "https://example.org/foo/").href, "https://example.org/bar");
+  equal(new URL("/foo/bar", "https://example.org").href, "https://example.org/foo/bar");
+  equal(new URL("/foo/bar", "https://example.org/baz/bat").href, "https://example.org/foo/bar");
+  equal(new URL("./bar", "https://example.org").href, "https://example.org/bar");
+  equal(new URL("./bar", "https://example.org/foo/").href, "https://example.org/foo/bar");
+  equal(new URL("bar", "https://example.org/foo/").href, "https://example.org/foo/bar");
+  equal(new URL("../bar", "https://example.org/foo/").href, "https://example.org/bar");
+  equal(new URL("../bar", "https://example.org/foo/").href, "https://example.org/bar");
+  equal(new URL("../../bar", "https://example.org/foo/baz/bat/").href, "https://example.org/foo/bar");
+  equal(new URL("../../bar", "https://example.org/foo/baz/bat").href, "https://example.org/bar");
+  equal(new URL("../../bar", "https://example.org/foo/baz/").href, "https://example.org/bar");
+  equal(new URL("../../bar", "https://example.org/foo/").href, "https://example.org/bar");
+  equal(new URL("../../bar", "https://example.org/foo/").href, "https://example.org/bar");
 
   // search/hash relative
-  equal(URL("bar?ab#cd", "https://example.org/foo/").href, "https://example.org/foo/bar?ab#cd");
-  equal(URL("bar?ab#cd", "https://example.org/foo").href, "https://example.org/bar?ab#cd");
-  equal(URL("?ab#cd", "https://example.org/foo").href, "https://example.org/foo?ab#cd");
-  equal(URL("?ab", "https://example.org/foo").href, "https://example.org/foo?ab");
-  equal(URL("#cd", "https://example.org/foo").href, "https://example.org/foo#cd");
+  equal(new URL("bar?ab#cd", "https://example.org/foo/").href, "https://example.org/foo/bar?ab#cd");
+  equal(new URL("bar?ab#cd", "https://example.org/foo").href, "https://example.org/bar?ab#cd");
+  equal(new URL("?ab#cd", "https://example.org/foo").href, "https://example.org/foo?ab#cd");
+  equal(new URL("?ab", "https://example.org/foo").href, "https://example.org/foo?ab");
+  equal(new URL("#cd", "https://example.org/foo").href, "https://example.org/foo#cd");
 });
