@@ -295,8 +295,10 @@
   };
 
   if (origURL) {
-    for (var i in origURL)
-      global.URL[i] = origURL[i];
+    for (var i in origURL) {
+      if (origURL.hasOwnProperty(i))
+        global.URL[i] = origURL[i];
+    }
   }
 
 }(this));
