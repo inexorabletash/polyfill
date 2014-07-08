@@ -75,13 +75,6 @@
 
     var instance = URLUtils(url || '');
 
-    // Strip empty query/hash
-    function tidy_instance() {
-      var href = instance.href.replace(/#$|\?$|\?(?=#)/g, '');
-      if (instance.href !== href)
-        instance.href = href;
-    }
-
     // Detect for ES5 getter/setter support
     var ES5_GET_SET = (Object.defineProperties && (function () {
       var o = {}; Object.defineProperties(o, { p: { 'get': function () { return true; } } }); return o.p;
@@ -119,7 +112,7 @@
       return output; // Spec bug?
     }
 
-    function URLSearchParams(instance, init) {
+    function URLSearchParams(url_object, init) {
       var pairs = [];
       if (init)
         pairs = parse(init);
@@ -127,10 +120,15 @@
       this._setPairs = function (list) { pairs = list; };
       this._updateSteps = function () { updateSteps(); };
 
+      var updating = false;
       function updateSteps() {
+        if (updating) return;
+        updating = true;
+
         // TODO: For all associated url objects
-        instance.search = serialize(pairs);
-        tidy_instance();
+        url_object.search = serialize(pairs);
+
+        updating = false;
       }
 
       // NOTE: Doesn't do the encoding/decoding dance
@@ -225,52 +223,46 @@
     };
 
     var queryObject = new URLSearchParams(
-      instance, instance.search ? instance.search.substring(1) : null);
+      self, instance.search ? instance.search.substring(1) : null);
 
     Object.defineProperties(self, {
       href: {
         get: function () { return instance.href; },
-        set: function (v) { instance.href = v; update(); }
+        set: function (v) { instance.href = v; tidy_instance(); update_steps(); }
       },
       origin: {
         get: function () {
           if ('origin' in instance) return instance.origin;
-          var host = instance.host;
-          if (instance.protocol === 'http:') host = host.replace(/:80$/, '');
-          if (instance.protocol === 'https:') host = host.replace(/:443$/, '');
-          if (instance.protocol === 'ftp:') host = host.replace(/:21$/, '');
-          return instance.protocol + '//' + host;
+          return this.protocol + '//' + this.host;
         }
       },
       protocol: {
         get: function () { return instance.protocol; },
-        set: function (v) { instance.protocol = v; update(); }
+        set: function (v) { instance.protocol = v; }
       },
       username: {
         get: function () { return instance.username; },
-        set: function (v) { instance.username = v; update(); }
+        set: function (v) { instance.username = v; }
       },
       password: {
         get: function () { return instance.password; },
-        set: function (v) { instance.password = v; update(); }
+        set: function (v) { instance.password = v; }
       },
       host: {
         get: function () {
           // IE returns default port in |host|
-          if (instance.protocol === 'http:') return instance.host.replace(/:80$/, '');
-          if (instance.protocol === 'https:') return instance.host.replace(/:443$/, '');
-          if (instance.protocol === 'ftp:') return instance.host.replace(/:21$/, '');
-          return instance.host;
+          var re = {'http:': /:80$/, 'https:': /:443$/, 'ftp:': /:21$/}[instance.protocol];
+          return re ? instance.host.replace(re, '') : instance.host;
         },
-        set: function (v) { instance.host = v; update(); }
+        set: function (v) { instance.host = v; }
       },
       hostname: {
         get: function () { return instance.hostname; },
-        set: function (v) { instance.hostname = v; update(); }
+        set: function (v) { instance.hostname = v; }
       },
       port: {
         get: function () { return instance.port; },
-        set: function (v) { instance.port = v; update(); }
+        set: function (v) { instance.port = v; }
       },
       pathname: {
         get: function () {
@@ -278,11 +270,14 @@
           if (instance.pathname.charAt(0) !== '/') return '/' + instance.pathname;
           return instance.pathname;
         },
-        set: function (v) { instance.pathname = v; update(); }
+        set: function (v) { instance.pathname = v; }
       },
       search: {
         get: function () { return instance.search; },
-        set: function (v) { instance.search = v; update(); }
+        set: function (v) {
+          if (instance.search === v) return;
+          instance.search = v; tidy_instance(); update_steps();
+        }
       },
       searchParams: {
         get: function () { return queryObject; }
@@ -290,12 +285,17 @@
       },
       hash: {
         get: function () { return instance.hash; },
-        set: function (v) { instance.hash = v; update(); }
+        set: function (v) { instance.hash = v; tidy_instance(); }
       }
     });
 
-    function update() {
-      tidy_instance();
+    function tidy_instance() {
+      var href = instance.href.replace(/#$|\?$|\?(?=#)/g, '');
+      if (instance.href !== href)
+        instance.href = href;
+    }
+
+    function update_steps() {
       queryObject._setPairs(instance.search ? parse(instance.search.substring(1)) : []);
       queryObject._updateSteps();
     };
