@@ -6,67 +6,88 @@
 // - Should work in IE8+ and everything more modern
 
 (function (global) {
-  "use strict";
+  'use strict';
 
-  var OVERRIDE = (function () {
-    if (!('URL' in global))
-      return true;
-    if (typeof global.URL !== 'function')
-      return true;
-    try {
-      var url = new global.URL;
-      return !('searchParams' in url);
-    } catch (e) {
-      return true;
+  // Browsers may have:
+  // * No global URL object
+  // * URL with static methods only - may have a dummy constructor
+  // * URL with members except searchParams
+  // * Full URL API support
+  var origURL = global.URL;
+  var nativeURL;
+  try {
+    if (origURL) {
+      nativeURL = new global.URL('http://example.com');
+      if ('searchParams' in nativeURL)
+        return;
+      if (!('href' in nativeURL))
+        nativeURL = undefined;
     }
-  }());
+  } catch (_) {}
 
-  if (!OVERRIDE)
-    return;
-
-  // Strip empty query/hash
-  function tidy(anchor) {
-    var href = anchor.href.replace(/#$|\?$|\?(?=#)/g, '');
-    if (anchor.href !== href)
-      anchor.href = href;
+  function URLUtils(url) {
+    if (nativeURL)
+      return new origURL(url);
+    var anchor = document.createElement('a');
+    anchor.href = url;
+    return anchor;
   }
 
-  var origURL = global.URL;
-  global.URL = function URL(url, baseURL) {
+  global.URL = function URL(url, base) {
     if (!(this instanceof global.URL))
       throw new TypeError("Failed to construct 'URL': Please use the 'new' operator.");
 
-    if (baseURL) {
+    if (base) {
       url = (function () {
-        var doc, base, anchor;
+        if (nativeURL) return new origURL(url, base).href;
+
+        var doc;
         // Use another document/base tag/anchor for relative URL resolution, if possible
         if (document.implementation && document.implementation.createHTMLDocument) {
-          doc = document.implementation.createHTMLDocument("");
+          doc = document.implementation.createHTMLDocument('');
         } else if (document.implementation && document.implementation.createDocument) {
           doc = document.implementation.createElement('http://www.w3.org/1999/xhtml', 'html', null);
           doc.documentElement.appendChild(doc.createElement('head'));
           doc.documentElement.appendChild(doc.createElement('body'));
         } else if (window.ActiveXObject) {
-          doc = new window.ActiveXObject("htmlfile");
-          doc.write("<head></head><body></body>");
+          doc = new window.ActiveXObject('htmlfile');
+          doc.write('<head></head><body></body>');
           doc.close();
         }
 
-        if (!doc) throw Error("baseURL not supported");
+        if (!doc) throw Error('base not supported');
 
-        base = doc.createElement("base");
-        base.href = baseURL;
-        doc.getElementsByTagName("head")[0].appendChild(base);
-        anchor = doc.createElement("a");
+        var baseTag = doc.createElement('base');
+        baseTag.href = base;
+        doc.getElementsByTagName('head')[0].appendChild(baseTag);
+        var anchor = doc.createElement('a');
         anchor.href = url;
         return anchor.href;
       }());
     }
 
-    // Use an actual HTMLAnchorElement instance since the semantics
-    // are pretty close.
-    var anchor = document.createElement('a');
-    anchor.href = url || "";
+    // An inner object implementing URLUtils (either a native URL
+    // object or an HTMLAnchorElement instance) is used to perform the
+    // URL algorithms. With full ES5 getter/setter support, return a
+    // regular object For IE8's limited getter/setter support, a
+    // different HTMLAnchorElement is returned with properties
+    // overridden
+
+    var instance = URLUtils(url || '');
+
+    // Strip empty query/hash
+    function tidy_instance() {
+      var href = instance.href.replace(/#$|\?$|\?(?=#)/g, '');
+      if (instance.href !== href)
+        instance.href = href;
+    }
+
+    // Detect for ES5 getter/setter support
+    var ES5_GET_SET = (Object.defineProperties && (function () {
+      var o = {}; Object.defineProperties(o, { p: { 'get': function () { return true; } } }); return o.p;
+    }()));
+
+    var self = ES5_GET_SET ? this : document.createElement('a');
 
     // NOTE: Doesn't do the encoding/decoding dance
     function parse(input, isindex) {
@@ -98,7 +119,7 @@
       return output; // Spec bug?
     }
 
-    function URLSearchParams(anchor, init) {
+    function URLSearchParams(instance, init) {
       var pairs = [];
       if (init)
         pairs = parse(init);
@@ -108,8 +129,8 @@
 
       function updateSteps() {
         // TODO: For all associated url objects
-        anchor.search = serialize(pairs);
-        tidy(anchor);
+        instance.search = serialize(pairs);
+        tidy_instance();
       }
 
       // NOTE: Doesn't do the encoding/decoding dance
@@ -204,90 +225,78 @@
     };
 
     var queryObject = new URLSearchParams(
-      anchor, anchor.search ? anchor.search.substring(1) : null);
-
-    // An inner HTMLAnchorElement is used to perform the URL algorithms.
-    // With full ES5 getter/setter support, return a regular object
-    // For IE8's limited getter/setter support, a different HTMLAnchorElement
-    // is returned with properties overridden
-
-    // Detect for ES5 getter/setter support
-    var ES5_GET_SET = (Object.defineProperties && (function () {
-      var o = {}; Object.defineProperties(o, { p: { 'get': function () { return true; } } }); return o.p;
-    }()));
-
-    var self = ES5_GET_SET ? this : document.createElement('a');
+      instance, instance.search ? instance.search.substring(1) : null);
 
     Object.defineProperties(self, {
       href: {
-        get: function () { return anchor.href; },
-        set: function (v) { anchor.href = v; update(); }
+        get: function () { return instance.href; },
+        set: function (v) { instance.href = v; update(); }
       },
       origin: {
         get: function () {
-          if ('origin' in anchor) return anchor.origin;
-          var host = anchor.host;
-          if (anchor.protocol === 'http:') host = host.replace(/:80$/, '');
-          if (anchor.protocol === 'https:') host = host.replace(/:443$/, '');
-          if (anchor.protocol === 'ftp:') host = host.replace(/:21$/, '');
-          return anchor.protocol + '//' + host;
+          if ('origin' in instance) return instance.origin;
+          var host = instance.host;
+          if (instance.protocol === 'http:') host = host.replace(/:80$/, '');
+          if (instance.protocol === 'https:') host = host.replace(/:443$/, '');
+          if (instance.protocol === 'ftp:') host = host.replace(/:21$/, '');
+          return instance.protocol + '//' + host;
         }
       },
       protocol: {
-        get: function () { return anchor.protocol; },
-        set: function (v) { anchor.protocol = v; update(); }
+        get: function () { return instance.protocol; },
+        set: function (v) { instance.protocol = v; update(); }
       },
       username: {
-        get: function () { return anchor.username; },
-        set: function (v) { anchor.username = v; update(); }
+        get: function () { return instance.username; },
+        set: function (v) { instance.username = v; update(); }
       },
       password: {
-        get: function () { return anchor.password; },
-        set: function (v) { anchor.password = v; update(); }
+        get: function () { return instance.password; },
+        set: function (v) { instance.password = v; update(); }
       },
       host: {
         get: function () {
           // IE returns default port in |host|
-          if (anchor.protocol === 'http:') return anchor.host.replace(/:80$/, '');
-          if (anchor.protocol === 'https:') return anchor.host.replace(/:443$/, '');
-          if (anchor.protocol === 'ftp:') return anchor.host.replace(/:21$/, '');
-          return anchor.host;
+          if (instance.protocol === 'http:') return instance.host.replace(/:80$/, '');
+          if (instance.protocol === 'https:') return instance.host.replace(/:443$/, '');
+          if (instance.protocol === 'ftp:') return instance.host.replace(/:21$/, '');
+          return instance.host;
         },
-        set: function (v) { anchor.host = v; update(); }
+        set: function (v) { instance.host = v; update(); }
       },
       hostname: {
-        get: function () { return anchor.hostname; },
-        set: function (v) { anchor.hostname = v; update(); }
+        get: function () { return instance.hostname; },
+        set: function (v) { instance.hostname = v; update(); }
       },
       port: {
-        get: function () { return anchor.port; },
-        set: function (v) { anchor.port = v; update(); }
+        get: function () { return instance.port; },
+        set: function (v) { instance.port = v; update(); }
       },
       pathname: {
         get: function () {
           // IE does not include leading '/' in |pathname|
-          if (anchor.pathname.charAt(0) !== '/') return '/' + anchor.pathname;
-          return anchor.pathname;
+          if (instance.pathname.charAt(0) !== '/') return '/' + instance.pathname;
+          return instance.pathname;
         },
-        set: function (v) { anchor.pathname = v; update(); }
+        set: function (v) { instance.pathname = v; update(); }
       },
       search: {
-        get: function () { return anchor.search; },
-        set: function (v) { anchor.search = v; update(); }
+        get: function () { return instance.search; },
+        set: function (v) { instance.search = v; update(); }
       },
       searchParams: {
         get: function () { return queryObject; }
         // TODO: implement setter
       },
       hash: {
-        get: function () { return anchor.hash; },
-        set: function (v) { anchor.hash = v; update(); }
+        get: function () { return instance.hash; },
+        set: function (v) { instance.hash = v; update(); }
       }
     });
 
     function update() {
-      tidy(anchor);
-      queryObject._setPairs(anchor.search ? parse(anchor.search.substring(1)) : []);
+      tidy_instance();
+      queryObject._setPairs(instance.search ? parse(instance.search.substring(1)) : []);
       queryObject._updateSteps();
     };
 
