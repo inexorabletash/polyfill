@@ -60,7 +60,8 @@ function show(selector, e) {
         charCode: e.charCode,
         ctrlKey: e.ctrlKey,
         metaKey: e.metaKey,
-        shiftKey: e.shiftKey
+        shiftKey: e.shiftKey,
+        repeat: e.repeat
       };
 
   while (elem.hasChildNodes())
