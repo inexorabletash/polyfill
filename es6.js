@@ -81,6 +81,7 @@
       max = Math.max,
       min = Math.min,
       pow = Math.pow,
+      random = Math.random,
       sqrt = Math.sqrt;
 
   // These are used for implementing the polyfills, but not exported.
@@ -157,7 +158,7 @@
 
   // 19.4.1 The Symbol Constructor
   // 19.4.1.1 Symbol ( description=undefined )
-  // 19.4.1.2 new Symbol ( ... argumentsList )
+  // 19.4.1.2 new Symbol ( ...argumentsList )
 
   var symbolForKey;
   (function() {
@@ -172,7 +173,7 @@
     function uuid() {
       // http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = (Math.random() * 16) | 0, v = (c === 'x') ? r : (r & 0x3 | 0x8);
+        var r = (random() * 16) | 0, v = (c === 'x') ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
     }
@@ -280,7 +281,7 @@
     }
   }
 
-  // 6.1.7.4 Well-Known Symbols and Intrinsics
+  // 6.1.5.1 Well-Known Symbols
   var $$iterator = global.Symbol.iterator,
       $$toStringTag = global.Symbol.toStringTag;
 
@@ -292,11 +293,16 @@
   // 7.1 Type Conversion and Testing
   //----------------------------------------
 
-  // 7.1.1 ToPrimitive - just use valueOf()
-  // 7.1.2 ToBoolean - just use Boolean()
-  // 7.1.3 ToNumber - just use Number()
+  // 7.1.1 ToPrimitive ( input [, Preferred Type] )
+  // just use valueOf()
 
-  // 7.1.4
+  // 7.1.2 ToBoolean ( argument )
+  // just use Boolean()
+
+  // 7.1.3 ToNumber ( argument )
+  // just use Number()
+
+  // 7.1.4 ToInteger ( argument )
   function ToInteger(n) {
     n = Number(n);
     if ($isNaN(n)) return 0;
@@ -304,29 +310,30 @@
     return ((n < 0) ? -1 : 1) * floor(abs(n));
   }
 
-  // 7.1.5
+  // 7.1.5 ToInt32 ( argument ) — Signed 32 Bit Integer
   function ToInt32(v) { return v >> 0; }
 
-  // 7.1.6
+  // 7.1.6 ToUint32 ( argument ) — Unsigned 32 Bit Integer
   function ToUint32(v) { return v >>> 0; }
 
-  // 7.1.7
+  // 7.1.8 ToUint16 ( argument ) — Unsigned 16 Bit Integer
   function ToUint16(v) { return (v >>> 0) & 0xFFFF; }
 
-  // 7.1.8 ToString - just use String()
+  // 7.1.12 ToString ( argument )
+  // just use String()
 
-  // 7.1.13 ToObject
+  // 7.1.13 ToObject ( argument )
   function ToObject(v) {
     if (v === null || v === undefined) throw TypeError();
     return Object(v);
   }
 
-  // 7.1.14 ToPropertyKey
+  // 7.1.14 ToPropertyKey ( argument )
   function ToPropertyKey(v) {
     return String(v);
   }
 
-  // 7.1.15
+  // 7.1.15 ToLength ( argument )
   function ToLength(v) {
     var len = ToInteger(v);
     if (len <= 0) {
@@ -339,12 +346,10 @@
   // 7.2 Testing and Comparison Operations
   //----------------------------------------
 
-  // 7.2.1 CheckObjectCoercible - TODO: needed?
-
-  // 7.2.2
+  // 7.2.2 IsCallable ( argument )
   function IsCallable(o) { return typeof o === 'function'; }
 
-  // 7.2.3
+  // 7.2.3 SameValue(x, y)
   function SameValue(x, y) {
     if (typeof x !== typeof y) return false;
     switch (typeof x) {
@@ -362,7 +367,7 @@
     }
   }
 
-  // 7.2.4
+  // 7.2.4 SameValueZero(x, y)
   function SameValueZero(x, y) {
     if (typeof x !== typeof y) return false;
     switch (typeof x) {
@@ -379,7 +384,7 @@
     }
   }
 
-  // 7.2.5
+  // 7.2.5 IsConstructor ( argument )
   function IsConstructor(o) {
     // Hack for Safari 7 TypedArray XXXConstructor objects
     if (/Constructor/.test(Object.prototype.toString.call(o))) return true;
@@ -387,7 +392,7 @@
     return typeof o === 'function';
   }
 
-  // 7.2.6 IsPropertyKey
+  // 7.2.6 IsPropertyKey ( argument )
   function IsPropertyKey(argument) {
     if (Type(argument) === 'string') return true;
     if (Type(argument) === 'symbol') return true;
@@ -395,20 +400,92 @@
   }
 
   //----------------------------------------
-  // 7.3 Operations on Object
+  // 7.3 Operations on Objects
   //----------------------------------------
 
-  // 7.3.1 Get - just use o.p or o[p]
-  // 7.3.2 Put - just use o.p = v or o[p] = v
+  // 7.3.1 Get (O, P)
+  // - just use o.p or o[p]
 
-  // 7.3.7 HasProperty (O, P)
+  // 7.3.2 Put (O, P, V, Throw)
+  // - just use o.p = v or o[p] = v
+
+  // 7.3.8 HasProperty (O, P)
   function HasProperty(o, p) { return p in o; }
 
-  // 7.3.8 HasOwnProperty (O, P)
+  // 7.3.9 HasOwnProperty (O, P)
   function HasOwnProperty(o, p) { return Object.prototype.hasOwnProperty.call(o, p); }
 
   //----------------------------------------
-  // 9 ECMAScript Ordinary and Exotic Objects Behaviors
+  // 7.4 Operations on Iterator Objects
+  //----------------------------------------
+
+  // 7.4.1 CheckIterable ( obj )
+  function CheckIterable(obj) {
+    if (Type(obj) !== 'object') return undefined;
+    return obj[$$iterator];
+  }
+
+  // 7.4.2 GetIterator ( obj, method )
+  function GetIterator(obj) {
+    var method = CheckIterable(obj);
+    if (!IsCallable(method)) throw TypeError();
+    var iterator = method.call(obj);
+    return iterator;
+  }
+
+  // 7.4.3 IteratorNext ( iterator, value )
+  function IteratorNext(iterator, value) {
+    var result = iterator.next(value);
+    if (Type(result) !== 'object') throw TypeError();
+    return result;
+  }
+
+  // 7.4.4 IteratorComplete ( iterResult )
+  function IteratorComplete(iterResult) {
+    assert(Type(iterResult) === 'object');
+    return Boolean(iterResult.done);
+  }
+
+  // 7.4.5 IteratorValue ( iterResult )
+  function IteratorValue(iterResult) {
+    assert(Type(iterResult) === 'object');
+    return iterResult.value;
+  }
+
+  // 7.4.6 IteratorStep ( iterator )
+  function IteratorStep( iterator, value ) {
+    var result = IteratorNext(iterator, value);
+    var done = result['done'];
+    if (Boolean(done) === true) return false;
+    return result;
+  }
+
+  // 7.4.7 CreateIterResultObject (value, done)
+  function CreateIterResultObject(value, done) {
+    assert(Type(done) === 'boolean');
+    var obj = {};
+    obj["value"] = value;
+    obj["done"] = done;
+    return obj;
+  }
+
+  // 7.4.8 CreateListIterator (list)
+  // 7.4.8.1 ListIterator next( )
+  // 7.4.9 CreateEmptyIterator ( )
+  // 7.4.10 CreateCompoundIterator ( iterator1, iterator2 )
+  // 7.4.10.1 CompoundIterator next( )
+
+  // TODO: Refactor Promise implementation
+  // 7.5 Operations on Promise Objects
+  // 7.5.1 PromiseNew ( executor ) Abstract Operation
+  // 7.5.2 PromiseBuiltinCapability () Abstract Operation
+  // 7.5.3 PromiseOf (value) Abstract Operation
+  // 7.5.4 PromiseAll (promiseList) Abstract Operation
+  // 7.5.5 PromiseCatch (promise, rejectedAction) Abstract Operation
+  // 7.5.6 PromiseThen (promise, resolvedAction, rejectedAction) Abstract Operation
+
+  //----------------------------------------
+  // 9 Ordinary and Exotic Objects Behaviors
   //----------------------------------------
 
   // 9.1.12 [[OwnPropertyKeys]] ()
@@ -429,13 +506,11 @@
   // 19.1 Object Objects
   // ---------------------------------------
 
-  // 19.1.1 The Object Constructor Called as a Function
+  // 19.1.1 The Object Constructor
   // 19.1.1.1 Object ( [ value ] )
-  // 19.1.2 The Object Constructor
-  // 19.1.2.1 new Object ( [ value ] )
-  // 19.1.3 Properties of the Object Constructor
-
-  // 19.1.3.1 Object.assign ( target, source )
+  // 19.1.1.2 new Object ( ...argumentsList )
+  // 19.1.2 Properties of the Object Constructor
+  // 19.1.2.1 Object.assign ( target, ...sources )
   define(
     Object, 'assign',
     function assign(target, /*...*/sources) {
@@ -483,11 +558,11 @@
       return to;
     });
 
-  // 19.1.3.2 Object.create ( O [, Properties] )
-  // 19.1.3.3 Object.defineProperties ( O, Properties )
-  // 19.1.3.4 Object.defineProperty ( O, P, Attributes )
-  // 19.1.3.5 Object.freeze ( O )
-  // 19.1.3.6 Object.getOwnPropertyDescriptor ( O, P )
+  // 19.1.2.2 Object.create ( O [ , Properties ] )
+  // 19.1.2.3 Object.defineProperties ( O, Properties )
+  // 19.1.2.4 Object.defineProperty ( O, P, Attributes )
+  // 19.1.2.5 Object.freeze ( O )
+  // 19.1.2.6 Object.getOwnPropertyDescriptor ( O, P )
 
   (function() {
     var nativeSymbols = (typeof global.Symbol() === 'symbol'),
@@ -496,21 +571,21 @@
 
     function isStringKey(k) { return !symbolForKey(k); }
 
-    // 19.1.3.7 Object.getOwnPropertyNames ( O )
+    // 19.1.2.7 Object.getOwnPropertyNames ( O )
     define(
       Object, 'getOwnPropertyNames',
       function getOwnPropertyNames(o) {
         return $getOwnPropertyNames(o).filter(isStringKey);
       }, !nativeSymbols);
 
-    // 19.1.3.8 Object.getOwnPropertySymbols ( O )
+    // 19.1.2.8 Object.getOwnPropertySymbols ( O )
     define(
       Object, 'getOwnPropertySymbols',
       function getOwnPropertySymbols(o) {
         return $getOwnPropertyNames(o).filter(symbolForKey).map(symbolForKey);
       }, !nativeSymbols);
 
-    // 19.1.3.14 Object.keys ( O )
+    // 19.1.2.14 Object.keys ( O )
     define(
       Object, 'keys',
       function keys(o) {
@@ -518,26 +593,26 @@
       }, !nativeSymbols);
   }());
 
-  // 19.1.3.9 Object.getPrototypeOf ( O )
-  // 19.1.3.10 Object.is ( value1, value2 )
+  // 19.1.2.9 Object.getPrototypeOf ( O )
+  // 19.1.2.10 Object.is ( value1, value2 )
   define(
     Object, 'is',
     function is(value1, value2) {
       return SameValue(value1, value2);
     });
 
-  // 19.1.3.11 Object.isExtensible ( O )
-  // 19.1.3.12 Object.isFrozen ( O )
-  // 19.1.3.13 Object.isSealed ( O )
+  // 19.1.2.11 Object.isExtensible ( O )
+  // 19.1.2.12 Object.isFrozen ( O )
+  // 19.1.2.13 Object.isSealed ( O )
 
-  // 19.1.3.14 Object.keys ( O )
+  // 19.1.2.14 Object.keys ( O )
   // see above
 
-  // 19.1.3.16 Object.preventExtensions ( O )
-  // 19.1.3.17 Object.prototype
-  // 19.1.3.18 Object.seal ( O )
+  // 19.1.2.15 Object.preventExtensions ( O )
+  // 19.1.2.16 Object.prototype
+  // 19.1.2.17 Object.seal ( O )
 
-  // 19.1.3.19 Object.setPrototypeOf ( O, proto )
+  // 19.1.2.18 Object.setPrototypeOf ( O, proto )
   define(
     Object, 'setPrototypeOf',
     function setPrototypeOf(o, proto) {
@@ -548,14 +623,13 @@
     }
   );
 
-  // 19.1.4 Properties of the Object Prototype Object
-  // 19.1.4.1 Object.prototype.constructor
-  // 19.1.4.2 Object.prototype.hasOwnProperty (V)
-  // 19.1.4.3 Object.prototype.isPrototypeOf (V)
-  // 19.1.4.4 Object.prototype.propertyIsEnumerable (V)
-  // 19.1.4.5 Object.prototype.toLocaleString ( )
-
-  // 19.1.4.6 Object.prototype.toString ( )
+  // 19.1.3 Properties of the Object Prototype Object
+  // 19.1.3.1 Object.prototype.constructor
+  // 19.1.3.2 Object.prototype.hasOwnProperty ( V )
+  // 19.1.3.3 Object.prototype.isPrototypeOf ( V )
+  // 19.1.3.4 Object.prototype.propertyIsEnumerable ( V )
+  // 19.1.3.5 Object.prototype.toLocaleString ( [ reserved1 [ , reserved2 ] ] )
+  // 19.1.3.6 Object.prototype.toString ( )
   hook(Object.prototype, 'toString',
        function() {
          var o = strict(this);
@@ -565,31 +639,33 @@
          return undefined;
        });
 
-  // 19.1.4.7 Object.prototype.valueOf ( )
-  // 19.1.5 Properties of Object Instances
+  // 19.1.3.7 Object.prototype.valueOf ( )
+  // 19.1.4 Properties of Object Instances
 
   // ---------------------------------------
   // 19.2 Function Objects
   // ---------------------------------------
 
   // 19.2.1 The Function Constructor
-  // 19.2.1.1 Function (p1, p2, ... , pn, body)
-  // 19.2.1.2 new Function ( ... argumentsList)
+  // 19.2.1.1 Function ( p1, p2, … , pn, body )
+  // 19.2.1.2 new Function ( ...argumentsList )
   // 19.2.2 Properties of the Function Constructor
   // 19.2.2.1 Function.length
   // 19.2.2.2 Function.prototype
   // 19.2.2.3 Function[ @@create ] ( )
   // 19.2.3 Properties of the Function Prototype Object
-  // 19.2.3.1 Function.prototype.apply (thisArg, argArray)
-  // 19.2.3.2 Function.prototype.bind (thisArg [, arg1 [, arg2, ...]])
-  // 19.2.3.3 Function.prototype.call (thisArg [ , arg1 [ , arg2, ... ] ] )
+  // 19.2.3.1 Function.prototype.apply ( thisArg, argArray )
+  // 19.2.3.2 Function.prototype.bind ( thisArg , ...args)
+  // 19.2.3.3 Function.prototype.call (thisArg , ...args)
   // 19.2.3.4 Function.prototype.constructor
-  // 19.2.3.5 Function.prototype.toString ( )
-  // 19.2.3.6 Function.prototype[ @@create ] ( )
-  // 19.2.3.7 Function.prototype[@@hasInstance] (V)
+  // 19.2.3.5 .Function.prototype.toMethod (newHome [ , methodName ] )
+  // 19.2.3.6 Function.prototype.toString ( )
+  // 19.2.3.7 Function.prototype[ @@create ] ( )
+  // 19.2.3.8 Function.prototype[@@hasInstance] ( V )
   // 19.2.4 Function Instances
   // 19.2.4.1 length
-  // 19.2.4.2 prototype
+  // 19.2.4.2 name
+  // 19.2.4.3 prototype
 
   // (No polyfillable changes from ES5)
 
@@ -598,8 +674,8 @@
   // ---------------------------------------
 
   // 19.3.1 The Boolean Constructor
-  // 19.3.1.1 Boolean (value)
-  // 19.3.1.2 new Boolean (... argumentsList)
+  // 19.3.1.1 Boolean ( value )
+  // 19.3.1.2 new Boolean ( ...argumentsList )
   // 19.3.2 Properties of the Boolean Constructor
   // 19.3.2.1 Boolean.prototype
   // 19.3.2.2 Boolean[ @@create ] ( )
@@ -625,8 +701,8 @@
   // ---------------------------------------
 
   // 19.5.1 The Error Constructor
-  // 19.5.1.1 Error (message)
-  // 19.5.1.2 new Error(... argumentsList)
+  // 19.5.1.1 Error ( message )
+  // 19.5.1.2 new Error( ...argumentsList )
   // 19.5.2 Properties of the Error Constructor
   // 19.5.2.1 Error.prototype
   // 19.5.2.2 Error[ @@create ] ( )
@@ -645,15 +721,11 @@
   // 19.5.5.6 URIError
   // 19.5.6 NativeError Object Structure
   // 19.5.6.1 NativeError Constructors
-  // 19.5.6.1.1 NativeError (message)
-  // 19.5.6.1.2 new NativeError (... argumentsList )
+  // 19.5.6.1.1 NativeError ( message )
+  // 19.5.6.1.2 new NativeError ( ...argumentsList )
   // 19.5.6.2 Properties of the NativeError Constructors
   // 19.5.6.2.1 NativeError.prototype
-  // 19.5.6.2.2 NativeError [ @@create ] ( )
   // 19.5.6.3 Properties of the NativeError Prototype Objects
-  // 19.5.6.3.1 NativeError.prototype.constructor
-  // 19.5.6.3.2 NativeError.prototype.message
-  // 19.5.6.3.3 NativeError.prototype.name
   // 19.5.6.4 Properties of NativeError Instances
 
   // (No polyfillable changes from ES5)
@@ -668,7 +740,7 @@
 
   // 20.1.1 The Number Constructor
   // 20.1.1.1 Number ( [ value ] )
-  // 20.1.1.2 new Number ( ...argumentsList)
+  // 20.1.1.2 new Number ( ...argumentsList )
   // 20.1.2 Properties of the Number Constructor
 
   // 20.1.2.1 Number.EPSILON
@@ -682,14 +754,14 @@
       return result;
     }()));
 
-  // 20.1.2.2 Number.isFinite (number)
+  // 20.1.2.2 Number.isFinite ( number )
   define(
     Number, 'isFinite',
     function isFinite(value) {
       return typeof value === 'number' && $isFinite(value);
     });
 
-  // 20.1.2.3 Number.isInteger (number)
+  // 20.1.2.3 Number.isInteger ( number )
   define(
     Number, 'isInteger',
     function isInteger(number) {
@@ -706,14 +778,14 @@
       return true;
     });
 
-  // 20.1.2.4 Number.isNaN (number)
+  // 20.1.2.4 Number.isNaN ( number )
   define(
     Number, 'isNaN',
     function isNaN(value) {
       return typeof value === 'number' && $isNaN(value);
     });
 
-  // 20.1.2.5 Number.isSafeInteger (number)
+  // 20.1.2.5 Number.isSafeInteger ( number )
   define(
     Number, 'isSafeInteger',
     function isSafeInteger(number) {
@@ -748,14 +820,14 @@
     -0x20000000000000 + 1); // -2^53+1
 
   // 20.1.2.11 Number.MIN_VALUE
-  // 20.1.2.12 Number.parseFloat (string)
+  // 20.1.2.12 Number.parseFloat ( string )
   define(
     Number, 'parseFloat',
     function parseFloat(string) {
       return $parseFloat(string);
     });
 
-  // 20.1.2.13 Number.parseInt (string, radix)
+  // 20.1.2.13 Number.parseInt ( string, radix )
   define(
     Number, 'parseInt',
     function parseInt(string) {
@@ -767,17 +839,13 @@
   // 20.1.2.16 Number[ @@create ] ( )
 
   // 20.1.3 Properties of the Number Prototype Object
-
-  // 20.1.3.1 Number.prototype.clz ()
-  // TC39 2014-01-21: Changed to Math.clz32
-
-  // 20.1.3.2 Number.prototype.constructor
-  // 20.1.3.3 Number.prototype.toExponential (fractionDigits)
-  // 20.1.3.4 Number.prototype.toFixed (fractionDigits)
-  // 20.1.3.5 Number.prototype.toLocaleString()
-  // 20.1.3.6 Number.prototype.toPrecision (precision)
-  // 20.1.3.7 Number.prototype.toString ( [ radix ] )
-  // 20.1.3.8 Number.prototype.valueOf ( )
+  // 20.1.3.1 Number.prototype.constructor
+  // 20.1.3.2 Number.prototype.toExponential ( fractionDigits )
+  // 20.1.3.3 Number.prototype.toFixed ( fractionDigits )
+  // 20.1.3.4 Number.prototype.toLocaleString( [ reserved1 [ , reserved2 ] ])
+  // 20.1.3.5 Number.prototype.toPrecision ( precision )
+  // 20.1.3.6 Number.prototype.toString ( [ radix ] )
+  // 20.1.3.7 Number.prototype.valueOf ( )
   // 20.1.4 Properties of Number Instances
 
   // ---------------------------------------
@@ -798,8 +866,8 @@
   define(Math, $$toStringTag, 'Math');
 
   // 20.2.2 Function Properties of the Math Object
-  // 20.2.2.1 Math.abs (x)
-  // 20.2.2.2 Math.acos (x)
+  // 20.2.2.1 Math.abs ( x )
+  // 20.2.2.2 Math.acos ( x )
 
   // 20.2.2.3 Math.acosh(x)
   define(
@@ -809,9 +877,9 @@
       return log(x + sqrt(x * x - 1));
     });
 
-  // 20.2.2.4 Math.asin (x)
+  // 20.2.2.4 Math.asin ( x )
 
-  // 20.2.2.5 Math.asinh(x)
+  // 20.2.2.5 Math.asinh( x )
   define(
     Math, 'asinh',
     function asinh(x) {
@@ -823,9 +891,9 @@
       return (s === -x) ? log(0) : log(x + s);
     });
 
-  // 20.2.2.6 Math.atan (x)
+  // 20.2.2.6 Math.atan ( x )
 
-  // 20.2.2.7 Math.atanh(x)
+  // 20.2.2.7 Math.atanh( x )
   define(
     Math, 'atanh',
     function atanh(x) {
@@ -833,9 +901,9 @@
       return (x === 0) ? x : log((1 + x) / (1 - x)) / 2;
     });
 
-  // 20.2.2.8 Math.atan2 (y, x)
+  // 20.2.2.8 Math.atan2 ( y, x )
 
-  // 20.2.2.9 Math.cbrt(x)
+  // 20.2.2.9 Math.cbrt ( x )
   define(
     Math, 'cbrt',
     function cbrt(x) {
@@ -848,9 +916,9 @@
       return r + (r * (t-r) / (2*r + t));
     });
 
-  // 20.2.2.10 Math.ceil (x)
+  // 20.2.2.10 Math.ceil ( x )
 
-  // TC39 2014-01-28: Changed from Number.prototype.clz()
+  // 20.2.2.11 Math.clz32 ( x )
   define(
     Math, 'clz32',
     function clz32(x) {
@@ -866,9 +934,9 @@
 
 
 
-  // 20.2.2.11 Math.cos (x)
+  // 20.2.2.12 Math.cos ( x )
 
-  // 20.2.2.12 Math.cosh(x)
+  // 20.2.2.13 Math.cosh ( x )
   define(
     Math, 'cosh',
     function cosh(x) {
@@ -876,9 +944,9 @@
       return (pow(E, x) + pow(E, -x)) / 2;
     });
 
-  // 20.2.2.13 Math.exp (x)
+  // 20.2.2.14 Math.exp ( x )
 
-  // 20.2.2.14 Math.expm1 (x)
+  // 20.2.2.15 Math.expm1 ( x )
   define(
     Math, 'expm1',
     function expm1(x) {
@@ -893,9 +961,22 @@
       }
     });
 
-  // 20.2.2.15 Math.floor (x)
+  // 20.2.2.16 Math.floor ( x )
 
-  // 20.2.2.16 Math.hypot( value1 [, value2 [ ... ] ] )
+  // 20.2.2.17 Math.fround ( x )
+  define(
+    Math, 'fround',
+    function fround(x) {
+      if ($isNaN(x)) {
+        return NaN;
+      }
+      if (1/x === +Infinity || 1/x === -Infinity || x === +Infinity || x === -Infinity) {
+        return x;
+      }
+      return (new Float32Array([x]))[0];
+    });
+
+  // 20.2.2.18 Math.hypot ( value1 [, value2 [ ... ] ] )
   define(
     Math, 'hypot',
     function hypot() {
@@ -918,7 +999,7 @@
       return m * sqrt(sum);
     });
 
-  // 20.2.2.17 Math.imul(x, y)
+  // 20.2.2.19 Math.imul ( x, y )
   define(
     Math, 'imul',
     function imul(x, y) {
@@ -933,9 +1014,9 @@
     }, ('imul' in Math && Math.imul(1, 0x80000000) === 0) // Safari 7 bug
   );
 
-  // 20.2.2.18 Math.log (x)
+  // 20.2.2.20 Math.log ( x )
 
-  // 20.2.2.19 Math.log1p (x)
+  // 20.2.2.21 Math.log1p ( x )
   define(
     Math, 'log1p',
     function log1p(x) {
@@ -952,7 +1033,7 @@
       }
     });
 
-  // 20.2.2.20 Math.log10 (x)
+  // 20.2.2.22 Math.log10 ( x )
   define(
     Math, 'log10',
     function log10(x) {
@@ -960,7 +1041,7 @@
       return log(x) * LOG10E;
     });
 
-  // 20.2.2.21 Math.log2 (x)
+  // 20.2.2.23 Math.log2 ( x )
   define(
     Math, 'log2',
     function log2(x) {
@@ -968,26 +1049,13 @@
       return log(x) * LOG2E;
     });
 
-  // 20.2.2.22 Math.max ( [ value1 [ , value2 [ , ... ] ] ] )
-  // 20.2.2.23 Math.min ( [ value1 [ , value2 [ , ... ] ] ] )
-  // 20.2.2.24 Math.pow (x, y)
-  // 20.2.2.25 Math.random ( )
-  // 20.2.2.26 Math.round (x)
+  // 20.2.2.24 Math.max ( value1, value2 , ...values )
+  // 20.2.2.25 Math.min ( value1, value2 , ...values )
+  // 20.2.2.26 Math.pow ( x, y )
+  // 20.2.2.27 Math.random ( )
+  // 20.2.2.28 Math.round ( x )
 
-  // 20.2.2.27 Math.fround  (x)
-  define(
-    Math, 'fround',
-    function fround(x) {
-      if ($isNaN(x)) {
-        return NaN;
-      }
-      if (1/x === +Infinity || 1/x === -Infinity || x === +Infinity || x === -Infinity) {
-        return x;
-      }
-      return (new Float32Array([x]))[0];
-    });
-
-  // 20.2.2.28 Math.sign(x)
+  // 20.2.2.29 Math.sign(x)
   define(
     Math, 'sign',
     function sign(x) {
@@ -995,9 +1063,9 @@
       return x < 0 ? -1 : x > 0 ? 1 : x;
     });
 
-  // 20.2.2.29 Math.sin (x)
+  // 20.2.2.30 Math.sin ( x )
 
-  // 20.2.2.30 Math.sinh(x)
+  // 20.2.2.31 Math.sinh( x )
   define(
     Math, 'sinh',
     function sinh(x) {
@@ -1005,10 +1073,10 @@
       return SameValue(x, -0) ? x : (pow(E, x) - pow(E, -x)) / 2;
     });
 
-  // 20.2.2.31 Math.sqrt (x)
-  // 20.2.2.32 Math.tan (x)
+  // 20.2.2.32 Math.sqrt ( x )
+  // 20.2.2.33 Math.tan ( x )
 
-  // 20.2.2.33 Math.tanh(x)
+  // 20.2.2.34 Math.tanh ( x )
   define(
     Math, 'tanh',
     function tanh(x) {
@@ -1020,7 +1088,7 @@
       return (n === d) ? 1 : n / d; // Handle Infinity/Infinity
     });
 
-  // 20.2.2.34 Math.trunc(x)
+  // 20.2.2.35 Math.trunc ( x )
   define(
     Math, 'trunc',
     function trunc(x) {
@@ -1051,15 +1119,15 @@
   // 20.3.1.15 Date Time String Format
   // 20.3.1.15.1 Extended years
   // 20.3.2 The Date Constructor
-  // 20.3.2.1 Date (year, month [, date [, hours [, minutes [, seconds [, ms ] ] ] ] ] )
-  // 20.3.2.2 Date (value)
+  // 20.3.2.1 Date ( year, month [, date [ , hours [ , minutes [ , seconds [ , ms ] ] ] ] ] )
+  // 20.3.2.2 Date ( value )
   // 20.3.2.3 Date ( )
-  // 20.3.2.4 new Date ( ... argumentsList)
+  // 20.3.2.4 new Date ( ...argumentsList )
   // 20.3.3 Properties of the Date Constructor
   // 20.3.3.1 Date.now ( )
   // 20.3.3.2 Date.parse (string)
   // 20.3.3.3 Date.prototype
-  // 20.3.3.4 Date.UTC (year, month [, date [, hours [, minutes [, seconds [, ms ] ] ] ] ] )
+  // 20.3.3.4 Date.UTC ( year, month [ , date [ , hours [ , minutes [ , seconds [ , ms ] ] ] ] ] )
   // 20.3.3.5 Date[ @@create ] ( )
   // 20.3.4 Properties of the Date Prototype Object
   // 20.3.4.1 Date.prototype.constructor
@@ -1081,32 +1149,32 @@
   // 20.3.4.17 Date.prototype.getUTCMinutes ( )
   // 20.3.4.18 Date.prototype.getUTCMonth ( )
   // 20.3.4.19 Date.prototype.getUTCSeconds ( )
-  // 20.3.4.20 Date.prototype.setDate (date)
-  // 20.3.4.21 Date.prototype.setFullYear (year [, month [, date ] ] )
-  // 20.3.4.22 Date.prototype.setHours (hour [, min [, sec [, ms ] ] ] )
-  // 20.3.4.23 Date.prototype.setMilliseconds (ms)
-  // 20.3.4.24 Date.prototype.setMinutes (min [, sec [, ms ] ] )
-  // 20.3.4.25 Date.prototype.setMonth (month [, date ] )
-  // 20.3.4.26 Date.prototype.setSeconds (sec [, ms ] )
-  // 20.3.4.27 Date.prototype.setTime (time)
-  // 20.3.4.28 Date.prototype.setUTCDate (date)
-  // 20.3.4.29 Date.prototype.setUTCFullYear (year [, month [, date ] ] )
-  // 20.3.4.30 Date.prototype.setUTCHours (hour [, min [, sec [, ms ] ] ] )
-  // 20.3.4.31 Date.prototype.setUTCMilliseconds (ms)
-  // 20.3.4.32 Date.prototype.setUTCMinutes (min [, sec [, ms ] ] )
-  // 20.3.4.33 Date.prototype.setUTCMonth (month [, date ] )
-  // 20.3.4.34 Date.prototype.setUTCSeconds (sec [, ms ] )
+  // 20.3.4.20 Date.prototype.setDate ( date )
+  // 20.3.4.21 Date.prototype.setFullYear ( year [ , month [ , date ] ] )
+  // 20.3.4.22 Date.prototype.setHours ( hour [ , min [ , sec [ , ms ] ] ] )
+  // 20.3.4.23 Date.prototype.setMilliseconds ( ms )
+  // 20.3.4.24 Date.prototype.setMinutes ( min [ , sec [ , ms ] ] )
+  // 20.3.4.25 Date.prototype.setMonth ( month [ , date ] )
+  // 20.3.4.26 Date.prototype.setSeconds ( sec [ , ms ] )
+  // 20.3.4.27 Date.prototype.setTime ( time )
+  // 20.3.4.28 Date.prototype.setUTCDate ( date )
+  // 20.3.4.29 Date.prototype.setUTCFullYear ( year [ , month [ , date ] ] )
+  // 20.3.4.30 Date.prototype.setUTCHours ( hour [ , min [ , sec [ , ms ] ] ] )
+  // 20.3.4.31 Date.prototype.setUTCMilliseconds ( ms )
+  // 20.3.4.32 Date.prototype.setUTCMinutes ( min [ , sec [, ms ] ] )
+  // 20.3.4.33 Date.prototype.setUTCMonth ( month [ , date ] )
+  // 20.3.4.34 Date.prototype.setUTCSeconds ( sec [ , ms ] )
   // 20.3.4.35 Date.prototype.toDateString ( )
   // 20.3.4.36 Date.prototype.toISOString ( )
   // 20.3.4.37 Date.prototype.toJSON ( key )
-  // 20.3.4.38 Date.prototype.toLocaleDateString ( )
-  // 20.3.4.39 Date.prototype.toLocaleString ( )
-  // 20.3.4.40 Date.prototype.toLocaleTimeString ( )
+  // 20.3.4.38 Date.prototype.toLocaleDateString ( [ reserved1 [ , reserved2 ] ] )
+  // 20.3.4.39 Date.prototype.toLocaleString ( [ reserved1 [ , reserved2 ] ] )
+  // 20.3.4.40 Date.prototype.toLocaleTimeString ( [ reserved1 [ , reserved2 ] ] )
   // 20.3.4.41 Date.prototype.toString ( )
   // 20.3.4.42 Date.prototype.toTimeString ( )
   // 20.3.4.43 Date.prototype.toUTCString ( )
   // 20.3.4.44 Date.prototype.valueOf ( )
-  // 20.3.4.45 Date.prototype [ @@ToPrimitive ] ( hint )
+  // 20.3.4.45 Date.prototype [ @@toPrimitive ] ( hint )
   // 20.3.5 Properties of Date Instances
 
   // (No polyfillable changes from ES5)
@@ -1117,12 +1185,12 @@
 
   // 21.1 String Objects
   // 21.1.1 The String Constructor
-  // 21.1.1.1 String ( [ value ] )
-  // 21.1.1.2 new String ( ... argumentsList )
+  // 21.1.1.1 String ( value )
+  // 21.1.1.2 new String ( ...argumentsList )
   // 21.1.2 Properties of the String Constructor
-  // 21.1.2.1 String.fromCharCode ( ...codeUnits)
+  // 21.1.2.1 String.fromCharCode ( ...codeUnits )
 
-  // 21.1.2.2 String.fromCodePoint ( ...codePoints)
+  // 21.1.2.2 String.fromCodePoint ( ...codePoints )
   define(
     String, 'fromCodePoint',
     function fromCodePoint(/*...codePoints*/) {
@@ -1151,7 +1219,7 @@
 
   // 21.1.2.3 String.prototype
 
-  // 21.1.2.4 String.raw ( callSite, ...substitutions)
+  // 21.1.2.4 String.raw ( callSite , ...substitutions )
   define(
     String, 'raw',
     function raw(callSite /*, ...substitutions*/) {
@@ -1182,10 +1250,10 @@
 
   // 21.1.2.5 String[ @@create ] ( )
   // 21.1.3 Properties of the String Prototype Object
-  // 21.1.3.1 String.prototype.charAt (pos)
-  // 21.1.3.2 String.prototype.charCodeAt (pos)
+  // 21.1.3.1 String.prototype.charAt ( pos )
+  // 21.1.3.2 String.prototype.charCodeAt ( pos )
 
-  // 21.1.3.3 String.prototype.codePointAt (pos)
+  // 21.1.3.3 String.prototype.codePointAt ( pos )
   define(
     String.prototype, 'codePointAt',
     function codePointAt(pos) {
@@ -1208,7 +1276,7 @@
 
   // 21.1.3.4 String.prototype.concat ( ...args )
   // 21.1.3.5 String.prototype.constructor
-  // 21.1.3.6 String.prototype.contains (searchString, position = 0 )
+  // 21.1.3.6 String.prototype.contains ( searchString [ , position ] )
   define(
     String.prototype, 'contains',
     function contains(searchString) {
@@ -1223,7 +1291,7 @@
       return s.indexOf(searchStr, pos) !== -1;
     });
 
-  // 21.1.3.7 String.prototype.endsWith (searchString [, endPosition] )
+  // 21.1.3.7 String.prototype.endsWith ( searchString [ , endPosition] )
   define(
     String.prototype, 'endsWith',
     function endsWith(searchString) {
@@ -1242,15 +1310,15 @@
       return false;
     });
 
-  // 21.1.3.8 String.prototype.indexOf (searchString, position)
-  // 21.1.3.9 String.prototype.lastIndexOf (searchString, position)
-  // 21.1.3.10 String.prototype.localeCompare (that)
-  // 21.1.3.11 String.prototype.match (regexp)
-  // 21.1.3.12 String.prototype.normalize ( form = "NFC" )
+  // 21.1.3.8 String.prototype.indexOf ( searchString [ , position ] )
+  // 21.1.3.9 String.prototype.lastIndexOf ( searchString [ , position ] )
+  // 21.1.3.10 String.prototype.localeCompare ( that [, reserved1 [ , reserved2 ] ] )
+  // 21.1.3.11 String.prototype.match ( regexp )
+  // 21.1.3.12 String.prototype.normalize ( [ form ] )
 
   // TODO - probably not practical due to table sizes.
 
-  // 21.1.3.13 String.prototype.repeat (count)
+  // 21.1.3.13 String.prototype.repeat ( count )
   define(
     String.prototype, 'repeat',
     function repeat(count) {
@@ -1263,12 +1331,12 @@
       return t;
     });
 
-  // 21.1.3.14 String.prototype.replace (searchValue, replaceValue)
-  // 21.1.3.15 String.prototype.search (regexp)
-  // 21.1.3.16 String.prototype.slice (start, end)
-  // 21.1.3.17 String.prototype.split (separator, limit)
+  // 21.1.3.14 String.prototype.replace (searchValue, replaceValue )
+  // 21.1.3.15 String.prototype.search ( regexp )
+  // 21.1.3.16 String.prototype.slice ( start, end )
+  // 21.1.3.17 String.prototype.split ( separator, limit )
 
-  // 21.1.3.18 String.prototype.startsWith (searchString [, position ] )
+  // 21.1.3.18 String.prototype.startsWith ( searchString [, position ] )
   define(
     String.prototype, 'startsWith',
     function startsWith(searchString) {
@@ -1286,7 +1354,7 @@
       return false;
     });
 
-  // 21.1.3.19 String.prototype.substring (start, end)
+  // 21.1.3.19 String.prototype.substring ( start, end )
   // 21.1.3.20 String.prototype.toLocaleLowerCase ( )
   // 21.1.3.21 String.prototype.toLocaleUpperCase ( )
   // 21.1.3.22 String.prototype.toLowerCase ( )
@@ -1295,53 +1363,61 @@
   // 21.1.3.25 String.prototype.trim ( )
   // 21.1.3.26 String.prototype.valueOf ( )
 
-  // 21.1.3.27 String.prototype [ @@iterator ] ( )
-  (function() {
-    // http://norbertlindenberg.com/2012/05/ecmascript-supplementary-characters/index.html
-    define(
-      String.prototype, $$iterator,
-      function entries() {
-        return CreateStringIterator(this, 'value');
-      });
-
-    /** @constructor */
-    function StringIterator() {}
-
-    function CreateStringIterator(string, kind) {
-      var s = String(string);
-      var iterator = new StringIterator;
-      set_internal(iterator, '[[IteratedString]]', s);
-      set_internal(iterator, '[[StringIteratorNextIndex]]', 0);
-      set_internal(iterator, '[[StringIterationKind]]', kind);
-      return iterator;
-    }
-
-    StringIterator.prototype = new function $StringIteratorPrototype$() {};
-    define(StringIterator.prototype, $$toStringTag, 'String Iterator');
-    define(
-      StringIterator.prototype, 'next',
-      function next() {
-        var o = ToObject(this);
-        var s = String(o['[[IteratedString]]']),
-            index = o['[[StringIteratorNextIndex]]'],
-            len = s.length;
-        if (index >= len) {
-          set_internal(o, '[[StringIteratorNextIndex]]', Infinity);
-          return CreateItrResultObject(undefined, true);
-        }
-        var cp = s.codePointAt(index);
-        set_internal(o, '[[StringIteratorNextIndex]]', index + (cp > 0xFFFF ? 2 : 1));
-        return CreateItrResultObject(String.fromCodePoint(cp), false);
-      });
-    define(
-      StringIterator.prototype, $$iterator,
-      function() {
-        return this;
-      });
-  }());
+  // 21.1.3.27 String.prototype [ @@iterator ]( )
+  define(
+    String.prototype, $$iterator,
+    function entries() {
+      return CreateStringIterator(this, 'value');
+    });
 
   // 21.1.4 Properties of String Instances
   // 21.1.4.1 length
+
+  // 21.1.5 String Iterator Objects
+  /** @constructor */
+  function StringIterator() {}
+
+  // 21.1.5.1 CreateStringIterator Abstract Operation
+  function CreateStringIterator(string, kind) {
+    var s = String(string);
+    var iterator = new StringIterator;
+    set_internal(iterator, '[[IteratedString]]', s);
+    set_internal(iterator, '[[StringIteratorNextIndex]]', 0);
+    set_internal(iterator, '[[StringIterationKind]]', kind);
+    return iterator;
+  }
+
+  // 21.1.5.2 The %StringIteratorPrototype% Object
+  StringIterator.prototype = new function $StringIteratorPrototype$() {};
+
+  // 21.1.5.2.1 %StringIteratorPrototype%.next ( )
+  define(
+    StringIterator.prototype, 'next',
+    function next() {
+      var o = ToObject(this);
+      var s = String(o['[[IteratedString]]']),
+          index = o['[[StringIteratorNextIndex]]'],
+          len = s.length;
+      if (index >= len) {
+        set_internal(o, '[[StringIteratorNextIndex]]', Infinity);
+        return CreateIterResultObject(undefined, true);
+      }
+      var cp = s.codePointAt(index);
+      set_internal(o, '[[StringIteratorNextIndex]]', index + (cp > 0xFFFF ? 2 : 1));
+      return CreateIterResultObject(String.fromCodePoint(cp), false);
+    });
+
+  // 21.1.5.2.2 %StringIteratorPrototype% [ @@iterator ] ( )
+  define(
+    StringIterator.prototype, $$iterator,
+    function() {
+      return this;
+    });
+
+  // 21.1.5.2.3 %StringIteratorPrototype% [ @@toStringTag ]
+  define(StringIterator.prototype, $$toStringTag, 'String Iterator');
+
+  // 21.1.5.3 Properties of String Iterator Instances
 
   // ---------------------------------------
   // 21.2 RegExp (Regular Expression) Objects
@@ -1369,19 +1445,19 @@
   // 21.2.2.18 ClassAtomNoDash
   // 21.2.2.19 ClassEscape
   // 21.2.3 The RegExp Constructor
-  // 21.2.3.1 RegExp(pattern, flags)
-  // 21.2.3.2 new RegExp(...argumentsList)
+  // 21.2.3.1 RegExp ( pattern, flags )
+  // 21.2.3.2 new RegExp( ...argumentsList )
   // 21.2.3.3 Abstract Operations for the RegExp Constructor
   // 21.2.4 Properties of the RegExp Constructor
   // 21.2.4.1 RegExp.prototype
   // 21.2.4.2 RegExp[ @@create ] ( )
   // 21.2.5 Properties of the RegExp Prototype Object
   // 21.2.5.1 RegExp.prototype.constructor
-  // 21.2.5.2 RegExp.prototype.exec(string)
+  // 21.2.5.2 RegExp.prototype.exec ( string )
   // 21.2.5.3 get RegExp.prototype.global
   // 21.2.5.4 get RegExp.prototype.ignoreCase
 
-  // 21.2.5.5 RegExp.prototype.match (string)
+  // 21.2.5.5 RegExp.prototype.match ( string )
   define(RegExp.prototype, 'match', function match(string) {
     var o = strict(this);
     return String(string).match(o);
@@ -1389,13 +1465,13 @@
 
   // 21.2.5.6 get RegExp.prototype.multiline
 
-  // 21.2.5.7 RegExp.prototype.replace (S, replaceValue)
+  // 21.2.5.7 RegExp.prototype.replace ( string, replaceValue )
   define(RegExp.prototype, 'replace', function replace(S, replaceValue) {
     var o = strict(this);
     return String(S).replace(o, replaceValue);
   });
 
-  // 21.2.5.8 RegExp.prototype.search (S)
+  // 21.2.5.8 RegExp.prototype.search ( string )
   define(RegExp.prototype, 'search', function search(S) {
     var o = strict(this);
     return String(S).search(o);
@@ -1403,15 +1479,15 @@
 
   // 21.2.5.9 get RegExp.prototype.source
 
-  // 21.2.5.10 RegExp.prototype.split (string, limit)
+  // 21.2.5.10 RegExp.prototype.split ( string, limit )
   define(RegExp.prototype, 'split', function split(S) {
     var o = strict(this);
     return String(S).split(o);
   });
 
   // 21.2.5.11 get RegExp.prototype.sticky
-  // 21.2.5.12 RegExp.prototype.test(string)
-  // 21.2.5.13 RegExp.prototype.toString()
+  // 21.2.5.12 RegExp.prototype.test( S )
+  // 21.2.5.13 RegExp.prototype.toString ( )
   // 21.2.5.14 get RegExp.prototype.unicode
   // 21.2.5.15 RegExp.prototype [ @@isRegExp ]
   // 21.2.6 Properties of RegExp Instances
@@ -1428,12 +1504,13 @@
   // ---------------------------------------
 
   // 22.1.1 The Array Constructor
-  // 22.1.1.1 Array ( [ item1 [ , item2 [ , ... ] ] ] )
+  // 22.1.1.1 Array ( )
   // 22.1.1.2 Array (len)
+  // 22.1.1.3 Array (...items )
   // 22.1.1.3 new Array ( ... argumentsList)
   // 22.1.2 Properties of the Array Constructor
 
-  // 22.1.2.1 Array.from ( arrayLike , mapfn=undefined, thisArg=undefined )
+  // 22.1.2.1 Array.from ( arrayLike [ , mapfn [ , thisArg ] ] )
   define(
     Array, 'from',
     function from(arrayLike) {
@@ -1530,10 +1607,10 @@
   // 22.1.2.4 Array.prototype
   // 22.1.2.5 Array[ @@create ] ( )
   // 22.1.3 Properties of the Array Prototype Object
-  // 22.1.3.1 Array.prototype.concat ( [ item1 [ , item2 [ , ... ] ] ] )
+  // 22.1.3.1 Array.prototype.concat ( ...arguments )
   // 22.1.3.1.1 IsConcatSpreadable ( O ) Abstract Operation
   // 22.1.3.2 Array.prototype.constructor
-  // 22.1.3.3 Array.prototype.copyWith (target, start, end = this.length)
+  // 22.1.3.3 Array.prototype.copyWithin (target, start [ , end ] )
   define(
     Array.prototype, 'copyWithin',
     function copyWithin(target, start/*, end*/) {
@@ -1598,9 +1675,9 @@
       return CreateArrayIterator(this, 'key+value');
     });
 
-  // 22.1.3.5 Array.prototype.every ( callbackfn [ , thisArg ] )
+  // 22.1.3.5 Array.prototype.every ( callbackfn [ , thisArg] )
 
-  // 22.1.3.6 Array.prototype.fill (value, start = 0, end = this.length)
+  // 22.1.3.6 Array.prototype.fill (value [ , start [ , end ] ] )
   define(
     Array.prototype, 'fill',
     function fill(value/*, start, end*/) {
@@ -1637,8 +1714,8 @@
 
   // 22.1.3.7 Array.prototype.filter ( callbackfn [ , thisArg ] )
 
-  // 22.1.3.8 Array.prototype.find ( predicate , thisArg = undefined )
-   define(
+  // 22.1.3.8 Array.prototype.find ( predicate [ , thisArg ] )
+  define(
     Array.prototype, 'find',
     function find(predicate) {
       var o = ToObject(this);
@@ -1662,7 +1739,7 @@
       return undefined;
     });
 
-  // 22.1.3.9 Array.prototype.findIndex ( predicate , thisArg = undefined )
+  // 22.1.3.9 Array.prototype.findIndex ( predicate [ , thisArg ] )
   define(
     Array.prototype, 'findIndex',
     function findIndex(predicate) {
@@ -1701,7 +1778,7 @@
   // 22.1.3.14 Array.prototype.lastIndexOf ( searchElement [ , fromIndex ] )
   // 22.1.3.15 Array.prototype.map ( callbackfn [ , thisArg ] )
   // 22.1.3.16 Array.prototype.pop ( )
-  // 22.1.3.17 Array.prototype.push ( [ item1 [ , item2 [ , ... ] ] ] )
+  // 22.1.3.17 Array.prototype.push ( ...items )
   // 22.1.3.18 Array.prototype.reduce ( callbackfn [ , initialValue ] )
   // 22.1.3.19 Array.prototype.reduceRight ( callbackfn [ , initialValue ] )
   // 22.1.3.20 Array.prototype.reverse ( )
@@ -1709,10 +1786,10 @@
   // 22.1.3.22 Array.prototype.slice (start, end)
   // 22.1.3.23 Array.prototype.some ( callbackfn [ , thisArg ] )
   // 22.1.3.24 Array.prototype.sort (comparefn)
-  // 22.1.3.25 Array.prototype.splice (start, deleteCount [ , item1 [ , item2 [ , ... ] ] ] )
-  // 22.1.3.26 Array.prototype.toLocaleString ( )
+  // 22.1.3.25 Array.prototype.splice (start, deleteCount , ...items )
+  // 22.1.3.26 Array.prototype.toLocaleString ( [ reserved1 [ , reserved2 ] ] )
   // 22.1.3.27 Array.prototype.toString ( )
-  // 22.1.3.28 Array.prototype.unshift ( [ item1 [ , item2 [ , ... ] ] ] )
+  // 22.1.3.28 Array.prototype.unshift ( ...items )
 
   // 22.1.3.29 Array.prototype.values ( )
   define(
@@ -1731,7 +1808,7 @@
   // 22.1.4 Properties of Array Instances
   // 22.1.4.1 length
 
-  // 22.1.5 Array Iterator Object Structure
+  // 22.1.5 Array Iterator Objects
   function ArrayIterator() {}
 
   // 22.1.5.1 CreateArrayIterator Abstract Operation
@@ -1744,11 +1821,10 @@
     return iterator;
   }
 
-  // 22.1.5.2 The Array Iterator Prototype
+  // 22.1.5.2 The %ArrayIteratorPrototype% Object
   ArrayIterator.prototype = new function $ArrayIteratorPrototype$() {};
 
-  // 22.1.5.2.1 ArrayIterator.prototype.constructor
-  // 22.1.5.2.2 ArrayIterator.prototype.next( )
+  // 22.1.5.2.1 %ArrayIteratorPrototype%. next( )
   define(
     ArrayIterator.prototype, 'next',
     function next() {
@@ -1773,7 +1849,7 @@
       }
       if (index >= len) {
         set_internal(o, '[[ArrayIteratorNextIndex]]', Infinity);
-        return CreateItrResultObject(undefined, true);
+        return CreateIterResultObject(undefined, true);
       }
       elementKey = index;
       set_internal(o, '[[ArrayIteratorNextIndex]]', index + 1);
@@ -1781,23 +1857,23 @@
         elementValue = a[elementKey];
       }
       if (itemKind.indexOf('key+value') !== -1) {
-        return CreateItrResultObject([elementKey, elementValue], false);
+        return CreateIterResultObject([elementKey, elementValue], false);
       } else if (itemKind.indexOf('key') !== -1) {
-        return CreateItrResultObject(elementKey, false);
+        return CreateIterResultObject(elementKey, false);
       } else if (itemKind === 'value') {
-        return CreateItrResultObject(elementValue, false);
+        return CreateIterResultObject(elementValue, false);
       }
       throw Error('Internal error');
     });
 
-  // 22.1.5.2.3 ArrayIterator.prototype.@@iterator ( )
+  // 22.1.5.2.2 %ArrayIteratorPrototype% [ @@iterator ] ( )
   define(
     ArrayIterator.prototype, $$iterator,
     function() {
       return this;
     });
 
-  // 22.1.5.2.4 ArrayIterator.prototype.@@toStringTag
+  // 22.1.5.2.3 %ArrayIteratorPrototype% [ @@toStringTag ]
   define(ArrayIterator.prototype, $$toStringTag, 'Array Iterator');
 
   // 22.1.5.3 Properties of Array Iterator Instances
@@ -2092,8 +2168,8 @@
      define($TypedArray$.prototype, $$toStringTag, $TypedArrayName$);
 
      // 22.2.4 The TypedArray Constructors
-     // 22.2.4.1 new TypedArray( ... argumentsList)
-     // 22.2.4.2 new TypedArray( ... argumentsList)
+     // 22.2.4.1 new TypedArray( ...argumentsList )
+     // 22.2.4.2 new TypedArray( ...argumentsList )
      // 22.2.5 Properties of the TypedArray Constructors
      // 22.2.5.1 TypedArray.BYTES_PER_ELEMENT
      // 22.2.5.2 TypedArray.prototype
@@ -2115,7 +2191,7 @@
 
     // 23.1.1 The Map Constructor
 
-    // 23.1.1.1 Map (iterable = undefined )
+    // 23.1.1.1 Map ( [ iterable ] )
     /** @constructor */
     function Map() {
       var iterable = arguments[0];
@@ -2126,18 +2202,16 @@
       if ('[[MapData]]' in map) throw TypeError();
 
       if (iterable !== undefined) {
-        iterable = ToObject(iterable);
-        var itr = iterable[$$iterator](); // or throw...
         var adder = map['set'];
         if (!IsCallable(adder)) throw TypeError();
+        var iter = GetIterator(iterable);
       }
       set_internal(map, '[[MapData]]', { keys: [], values: [] });
 
-      if (iterable === undefined) {
-        return map;
-      }
+      if (iter === undefined) return map;
+
       while (true) {
-        var next = IteratorStep(itr);
+        var next = IteratorStep(iter);
         if (next === false)
           return map;
         var nextItem = IteratorValue(next);
@@ -2207,7 +2281,7 @@
         return CreateMapIterator(m, 'key+value');
       });
 
-    // 23.1.3.5 Map.prototype.forEach ( callbackfn , thisArg = undefined )
+    // 23.1.3.5 Map.prototype.forEach ( callbackfn [ , thisArg ] )
     define(
       Map.prototype, 'forEach',
       function forEach(callbackfn /*, thisArg*/) {
@@ -2310,7 +2384,7 @@
         return CreateMapIterator(m, 'value');
       });
 
-    // 23.1.3.12 Map.prototype.@@iterator ( )
+    // 23.1.3.12 Map.prototype [ @@iterator ]( )
     define(
       Map.prototype, $$iterator,
       function() {
@@ -2323,7 +2397,8 @@
     define(Map.prototype, $$toStringTag, 'Map');
 
     // 23.1.4 Properties of Map Instances
-    // 23.1.5 Map Iterator Object Structure
+    // 23.1.5 Map Iterator Object
+
     /** @constructor */
     function MapIterator() {}
 
@@ -2339,11 +2414,10 @@
       return iterator;
     }
 
-    // 23.1.5.2 The Map Iterator Prototype
+    // 23.1.5.2 The %MapIteratorPrototype% Object
     MapIterator.prototype = new function $MapIteratorPrototype$() {};
 
-    // 23.1.5.2.1 MapIterator.prototype.constructor
-    // 23.1.5.2.2 MapIterator.prototype.next( )
+    // 23.1.5.2.1 %MapIteratorPrototype%.next ( )
     define(
       MapIterator.prototype, 'next',
       function next() {
@@ -2359,25 +2433,25 @@
           set_internal(o, '[[MapNextIndex]]', index);
           if (e.key !== empty) {
             if (itemKind === 'key') {
-              return CreateItrResultObject(e.key, false);
+              return CreateIterResultObject(e.key, false);
             } else if (itemKind === 'value') {
-              return CreateItrResultObject(e.value, false);
+              return CreateIterResultObject(e.value, false);
             } else {
-              return CreateItrResultObject([e.key, e.value], false);
+              return CreateIterResultObject([e.key, e.value], false);
             }
           }
         }
-        return CreateItrResultObject(undefined, true);
+        return CreateIterResultObject(undefined, true);
       });
 
-    // 23.1.5.2.3 MapIterator.prototype [ @@iterator ] ( )
+    // 23.1.5.2.2 %MapIteratorPrototype% [ @@iterator ] ( )
     define(
       MapIterator.prototype, $$iterator,
       function() {
         return this;
       });
 
-    // 23.1.5.2.4 MapIterator.prototype [ @@toStringTag ]
+    // 23.1.5.2.3 %MapIteratorPrototype% [ @@toStringTag ]
     define(MapIterator.prototype, $$toStringTag, 'Map Iterator');
 
     // 23.1.5.3 Properties of Map Iterator Instances
@@ -2394,7 +2468,7 @@
   (function() {
 
     // 23.2.1 The Set Constructor
-    // 23.2.1.1 Set (iterable = undefined )
+    // 23.2.1.1 Set ( [ iterable ] )
 
     /** @constructor */
     function Set() {
@@ -2406,15 +2480,14 @@
       if ('[[SetData]]' in set) throw TypeError();
 
       if (iterable !== undefined) {
-        iterable = ToObject(iterable);
-        var itr = HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
         var adder = set['add'];
         if (!IsCallable(adder)) throw TypeError();
+        var iter = GetIterator(ToObject(iterable));
       }
       set_internal(set, '[[SetData]]', []);
-      if (iterable === undefined) return set;
+      if (iter === undefined) return set;
       while (true) {
-        var next = IteratorStep(itr);
+        var next = IteratorStep(iter);
         if (next === false)
           return set;
         var nextValue = IteratorValue(next);
@@ -2434,7 +2507,7 @@
       return -1;
     }
 
-    // 23.2.1.2 new Set ( ... argumentsList )
+    // 23.2.1.2 new Set ( ...argumentsList )
     // 23.2.2 Properties of the Set Constructor
 
     // 23.2.2.1 Set.prototype
@@ -2498,7 +2571,7 @@
         return CreateSetIterator(s, 'key+value');
       });
 
-    // 23.2.3.6 Set.prototype.forEach ( callbackfn , thisArg = undefined )
+    // 23.2.3.6 Set.prototype.forEach ( callbackfn [ , thisArg ] )
     define(
       Set.prototype, 'forEach',
       function forEach(callbackfn/*, thisArg*/) {
@@ -2577,7 +2650,7 @@
     define(Set.prototype, $$toStringTag, 'Set');
 
     // 23.2.4 Properties of Set Instances
-    // 23.2.5 Set Iterator Object Structure
+    // 23.2.5 Set Iterator Objects
     /** @constructor */
     function SetIterator() {}
 
@@ -2593,11 +2666,10 @@
       return iterator;
     }
 
-    // 23.2.5.2 The Set Iterator Prototype
+    // 23.2.5.2 The %SetIteratorPrototype% Object
     SetIterator.prototype = new function $SetIteratorPrototype$() {};
 
-    // 23.2.5.2.1 SetIterator.prototype.constructor
-    // 23.2.5.2.2 SetIterator.prototype.next( )
+    // 23.2.5.2.1 %SetIteratorPrototype%.next( )
     define(
       SetIterator.prototype, 'next',
       function next() {
@@ -2611,20 +2683,20 @@
           index = index += 1;
           set_internal(o, '[[SetNextIndex]]', index);
           if (e !== empty) {
-            return CreateItrResultObject(e, false);
+            return CreateIterResultObject(e, false);
           }
         }
-        return CreateItrResultObject(undefined, true);
+        return CreateIterResultObject(undefined, true);
       });
 
-    // 23.2.5.2.3 SetIterator.prototype.@@iterator ( )
+    // 23.2.5.2.2 %SetIteratorPrototype% [ @@iterator ] ( )
     define(
       SetIterator.prototype, $$iterator,
       function() {
         return this;
       });
 
-    // 23.2.5.2.4 SetIterator.prototype.@@toStringTag
+    // 23.2.5.2.3 %SetIteratorPrototype% [ @@toStringTag ]
     define(SetIterator.prototype, $$toStringTag, 'Set Iterator');
 
     // 23.2.5.3 Properties of Set Iterator Instances
@@ -2642,7 +2714,7 @@
   (function() {
 
     // 23.3.1 The WeakMap Constructor
-    // 23.3.1.1 WeakMap (iterable = undefined )
+    // 23.3.1.1 WeakMap ( [ iterable ] )
    /** @constructor */
     function WeakMap() {
       var iterable = arguments[0];
@@ -2674,7 +2746,7 @@
       return map;
     }
 
-    // 23.3.1.2 new WeakMap ( ... argumentsList )
+    // 23.3.1.2 new WeakMap ( ...argumentsList )
     // 23.3.2 Properties of the WeakMap Constructor
     // 23.3.2.1 WeakMap.prototype
     WeakMap.prototype = new function $WeakMapPrototype$() {};
@@ -2687,8 +2759,8 @@
       WeakMap.prototype, 'clear',
       function clear() {
         var M = strict(this);
-        if (Type(M) !== 'object') throw TypeError;
-        if (M['[[WeakMapData]]'] === undefined) throw TypeError;
+        if (Type(M) !== 'object') throw TypeError();
+        if (M['[[WeakMapData]]'] === undefined) throw TypeError();
         M['[[WeakMapData]]'].clear();
       });
 
@@ -2699,8 +2771,8 @@
       WeakMap.prototype, 'delete',
       function delete_(key) {
         var M = strict(this);
-        if (Type(M) !== 'object') throw TypeError;
-        if (M['[[WeakMapData]]'] === undefined) throw TypeError;
+        if (Type(M) !== 'object') throw TypeError();
+        if (M['[[WeakMapData]]'] === undefined) throw TypeError();
         if (Type(key) !== 'object') throw TypeError('Expected object');
         return M['[[WeakMapData]]'].remove(key);
       });
@@ -2710,8 +2782,8 @@
       WeakMap.prototype, 'get',
       function get(key, defaultValue) {
         var M = strict(this);
-        if (Type(M) !== 'object') throw TypeError;
-        if (M['[[WeakMapData]]'] === undefined) throw TypeError;
+        if (Type(M) !== 'object') throw TypeError();
+        if (M['[[WeakMapData]]'] === undefined) throw TypeError();
         if (Type(key) !== 'object') throw TypeError('Expected object');
         return M['[[WeakMapData]]'].get(key, defaultValue);
       });
@@ -2721,8 +2793,8 @@
       WeakMap.prototype, 'has',
       function has(key) {
         var M = strict(this);
-        if (Type(M) !== 'object') throw TypeError;
-        if (M['[[WeakMapData]]'] === undefined) throw TypeError;
+        if (Type(M) !== 'object') throw TypeError();
+        if (M['[[WeakMapData]]'] === undefined) throw TypeError();
         if (Type(key) !== 'object') throw TypeError('Expected object');
         return M['[[WeakMapData]]'].has(key);
       });
@@ -2732,8 +2804,8 @@
       WeakMap.prototype, 'set',
       function set(key, value) {
         var M = strict(this);
-        if (Type(M) !== 'object') throw TypeError;
-        if (M['[[WeakMapData]]'] === undefined) throw TypeError;
+        if (Type(M) !== 'object') throw TypeError();
+        if (M['[[WeakMapData]]'] === undefined) throw TypeError();
         if (Type(key) !== 'object') throw TypeError('Expected object');
         M['[[WeakMapData]]'].set(key, value);
         return M;
@@ -2766,7 +2838,7 @@
   (function() {
 
     // 23.4.1 The WeakSet Constructor
-    // 23.4.1.1 WeakSet (iterable = undefined)
+    // 23.4.1.1 WeakSet ( [ iterable ] )
     /** @constructor */
     function WeakSet() {
       var iterable = arguments[0];
@@ -2795,7 +2867,7 @@
       return set;
     }
 
-    // 23.4.1.2 new WeakSet ( ... argumentsList)
+    // 23.4.1.2 new WeakSet ( ...argumentsList )
     // 23.4.2 Properties of the WeakSet Constructor
     // 23.4.2.1 WeakSet.prototype
     WeakSet.prototype = new function $WeakSetPrototype$() {};
@@ -2807,8 +2879,8 @@
       WeakSet.prototype, 'add',
       function add(value) {
         var S = strict(this);
-        if (Type(S) !== 'object') throw TypeError;
-        if (S['[[WeakSetData]]'] === undefined) throw TypeError;
+        if (Type(S) !== 'object') throw TypeError();
+        if (S['[[WeakSetData]]'] === undefined) throw TypeError();
         if (Type(value) !== 'object') throw TypeError('Expected object');
         S['[[WeakSetData]]'].set(value, true);
         return S;
@@ -2819,8 +2891,8 @@
       WeakSet.prototype, 'clear',
       function clear() {
         var S = strict(this);
-        if (Type(S) !== 'object') throw TypeError;
-        if (S['[[WeakSetData]]'] === undefined) throw TypeError;
+        if (Type(S) !== 'object') throw TypeError();
+        if (S['[[WeakSetData]]'] === undefined) throw TypeError();
         S['[[WeakSetData]]'].clear();
       });
 
@@ -2830,8 +2902,8 @@
       WeakSet.prototype, 'delete',
       function delete_(value) {
         var S = strict(this);
-        if (Type(S) !== 'object') throw TypeError;
-        if (S['[[WeakSetData]]'] === undefined) throw TypeError;
+        if (Type(S) !== 'object') throw TypeError();
+        if (S['[[WeakSetData]]'] === undefined) throw TypeError();
         if (Type(value) !== 'object') throw TypeError('Expected object');
         return S['[[WeakSetData]]'].remove(value);
       });
@@ -2841,8 +2913,8 @@
       WeakSet.prototype, 'has',
       function has(key) {
         var S = strict(this);
-        if (Type(S) !== 'object') throw TypeError;
-        if (S['[[WeakSetData]]'] === undefined) throw TypeError;
+        if (Type(S) !== 'object') throw TypeError();
+        if (S['[[WeakSetData]]'] === undefined) throw TypeError();
         if (Type(key) !== 'object') throw TypeError('Expected object');
         return S['[[WeakSetData]]'].has(key);
       });
@@ -2880,14 +2952,16 @@
       return;
 
     // 24.1.1 Abstract Operations For ArrayBuffer Objects
-    // 24.1.1.1 AllocateArrayBuffer(constructor)
-    // 24.1.1.2 SetArrayBufferData(arrayBuffer, bytes)
-    // 24.1.1.3 CloneArrayBuffer(srcBuffer, srcByteOffset, srcType,cloneElementType, srcLength).
-    // 24.1.1.4 GetValueFromBuffer (arrayBuffer, byteIndex, type, isLittleEndian)
-    // 24.1.1.5 SetValueInBuffer (arrayBuffer, byteIndex, type, value, isLittleEndian)
+    // 24.1.1.1 AllocateArrayBuffer( constructor )
+    // 24.1.1.2 IsNeuteredBuffer( arrayBuffer )
+    // 24.1.1.3 NeuterArrayBuffer( arrayBuffer )
+    // 24.1.1.4 SetArrayBufferData( arrayBuffer, bytes )
+    // 24.1.1.5 CloneArrayBuffer( srcBuffer, srcByteOffset )
+    // 24.1.1.6 GetValueFromBuffer ( arrayBuffer, byteIndex, type, isLittleEndian )
+    // 24.1.1.7 SetValueInBuffer ( arrayBuffer, byteIndex, type, value, isLittleEndian )
     // 24.1.2 The ArrayBuffer Constructor
-    // 24.1.2.1 ArrayBuffer(length)
-    // 24.1.2.2 new ArrayBuffer( ... argumentsList)
+    // 24.1.2.1 ArrayBuffer( length )
+    // 24.1.2.2 new ArrayBuffer( ...argumentsList )
     // 24.1.3 Properties of the ArrayBuffer Constructor
 
     // 24.1.3.1 ArrayBuffer.isView ( arg )
@@ -2924,8 +2998,8 @@
   // 24.2.1.1 GetViewValue(view, requestIndex, isLittleEndian, type)
   // 24.2.1.2 SetViewValue(view, requestIndex, isLittleEndian, type, value)
   // 24.2.2 The DataView Constructor
-  // 24.2.2.1 DataView(buffer, byteOffset=0, byteLength=undefined)
-  // 24.2.2.2 new DataView( ... argumentsList)
+  // 24.2.2.1 DataView (buffer [ , byteOffset [ , byteLength ] ] )
+  // 24.2.2.2 new DataView( ...argumentsList )
   // 24.2.3 Properties of the DataView Constructor
   // 24.2.3.1 DataView.prototype
   // 24.2.3.2 DataView [ @@create ] ( )
@@ -2934,22 +3008,22 @@
   // 24.2.4.2 get DataView.prototype.byteLength
   // 24.2.4.3 get DataView.prototype.byteOffset
   // 24.2.4.4 DataView.prototype.constructor
-  // 24.2.4.5 DataView.prototype.getFloat32(byteOffset, littleEndian=false)
-  // 24.2.4.6 DataView.prototype.getFloat64(byteOffset, littleEndian=false)
-  // 24.2.4.7 DataView.prototype.getInt8(byteOffset)
-  // 24.2.4.8 DataView.prototype.getInt16(byteOffset, littleEndian=false)
-  // 24.2.4.9 DataView.prototype.getInt32(byteOffset, littleEndian=false)
-  // 24.2.4.10 DataView.prototype.getUint8(byteOffset)
-  // 24.2.4.11 DataView.prototype.getUint16(byteOffset, littleEndian=false)
-  // 24.2.4.12 DataView.prototype.getUint32(byteOffset, littleEndian=false)
-  // 24.2.4.13 DataView.prototype.setFloat32(byteOffset, value, littleEndian=false)
-  // 24.2.4.14 DataView.prototype.setFloat64(byteOffset, value, littleEndian=false)
-  // 24.2.4.15 DataView.prototype.setInt8(byteOffset, value)
-  // 24.2.4.16 DataView.prototype.setInt16(byteOffset, value, littleEndian=false)
-  // 24.2.4.17 DataView.prototype.setInt32(byteOffset, value, littleEndian=false)
-  // 24.2.4.18 DataView.prototype.setUint8(byteOffset, value)
-  // 24.2.4.19 DataView.prototype.setUint16(byteOffset, value, littleEndian=false)
-  // 24.2.4.20 DataView.prototype.setUint32(byteOffset, value, littleEndian=false)
+  // 24.2.4.5 DataView.prototype.getFloat32 ( byteOffset [ , littleEndian ] )
+  // 24.2.4.6 DataView.prototype.getFloat64 ( byteOffset [ , littleEndian ] )
+  // 24.2.4.7 DataView.prototype.getInt8 ( byteOffset )
+  // 24.2.4.8 DataView.prototype.getInt16 ( byteOffset [ , littleEndian ] )
+  // 24.2.4.9 DataView.prototype.getInt32 ( byteOffset [ , littleEndian ] )
+  // 24.2.4.10 DataView.prototype.getUint8 ( byteOffset )
+  // 24.2.4.11 DataView.prototype.getUint16 ( byteOffset [ , littleEndian ] )
+  // 24.2.4.12 DataView.prototype.getUint32 ( byteOffset [ , littleEndian ] )
+  // 24.2.4.13 DataView.prototype.setFloat32 ( byteOffset, value [ , littleEndian ] )
+  // 24.2.4.14 DataView.prototype.setFloat64 ( byteOffset, value [ , littleEndian ] )
+  // 24.2.4.15 DataView.prototype.setInt8 ( byteOffset, value )
+  // 24.2.4.16 DataView.prototype.setInt16 ( byteOffset, value [ , littleEndian ] )
+  // 24.2.4.17 DataView.prototype.setInt32 ( byteOffset, value [ , littleEndian ] )
+  // 24.2.4.18 DataView.prototype.setUint8 ( byteOffset, value )
+  // 24.2.4.19 DataView.prototype.setUint16 ( byteOffset, value [ , littleEndian ] )
+  // 24.2.4.20 DataView.prototype.setUint32 ( byteOffset, value [ , littleEndian ] )
 
   // 24.2.4.21 DataView.prototype[ @@toStringTag ]
   define(DataView.prototype, $$toStringTag, 'DataView');
@@ -2960,13 +3034,9 @@
   // 24.3 The JSON Object
   // ---------------------------------------
 
-  // 24.3.1 The JSON Grammar
-  // 24.3.1.1 The JSON Lexical Grammar
-  // 24.3.1.2 The JSON Syntactic Grammar
-  // 24.3.2 JSON.parse ( text [ , reviver ] )
-  // 24.3.3 JSON.stringify ( value [ , replacer [ , space ] ] )
-
-  // 24.3.4 JSON [ @@toStringTag ]
+  // 24.3.1 JSON.parse ( text [ , reviver ] )
+  // 24.3.2 JSON.stringify ( value [ , replacer [ , space ] ] )
+  // 24.3.3 JSON [ @@toStringTag ]
   define(JSON, $$toStringTag, 'JSON');
 
   // ---------------------------------------
@@ -2974,9 +3044,9 @@
   // ---------------------------------------
 
   // 25.1 Common Iteration Interfaces
-  // 25.1.1 The Iterable Iterface
-  // 25.1.2 The Iterator Iterface
-  // 25.1.3 The ItrResult Iterface
+  // 25.1.1 The Iterable Interface
+  // 25.1.2 The Iterator Interface
+  // 25.1.3 The IteratorResult Interface
 
   // ---------------------------------------
   // 25.2 GeneratorFunction Objects
@@ -2984,7 +3054,7 @@
 
   // 25.2.1 The GeneratorFunction Constructor
   // 25.2.1.1 GeneratorFunction (p1, p2, ... , pn, body)
-  // 25.2.1.2 new GeneratorFunction ( ... argumentsList)
+  // 25.2.1.2 new GeneratorFunction ( ...argumentsList )
   // 25.2.2 Properties of the GeneratorFunction Constructor
   // 25.2.2.1 GeneratorFunction.length
   // 25.2.2.2 GeneratorFunction.prototype
@@ -3005,59 +3075,16 @@
   // 25.3.1 Properties of Generator Prototype
   // 25.3.1.1 Generator.prototype.constructor
   // 25.3.1.2 Generator.prototype.next ( value )
-  // 25.3.1.3 Generator.prototype.throw ( exception )
-  // 25.3.1.4 Generator.prototype [ @@iterator ] ( )
-  // 25.3.1.5 Generator.prototype [ @@toStringTag ]
+  // 25.3.1.3 Generator.prototype.return ( value )
+  // 25.3.1.4 Generator.prototype.throw ( exception )
+  // 25.3.1.5 Generator.prototype [ @@iterator ] ( )
+  // 25.3.1.6 Generator.prototype [ @@toStringTag ]
   // 25.3.2 Properties of Generator Instances
-  // 25.3.3 Iteration Related Abstract Operations
+  // 25.3.3 Generator Abstract Operations
   // 25.3.3.1 GeneratorStart (generator, generatorBody)
   // 25.3.3.2 GeneratorResume ( generator, value )
-  // 25.3.3.3 GeneratorYield ( itrNextObj )
-
-  // 25.3.3.4 CreateItrResultObject (value, done)
-  function CreateItrResultObject(value, done) {
-    assert(Type(done) === 'boolean');
-    var obj = {};
-    obj["value"] = value;
-    obj["done"] = done;
-    return obj;
-  }
-
-  // 25.3.3.5 GetIterator ( obj )
-  function GetIterator(obj) {
-    var iterator = obj[$$iterator]();
-    if (Type(iterator) !== 'object') throw TypeError();
-    return iterator;
-  }
-
-  // 25.3.3.6 IteratorNext ( iterator, value )
-  function IteratorNext(iterator, value) {
-    var result = iterator.next(value);
-    if (Type(result) !== 'object') throw TypeError();
-    return result;
-  }
-
-  // 25.3.3.7 IteratorComplete ( iterResult )
-  function IteratorComplete(iterResult) {
-    assert(Type(iterResult) === 'object');
-    return Boolean(iterResult.done);
-  }
-
-  // 25.3.3.8 IteratorValue ( iterResult )
-  function IteratorValue(iterResult) {
-    assert(Type(iterResult) === 'object');
-    return iterResult.value;
-  }
-
-  // 25.3.3.9 IteratorStep ( iterator, value )
-  function IteratorStep( iterator, value ) {
-    var result = IteratorNext(iterator, value);
-    var done = result['done'];
-    if (Boolean(done) === true) return false;
-    return result;
-  }
-
-  // 25.3.3.10 CreateEmptyIterator ( )
+  // 25.3.3.3 GeneratorResumeAbrupt(generator, abruptCompletion)
+  // 25.3.3.4 GeneratorYield ( iterNextObj )
 
   // ---------------------------------------
   // 25.4 Promise Objects
@@ -3078,7 +3105,7 @@
     // 25.4.1 Abstract Operations for Promise Objects
 
     // 25.4.1.1 PromiseCapability Records
-    // 25.4.1.1.1 IfAbruptRejectPromise ( value, capablity )
+    // 25.4.1.1.1 IfAbruptRejectPromise ( value, capability )
     // 25.4.1.2 PromiseReaction Records
 
     // 25.4.1.3 CreateRejectFunction ( promise )
@@ -3236,7 +3263,7 @@
       return promise;
     }
 
-    // 25.4.3.2 new Promise ( ... argumentsList )
+    // 25.4.3.2 new Promise ( ...argumentsList )
 
     // 25.4.4 Properties of the Promise Constructor
 
@@ -3418,28 +3445,38 @@
   define(Promise.prototype, $$toStringTag, 'Promise');
 
   // ---------------------------------------
-  // 26 The Reflect Module
+  // 26 Reflection
   // ---------------------------------------
-
-  // 26.1 Exported Function Properties Reflecting the Essentional Internal Methods
 
   (function() {
 
+    // 26.1 The Reflect Object
     var Reflect = {};
 
-    // 26.1.1 Reflect.defineProperty(target, propertyKey, attributes)
+    // 26.1.1 Reflect.apply ( target, thisArgument, argumentsList )
+   define(
+      Reflect, 'apply',
+      function apply(target, thisArgument, argumentsList) {
+        var obj = ToObject(target);
+        return Function.prototype.apply.call(thisArgument, argumentsList);
+      });
+
+    // 26.1.2 Reflect.construct ( target, argumentsList )
+    // TODO: Implement
+
+    // 26.1.3 Reflect.defineProperty ( target, propertyKey, attributes )
     define(
       Reflect, 'defineProperty',
       Object.defineProperty);
 
-    // 26.1.2 Reflect.deleteProperty (target, propertyKey)
+    // 26.1.4 Reflect.deleteProperty ( target, propertyKey )
     define(
       Reflect, 'deleteProperty',
       function deleteProperty(target,name) {
         delete target[name];
       });
 
-    // 26.1.3 Reflect.enumerate (target)
+    // 26.1.5 Reflect.enumerate ( target )
     define(
       Reflect, 'enumerate',
       function enumerate(target) {
@@ -3447,10 +3484,10 @@
         return new PropertyIterator(target);
       });
 
-    // 26.1.4 Reflect.get (target, propertyKey, receiver=target)
+    // 26.1.6 Reflect.get ( target, propertyKey [ , receiver ])
     define(
       Reflect, 'get',
-      function get(target,name,receiver) {
+      function get(target, name, receiver) {
         target = ToObject(target);
         name = String(name);
         receiver = (receiver === undefined) ? target : ToObject(receiver);
@@ -3461,48 +3498,29 @@
         return target[name];
       });
 
-    // 26.1.5 Reflect.getOwnPropertyDescriptor(target, propertyKey)
+    // 26.1.7 Reflect.getOwnPropertyDescriptor ( target, propertyKey )
     define(
       Reflect, 'getOwnPropertyDescriptor',
       Object.getOwnPropertyDescriptor);
 
-    // 26.1.6 Reflect.getPrototypeOf (target)
+    // 26.1.8 Reflect.getPrototypeOf ( target )
     define(
       Reflect, 'getPrototypeOf',
       Object.getPrototypeOf);
 
-    // 26.1.7 Reflect.has (target, propertyKey)
+    // 26.1.9 Reflect.has ( target, propertyKey )
     define(
       Reflect, 'has',
       function has(target,name) {
         return String(name) in ToObject(target);
       });
 
-    // 26.1.8 Reflect.hasOwn (target, propertyKey)
-    define(
-      Reflect, 'hasOwn',
-      function hasOwn(target,name) {
-        return ToObject(target).hasOwnProperty(String(name));
-      });
-
-    // 26.1.9 Reflect.isExtensible (target)
+    // 26.1.10 Reflect.isExtensible (target)
     define(
       Reflect, 'isExtensible',
       Object.isExtensible);
 
-    // 26.1.10 Reflect.invoke (target, propertyKey, argumentsList, receiver=target)
-    define(
-      Reflect, 'invoke',
-      function invoke(target, propertyKey, argumentsList, receiver) {
-
-        var obj = ToObject(target);
-        var key = ToPropertyKey(propertyKey);
-        if (receiver === undefined) receiver = target;
-
-        return Function.prototype.apply.call(obj[key], receiver, argumentsList);
-      });
-
-    // 26.1.11 Reflect.ownKeys (target)
+    // 26.1.11 Reflect.ownKeys ( target )
     define(
       Reflect, 'ownKeys',
       function ownKeys(target) {
@@ -3510,14 +3528,14 @@
         return Object.getOwnPropertyNames(obj);
       });
 
-    // 26.1.12 Reflect.preventExtensions (target)
+    // 26.1.12 Reflect.preventExtensions ( target )
     define(
       Reflect, 'preventExtensions',
       function preventExtensions(target) {
         try { Object.preventExtensions(target); return true; } catch (_) { return false; }
       });
 
-    // 26.1.13 Reflect.set (target, propertyKey, V, receiver=target)
+    // 26.1.13 Reflect.set ( target, propertyKey, V [ , receiver ] )
     define(
       Reflect, 'set',
       function set(target,name,value,receiver) {
@@ -3531,12 +3549,13 @@
         return target[name] = value;
       });
 
-    // 26.1.14 Reflect.setPrototypeOf (target, proto)
+    // 26.1.14 Reflect.setPrototypeOf ( target, proto )
     define(
       Reflect, 'setPrototypeOf',
       function setPrototypeOf(target, proto) {
         target.__proto__ = proto;
       });
+
 
     function Enumerate(obj, includePrototype, onlyEnumerable) {
       var proto = Object.getPrototypeOf(obj);
@@ -3578,10 +3597,10 @@
           index = index += 1;
           this.nextIndex = index;
           if (e !== empty) {
-            return CreateItrResultObject(e, false);
+            return CreateIterResultObject(e, false);
           }
         }
-        return CreateItrResultObject(undefined, true);
+        return CreateIterResultObject(undefined, true);
       });
 
     define(
