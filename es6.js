@@ -2204,7 +2204,7 @@
       if (iterable !== undefined) {
         var adder = map['set'];
         if (!IsCallable(adder)) throw TypeError();
-        var iter = GetIterator(iterable);
+        var iter = GetIterator(ToObject(iterable));
       }
       set_internal(map, '[[MapData]]', { keys: [], values: [] });
 
