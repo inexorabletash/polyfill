@@ -5,7 +5,7 @@
 
 #### Not Yet Approved
 * Number: `compare()`
-* Array prototype: `pushAll()`, `contains()` [ref](https://mail.mozilla.org/pipermail/es-discuss/2011-December/019099.html)
+* Array prototype: `pushAll()`, `contains()` [ref](https://github.com/domenic/Array.prototype.contains/)
 * Object iterators: `Object.values()`, `Object.entries()`
 * Reflection: `Object.getPropertyDescriptor(o)`, `Object.getPropertyNames(o)`
 * RegExp extras: `RegExp.escape()` [ref](http://esdiscuss.org/topic/regexp-escape)
