@@ -258,7 +258,6 @@
     // 19.4.4 Properties of Symbol Instances
 
     global.Symbol = global.Symbol || Symbol;
-
   }());
 
   assert(typeof global.Symbol() === 'symbol' || symbolForKey(String(global.Symbol('x'))));
@@ -426,8 +425,8 @@
   }
 
   // 7.4.2 GetIterator ( obj, method )
-  function GetIterator(obj) {
-    var method = CheckIterable(obj);
+  function GetIterator(obj, method) {
+    if (arguments.length < 2) method = CheckIterable(obj);
     if (!IsCallable(method)) throw TypeError();
     var iterator = method.call(obj);
     return iterator;
@@ -487,6 +486,26 @@
   //----------------------------------------
   // 9 Ordinary and Exotic Objects Behaviors
   //----------------------------------------
+
+  // 9.1.11 [[Enumerate]] ()
+  function Enumerate(obj) {
+    var e = [];
+    if (Object(obj) !== obj) return e;
+    var visited = new Set;
+    while (obj !== null) {
+      Object.getOwnPropertyNames(obj).forEach(function(name) {
+        if (!visited.has(name)) {
+          var desc = Object.getOwnPropertyDescriptor(obj, name);
+          if (desc) {
+            visited.add(name);
+            if (desc.enumerable) e.push(name);
+          }
+        }
+      });
+      obj = Object.getPrototypeOf(obj);
+    }
+    return e[$$iterator]();
+  }
 
   // 9.1.12 [[OwnPropertyKeys]] ()
   function OwnPropertyKeys(o) {
@@ -1526,9 +1545,9 @@
         var t = thisArg;
         mapping = true;
       }
-      var usingIterator = HasProperty(items, $$iterator);
-      if (usingIterator) {
-        var iterator = GetIterator(items);
+      var usingIterator = CheckIterable(items);
+      if (usingIterator !== undefined) {
+        var iterator = GetIterator(items, usingIterator);
         if (IsConstructor(c)) {
           // SPEC: Spec bug: A vs. newObj
           var newObj = new c();
@@ -1918,9 +1937,9 @@
            var t = thisArg;
            mapping = true;
          }
-         var usingIterator = HasProperty(items, $$iterator);
-         if (usingIterator) {
-           var iterator = GetIterator(items);
+         var usingIterator = CheckIterable(items);
+         if (usingIterator !== undefined) {
+           var iterator = GetIterator(items, usingIterator);
            var values = [];
            var next = true;
            while (next !== false) {
@@ -2188,7 +2207,6 @@
   // ---------------------------------------
 
   (function() {
-
     // 23.1.1 The Map Constructor
 
     // 23.1.1.1 Map ( [ iterable ] )
@@ -2207,9 +2225,7 @@
         var iter = GetIterator(ToObject(iterable));
       }
       set_internal(map, '[[MapData]]', { keys: [], values: [] });
-
       if (iter === undefined) return map;
-
       while (true) {
         var next = IteratorStep(iter);
         if (next === false)
@@ -2224,7 +2240,7 @@
       return map;
     }
 
-    function indexOf(mapData, key) {
+    function MapDataIndexOf(mapData, key) {
       var i;
       if (key === key) return mapData.keys.indexOf(key);
       // Slow case for NaN
@@ -2265,7 +2281,7 @@
         if (!('[[MapData]]' in m)) throw TypeError();
         if (m['[[MapData]]'] === undefined) throw TypeError();
         var entries = m['[[MapData]]'];
-        var i = indexOf(entries, key);
+        var i = MapDataIndexOf(entries, key);
         if (i < 0) return false;
         entries.keys[i] = empty;
         entries.values[i] = empty;
@@ -2273,7 +2289,7 @@
       });
 
     // 23.1.3.4 Map.prototype.entries ( )
-     define(
+    define(
       Map.prototype, 'entries',
       function entries() {
         var m = strict(this);
@@ -2313,7 +2329,7 @@
         if (!('[[MapData]]' in m)) throw TypeError();
         if (m['[[MapData]]'] === undefined) throw TypeError();
         var entries = m['[[MapData]]'];
-        var i = indexOf(entries, key);
+        var i = MapDataIndexOf(entries, key);
         if (i >= 0) return entries.values[i];
         return undefined;
       });
@@ -2327,7 +2343,7 @@
         if (!('[[MapData]]' in m)) throw TypeError();
         if (m['[[MapData]]'] === undefined) throw TypeError();
         var entries = m['[[MapData]]'];
-        if (indexOf(entries, key) >= 0) return true;
+        if (MapDataIndexOf(entries, key) >= 0) return true;
         return false;
       });
 
@@ -2350,7 +2366,7 @@
         if (m['[[MapData]]'] === undefined) throw TypeError();
         if (SameValue(value, -0)) value = 0;
         var entries = m['[[MapData]]'];
-        var i = indexOf(entries, key);
+        var i = MapDataIndexOf(entries, key);
         if (i < 0) i = entries.keys.length;
         entries.keys[i] = key;
         entries.values[i] = value;
@@ -2466,7 +2482,6 @@
   // ---------------------------------------
 
   (function() {
-
     // 23.2.1 The Set Constructor
     // 23.2.1.1 Set ( [ iterable ] )
 
@@ -2497,7 +2512,7 @@
       return set;
     }
 
-    function indexOf(setData, key) {
+    function SetDataIndexOf(setData, key) {
       var i;
       if (key === key)
         return setData.indexOf(key);
@@ -2526,7 +2541,7 @@
         if (s['[[SetData]]'] === undefined) throw TypeError();
         if (SameValue(value, -0)) value = 0;
         var entries = s['[[SetData]]'];
-        var i = indexOf(entries, value);
+        var i = SetDataIndexOf(entries, value);
         if (i < 0) i = s['[[SetData]]'].length;
         s['[[SetData]]'][i] = value;
 
@@ -2556,7 +2571,7 @@
         if (!('[[SetData]]' in s)) throw TypeError();
         if (s['[[SetData]]'] === undefined) throw TypeError();
         var entries = s['[[SetData]]'];
-        var i = indexOf(entries, value);
+        var i = SetDataIndexOf(entries, value);
         if (i < 0) return false;
         entries[i] = empty;
         return true;
@@ -2602,7 +2617,7 @@
         if (!('[[SetData]]' in s)) throw TypeError();
         if (s['[[SetData]]'] === undefined) throw TypeError();
         var entries = s['[[SetData]]'];
-        return indexOf(entries, key) !== -1;
+        return SetDataIndexOf(entries, key) !== -1;
       });
 
     // 23.2.3.8 Set.prototype.keys ( )
@@ -2703,19 +2718,17 @@
 
     // Override IE11's divergent implementation
     if (!global.Set || global.Set.length)
-        global.Set = Set;
+      global.Set = Set;
   }());
-
 
   // ---------------------------------------
   // 23.3 WeakMap Objects
   // ---------------------------------------
 
   (function() {
-
     // 23.3.1 The WeakMap Constructor
     // 23.3.1.1 WeakMap ( [ iterable ] )
-   /** @constructor */
+    /** @constructor */
     function WeakMap() {
       var iterable = arguments[0];
 
@@ -2725,15 +2738,14 @@
       if ('[[WeakMapData]]' in map) throw TypeError();
 
       if (iterable !== undefined) {
-        iterable = ToObject(iterable);
-        var itr = iterable[$$iterator](); // or throw...
         var adder = map['set'];
         if (!IsCallable(adder)) throw TypeError();
+        var iter = GetIterator(ToObject(iterable));
       }
       set_internal(map, '[[WeakMapData]]', new EphemeronTable);
-      if (iterable === undefined) return map;
+      if (iter === undefined) return map;
       while (true) {
-        var next = IteratorStep(itr);
+        var next = IteratorStep(iter);
         if (next === false)
           return map;
         var nextValue = IteratorValue(next);
@@ -2814,21 +2826,21 @@
     // Override IE11's divergent implementation
     if (!global.WeakMap || global.WeakMap.length)
       global.WeakMap = WeakMap;
-  }());
 
-  // 23.3.3.7 WeakMap.prototype [ @@toStringTag ]
-  define(global.WeakMap.prototype, $$toStringTag, 'WeakMap');
+    // 23.3.3.7 WeakMap.prototype [ @@toStringTag ]
+    define(global.WeakMap.prototype, $$toStringTag, 'WeakMap');
 
-  // 23.3.4 Properties of WeakMap Instances
+    // 23.3.4 Properties of WeakMap Instances
 
-  // Polyfills for incomplete implementations:
-  (function() {
-    var wm = new global.WeakMap();
-    var orig = global.WeakMap.prototype.set;
-    define(global.WeakMap.prototype, 'set', function set() {
-      orig.apply(this, arguments);
-      return this;
-    }, wm.set({}, 0) !== wm);
+    // Polyfills for incomplete native implementations:
+    (function() {
+      var wm = new global.WeakMap();
+      var orig = global.WeakMap.prototype.set;
+      define(global.WeakMap.prototype, 'set', function set() {
+        orig.apply(this, arguments);
+        return this;
+      }, wm.set({}, 0) !== wm);
+    }());
   }());
 
   // ---------------------------------------
@@ -2836,7 +2848,6 @@
   // ---------------------------------------
 
   (function() {
-
     // 23.4.1 The WeakSet Constructor
     // 23.4.1.1 WeakSet ( [ iterable ] )
     /** @constructor */
@@ -2849,15 +2860,14 @@
       if ('[[WeakSetData]]' in set) throw TypeError();
 
       if (iterable !== undefined) {
-        iterable = ToObject(iterable);
-        var itr = HasProperty(iterable, 'values') ? iterable.values() : iterable[$$iterator](); // or throw...
         var adder = set['add'];
         if (!IsCallable(adder)) throw TypeError();
+        var iter = GetIterator(ToObject(iterable));
       }
       set_internal(set, '[[WeakSetData]]', new EphemeronTable);
-      if (iterable === undefined) return set;
+      if (iter === undefined) return set;
       while (true) {
-        var next = IteratorStep(itr);
+        var next = IteratorStep(iter);
         if (next === false)
           return set;
         var nextValue = IteratorValue(next);
@@ -2920,21 +2930,21 @@
       });
 
     global.WeakSet = global.WeakSet || WeakSet;
-  }());
 
-  // 23.4.3.6 WeakSet.prototype [ @@toStringTag ]
-  define(global.WeakSet.prototype, $$toStringTag, 'WeakSet');
+    // 23.4.3.6 WeakSet.prototype [ @@toStringTag ]
+    define(global.WeakSet.prototype, $$toStringTag, 'WeakSet');
 
-  // 23.4.4 Properties of WeakSet Instances
+    // 23.4.4 Properties of WeakSet Instances
 
-  // Polyfills for incomplete implementations:
-  (function() {
-    var ws = new global.WeakSet();
-    var orig = global.WeakSet.prototype.add;
-    define(global.WeakSet.prototype, 'add', function add() {
-      orig.apply(this, arguments);
-      return this;
-    }, ws.add({}) !== ws);
+    // Polyfills for incomplete native implementations:
+    (function() {
+      var ws = new global.WeakSet();
+      var orig = global.WeakSet.prototype.add;
+      define(global.WeakSet.prototype, 'add', function add() {
+        orig.apply(this, arguments);
+        return this;
+      }, ws.add({}) !== ws);
+    }());
   }());
 
   // ---------------------------------------
@@ -3090,8 +3100,7 @@
   // 25.4 Promise Objects
   // ---------------------------------------
 
-  (function(){
-
+  (function() {
     function QueueMicrotask(microtask, argumentsList) {
      // TODO: Use MutationObservers or setImmediate if available
      setTimeout(function() {
@@ -3438,7 +3447,6 @@
 
     // Patch early Promise.cast vs. Promise.resolve implementations
     if ('cast' in global.Promise) global.Promise.resolve = global.Promise.cast;
-
   }());
 
   // 25.4.5.1 Promise.prototype [ @@toStringTag ]
@@ -3449,7 +3457,6 @@
   // ---------------------------------------
 
   (function() {
-
     // 26.1 The Reflect Object
     var Reflect = {};
 
@@ -3462,7 +3469,16 @@
       });
 
     // 26.1.2 Reflect.construct ( target, argumentsList )
-    // TODO: Implement
+    define(
+      Reflect, 'construct',
+      function construct(target, argumentsList) {
+        var args = '', len = argumentsList.length;
+        for (var i = 0; i < len; ++i) {
+          if (i > 0) args += ',';
+          args += 'argumentsList[' + i + ']';
+        }
+        return eval('new target(' + args + ')');
+      });
 
     // 26.1.3 Reflect.defineProperty ( target, propertyKey, attributes )
     define(
@@ -3481,7 +3497,8 @@
       Reflect, 'enumerate',
       function enumerate(target) {
         target = ToObject(target);
-        return new PropertyIterator(target);
+        var iterator = Enumerate(target);
+        return iterator;
       });
 
     // 26.1.6 Reflect.get ( target, propertyKey [ , receiver ])
@@ -3556,59 +3573,6 @@
         target.__proto__ = proto;
       });
 
-
-    function Enumerate(obj, includePrototype, onlyEnumerable) {
-      var proto = Object.getPrototypeOf(obj);
-      var propList;
-      if (!includePrototype || proto === null) {
-        propList = [];
-      } else {
-        propList = Enumerate(proto, true, onlyEnumerable);
-      }
-      Object.getOwnPropertyNames(obj).forEach(function(name) {
-        var desc = Object.getOwnPropertyDescriptor(obj, name);
-        var index = propList.indexOf(name);
-        if (index !== -1) {
-          propList.splice(index, 1);
-        }
-        if (!onlyEnumerable || desc.enumerable) {
-          propList.push(name);
-        }
-      });
-      return propList;
-    }
-
-    function PropertyIterator(o) {
-      this.o = o;
-      this.nextIndex = 0;
-      this.propList = Enumerate(o);
-    }
-    PropertyIterator.prototype = new function $PropertyIteratorPrototype() {};
-
-    define(
-      PropertyIterator.prototype, 'next',
-      function next() {
-        if (Type(this) !== 'object') throw TypeError();
-        var o = this.set,
-            index = this.nextIndex,
-            entries = this.propList;
-        while (index < entries.length) {
-          var e = entries[index];
-          index = index += 1;
-          this.nextIndex = index;
-          if (e !== empty) {
-            return CreateIterResultObject(e, false);
-          }
-        }
-        return CreateIterResultObject(undefined, true);
-      });
-
-    define(
-      PropertyIterator.prototype, $$iterator,
-      function() {
-        return this;
-      });
-
     global.Reflect = global.Reflect || Reflect;
   }());
 
@@ -3625,7 +3589,7 @@
   // NOTE: Since true iterators can't be polyfilled, this is a helper.
   function forOf(o, func) {
     o = ToObject(o);
-    var it = o[$$iterator]();
+    var it = GetIterator(o);
     while (true) {
       var next = IteratorStep(it);
       if (next === false)

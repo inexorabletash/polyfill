@@ -1112,3 +1112,10 @@ asyncTest("Promise.all() reject", function() {
       start();
     });
 });
+
+module("Reflection");
+
+test("Reflect", function() {
+  assertEqual('Reflect.construct(Date, [1970, 1]).getMonth()', 1);
+  assertEqual('Reflect.enumerate({a:1}).next().value', 'a');
+});
