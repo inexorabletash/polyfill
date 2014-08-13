@@ -38,6 +38,8 @@ test("Proposed Array extras", function () {
   assertFalse("[1,2,3].contains(null)");
   assertTrue("[1,null,3].contains(null)");
 
+  assertTrue("[1,2,3].contains(3, 2)");
+  assertFalse("[1,2,3].contains(2, 2)");
 });
 
 test("Proposed Object Extras", function() {

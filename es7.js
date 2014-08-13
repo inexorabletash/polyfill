@@ -124,6 +124,15 @@
     return Object(v);
   }
 
+  // 7.1.15 ToLength ( argument )
+  function ToLength(v) {
+    var len = ToInteger(v);
+    if (len <= 0) {
+      return 0;
+    }
+    return min(len, 0x20000000000000 - 1); // 2^53-1
+  }
+
   //----------------------------------------
   // 7.2 Testing and Comparison Operations
   //----------------------------------------
@@ -221,19 +230,31 @@
       return;
     });
 
-  // es-discuss: DOMStringList replacement; may rename to 'has'
+  // es-discuss: DOMStringList replacement
+  // https://github.com/domenic/Array.prototype.contains/
   define(
     Array.prototype, 'contains',
     function contains(target) {
-      if (this === undefined || this === null) throw TypeError();
-      var t = ToObject(this),
-          len = ToUint32(t.length),
-          i;
-      for (i = 0; i < len; i += 1) {
+      var fromIndex = arguments[1];
+
+      var o = ToObject(this);
+      var lenValue = o["length"];
+      var len = ToLength(lenValue);
+      if (len === 0) return false;
+      var n = (fromIndex !== undefined) ? ToInteger(fromIndex) : 0;
+      if (n >= len) return false;
+      if (n >= 0) {
+        var k = n;
+      } else {
+        k = len - abs(n);
+        if (k < 0) k = 0;
+      }
+      while (k < len) {
         // eval('0 in [undefined]') == false in IE8-
-        if (/*i in t &&*/ SameValue(t[i], target)) {
+        if (/*i in t &&*/ SameValue(o[k], target)) {
           return true;
         }
+        k += 1;
       }
       return false;
     });
