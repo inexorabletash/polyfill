@@ -18,7 +18,7 @@ ECMAScript / JavaScript Polyfills
 
 [ECMAScript 6](es6.md) - Based on nearly complete draft standard. Should be stable apart from bug fixes.
 
-[ECMAScript 7](es7.md) - At the initial proposal/strawman stage. Here there be dragons.
+[ECMAScript 7](experimental/es7.md) - At the initial proposal/strawman stage. Here there be dragons.
 
 [JavaScript 1.X String Extras](js.js) - [ref](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String)
   * String prototype: `trimLeft`, `trimRight`, `quote`
