@@ -140,5 +140,8 @@ test("Group", function () {
   ok(console.log("not in group") || true);
 });
 
+test("Table", function() {
+  ok(console.table([['a', 'b', 'c', 'd'], [1, 2, 3]]) || true);
+});
 
 </script>
