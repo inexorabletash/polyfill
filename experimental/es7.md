@@ -1,7 +1,7 @@
 # ES7
 
 [script](es7.js) -
-[unit tests](http://inexorabletash.github.io/polyfill/tests/es7.html)
+[unit tests](http://inexorabletash.github.io/polyfill/experimental/tests/es7.html)
 
 #### Not Yet Approved
 * Number: `compare()`
