@@ -2470,7 +2470,8 @@
 
     // 23.1.5.3 Properties of Map Iterator Instances
 
-    global.Map = global.Map || Map;
+    if (!global.Map || new global.Map([['a', 1]]).size !== 1)
+      global.Map = Map;
   }());
 
   // ---------------------------------------
@@ -2710,7 +2711,8 @@
 
     // 23.2.5.3 Properties of Set Iterator Instances
 
-    global.Set = global.Set || Set;
+    if (!global.Set || new global.Set([1]).size !== 1)
+      global.Set = Set;
   }());
 
   // ---------------------------------------
