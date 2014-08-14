@@ -12,6 +12,10 @@ function verifyIterator(iterator, expected) {
   }
 }
 
+function isNative(t) {
+  return String(t).indexOf('[native code]') !== -1;
+}
+
 module("Extras");
 
 test("Math", function () {
@@ -651,7 +655,10 @@ module("Containers and Iterators");
 
 test("Map", function () {
 
-  assertEqual("Map.length", 0);
+  if (isNative(Map)) ok(false, "NOTE: Using native implementation (not testing polyfill)");
+
+  assertEqual("Map.length", 1);
+
   map = new Map();
   assertFalse("map.has(-0)");
   assertFalse("map.has(0)");
@@ -728,7 +735,9 @@ test("Map", function () {
 
 test("Set", function () {
 
-  assertEqual("Set.length", 0);
+  if (isNative(Set)) ok(false, "NOTE: Using native implementation (not testing polyfill)");
+
+  assertEqual("Set.length", 1);
 
   set = new Set();
   assertFalse("set.has(-0)");
@@ -808,7 +817,9 @@ test("Set", function () {
 
 test("WeakMap", function () {
 
-  assertEqual("WeakMap.length", 0);
+  if (isNative(WeakMap)) ok(false, "NOTE: Using native implementation (not testing polyfill)");
+
+  assertEqual("WeakMap.length", 1);
 
   wm1 = new WeakMap();
   wm2 = new WeakMap();
@@ -890,7 +901,9 @@ test("WeakMap", function () {
 
 test("WeakSet", function () {
 
-  assertEqual("WeakSet.length", 0);
+  if (isNative(WeakSet)) ok(false, "NOTE: Using native implementation (not testing polyfill)");
+
+  assertEqual("WeakSet.length", 1);
 
   set = new WeakSet();
   x = {};

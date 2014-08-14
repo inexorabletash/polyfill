@@ -2211,9 +2211,7 @@
 
     // 23.1.1.1 Map ( [ iterable ] )
     /** @constructor */
-    function Map() {
-      var iterable = arguments[0];
-
+    function Map(iterable) {
       var map = strict(this);
 
       if (Type(map) !== 'object') throw TypeError();
@@ -2472,9 +2470,7 @@
 
     // 23.1.5.3 Properties of Map Iterator Instances
 
-    // Override IE11's divergent implementation
-    if (!global.Map || global.Map.length)
-      global.Map = Map;
+    global.Map = global.Map || Map;
   }());
 
   // ---------------------------------------
@@ -2486,9 +2482,7 @@
     // 23.2.1.1 Set ( [ iterable ] )
 
     /** @constructor */
-    function Set() {
-      var iterable = arguments[0];
-
+    function Set(iterable) {
       var set = strict(this);
 
       if (Type(set) !== 'object') throw TypeError();
@@ -2716,9 +2710,7 @@
 
     // 23.2.5.3 Properties of Set Iterator Instances
 
-    // Override IE11's divergent implementation
-    if (!global.Set || global.Set.length)
-      global.Set = Set;
+    global.Set = global.Set || Set;
   }());
 
   // ---------------------------------------
@@ -2729,9 +2721,7 @@
     // 23.3.1 The WeakMap Constructor
     // 23.3.1.1 WeakMap ( [ iterable ] )
     /** @constructor */
-    function WeakMap() {
-      var iterable = arguments[0];
-
+    function WeakMap(iterable) {
       var map = strict(this);
 
       if (Type(map) !== 'object') throw TypeError();
@@ -2823,9 +2813,7 @@
         return M;
       });
 
-    // Override IE11's divergent implementation
-    if (!global.WeakMap || global.WeakMap.length)
-      global.WeakMap = WeakMap;
+    global.WeakMap = global.WeakMap || WeakMap;
 
     // 23.3.3.7 WeakMap.prototype [ @@toStringTag ]
     define(global.WeakMap.prototype, $$toStringTag, 'WeakMap');
@@ -2851,9 +2839,7 @@
     // 23.4.1 The WeakSet Constructor
     // 23.4.1.1 WeakSet ( [ iterable ] )
     /** @constructor */
-    function WeakSet() {
-      var iterable = arguments[0];
-
+    function WeakSet(iterable) {
       var set = strict(this);
 
       if (Type(set) !== 'object') throw TypeError();
