@@ -679,7 +679,10 @@ test("Map", function () {
   assertEqual("map.set('key', 'value')", map);
 
   assertEqual("1/(new Map([['key', 0]]).values().next().value)", Infinity);
-  assertEqual("1/(new Map([['key', -0]]).values().next().value)", Infinity);
+  assertEqual("1/(new Map([['key', -0]]).values().next().value)", -Infinity);
+
+  assertEqual("1/(new Map([[0, 'value']]).keys().next().value)", Infinity);
+  assertEqual("1/(new Map([[-0, 'value']]).keys().next().value)", Infinity);
 
   var data = [[0, "a"], [1, "b"]], count = 0;
   map = new Map(data);

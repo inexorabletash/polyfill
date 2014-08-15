@@ -2362,10 +2362,10 @@
         if (Type(m) !== 'object') throw TypeError();
         if (!('[[MapData]]' in m)) throw TypeError();
         if (m['[[MapData]]'] === undefined) throw TypeError();
-        if (SameValue(value, -0)) value = 0;
         var entries = m['[[MapData]]'];
         var i = MapDataIndexOf(entries, key);
         if (i < 0) i = entries.keys.length;
+        if (SameValue(key, -0)) key = 0;
         entries.keys[i] = key;
         entries.values[i] = value;
         return m;
