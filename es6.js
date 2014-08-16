@@ -245,8 +245,7 @@
     // 19.4.3.3 Symbol.prototype.valueOf ( )
     Object.defineProperty(Symbol.prototype, 'valueOf', {
       value: function valueOf() {
-        var s = strict(this);
-        var sym = s['[[SymbolData]]'];
+        throw TypeError();
       },
       configurable: true, writeable: true, enumerable: false });
 

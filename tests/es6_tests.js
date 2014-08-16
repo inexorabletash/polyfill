@@ -654,6 +654,18 @@ test("Symbol", function() {
 
   assertEqual("Symbol.prototype[Symbol.toStringTag]", "Symbol");
   assertEqual("Object.prototype.toString.call(Symbol())", "[object Symbol]");
+
+  // Conversions:
+  // https://github.com/rwaldron/tc39-notes/blob/master/es6/2014-07/jul-29.md
+  (function() {
+    var aSymbol = Symbol();
+    equal(aSymbol === "not a symbol", false); // == does valueOf conversion and throws
+    var s = Symbol();
+    ok(s == Object(s));
+    throws(function() { return "foo" + aSymbol; }, TypeError);
+    throws(function() { return aSymbol + "foo"; }, TypeError);
+    throws(function() { return Number(aSymbol); }, TypeError);
+  }());
 });
 
 module("Containers and Iterators");
