@@ -170,11 +170,9 @@
 
     var GlobalSymbolRegistry = [];
 
-    function uuid() {
-      // http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = (random() * 16) | 0, v = (c === 'x') ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
+    function unique(bits) {
+      return Array(bits + 1).join('x').replace(/x/g, function() {
+        return random() < 0.5 ? '\u200C' : '\u200D'; // JWNJ / ZWJ
       });
     }
 
@@ -184,7 +182,7 @@
 
       var descString = description === undefined ? undefined : String(description);
 
-      set_internal(this, '[[SymbolData]]', uuid());
+      set_internal(this, '[[SymbolData]]', unique(128));
       set_internal(this, '[[Description]]', descString);
 
       symbolMap[this] = this;
@@ -239,7 +237,7 @@
     Object.defineProperty(Symbol.prototype, 'toString', {
       value: function toString() {
         var s = strict(this);
-        var desc = s['[[Description]]'] + '/' + s['[[SymbolData]]'];
+        var desc = s['[[Description]]'] + s['[[SymbolData]]'];
         return 'Symbol(' + desc + ')';
       },
       configurable: true, writeable: true, enumerable: false });
