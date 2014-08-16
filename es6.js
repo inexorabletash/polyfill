@@ -237,8 +237,8 @@
     Object.defineProperty(Symbol.prototype, 'toString', {
       value: function toString() {
         var s = strict(this);
-        var desc = s['[[Description]]'] + s['[[SymbolData]]'];
-        return 'Symbol(' + desc + ')';
+        var desc = s['[[Description]]'];
+        return 'Symbol(' + (desc === undefined ? '' : desc) + s['[[SymbolData]]'] + ')';
       },
       configurable: true, writeable: true, enumerable: false });
 
@@ -507,7 +507,7 @@
 
   // 9.1.12 [[OwnPropertyKeys]] ()
   function OwnPropertyKeys(o) {
-    return Object.getOwnPropertyNames(o)[$$iterator]();
+    return Object.getOwnPropertyNames(o);
   }
 
   // 9.1.13 ObjectCreate(proto, internalDataList)
@@ -531,47 +531,34 @@
   define(
     Object, 'assign',
     function assign(target, /*...*/sources) {
+      var to = ToObject(target);
+      if (arguments.length < 2) return to;
+
       sources = [].slice.call(arguments, 1);
       while (sources.length) {
         var nextSource = sources.shift();
-        var to = ToObject(target);
+        if (nextSource === undefined || nextSource === null) continue;
         var from = ToObject(nextSource);
-        var keys = OwnPropertyKeys(from);
-        var gotAllNames = false;
+        var keysArray = OwnPropertyKeys(from);
+        var len = ToLength(keysArray['length']);
+        var nextIndex = 0;
         var pendingException = undefined;
-        while (!gotAllNames) {
-          var next = IteratorStep(keys);
-          if (next === false) {
-            gotAllNames = true;
-          } else {
-            var nextKey = IteratorValue(next);
-            try {
-              var desc = Object.getOwnPropertyDescriptor(from, nextKey);
-            } catch (desc) {
-              if (pendingException === undefined)
-                pendingException = desc;
-              continue;
+        while (nextIndex < len) {
+          var nextKey = keysArray[nextIndex];
+          try {
+            var desc = Object.getOwnPropertyDescriptor(from, nextKey);
+            if (desc !== undefined && desc.enumerable) {
+              var propValue = from[nextKey];
+              to[nextKey] = propValue;
             }
-            if (desc !== undefined && desc.enumerable === true) {
-              try {
-                var propValue = from[nextKey];
-              } catch (propValue) {
-                if (pendingException === undefined)
-                  pendingException = propValue;
-                continue;
-              }
-              try {
-                to[nextKey] = propValue;
-              } catch (status) {
-                if (pendingException === undefined)
-                  pendingException = status;
-              }
-            }
+          } catch (completion) {
+            if (pendingException === undefined) pendingException = completion;
           }
+          nextIndex += 1;
         }
+        if (pendingException !== undefined)
+          throw pendingException;
       }
-      if (pendingException !== undefined)
-        throw pendingException;
       return to;
     });
 

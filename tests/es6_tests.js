@@ -519,6 +519,11 @@ test("Object", function () {
 
   t = Object.assign({a: 1}, {b: 2}, {c: 3});
   deepEqual(t, {a: 1, b: 2, c: 3}, "Object.assign copies multiple sources");
+
+  deepEqual(Object.keys(Object.assign({a:1}, null)), ['a'],
+        'Object.assign(o, null) does not throw');
+  deepEqual(Object.keys(Object.assign({a:1}, undefined)), ['a'],
+        'Object.assign(o, undefined) does not throw');
 });
 
 test("Typed Array", function() {
