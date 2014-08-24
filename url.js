@@ -286,6 +286,12 @@
       hash: {
         get: function () { return instance.hash; },
         set: function (v) { instance.hash = v; tidy_instance(); }
+      },
+      toString: {
+        value: function() { return instance.toString(); }
+      },
+      valueOf: {
+        value: function() { return instance.valueOf(); }
       }
     });
 

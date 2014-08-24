@@ -12,6 +12,11 @@ test("URL IDL", function () {
   equal(typeof url.href, 'string', 'href');
 });
 
+test("URL Stringifying", function() {
+  equal(String(new URL('http://example.com')), 'http://example.com/');
+  equal(String(new URL('http://example.com:8080')), 'http://example.com:8080/');
+});
+
 test("URL Parsing", function () {
   var url = new URL("http://example.com:8080/foo/bar?a=1&b=2#p1");
   equal(url.protocol, "http:");
