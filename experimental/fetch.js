@@ -67,20 +67,20 @@
     };
     return forbidden[n] || n.substring(0, 6) === 'proxy-' || n.substring(0, 4) === 'sec-';
   }
+  function isForbiddenResponseHeaderName(n) {
+    n = String(n).toLowerCase();
+    var forbidden = {
+      'set-cookie': true,
+      'set-cookie2': true
+    };
+    return forbidden[n];
+  }
+  function isSimpleHeader(name, value) {
+    // TODO: Implement
+    return true;
+  }
 
   function ushort(x) { return x & 0xFFFF; }
-
-  function xhrToHeaders(xhr) {
-    return new Headers(
-      xhr.getAllResponseHeaders()
-        .split(/\r?\n/)
-        .filter(function(header) { return header.length; })
-        .map(function(header) {
-          var i = header.indexOf(':');
-          return [header.substring(0, i), header.substring(i + 2)];
-        })
-    );
-  }
 
   //
   // 5.1 Headers class
@@ -90,21 +90,26 @@
 
   // Constructor(optional HeadersInit init)
   function Headers(init) {
+    this._guard = 'none';
     this._headerList = [];
+    if (init) fill(this, init);
+  }
+
+  function fill(headers, init) {
     if (init instanceof Headers) {
       init._headerList.forEach(function(header) {
-        this.append(header[0], header[1]);
-      }, this);
+        headers.append(header[0], header[1]);
+      });
     } else if (Array.isArray(init)) {
       init.forEach(function(header) {
         if (!Array.isArray(header) || header.length !== 2) throw TypeError();
-        this.append(header[0], header[1]);
-      }, this);
+        headers.append(header[0], header[1]);
+      });
     } else {
       init = Object(init);
       Object.keys(init).forEach(function(key) {
-        this.append(key, init[key]);
-      }, this);
+        headers.append(key, init[key]);
+      });
     }
   }
 
@@ -114,6 +119,11 @@
     append: function append(name, value) {
       name = ByteString(name);
       if (!isName(name) || !isValue(value)) throw TypeError();
+      if (this._guard === 'immutable') throw TypeError();
+      else if (this._guard === 'request' && isForbiddenHeaderName(name)) return;
+      else if (this._guard === 'request-no-CORD' && !isSimpleHeader(name, value)) return;
+      else if (this._guard === 'response' && isForbiddenResponseHeaderName(name)) return;
+
       name = name.toLowerCase();
       this._headerList.push([name, value]);
     },
@@ -122,6 +132,11 @@
     'delete': function delete_(name) {
       name = ByteString(name);
       if (!isName(name)) throw TypeError();
+      if (this._guard === 'immutable') throw TypeError();
+      else if (this._guard === 'request' && isForbiddenHeaderName(name)) return;
+      else if (this._guard === 'request-no-CORD' && !isSimpleHeader(name, 'invalid')) return;
+      else if (this._guard === 'response' && isForbiddenResponseHeaderName(name)) return;
+
       name = name.toLowerCase();
       var index = 0;
       while (index < this._headerList.length) {
@@ -173,6 +188,11 @@
     set: function set(name, value) {
       name = ByteString(name);
       if (!isName(name) || !isValue(value)) throw TypeError();
+      if (this._guard === 'immutable') throw TypeError();
+      else if (this._guard === 'request' && isForbiddenHeaderName(name)) return;
+      else if (this._guard === 'request-no-CORD' && !isSimpleHeader(name, value)) return;
+      else if (this._guard === 'response' && isForbiddenResponseHeaderName(name)) return;
+
       name = name.toLowerCase();
       for (var index = 0; index < this._headerList.length; ++index) {
         if (this._headerList[index][0] === name) {
@@ -252,14 +272,18 @@
     if (typeof input !== 'string') throw Error('Not yet implemented');
     input = ScalarValueString(input);
 
-    init = Object(init);
 
+    init = Object(init);
     // readonly attribute ByteString method;
     this.method = 'method' in init ? ByteString(init.method) : 'GET';
     // readonly attribute ScalarValueString url;
     this.url = String(new URL(input, self.location));
+
     // readonly attribute Headers headers;
-    this.headers = ('headers' in init) ? new Headers(init.headers) : new Headers();
+    this.headers = new Headers();
+    this.headers._guard = 'request';
+    if ('headers' in init) fill(this.headers, init.headers);
+
     // readonly attribute FetchBodyStream body;
     this.body = ('body' in init) ? new FetchBodyStream(init.body) : null;
 
@@ -282,6 +306,9 @@
 
   // Constructor(optional FetchBodyInit body, optional ResponseInit init)
   function Response(body, init) {
+    this.headers = new Headers();
+    this.headers._guard = 'response';
+
     // Internal
     if (body instanceof XMLHttpRequest && '_url' in body) {
       var xhr = body;
@@ -289,7 +316,13 @@
       this.url = ScalarValueString(xhr._url);
       this.status = xhr.status;
       this.statusText = xhr.statusText;
-      this.headers = xhrToHeaders(xhr);
+      xhr.getAllResponseHeaders()
+        .split(/\r?\n/)
+        .filter(function(header) { return header.length; })
+        .forEach(function(header) {
+          var i = header.indexOf(':');
+          this.headers.append(header.substring(0, i), header.substring(i + 2));
+        }, this);
       this.body = new FetchBodyStream(xhr.responseText);
       return;
     }
@@ -307,7 +340,7 @@
     this.statusText = String(init.statusText); // TODO: Validate
 
     // readonly attribute Headers headers;
-    this.headers = ('headers' in init) ? new Headers(init.headers) : new Headers();
+    if ('headers' in init) fill(this.headers, init);
 
     // readonly attribute FetchBodyStream body;
     this.body = new FetchBodyStream(body);
@@ -320,6 +353,8 @@
   // interface Response
   Response.prototype = {
   };
+
+  // TODO: Response.redirect()
 
   //
   // 5.5 Structured cloning of Headers, FetchBodyStream, Request, Response
