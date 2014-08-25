@@ -28,7 +28,7 @@
     return value.replace(
         /([\u0000-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDFFF])/g,
       function (c) {
-        if (c.match(/^[\uD800-\uDFFF]$/)) return '\uFFFD';
+        if (/^[\uD800-\uDFFF]$/.test(c)) return '\uFFFD';
         return c;
       });
   }
@@ -40,19 +40,46 @@
     // TODO: Implement me
     return true;
   }
+  function isForbiddenHeaderName(n) {
+    n = String(n).toLowerCase();
+    var forbidden = {
+      'accept-charset': true,
+      'accept-encoding': true,
+      'access-control-request-headers': true,
+      'access-control-request-method': true,
+      'connection': true,
+      'content-length': true,
+      'cookie': true,
+      'cookie2': true,
+      'date': true,
+      'dnt': true,
+      'expect': true,
+      'host': true,
+      'keep-alive': true,
+      'origin': true,
+      'referer': true,
+      'te': true,
+      'trailer': true,
+      'transfer-encoding': true,
+      'upgrade': true,
+      'user-agent': true,
+      'via': true
+    };
+    return forbidden[n] || n.substring(0, 6) === 'proxy-' || n.substring(0, 4) === 'sec-';
+  }
 
   function ushort(x) { return x & 0xFFFF; }
 
   function xhrToHeaders(xhr) {
-    var headers = new Headers();
-    xhr.getAllResponseHeaders().split(/\r?\n/).forEach(function(header) {
-      if (!header) return;
-      var index = header.indexOf(':');
-      var key = header.substring(0, index);
-      var value = header.substring(index + 2);
-      headers.append(key, value);
-    });
-    return headers;
+    return new Headers(
+      xhr.getAllResponseHeaders()
+        .split(/\r?\n/)
+        .filter(function(header) { return header.length; })
+        .map(function(header) {
+          var i = header.indexOf(':');
+          return [header.substring(0, i), header.substring(i + 2)];
+        })
+    );
   }
 
   //
@@ -311,8 +338,8 @@
       xhr._url = r.url;
 
       xhr.open(r.method, r.url, async);
-      for (var iter = r.headers[Symbol.iterator](),
-               step = iter.next(); !step.done; step = iter.next())
+      for (var iter = r.headers[Symbol.iterator](), step = iter.next();
+           !step.done; step = iter.next())
         xhr.setRequestHeader(step.value[0], step.value[1]);
 
       xhr.onreadystatechange = function () {
