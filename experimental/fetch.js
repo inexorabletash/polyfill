@@ -67,17 +67,17 @@
     if (init instanceof Headers) {
       init._headerList.forEach(function(header) {
         this.append(header[0], header[1]);
-      });
+      }, this);
     } else if (Array.isArray(init)) {
       init.forEach(function(header) {
         if (!Array.isArray(header) || header.length !== 2) throw TypeError();
         this.append(header[0], header[1]);
-      });
+      }, this);
     } else {
       init = Object(init);
       Object.keys(init).forEach(function(key) {
         this.append(key, init[key]);
-      });
+      }, this);
     }
   }
 
@@ -313,7 +313,7 @@
       xhr.open(r.method, r.url, async);
       for (var iter = r.headers[Symbol.iterator](),
                step = iter.next(); !step.done; step = iter.next())
-        xhr.setRequestHeader(step[0], step[1]);
+        xhr.setRequestHeader(step.value[0], step.value[1]);
 
       xhr.onreadystatechange = function () {
         if (xhr.readyState !== XMLHttpRequest.DONE) return;
