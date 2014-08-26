@@ -76,8 +76,10 @@
     return forbidden[n];
   }
   function isSimpleHeader(name, value) {
-    // TODO: Implement
-    return true;
+    name = String(name).toLowerCase();
+    return name === 'accept' || name === 'accept-language' || name === 'content-language' ||
+      (name === 'content-type' &&
+       ['application/x-www-form-encoded', 'multipart/form-data', 'text/plain'].indexOf(value) !== -1);
   }
 
   function ushort(x) { return x & 0xFFFF; }
@@ -121,7 +123,7 @@
       if (!isName(name) || !isValue(value)) throw TypeError();
       if (this._guard === 'immutable') throw TypeError();
       else if (this._guard === 'request' && isForbiddenHeaderName(name)) return;
-      else if (this._guard === 'request-no-CORD' && !isSimpleHeader(name, value)) return;
+      else if (this._guard === 'request-no-CORS' && !isSimpleHeader(name, value)) return;
       else if (this._guard === 'response' && isForbiddenResponseHeaderName(name)) return;
 
       name = name.toLowerCase();
@@ -134,7 +136,7 @@
       if (!isName(name)) throw TypeError();
       if (this._guard === 'immutable') throw TypeError();
       else if (this._guard === 'request' && isForbiddenHeaderName(name)) return;
-      else if (this._guard === 'request-no-CORD' && !isSimpleHeader(name, 'invalid')) return;
+      else if (this._guard === 'request-no-CORS' && !isSimpleHeader(name, 'invalid')) return;
       else if (this._guard === 'response' && isForbiddenResponseHeaderName(name)) return;
 
       name = name.toLowerCase();
@@ -190,7 +192,7 @@
       if (!isName(name) || !isValue(value)) throw TypeError();
       if (this._guard === 'immutable') throw TypeError();
       else if (this._guard === 'request' && isForbiddenHeaderName(name)) return;
-      else if (this._guard === 'request-no-CORD' && !isSimpleHeader(name, value)) return;
+      else if (this._guard === 'request-no-CORS' && !isSimpleHeader(name, value)) return;
       else if (this._guard === 'response' && isForbiddenResponseHeaderName(name)) return;
 
       name = name.toLowerCase();
@@ -239,12 +241,18 @@
     // Promise<ArrayBuffer> asArrayBuffer();
     asArrayBuffer: function() {
       if (this._init instanceof ArrayBuffer) return Promise.resolve(this._init);
-      return Promise.reject(Error('Not yet implemented'));
+      var value = this._init;
+      return new Promise(function(resolve, reject) {
+        var octets = unescape(encodeURIComponent(value)).split('').map(function(c) {
+          return c.charCodeAt(0);
+        });
+        resolve(new Uint8Array(octets).buffer);
+      });
     },
     // Promise<Blob> asBlob();
     asBlob: function() {
       if (this._init instanceof Blob) return Promise.resolve(this._init);
-      return Promise.reject(Error('Not yet implemented'));
+      return Promise.resolve(new Blob([this._init]));
     },
     // Promise<FormData> asFormData();
     asFormData: function() {
@@ -336,11 +344,14 @@
     this.url = '';
 
     // readonly attribute unsigned short status;
-    if (ushort(init.status) < 200 || ushort(init.status) > 599) throw RangeError();
-    this.status = ushort(init.status);
+    if ('status' in init) {
+      if (ushort(init.status) < 200 || ushort(init.status) > 599) throw RangeError();
+      this.status = ushort(init.status);
+    }
 
     // readonly attribute ByteString statusText;
-    this.statusText = String(init.statusText); // TODO: Validate
+    if ('statusText' in init)
+      this.statusText = String(init.statusText); // TODO: Validate
 
     // readonly attribute Headers headers;
     if ('headers' in init) fill(this.headers, init);
