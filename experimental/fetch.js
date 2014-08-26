@@ -230,34 +230,37 @@
   // 5.2 Body stream concept
   //
 
-  function FetchBodyStream(string) {
+  function FetchBodyStream(_init) {
     // TODO: Handle initialization from other types
-    this.string = string;
+    this._init = _init;
   }
   // interface FetchBodyStream
   FetchBodyStream.prototype = {
     // Promise<ArrayBuffer> asArrayBuffer();
     asArrayBuffer: function() {
+      if (this._init instanceof ArrayBuffer) return Promise.resolve(this._init);
       return Promise.reject(Error('Not yet implemented'));
     },
     // Promise<Blob> asBlob();
     asBlob: function() {
+      if (this._init instanceof Blob) return Promise.resolve(this._init);
       return Promise.reject(Error('Not yet implemented'));
     },
     // Promise<FormData> asFormData();
     asFormData: function() {
+      if (this._init instanceof FormData) return Promise.resolve(this._init);
       return Promise.reject(Error('Not yet implemented'));
     },
     // Promise<JSON> asJSON();
     asJSON: function() {
       var that = this;
       return new Promise(function(resolve, reject) {
-        resolve(JSON.parse(that.string));
+        resolve(JSON.parse(that._init));
       });
     },
     // Promise<ScalarValueString> asText();
     asText: function() {
-      return Promise.resolve(this.string);
+      return Promise.resolve(String(this._init));
     }
   };
 
@@ -387,7 +390,7 @@
       };
 
       if (r.body) {
-        r.body.asText().then(function(text){ xhr.send(text); });
+        xhr.send(r.body._init);
       } else {
         xhr.send();
       }
