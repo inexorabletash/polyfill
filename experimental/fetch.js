@@ -33,6 +33,36 @@
       });
   }
 
+  // 2 Terminology
+
+  function byteLowerCase(s) {
+    return String(s).replace(/[A-Z]/g, function(c) { return c.toLowerCase(); });
+  }
+
+  function byteUpperCase(s) {
+    return String(s).replace(/[a-z]/g, function(c) { return c.toUpperCase(); });
+  }
+
+  function byteCaseInsensitiveMatch(a, b) {
+    return byteLowerCase(b) === byteLowerCase(b);
+  }
+
+  // 2.1 HTTP
+
+  // 2.1.1 Methods
+
+  function isForbiddenMethod(m) {
+    m = byteUpperCase(m);
+    return m === 'CONNECT' || m === 'TRACE' || m === 'TRACK';
+  }
+
+  function normalizeMethod(m) {
+    var u = byteUpperCase(m);
+    if (u === 'DELETE' || u === 'GET' || u === 'HEAD' || u === 'OPTIONS' ||
+        u === 'POST' || u === 'PUT') return u;
+    return m;
+  }
+
   function isName(s) {
     return /^[!#$%&'*+\-.09A-Z^_`a-z|~]+$/.test(s);
   }
@@ -235,11 +265,15 @@
   function FetchBodyStream(_init) {
     // TODO: Handle initialization from other types
     this._init = _init;
+    this._read = false;
   }
+
   // interface FetchBodyStream
   FetchBodyStream.prototype = {
     // Promise<ArrayBuffer> asArrayBuffer();
     asArrayBuffer: function() {
+      if (this._read) return Promise.reject(TypeError());
+      this._read = true;
       if (this._init instanceof ArrayBuffer) return Promise.resolve(this._init);
       var value = this._init;
       return new Promise(function(resolve, reject) {
@@ -251,16 +285,22 @@
     },
     // Promise<Blob> asBlob();
     asBlob: function() {
+      if (this._read) return Promise.reject(TypeError());
+      this._read = true;
       if (this._init instanceof Blob) return Promise.resolve(this._init);
       return Promise.resolve(new Blob([this._init]));
     },
     // Promise<FormData> asFormData();
     asFormData: function() {
+      if (this._read) return Promise.reject(TypeError());
+      this._read = true;
       if (this._init instanceof FormData) return Promise.resolve(this._init);
       return Promise.reject(Error('Not yet implemented'));
     },
     // Promise<JSON> asJSON();
     asJSON: function() {
+      if (this._read) return Promise.reject(TypeError());
+      this._read = true;
       var that = this;
       return new Promise(function(resolve, reject) {
         resolve(JSON.parse(that._init));
@@ -268,6 +308,8 @@
     },
     // Promise<ScalarValueString> asText();
     asText: function() {
+      if (this._read) return Promise.reject(TypeError());
+      this._read = true;
       return Promise.resolve(String(this._init));
     }
   };
@@ -280,9 +322,12 @@
 
   // Constructor(RequestInfo input, optional RequestInit init)
   function Request(input, init) {
-    if (typeof input !== 'string') throw Error('Not yet implemented');
-    input = ScalarValueString(input);
+    if (arguments.length < 1) throw TypeError('Not enough arguments');
 
+    // TODO: Construct from other Request
+    if (typeof input !== 'string') throw Error('Not yet implemented');
+
+    input = ScalarValueString(input);
 
     init = Object(init);
     // readonly attribute ByteString method;
@@ -317,6 +362,8 @@
 
   // Constructor(optional FetchBodyInit body, optional ResponseInit init)
   function Response(body, init) {
+    if (arguments.length < 1) throw TypeError('Not enough arguments');
+
     this.headers = new Headers();
     this.headers._guard = 'response';
 
