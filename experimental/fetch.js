@@ -5,15 +5,17 @@
 // subset so that code can be written using future standard
 // functionality; not every case is considered or supported.
 
-// Requires ES6: Promise, Symbol.iterator
-// Requires: URL
+// Requires ES6: Promise, Symbol.iterator (or polyfill)
+// Requires: URL (or polyfill)
 
 // Example:
 //   fetch('README.md')
-//     .then(function(response) { return response.asText(); })
+//     .then(function(response) { return response.body.asText(); })
 //     .then(function(text) { alert(text); });
 
 (function(global) {
+
+  // Web IDL concepts
 
   // http://heycam.github.io/webidl/#idl-ByteString
   function ByteString(value) {
@@ -32,6 +34,8 @@
         return c;
       });
   }
+
+  function ushort(x) { return x & 0xFFFF; }
 
   // 2 Terminology
 
@@ -97,6 +101,7 @@
     };
     return forbidden[n] || n.substring(0, 6) === 'proxy-' || n.substring(0, 4) === 'sec-';
   }
+
   function isForbiddenResponseHeaderName(n) {
     n = String(n).toLowerCase();
     var forbidden = {
@@ -105,14 +110,13 @@
     };
     return forbidden[n];
   }
+
   function isSimpleHeader(name, value) {
     name = String(name).toLowerCase();
     return name === 'accept' || name === 'accept-language' || name === 'content-language' ||
       (name === 'content-type' &&
        ['application/x-www-form-encoded', 'multipart/form-data', 'text/plain'].indexOf(value) !== -1);
   }
-
-  function ushort(x) { return x & 0xFFFF; }
 
   //
   // 5.1 Headers class
@@ -324,30 +328,44 @@
   function Request(input, init) {
     if (arguments.length < 1) throw TypeError('Not enough arguments');
 
+    this.method = 'GET';
+
+    this.headers = new Headers();
+    this.headers._guard = 'request';
+
+    this.body = null;
+
     // TODO: Construct from other Request
     if (typeof input !== 'string') throw Error('Not yet implemented');
 
     input = ScalarValueString(input);
 
     init = Object(init);
+
     // readonly attribute ByteString method;
-    this.method = 'method' in init ? ByteString(init.method) : 'GET';
+    if ('method' in init) {
+      var method = ByteString(init.method);
+      if (isForbiddenMethod(method)) throw TypeError();
+      this.method = normalizeMethod(method);
+    }
+
     // readonly attribute ScalarValueString url;
     this.url = String(new URL(input, self.location));
 
     // readonly attribute Headers headers;
-    this.headers = new Headers();
-    this.headers._guard = 'request';
     if ('headers' in init) fill(this.headers, init.headers);
 
     // readonly attribute FetchBodyStream body;
-    this.body = ('body' in init) ? new FetchBodyStream(init.body) : null;
+    if ('body' in init)
+      this.body = new FetchBodyStream(init.body);
 
     // TODO: Implement these
     // readonly attribute DOMString referrer;
     this.referrer = null;
+
     // readonly attribute RequestMode mode;
     this.mode = null;
+
     // readonly attribute RequestCredentials credentials;
     this.credentials = null;
   }
@@ -415,7 +433,10 @@
   Response.prototype = {
   };
 
-  // TODO: Response.redirect()
+  Response.redirect = function() {
+    // TODO: Implement?
+    throw Error('Not supported');
+  };
 
   //
   // 5.5 Structured cloning of Headers, FetchBodyStream, Request, Response
@@ -440,15 +461,14 @@
 
       xhr.onreadystatechange = function () {
         if (xhr.readyState !== XMLHttpRequest.DONE) return;
-        if (xhr.status === 0) {
+        if (xhr.status === 0)
           reject(new TypeError('Network error'));
-          return;
-        }
-        resolve(new Response(xhr));
+        else
+          resolve(new Response(xhr));
       };
 
       if (r.body) {
-        xhr.send(r.body._init);
+       xhr.send(r.body._init);
       } else {
         xhr.send();
       }

@@ -1,10 +1,23 @@
+// Helpers
+
 function promiseTest(name, func) {
   asyncTest(name, function() {
     new Promise(function(resolve, reject) { resolve(func()); })
       .catch(function(error) { ok(false, 'Unexpected error: ' + error); })
-      .then(function(value) { QUnit.start(); });
+      .then(function() { QUnit.start(); });
   });
 }
+
+function rejectingPromiseTest(name, func, assert) {
+  asyncTest(name, function() {
+    new Promise(function(resolve, reject) { resolve(func()); })
+      .then(function(v) { ok(false, 'Unexpected success: ' + v); },
+            assert)
+      .then(function() { QUnit.start(); });
+  });
+}
+
+// Tests
 
 promiseTest('basic fetch', function() {
   return fetch('sample.txt')
@@ -17,6 +30,14 @@ promiseTest('basic fetch', function() {
     });
 });
 
+promiseTest('basic failed fetch', function() {
+  return fetch('no-such-resource')
+    .then(function(response) {
+      equal(response.status, 404, 'Response status should be 404');
+      equal(response.statusText, 'Not Found', 'Response status should be "Not Found"');
+    });
+});
+
 promiseTest('CORS-denied fetch', function() {
   return fetch('http://example.com')
     .then(function(response) {
@@ -26,13 +47,13 @@ promiseTest('CORS-denied fetch', function() {
     });
 });
 
-promiseTest('CORS-accepted fetch', function() {
-  return fetch('https://cors-test.appspot.com/test')
+promiseTest('CORS-accepted fetch (via httpbin.org)', function() {
+  return fetch('//httpbin.org/get?key=value')
     .then(function(response) {
       return response.body.asJSON();
     })
     .then(function(json) {
-      deepEqual(json, {status: 'ok'});
+      deepEqual(json.args, {'key': 'value'});
     });
 });
 
@@ -62,8 +83,7 @@ promiseTest('FetchBodyStream asArrayBuffer', function() {
       return response.body.asArrayBuffer();
     })
     .then(function(buffer) {
-      buffer = [].slice.call(new Uint8Array(buffer));
-      deepEqual(buffer,
+      deepEqual([].slice.call(new Uint8Array(buffer)),
                 [123, 34, 107, 101, 121, 34, 58, 32, 34, 118, 97, 108, 117, 101, 34, 125, 10],
                'asArrayBuffer should return buffer with expected octets');
     });
@@ -80,15 +100,15 @@ promiseTest('FetchBodyStream asBlob', function() {
     });
 });
 
-promiseTest('FetchBodyStream read flag', function() {
+rejectingPromiseTest('FetchBodyStream read flag', function() {
   return fetch('sample.json')
     .then(function(response) {
       response.body.asText();
       return response.body.asText();
-    })
-    .then(function(v) { ok(false, 'Unexpected successful second asXXX call: ' + v); },
-          function(error) { equal(error.name, 'TypeError',
-                                  'FetchBodyStream.asXXX throws once read flag is set'); });
+    });
+}, function(error) {
+  equal(error.name, 'TypeError',
+        'FetchBodyStream.asXXX throws once read flag is set');
 });
 
 test('Request constructor', function() {
@@ -96,4 +116,41 @@ test('Request constructor', function() {
   equal(r.method, 'GET', 'Default method is GET');
   equal(r.url, 'http://example.com/', 'url property is normalized');
   ok(r.headers instanceof Headers, 'headers property exists');
+});
+
+promiseTest('FormData POST (via httpbin.org)', function() {
+  var fd = new FormData();
+  fd.append('a', '1');
+  fd.append('b', '2');
+  return fetch('//httpbin.org/post', {
+    method: 'POST',
+    body: fd
+  })
+    .then(function(response) {
+      window.r = response;
+      return response.body.asJSON();
+    })
+    .then(function(json) {
+      deepEqual(json.form, {a: '1', b: '2'}, 'FormData key/value pairs should be sent');
+    });
+});
+
+test('Invalid request header', function() {
+  var request = new Request('http://example.com');
+  var headers = request.headers;
+  headers.append('Cookie', 'abc');
+  equal(headers.get('Cookie'), null, 'Forbidden header should not be set, yielding null');
+});
+
+test('Method normalization', function() {
+  equal(new Request('http://example.com', {method: 'get'}).method, 'GET',
+        'Standard method should be normalized to upper case');
+  equal(new Request('http://example.com', {method: 'nonstandard'}).method, 'nonstandard',
+        'Nonstandard method should be normalized to upper case');
+});
+
+rejectingPromiseTest('Bad protocol', function() {
+  return fetch('no-such-protocol://invalid');
+}, function(error) {
+  equal(error.name, 'TypeError', 'Network error appears as TypeError');
 });
