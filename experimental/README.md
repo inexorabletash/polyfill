@@ -26,8 +26,8 @@ fetch('http://example.com/foo.json')
 ```
 
 Supported:
-* `Headers`: `new Headers()`, `append(name, value)`, `delete(name)`, `get(name)`, `getAll(name)`, `has(name)`, `set(name, value)`, `[Symbol.iterator]()`
-* `FetchBodyStream`: `asArrayBuffer()`, `asBlob()`, `asFormData()`, `asJSON()`, `asText()` - but conversions are limited
-* `Request`: `new Request(input, init)`, `method`, `headers`, `body`, `url`
-* `Response`: `new Response(body, init)`, `headers`, `url`, `status`, `statusText`, `body`
+* Headers: `new Headers()`, `append(name, value)`, `delete(name)`, `get(name)`, `getAll(name)`, `has(name)`, `set(name, value)`, `[Symbol.iterator]()`
+* FetchBodyStream: `asArrayBuffer()`, `asBlob()`, `asFormData()`, `asJSON()`, `asText()` - but conversions are limited
+* Request: `new Request(input, init)`, `method`, `headers`, `body`, `url`
+* Response: `new Response(body, init)`, `headers`, `url`, `status`, `statusText`, `body`
 * `fetch(input, init)`
