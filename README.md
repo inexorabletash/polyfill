@@ -83,7 +83,7 @@ WHATWG URL API
 --------------
 [script](url.js) -
 [unit tests](http://inexorabletash.github.io/polyfill/tests/url.html) -
-[draft spec](http://url.spec.whatwg.org/) - See script for cross-browser quirks
+[living standard](http://url.spec.whatwg.org/)
 
 ```javascript
 var url = new URL(url, base);
