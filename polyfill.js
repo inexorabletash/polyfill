@@ -845,6 +845,7 @@ if ('window' in this && 'document' in this) {
     // interface EventTarget
 
     function addEventListener(type, listener, useCapture) {
+      if (typeof listener !== 'function') return;
       if (type === 'DOMContentLoaded') type = 'load';
       var target = this;
       var f = function(e) {
@@ -858,6 +859,7 @@ if ('window' in this && 'document' in this) {
     }
 
     function removeEventListener(type, listener, useCapture) {
+      if (typeof listener !== 'function') return;
       if (type === 'DOMContentLoaded') type = 'load';
       var f = this['_' + type + listener];
       if (f) {
