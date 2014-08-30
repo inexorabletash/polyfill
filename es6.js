@@ -3444,12 +3444,7 @@
     define(
       Reflect, 'construct',
       function construct(target, argumentsList) {
-        var args = '', len = argumentsList.length;
-        for (var i = 0; i < len; ++i) {
-          if (i > 0) args += ',';
-          args += 'argumentsList[' + i + ']';
-        }
-        return eval('new target(' + args + ')');
+        return __cons(target, argumentsList);
       });
 
     // 26.1.3 Reflect.defineProperty ( target, propertyKey, attributes )
@@ -3572,3 +3567,9 @@
   global.forOf = forOf; // Since for( ... of ... ) can't be shimmed w/o a transpiler.
 
 }(this));
+
+// This helper is defined outside the main scope so that the use of
+// 'eval' does not taint the scope for minifiers.
+function __cons(t, a) {
+  return eval('new t(' + a.map(function(_, i) { return 'a[' + i + ']'; }).join(',') + ')');
+}
