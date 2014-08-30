@@ -1,3 +1,4 @@
+// Composited file - DO NOT EDIT
 //----------------------------------------------------------------------
 //
 // ECMAScript 5 Polyfills
