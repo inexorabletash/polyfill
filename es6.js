@@ -1266,20 +1266,15 @@
   define(
     String.prototype, 'codePointAt',
     function codePointAt(pos) {
-      var s = String(this),
-          position = ToInteger(pos),
-          size = s.length;
-      if (position < 0 || position >= size) {
-        return undefined;
-      }
+      var o = strict(this);
+      var s = String(o);
+      var position = ToInteger(pos);
+      var size = s.length;
+      if (position < 0 || position >= size) return undefined;
       var first = s.charCodeAt(position);
-      if (first < 0xD800 || first > 0xDBFF || position + 1 === size) {
-        return first;
-      }
+      if (first < 0xD800 || first > 0xDBFF || position + 1 === size) return first;
       var second = s.charCodeAt(position + 1);
-      if (second < 0xDC00 || second > 0xDFFF) {
-        return first;
-      }
+      if (second < 0xDC00 || second > 0xDFFF) return first;
       return ((first - 0xD800) * 1024) + (second - 0xDC00) + 0x10000;
     });
 
