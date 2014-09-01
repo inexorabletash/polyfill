@@ -66,7 +66,6 @@
 
   // Snapshot intrinsic functions
   var $isNaN = global.isNaN,
-      $isFinite = global.isFinite,
       $parseInt = global.parseInt,
       $parseFloat = global.parseFloat;
 
@@ -768,67 +767,57 @@
     Number, 'EPSILON',
     (function () {
       var next, result;
-      for (next = 1; 1 + next !== 1; next = next / 2) {
+      for (next = 1; 1 + next !== 1; next = next / 2)
         result = next;
-      }
       return result;
     }()));
 
   // 20.1.2.2 Number.isFinite ( number )
   define(
     Number, 'isFinite',
-    function isFinite(value) {
-      return typeof value === 'number' && $isFinite(value);
+    function isFinite(number) {
+      if (Type(number) !== 'number') return false;
+      if (number !== number || number === +Infinity || number === -Infinity) return false;
+      return true;
     });
 
   // 20.1.2.3 Number.isInteger ( number )
   define(
     Number, 'isInteger',
     function isInteger(number) {
-      if (typeof number !== 'number') {
-        return false;
-      }
-      if ($isNaN(number) || number === +Infinity || number === -Infinity) {
-        return false;
-      }
+      if (Type(number) !== 'number') return false;
+      if (number !== number || number === +Infinity || number === -Infinity) return false;
       var integer = ToInteger(number);
-      if (integer !== number) {
-        return false;
-      }
+      if (integer !== number) return false;
       return true;
     });
 
   // 20.1.2.4 Number.isNaN ( number )
   define(
     Number, 'isNaN',
-    function isNaN(value) {
-      return typeof value === 'number' && $isNaN(value);
+    function isNaN(number) {
+      if (Type(number) !== 'number') return false;
+      if (number !== number) return true;
+      return false;
     });
 
   // 20.1.2.5 Number.isSafeInteger ( number )
   define(
     Number, 'isSafeInteger',
     function isSafeInteger(number) {
-      if (typeof number !== 'number') {
-        return false;
-      }
-      if (number !== number || number === +Infinity || number === -Infinity) {
-        return false;
-      }
+      if (Type(number) !== 'number') return false;
+      if (number !== number || number === +Infinity || number === -Infinity) return false;
       var integer = ToInteger(number);
-      if (integer !== number) {
-        return false;
-      }
-      if (abs(integer) <= (0x20000000000000 - 1)) { // 2^53-1
+      if (integer !== number) return false;
+      if (abs(integer) <= (0x20000000000000 - 1)) // 2^53-1
         return true;
-      }
       return false;
     });
 
   // 20.1.2.6 Number.MAX_SAFE_INTEGER
   define(
     Number, 'MAX_SAFE_INTEGER',
-    0x20000000000000 - 1); // 2^53-1
+    9007199254740991); // 2^53-1
 
   // 20.1.2.7 Number.MAX_VALUE
   // 20.1.2.8 Number.NaN
@@ -837,7 +826,7 @@
   // 20.1.2.10 Number.MIN_SAFE_INTEGER
   define(
     Number, 'MIN_SAFE_INTEGER',
-    -0x20000000000000 + 1); // -2^53+1
+    -9007199254740991); // -2^53+1
 
   // 20.1.2.11 Number.MIN_VALUE
   // 20.1.2.12 Number.parseFloat ( string )
