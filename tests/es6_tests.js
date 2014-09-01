@@ -2,12 +2,12 @@ function verifyIterator(iterator, expected) {
   while (true) {
     var result = iterator.next();
     if (result.done) {
-      ok(expected.length === 0);
+      ok(expected.length === 0, 'Iterator completed as expected');
       return;
     } else {
       var ex = expected.shift();
-      equal(result.done, false);
-      deepEqual(result.value, ex);
+      equal(result.done, false, 'Iterator still going');
+      deepEqual(result.value, ex, 'Iterator had expected: ' + ex);
     }
   }
 }
@@ -417,37 +417,37 @@ test("Array", function () {
   assertEqual("Array.of.length", 0);
   assertEqual("Array.of(1,2,3).length", 3);
   assertEqual("Array.of([1,2,3]).length", 1);
-  deepEqual(Array.of(), []);
-  deepEqual(Array.of(1), [1]);
-  deepEqual(Array.of(1, 2), [1, 2]);
-  deepEqual(Array.of(1, 2, 3), [1, 2, 3]);
-  deepEqual(Array.of([]), [[]]);
+  deepEqual(Array.of(), [], 'Array.of with no arguments');
+  deepEqual(Array.of(1), [1], 'Array.of with one argument');
+  deepEqual(Array.of(1, 2), [1, 2], 'Array.of with two arguments');
+  deepEqual(Array.of(1, 2, 3), [1, 2, 3], 'Array.of with three arguments');
+  deepEqual(Array.of([]), [[]], 'Array.of with array argument');
 
   assertTrue("'from' in Array");
   assertEqual("typeof Array.from", 'function');
   assertEqual("Array.from.length", 1);
   assertThrows("Array.from(1,2,3)");
   assertEqual("Array.from([1,2,3]).length", 3);
-  deepEqual(Array.from([1, 2, 3]), [1, 2, 3]);
-  deepEqual(Array.from({length: 0}), []);
-  deepEqual(Array.from({length: 1}), [(void 0)]);
-  deepEqual(Array.from({length: 0, 0: 'a'}), []);
-  deepEqual(Array.from({length: 1, 0: 'a'}), ['a']);
-  deepEqual(Array.from({length: 2, 1: 'a'}), [(void 0), 'a']);
-  deepEqual(Array.from([1,2,3], function(x) { return x * x; }), [1, 4, 9]);
+  deepEqual(Array.from([1, 2, 3]), [1, 2, 3], 'Array.from on array');
+  deepEqual(Array.from({length: 0}), [], 'Array.from on empty arraylike');
+  deepEqual(Array.from({length: 1}), [(void 0)], 'Array.from on empty sparse arraylike');
+  deepEqual(Array.from({length: 0, 0: 'a'}), [], 'Array.from on arraylike');
+  deepEqual(Array.from({length: 1, 0: 'a'}), ['a'], 'Array.from on arraylike');
+  deepEqual(Array.from({length: 2, 1: 'a'}), [(void 0), 'a'], 'Array.from on sparse arraylike');
+  deepEqual(Array.from([1,2,3], function(x) { return x * x; }), [1, 4, 9], 'Array.from with mapfn');
 
-  deepEqual([1,2,3,4].fill(5), [5,5,5,5]);
-  deepEqual([1,2,3,4].fill(5, 1), [1,5,5,5]);
-  deepEqual([1,2,3,4].fill(5, 1, 3), [1,5,5,4]);
-  deepEqual([1,2,3,4].fill(5, -3), [1,5,5,5]);
-  deepEqual([1,2,3,4].fill(5, -3, -1), [1,5,5,4]);
-  assertEqual("Array.prototype.fill.length", 1);
+  deepEqual([1,2,3,4].fill(5), [5,5,5,5], 'Array.fill');
+  deepEqual([1,2,3,4].fill(5, 1), [1,5,5,5], 'Array.fill with start');
+  deepEqual([1,2,3,4].fill(5, 1, 3), [1,5,5,4], 'Array.fill with start and end');
+  deepEqual([1,2,3,4].fill(5, -3), [1,5,5,5], 'Array.fill with negative start');
+  deepEqual([1,2,3,4].fill(5, -3, -1), [1,5,5,4], 'Array.fill with negative start and end');
+  assertEqual("Array.prototype.fill.length", 1, 'Array.fill function length');
 
-  deepEqual([0,1,2,3,4].copyWithin(3, 0, 2), [0,1,2,0,1]);
-  deepEqual([0,1,2,3,4].copyWithin(0, 3), [3,4,2,3,4]);
-  deepEqual([0,1,2,3,4].copyWithin(0, 2, 5), [2,3,4,3,4]);
-  deepEqual([0,1,2,3,4].copyWithin(2, 0, 3), [0,1,0,1,2]);
-  assertEqual("Array.prototype.copyWithin.length", 2);
+  deepEqual([0,1,2,3,4].copyWithin(3, 0, 2), [0,1,2,0,1], 'Array.copyWithin with start and end');
+  deepEqual([0,1,2,3,4].copyWithin(0, 3), [3,4,2,3,4], 'Array.copyWithin with start');
+  deepEqual([0,1,2,3,4].copyWithin(0, 2, 5), [2,3,4,3,4], 'Array.copyWithin');
+  deepEqual([0,1,2,3,4].copyWithin(2, 0, 3), [0,1,0,1,2], 'Array.copyWithin');
+  assertEqual("Array.prototype.copyWithin.length", 2, 'Array.copyWithin function length');
 
   assertEqual("String([].entries())", "[object Array Iterator]");
   assertEqual("Object.prototype.toString.call([].entries())", "[object Array Iterator]");
@@ -527,45 +527,45 @@ test("Object", function () {
 });
 
 test("Typed Array", function() {
-  deepEqual(Uint8Array.from([1,2,3]), new Uint8Array([1,2,3]));
-  deepEqual(Uint8Array.from({0:1,1:2,2:3,length:3}), new Uint8Array([1,2,3]));
+  deepEqual(Uint8Array.from([1,2,3]), new Uint8Array([1,2,3]), 'Typed Array from() array');
+  deepEqual(Uint8Array.from({0:1,1:2,2:3,length:3}), new Uint8Array([1,2,3]), 'Typed Array from() arraylike');
 
-  deepEqual(Uint8Array.of(1,2,3), new Uint8Array([1,2,3]));
+  deepEqual(Uint8Array.of(1,2,3), new Uint8Array([1,2,3]), 'Typed Array of()');
 
-  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(3, 0, 2), new Uint8Array([0,1,2,0,1]));
-  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(0, 3), new Uint8Array([3,4,2,3,4]));
-  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(0, 2, 5), new Uint8Array([2,3,4,3,4]));
-  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(2, 0, 3), new Uint8Array([0,1,0,1,2]));
+  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(3, 0, 2), new Uint8Array([0,1,2,0,1]), 'Typed Array copyWithin()');
+  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(0, 3), new Uint8Array([3,4,2,3,4]), 'Typed Array copyWithin()');
+  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(0, 2, 5), new Uint8Array([2,3,4,3,4]), 'Typed Array copyWithin()');
+  deepEqual(new Uint8Array([0,1,2,3,4]).copyWithin(2, 0, 3), new Uint8Array([0,1,0,1,2]), 'Typed Array copyWithin()');
 
   assertTrue("new Uint8Array([1,3,5]).every(function(n){return n%2;})");
   assertFalse("new Uint8Array([1,3,6]).every(function(n){return n%2;})");
 
-  arrayEqual(new Uint8Array(3).fill(9), [9,9,9]);
-  arrayEqual(new Uint8Array([0,1,2,3,4]).filter(function(n){return n%2;}), [1,3]);
-  deepEqual(new Uint8Array([1,2,3,4]).find(function(n){return n>2;}), 3);
-  deepEqual(new Uint8Array([1,2,3,4]).findIndex(function(n){return n>2;}), 2);
+  arrayEqual(new Uint8Array(3).fill(9), [9,9,9], 'Typed Array fill()');
+  arrayEqual(new Uint8Array([0,1,2,3,4]).filter(function(n){return n%2;}), [1,3], 'Typed Array fillter()');
+  deepEqual(new Uint8Array([1,2,3,4]).find(function(n){return n>2;}), 3, 'Typed Array find()');
+  deepEqual(new Uint8Array([1,2,3,4]).findIndex(function(n){return n>2;}), 2, 'Typed Array findIndex()');
 
   var data = [11, 22, 33], count = 0;
   var array = new Uint8Array(data);
   array.forEach(function(v, k, a) {
-    equal(v, data[count]);
-    equal(k, count);
-    equal(a, array);
+    equal(v, data[count], 'Typed Array forEach() value argument');
+    equal(k, count, 'Typed Array forEach() key argument');
+    equal(a, array, 'Typed Array forEach() array argument');
     ++count;
   });
-  equal(count, data.length);
+  equal(count, data.length, 'Typed Array forEach() correct count');
 
-  deepEqual(new Uint8Array([1,2,3,1,2,3]).indexOf(3), 2);
-  deepEqual(new Uint8Array([1,2,3,4]).join('-'), "1-2-3-4");
+  deepEqual(new Uint8Array([1,2,3,1,2,3]).indexOf(3), 2, 'Typed Array indexOf()');
+  deepEqual(new Uint8Array([1,2,3,4]).join('-'), "1-2-3-4", 'Typed Array join()');
 
-  deepEqual(new Uint8Array([1,2,3,1,2,3]).lastIndexOf(3), 5);
-  arrayEqual(new Uint8Array([0,1,2,3]).map(function(n){return n*2;}), [0,2,4,6]);
-  deepEqual(new Uint8Array([0,1,2,3]).reduce(function(a,b){return a-b;}), -6);
-  deepEqual(new Uint8Array([0,1,2,3]).reduceRight(function(a,b){return a-b;}), 0);
-  arrayEqual(new Uint8Array([0,1,2,3]).reverse(), [3,2,1,0]);
+  deepEqual(new Uint8Array([1,2,3,1,2,3]).lastIndexOf(3), 5, 'Typed Array lastIndexOf()');
+  arrayEqual(new Uint8Array([0,1,2,3]).map(function(n){return n*2;}), [0,2,4,6], 'Typed Array map()');
+  deepEqual(new Uint8Array([0,1,2,3]).reduce(function(a,b){return a-b;}), -6, 'Typed Array reduce()');
+  deepEqual(new Uint8Array([0,1,2,3]).reduceRight(function(a,b){return a-b;}), 0, 'Typed Array reduceRight()');
+  arrayEqual(new Uint8Array([0,1,2,3]).reverse(), [3,2,1,0], 'Typed Array reverse');
 
-  arrayEqual(new Uint8Array([1,2,3,4]).slice(), [1,2,3,4]);
-  arrayEqual(new Uint8Array([1,2,3,4]).slice(2,4), [3,4]);
+  arrayEqual(new Uint8Array([1,2,3,4]).slice(), [1,2,3,4], 'Typed Array slice()');
+  arrayEqual(new Uint8Array([1,2,3,4]).slice(2,4), [3,4], 'Typed Array slice() range');
 
   assertFalse("new Uint8Array([1,3,5]).some(function(n){return n%2===0;})");
   assertTrue("new Uint8Array([1,3,6]).some(function(n){return n%2===0;})");
@@ -576,18 +576,19 @@ test("Typed Array", function() {
   verifyIterator(new Uint8Array([11,22,33]).keys(), [0,1,2]);
   verifyIterator(new Uint8Array([11,22,33]).entries(), [[0,11], [1,22], [2,33]]);
 
-  [Int8Array, Uint8Array, Uint8ClampedArray,
-   Int16Array, Uint16Array,
-   Int32Array, Uint32Array,
-   Float32Array, Float64Array].forEach(function(type) {
+  ['Int8Array', 'Uint8Array', 'Uint8ClampedArray',
+   'Int16Array', 'Uint16Array',
+   'Int32Array', 'Uint32Array',
+   'Float32Array', 'Float64Array'].forEach(function(typeName) {
+     var type = self[typeName];
      ['from', 'of'].forEach(function(member) {
-       ok(member in type);
+       ok(member in type, typeName + ' has ' + member);
      });
      ['copyWithin', 'entries', 'every', 'fill', 'filter',
       'find','findIndex', 'forEach', 'indexOf', 'join',
       'keys', 'lastIndexOf', 'map', 'reduce', 'reduceRight',
       'reverse', 'slice', 'some', 'sort', 'values' ].forEach(function(member) {
-        ok(member in type.prototype);
+        ok(member in type.prototype, typeName + ' has ' + member);
       });
    });
 });
@@ -602,10 +603,10 @@ test("RegExp", function() {
   assertEqual("/a/.search('california', 'x')", 1);
 
   assertTrue("'split' in /.*/");
-  deepEqual(/a/.split('california'), ['c', 'liforni', '']);
+  deepEqual(/a/.split('california'), ['c', 'liforni', ''], 'RegExp split()');
 
   assertTrue("'match' in /.*/");
-  deepEqual(/(.a)/g.match('california'), ['ca', 'ia']);
+  deepEqual(/(.a)/g.match('california'), ['ca', 'ia'], 'RegExp match()');
 });
 
 module("Symbols");
@@ -659,12 +660,12 @@ test("Symbol", function() {
   // https://github.com/rwaldron/tc39-notes/blob/master/es6/2014-07/jul-29.md
   (function() {
     var aSymbol = Symbol();
-    equal(aSymbol === "not a symbol", false); // == does valueOf conversion and throws
+    equal(aSymbol === "not a symbol", false, 'symbols not equal to string'); // == does valueOf conversion and throws
     var s = Symbol();
-    ok(s == Object(s));
-    throws(function() { return "foo" + aSymbol; }, TypeError);
-    throws(function() { return aSymbol + "foo"; }, TypeError);
-    throws(function() { return Number(aSymbol); }, TypeError);
+    ok(s == Object(s), 'Object(symbol) yields the symbol');
+    throws(function() { return "foo" + aSymbol; }, TypeError, 'Symbols don\'t auto-convert to strings');
+    throws(function() { return aSymbol + "foo"; }, TypeError, 'Symbols don\'t auto-convert to strings');
+    throws(function() { return Number(aSymbol); }, TypeError, 'Symbols don\'t auto-convert to numbers');
   }());
 });
 
@@ -713,7 +714,7 @@ test("Map", function () {
     delete self.k;
     delete self.v;
   });
-  equal(2, count);
+  equal(2, count, 'two items seen during Map forEach()');
 
   verifyIterator(new Map([[1,'a'], [2,'b'], [3,'c']]).keys(), [1,2,3]);
   verifyIterator(new Map([[1,'a'], [2,'b'], [3,'c']]).values(), ['a','b','c']);
@@ -740,7 +741,7 @@ test("Map", function () {
   map.forEach(function (k, v) {
     ++count;
   });
-  equal(1, count);
+  equal(1, count, 'Map iteration should skip deleted items');
 
   delete map;
 
@@ -792,7 +793,7 @@ test("Set", function () {
     delete self.e2;
     ++count;
   });
-  equal(3, count);
+  equal(3, count, 'Set iteration yields expected number of items');
 
   verifyIterator(new Set("ABC").values(), ['A', 'B', 'C']);
   verifyIterator(new Set("ABC").keys(), ['A', 'B', 'C']);
@@ -822,7 +823,7 @@ test("Set", function () {
   set.forEach(function(v) {
     ++count;
   });
-  equal(1, count);
+  equal(1, count, 'Set iteration skips deleted items');
 
   delete set;
 
@@ -999,13 +1000,11 @@ test("Branding", function() {
 
 module("Promises");
 test("Basics", function() {
-  var fulfill, reject;
-  new Promise(function (a, b) {
-    fulfill = a;
-    reject = b;
+  expect(4);
+  new Promise(function (resolve, reject) {
+    equal(typeof resolve, 'function', 'resolve capability is a function');
+    equal(typeof reject, 'function', 'reject capability is a function');
   });
-  equal(typeof fulfill, 'function');
-  equal(typeof reject, 'function');
 
   assertEqual("Promise.prototype[Symbol.toStringTag]", "Promise");
   assertEqual("Object.prototype.toString.call(new Promise(function(){}))", "[object Promise]");
@@ -1027,14 +1026,15 @@ asyncTest("Fulfill", function() {
 });
 
 asyncTest("Reject", function() {
+  expect(1);
   var reject;
   new Promise(function (a, b) {
     reject = b;
   }).then(function(value) {
-    ok(false);
+    ok(false, 'unexpected code reached');
     start();
   }, function(reason) {
-    equal(reason, 5);
+    equal(reason, 5, 'rejection reason should match rejection value');
     start();
   });
 
@@ -1046,7 +1046,7 @@ asyncTest("Catch", function() {
   var p = new Promise(function (a, b) {
     reject = b;
   })['catch'](function(reason) {
-    equal(reason, 5);
+    equal(reason, 5, 'catch reason should match rejection value');
     start();
   });
 
@@ -1065,7 +1065,7 @@ asyncTest("Multiple thens", function() {
   });
   p.then(function(value) {
     saw.push(value);
-    deepEqual(saw, [5, 5]);
+    deepEqual(saw, [5, 5], 'multiple thens should be called with same value');
     start();
   });
 
@@ -1075,17 +1075,17 @@ asyncTest("Multiple thens", function() {
 asyncTest("Promise.resolve()", function() {
 
   var p = new Promise(function(){});
-  ok(Promise.resolve(p) === p);
+  ok(Promise.resolve(p) === p, 'Promise.resolve(promise) should return same promise');
 
   Promise.resolve(5).then(function(value) {
-    equal(value, 5);
+    equal(value, 5, 'Promise.resolve(value) should resolve');
     start();
   });
 });
 
 asyncTest("Promise.reject()", function() {
-  Promise.reject(5)['catch'](function(value) {
-    equal(value, 5);
+  Promise.reject(5)['catch'](function(reason) {
+    equal(reason, 5, 'Promise.reject(reason) should reject');
     start();
   });
 });
@@ -1095,7 +1095,7 @@ asyncTest("Promise resolved with Promise", function() {
   new Promise(function (a, b) {
     fulfill = a;
   }).then(function(value) {
-    equal(value, 5);
+    equal(value, 5, 'Promise fulfilled with Promise should resolve to actual value');
     start();
   });
   fulfill(Promise.resolve(5));
@@ -1106,7 +1106,7 @@ asyncTest("Promise rejected with promise", function() {
   new Promise(function (a, b) {
     fulfill = a;
   })['catch'](function(value) {
-    equal(value, 5);
+    equal(value, 5, 'Promise rejected with Promise should resolve to actual value');
     start();
   });
   fulfill(Promise.reject(5));
@@ -1118,7 +1118,7 @@ asyncTest("Promise.race()", function() {
   var p2 = new Promise(function(f, r) { f2 = f; });
   var p3 = new Promise(function(f, r) { f3 = f; });
   Promise.race([p1, p2, p3]).then(function(value) {
-    equal(value, 2);
+    equal(value, 2, 'Promise.race() should resolve to first fulfilled value');
     start();
   });
   f2(2);
@@ -1130,9 +1130,23 @@ asyncTest("Promise.all() fulfill", function() {
     Promise.resolve(2),
     Promise.resolve(3)
     ]).then(function(value) {
-      deepEqual(value, [1,2,3]);
+      deepEqual(value, [1,2,3], 'Promise.all should resolve to completed promises');
       start();
     });
+});
+
+asyncTest("Promise.all() fulfill async", function() {
+  var f1, f2, f3;
+  var p1 = new Promise(function(f, r) { f1 = f; });
+  var p2 = new Promise(function(f, r) { f2 = f; });
+  var p3 = new Promise(function(f, r) { f3 = f; });
+  Promise.all([p1, p2, p3]).then(function(value) {
+      deepEqual(value, [1,2,3], 'Promise.all should resolve to completed promises');
+      start();
+    });
+  f3(3);
+  f2(2);
+  f1(1);
 });
 
 asyncTest("Promise.all() reject", function() {
@@ -1141,7 +1155,7 @@ asyncTest("Promise.all() reject", function() {
     Promise.reject(2),
     Promise.resolve(3)
     ])['catch'](function(reason) {
-      equal(reason, 2);
+      equal(reason, 2, 'Promise.all should reject if any promise rejects');
       start();
     });
 });

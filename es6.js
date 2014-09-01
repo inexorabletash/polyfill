@@ -1548,14 +1548,12 @@
       }
       var usingIterator = CheckIterable(items);
       if (usingIterator !== undefined) {
-        var iterator = GetIterator(items, usingIterator);
-        if (IsConstructor(c)) {
-          // SPEC: Spec bug: A vs. newObj
-          var newObj = new c();
-          var a = ToObject(newObj);
+         if (IsConstructor(c)) {
+          var a = new c();
         } else {
-          a = new Array();
+          a = new Array(0);
         }
+        var iterator = GetIterator(items, usingIterator);
         var k = 0;
         while (true) {
           var next = IteratorStep(iterator);
@@ -1564,37 +1562,32 @@
             return a;
           }
           var nextValue = IteratorValue(next);
-          if (mapping) {
+          if (mapping)
             var mappedValue = mapfn.call(t, nextValue);
-          } else {
+          else
             mappedValue = nextValue;
-          }
           a[k] = mappedValue;
-          ++k;
+          k += 1;
         }
       }
       var lenValue = items.length;
-      var len = ToInteger(lenValue);
+      var len = ToLength(lenValue);
       if (IsConstructor(c)) {
-        newObj = new c(len);
-        a = ToObject(newObj);
+        a = new c(len);
       } else {
         a = new Array(len);
       }
       k = 0;
       while (k < len) {
-        var kPresent = HasProperty(items, k);
-        if (kPresent) {
-          var kValue = items[k];
-          if (mapping) {
-            mappedValue = mapfn.call(t, kValue, k, items);
-          } else {
-            mappedValue = kValue;
-          }
-          a[k] = mappedValue;
-        }
-        ++k;
+        var kValue = items[k];
+        if (mapping)
+          mappedValue = mapfn.call(t, kValue, k, items);
+        else
+          mappedValue = kValue;
+        a[k] = mappedValue;
+        k += 1;
       }
+      a.length = len;
       return a;
     });
 
@@ -1608,7 +1601,7 @@
 
       var lenValue = items.length;
       var len = ToUint32(lenValue);
-      var c = this, a;
+      var c = strict(this), a;
       if (IsConstructor(c)) {
         a = new c(len);
         a = ToObject(a);
@@ -3327,7 +3320,7 @@
     // 25.4.4.1 Promise.all ( iterable )
 
     define(Promise, 'all', function all(iterable) {
-      var c = this;
+      var c = strict(this);
       var promiseCapability = NewPromiseCapability(c);
       try {
         var iterator = GetIterator(iterable);
@@ -3415,7 +3408,7 @@
     // 25.4.4.3 Promise.race ( iterable )
 
     define(Promise, 'race', function race(iterable) {
-      var c = this;
+      var c = strict(this);
       var promiseCapability = NewPromiseCapability(c);
       try {
         var iterator = GetIterator(iterable);
@@ -3455,7 +3448,7 @@
     // 25.4.4.4 Promise.reject ( r )
 
     define(Promise, 'reject', function reject(r) {
-      var c = this;
+      var c = strict(this);
       var promiseCapability = NewPromiseCapability(c);
       var rejectResult = promiseCapability['[[Reject]]'].call(undefined, r);
       return promiseCapability['[[Promise]]'];
@@ -3464,7 +3457,7 @@
     // 25.4.4.5 Promise.resolve ( x )
 
     define(Promise, 'resolve', function resolve(x) {
-      var c = this;
+      var c = strict(this);
       if (IsPromise(x)) {
         var constructor = x['[[PromiseConstructor]]'];
         if (SameValue(constructor, c)) return x;
