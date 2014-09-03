@@ -12,9 +12,78 @@ function verifyIterator(iterator, expected) {
   }
 }
 
-function isNative(t) {
-  return String(t).indexOf('[native code]') !== -1;
-}
+test("Native implementations", function () {
+  ok(true, 'This test reports which types/methods are polyfilled, ' +
+     'so that it is more obvious when failures are due to bugs in ' +
+     'early native implementations.');
+  function isNative(t) { return String(t).indexOf('[native code]') !== -1; }
+  function checkGlobal(s) {
+    var t = eval(s);
+    if (isNative(t))
+      ok(false, 'Native ' + s + ' implementation (not testing polyfill)');
+    else
+      ok(true, 'Using polyfill for ' + s);
+  }
+
+  [
+    'Symbol',
+    'Map',
+    'Set',
+    'WeakMap',
+    'WeakSet',
+    'Promise',
+    'Reflect',
+
+    'ArrayBuffer.isView',
+    'Object.getOwnPropertyNames',
+    'Object.getOwnPropertySymbols',
+    'Object.keys',
+    'Array.from',
+    'Array.of',
+    'Array.prototype.copyWithin',
+    'Array.prototype.entries',
+    'Array.prototype.fill',
+    'Array.prototype.find',
+    'Array.prototype.findIndex',
+    'Array.prototype.keys',
+    'Array.prototype.values',
+    'Math.acosh',
+    'Math.asinh',
+    'Math.atanh',
+    'Math.cbrt',
+    'Math.clz32',
+    'Math.cosh',
+    'Math.expm1',
+    'Math.fround',
+    'Math.hypot',
+    'Math.imul',
+    'Math.log10',
+    'Math.log1p',
+    'Math.log2',
+    'Math.sign',
+    'Math.sinh',
+    'Math.tanh',
+    'Math.trunc',
+    'Number.isFinite',
+    'Number.isInteger',
+    'Number.isNaN',
+    'Number.isSafeInteger',
+    'Number.parseFloat',
+    'Number.parseInt',
+    'Object.assign',
+    'Object.is',
+    'Object.setPrototypeOf',
+    'String.fromCodePoint',
+    'String.raw',
+    'String.prototype.codePointAt',
+    'String.prototype.contains',
+    'String.prototype.endsWith',
+    'String.prototype.repeat',
+    'String.prototype.startsWith'
+
+  ].forEach(checkGlobal);
+});
+
 
 module("Extras");
 
@@ -612,8 +681,6 @@ test("RegExp", function() {
 module("Symbols");
 
 test("Symbol", function() {
-  if (isNative(Symbol)) ok(false, "NOTE: Using native implementation (not testing polyfill)");
-
   assertThrows("new Symbol");
   s = Symbol();
   t = Symbol();
@@ -674,9 +741,6 @@ test("Symbol", function() {
 module("Containers and Iterators");
 
 test("Map", function () {
-
-  if (isNative(Map)) ok(false, "NOTE: Using native implementation (not testing polyfill)");
-
   assertEqual("Map.length", 1);
 
   map = new Map();
@@ -757,9 +821,6 @@ test("Map", function () {
 });
 
 test("Set", function () {
-
-  if (isNative(Set)) ok(false, "NOTE: Using native implementation (not testing polyfill)");
-
   assertEqual("Set.length", 1);
 
   set = new Set();
@@ -839,9 +900,6 @@ test("Set", function () {
 });
 
 test("WeakMap", function () {
-
-  if (isNative(WeakMap)) ok(false, "NOTE: Using native implementation (not testing polyfill)");
-
   assertEqual("WeakMap.length", 1);
 
   wm1 = new WeakMap();
@@ -923,9 +981,6 @@ test("WeakMap", function () {
 });
 
 test("WeakSet", function () {
-
-  if (isNative(WeakSet)) ok(false, "NOTE: Using native implementation (not testing polyfill)");
-
   assertEqual("WeakSet.length", 1);
 
   set = new WeakSet();
@@ -1002,8 +1057,6 @@ test("Branding", function() {
 
 module("Promises");
 test("Basics", function() {
-  if (isNative(Promise)) ok(false, "NOTE: Using native implementation (not testing polyfill)");
-
   expect(4);
   new Promise(function (resolve, reject) {
     equal(typeof resolve, 'function', 'resolve capability is a function');
