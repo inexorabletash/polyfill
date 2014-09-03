@@ -612,6 +612,8 @@ test("RegExp", function() {
 module("Symbols");
 
 test("Symbol", function() {
+  if (isNative(Symbol)) ok(false, "NOTE: Using native implementation (not testing polyfill)");
+
   assertThrows("new Symbol");
   s = Symbol();
   t = Symbol();
@@ -1000,6 +1002,8 @@ test("Branding", function() {
 
 module("Promises");
 test("Basics", function() {
+  if (isNative(Promise)) ok(false, "NOTE: Using native implementation (not testing polyfill)");
+
   expect(4);
   new Promise(function (resolve, reject) {
     equal(typeof resolve, 'function', 'resolve capability is a function');

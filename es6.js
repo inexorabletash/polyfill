@@ -188,6 +188,8 @@
       return this;
     }
 
+    global.Symbol = global.Symbol || Symbol;
+
     // 19.4.2 Properties of the Symbol Constructor
     // 19.4.2.1 Symbol.create
 
@@ -208,7 +210,7 @@
     // 19.4.2.5 Symbol.isRegExp
 
     // 19.4.2.6 Symbol.iterator
-    define(Symbol, 'iterator', Symbol('Symbol.iterator'));
+    define(global.Symbol, 'iterator', global.Symbol('Symbol.iterator'));
 
     // 19.4.2.7 Symbol.keyFor (sym)
     define(Symbol, 'keyFor', function keyFor(sym) {
@@ -224,7 +226,7 @@
     // 19.4.2.9 Symbol.toPrimitive
 
     // 19.4.2.10 Symbol.toStringTag
-    define(Symbol, 'toStringTag', Symbol('Symbol.toStringTag'));
+    define(global.Symbol, 'toStringTag', global.Symbol('Symbol.toStringTag'));
 
     // 19.4.2.11 Symbol.unscopables
     // 19.4.2.12 Symbol [ @@create ] ()
@@ -252,8 +254,6 @@
     // (Done later to polyfill partial implementations)
 
     // 19.4.4 Properties of Symbol Instances
-
-    global.Symbol = global.Symbol || Symbol;
   }());
 
   assert(typeof global.Symbol() === 'symbol' || symbolForKey(String(global.Symbol('x'))));
@@ -2216,6 +2216,9 @@
       return map;
     }
 
+    if (!global.Map || new global.Map([['a', 1]]).size !== 1)
+      global.Map = Map;
+
     function MapDataIndexOf(mapData, key) {
       var i;
       if (key === key) return mapData.keys.indexOf(key);
@@ -2386,7 +2389,7 @@
       });
 
     // 23.1.3.13 Map.prototype [ @@toStringTag ]
-    define(Map.prototype, $$toStringTag, 'Map');
+    define(global.Map.prototype, $$toStringTag, 'Map');
 
     // 23.1.4 Properties of Map Instances
     // 23.1.5 Map Iterator Object
@@ -2447,9 +2450,6 @@
     define(MapIterator.prototype, $$toStringTag, 'Map Iterator');
 
     // 23.1.5.3 Properties of Map Iterator Instances
-
-    if (!global.Map || new global.Map([['a', 1]]).size !== 1)
-      global.Map = Map;
   }());
 
   // ---------------------------------------
@@ -2484,6 +2484,9 @@
 
       return set;
     }
+
+    if (!global.Set || new global.Set([1]).size !== 1)
+      global.Set = Set;
 
     function SetDataIndexOf(setData, key) {
       var i;
@@ -2635,7 +2638,7 @@
       });
 
     // 23.2.3.12 Set.prototype [ @@toStringTag ]
-    define(Set.prototype, $$toStringTag, 'Set');
+    define(global.Set.prototype, $$toStringTag, 'Set');
 
     // 23.2.4 Properties of Set Instances
     // 23.2.5 Set Iterator Objects
@@ -2689,8 +2692,6 @@
 
     // 23.2.5.3 Properties of Set Iterator Instances
 
-    if (!global.Set || new global.Set([1]).size !== 1)
-      global.Set = Set;
   }());
 
   // ---------------------------------------
@@ -2727,6 +2728,8 @@
 
       return map;
     }
+
+    global.WeakMap = global.WeakMap || WeakMap;
 
     // 23.3.1.2 new WeakMap ( ...argumentsList )
     // 23.3.2 Properties of the WeakMap Constructor
@@ -2793,8 +2796,6 @@
         return M;
       });
 
-    global.WeakMap = global.WeakMap || WeakMap;
-
     // 23.3.3.7 WeakMap.prototype [ @@toStringTag ]
     define(global.WeakMap.prototype, $$toStringTag, 'WeakMap');
 
@@ -2842,6 +2843,8 @@
 
       return set;
     }
+
+    global.WeakSet = global.WeakSet || WeakSet;
 
     // 23.4.1.2 new WeakSet ( ...argumentsList )
     // 23.4.2 Properties of the WeakSet Constructor
@@ -2894,8 +2897,6 @@
         if (Type(key) !== 'object') throw TypeError('Expected object');
         return S['[[WeakSetData]]'].has(key);
       });
-
-    global.WeakSet = global.WeakSet || WeakSet;
 
     // 23.4.3.6 WeakSet.prototype [ @@toStringTag ]
     define(global.WeakSet.prototype, $$toStringTag, 'WeakSet');
