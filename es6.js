@@ -549,30 +549,25 @@
       var to = ToObject(target);
       if (arguments.length < 2) return to;
 
-      sources = [].slice.call(arguments, 1);
-      while (sources.length) {
-        var nextSource = sources.shift();
+      for (var sourcesIndex = 1; sourcesIndex < arguments.length; ++sourcesIndex) {
+        var nextSource = arguments[sourcesIndex];
         if (nextSource === undefined || nextSource === null) continue;
         var from = ToObject(nextSource);
         var keysArray = OwnPropertyKeys(from);
-        var len = ToLength(keysArray['length']);
-        var nextIndex = 0;
         var pendingException = undefined;
-        while (nextIndex < len) {
-          var nextKey = keysArray[nextIndex];
+        for (var keysIndex = 0; keysIndex < keysArray.length; ++keysIndex) {
+          var nextKey = keysArray[keysIndex];
           try {
             var desc = Object.getOwnPropertyDescriptor(from, nextKey);
             if (desc !== undefined && desc.enumerable) {
               var propValue = from[nextKey];
               to[nextKey] = propValue;
             }
-          } catch (completion) {
-            if (pendingException === undefined) pendingException = completion;
+          } catch (exception) {
+            if (pendingException === undefined) pendingException = exception;
           }
-          nextIndex += 1;
         }
-        if (pendingException !== undefined)
-          throw pendingException;
+        if (pendingException !== undefined) throw pendingException;
       }
       return to;
     });
