@@ -13,19 +13,12 @@ function verifyIterator(iterator, expected) {
 }
 
 test("Native implementations", function () {
-  ok(true, 'This test reports which types/methods are polyfilled, ' +
-     'so that it is more obvious when failures are due to bugs in ' +
-     'early native implementations.');
-  function isNative(t) { return String(t).indexOf('[native code]') !== -1; }
-  function checkGlobal(s) {
-    var t = eval(s);
-    if (isNative(t))
-      ok(false, 'Native ' + s + ' implementation (not testing polyfill)');
-    else
-      ok(true, 'Using polyfill for ' + s);
+  function isNative(t) {
+    return String(eval(t)).indexOf('[native code]') !== -1;
   }
+  function negate(f) { return function(x) { return !f(x); }; }
 
-  [
+  var functions = [
     'Symbol',
     'Map',
     'Set',
@@ -80,8 +73,18 @@ test("Native implementations", function () {
     'String.prototype.endsWith',
     'String.prototype.repeat',
     'String.prototype.startsWith'
+  ];
 
-  ].forEach(checkGlobal);
+  var nativeFunctions = functions.filter(isNative);
+  var polyfilledFunctions = functions.filter(negate(isNative));
+
+  ok(nativeFunctions.length === 0,
+     'Native implementations of the following functions exist, so the ' +
+     'test results below do not reflect the behavior of the polyfill:\n' +
+     nativeFunctions.join('\n'));
+  ok(true,
+     'The following lack native implementations, so the polyfills are tested:\n' +
+     polyfilledFunctions.join('\n'));
 });
 
 

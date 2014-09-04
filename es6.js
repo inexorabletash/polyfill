@@ -830,18 +830,10 @@
 
   // 20.1.2.11 Number.MIN_VALUE
   // 20.1.2.12 Number.parseFloat ( string )
-  define(
-    Number, 'parseFloat',
-    function parseFloat(string) {
-      return $parseFloat(string);
-    });
+  define(Number, 'parseFloat', $parseFloat);
 
   // 20.1.2.13 Number.parseInt ( string, radix )
-  define(
-    Number, 'parseInt',
-    function parseInt(string) {
-      return $parseInt(string);
-    });
+  define(Number, 'parseInt', $parseInt);
 
   // 20.1.2.14 Number.POSITIVE_INFINITY
   // 20.1.2.15 Number.prototype
