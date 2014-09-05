@@ -3615,23 +3615,6 @@
 
   // Not polyfillable.
 
-  // ---------------------------------------
-  // Non-Standard Helpers
-  // ---------------------------------------
-
-  // NOTE: Since true iterators can't be polyfilled, this is a helper.
-  function forOf(o, func) {
-    o = ToObject(o);
-    var it = GetIterator(o);
-    while (true) {
-      var next = IteratorStep(it);
-      if (next === false)
-        return;
-      func(IteratorValue(next));
-    }
-  }
-  global.forOf = forOf; // Since for( ... of ... ) can't be shimmed w/o a transpiler.
-
 }(this));
 
 // This helper is defined outside the main scope so that the use of
