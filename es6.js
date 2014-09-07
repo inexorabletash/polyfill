@@ -2957,41 +2957,46 @@
 
   // See typedarray.js for TypedArray polyfill
 
-  // 24.2.1 Abstract Operations For DataView Objects
-  // 24.2.1.1 GetViewValue(view, requestIndex, isLittleEndian, type)
-  // 24.2.1.2 SetViewValue(view, requestIndex, isLittleEndian, type, value)
-  // 24.2.2 The DataView Constructor
-  // 24.2.2.1 DataView (buffer [ , byteOffset [ , byteLength ] ] )
-  // 24.2.2.2 new DataView( ...argumentsList )
-  // 24.2.3 Properties of the DataView Constructor
-  // 24.2.3.1 DataView.prototype
-  // 24.2.3.2 DataView [ @@create ] ( )
-  // 24.2.4 Properties of the DataView Prototype Object
-  // 24.2.4.1 get DataView.prototype.buffer
-  // 24.2.4.2 get DataView.prototype.byteLength
-  // 24.2.4.3 get DataView.prototype.byteOffset
-  // 24.2.4.4 DataView.prototype.constructor
-  // 24.2.4.5 DataView.prototype.getFloat32 ( byteOffset [ , littleEndian ] )
-  // 24.2.4.6 DataView.prototype.getFloat64 ( byteOffset [ , littleEndian ] )
-  // 24.2.4.7 DataView.prototype.getInt8 ( byteOffset )
-  // 24.2.4.8 DataView.prototype.getInt16 ( byteOffset [ , littleEndian ] )
-  // 24.2.4.9 DataView.prototype.getInt32 ( byteOffset [ , littleEndian ] )
-  // 24.2.4.10 DataView.prototype.getUint8 ( byteOffset )
-  // 24.2.4.11 DataView.prototype.getUint16 ( byteOffset [ , littleEndian ] )
-  // 24.2.4.12 DataView.prototype.getUint32 ( byteOffset [ , littleEndian ] )
-  // 24.2.4.13 DataView.prototype.setFloat32 ( byteOffset, value [ , littleEndian ] )
-  // 24.2.4.14 DataView.prototype.setFloat64 ( byteOffset, value [ , littleEndian ] )
-  // 24.2.4.15 DataView.prototype.setInt8 ( byteOffset, value )
-  // 24.2.4.16 DataView.prototype.setInt16 ( byteOffset, value [ , littleEndian ] )
-  // 24.2.4.17 DataView.prototype.setInt32 ( byteOffset, value [ , littleEndian ] )
-  // 24.2.4.18 DataView.prototype.setUint8 ( byteOffset, value )
-  // 24.2.4.19 DataView.prototype.setUint16 ( byteOffset, value [ , littleEndian ] )
-  // 24.2.4.20 DataView.prototype.setUint32 ( byteOffset, value [ , littleEndian ] )
+  (function() {
+    if (!('DataView' in global))
+      return;
 
-  // 24.2.4.21 DataView.prototype[ @@toStringTag ]
-  define(DataView.prototype, $$toStringTag, 'DataView');
+    // 24.2.1 Abstract Operations For DataView Objects
+    // 24.2.1.1 GetViewValue(view, requestIndex, isLittleEndian, type)
+    // 24.2.1.2 SetViewValue(view, requestIndex, isLittleEndian, type, value)
+    // 24.2.2 The DataView Constructor
+    // 24.2.2.1 DataView (buffer [ , byteOffset [ , byteLength ] ] )
+    // 24.2.2.2 new DataView( ...argumentsList )
+    // 24.2.3 Properties of the DataView Constructor
+    // 24.2.3.1 DataView.prototype
+    // 24.2.3.2 DataView [ @@create ] ( )
+    // 24.2.4 Properties of the DataView Prototype Object
+    // 24.2.4.1 get DataView.prototype.buffer
+    // 24.2.4.2 get DataView.prototype.byteLength
+    // 24.2.4.3 get DataView.prototype.byteOffset
+    // 24.2.4.4 DataView.prototype.constructor
+    // 24.2.4.5 DataView.prototype.getFloat32 ( byteOffset [ , littleEndian ] )
+    // 24.2.4.6 DataView.prototype.getFloat64 ( byteOffset [ , littleEndian ] )
+    // 24.2.4.7 DataView.prototype.getInt8 ( byteOffset )
+    // 24.2.4.8 DataView.prototype.getInt16 ( byteOffset [ , littleEndian ] )
+    // 24.2.4.9 DataView.prototype.getInt32 ( byteOffset [ , littleEndian ] )
+    // 24.2.4.10 DataView.prototype.getUint8 ( byteOffset )
+    // 24.2.4.11 DataView.prototype.getUint16 ( byteOffset [ , littleEndian ] )
+    // 24.2.4.12 DataView.prototype.getUint32 ( byteOffset [ , littleEndian ] )
+    // 24.2.4.13 DataView.prototype.setFloat32 ( byteOffset, value [ , littleEndian ] )
+    // 24.2.4.14 DataView.prototype.setFloat64 ( byteOffset, value [ , littleEndian ] )
+    // 24.2.4.15 DataView.prototype.setInt8 ( byteOffset, value )
+    // 24.2.4.16 DataView.prototype.setInt16 ( byteOffset, value [ , littleEndian ] )
+    // 24.2.4.17 DataView.prototype.setInt32 ( byteOffset, value [ , littleEndian ] )
+    // 24.2.4.18 DataView.prototype.setUint8 ( byteOffset, value )
+    // 24.2.4.19 DataView.prototype.setUint16 ( byteOffset, value [ , littleEndian ] )
+    // 24.2.4.20 DataView.prototype.setUint32 ( byteOffset, value [ , littleEndian ] )
 
-  // 24.2.5 Properties of DataView Instances
+    // 24.2.4.21 DataView.prototype[ @@toStringTag ]
+    define(DataView.prototype, $$toStringTag, 'DataView');
+
+    // 24.2.5 Properties of DataView Instances
+  }());
 
   // ---------------------------------------
   // 24.3 The JSON Object
