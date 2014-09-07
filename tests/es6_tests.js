@@ -354,8 +354,8 @@ test("Number", function () {
   assertEqual("typeof Number.MIN_SAFE_INTEGER", 'number');
   assertEqual("Number.MIN_SAFE_INTEGER", -Number.MAX_SAFE_INTEGER);
 
-  // TODO: Number.parseInt
-  // TODO: Number.parseFloat
+  equal(Number.parseInt, parseInt, 'Number.parseInt is the same function as parseInt');
+  equal(Number.parseFloat, parseFloat, 'Number.parseFloat is the same function as parseFloat');
 
   // Number.isNaN
   assertFalse("Number.isNaN('')");
@@ -374,8 +374,8 @@ test("Number", function () {
   // Number.isInteger
   assertFalse("Number.isInteger('')");
   assertFalse("Number.isInteger(NaN)");
-  //assertFalse("Number.isInteger(-Infinity)"); // TODO: true or false?
-  //assertFalse("Number.isInteger(+Infinity)"); // TODO: true or false?
+  assertFalse("Number.isInteger(-Infinity)");
+  assertFalse("Number.isInteger(+Infinity)");
   assertTrue("Number.isInteger(0)");
   assertTrue("Number.isInteger(-1)");
   assertTrue("Number.isInteger(+1)");
