@@ -10,7 +10,7 @@
 
 // Example:
 //   fetch('README.md')
-//     .then(function(response) { return response.body.asText(); })
+//     .then(function(response) { return response.text(); })
 //     .then(function(text) { alert(text); });
 
 (function(global) {
@@ -263,23 +263,23 @@
 
 
   //
-  // 5.2 Body stream concept
+  // 5.2 Body mixin
   //
 
-  function FetchBodyStream(_init) {
+  function Body(_stream) {
     // TODO: Handle initialization from other types
-    this._init = _init;
-    this._read = false;
+    this._stream = _stream;
+    this.bodyUsed = false;
   }
 
   // interface FetchBodyStream
-  FetchBodyStream.prototype = {
-    // Promise<ArrayBuffer> asArrayBuffer();
-    asArrayBuffer: function() {
-      if (this._read) return Promise.reject(TypeError());
-      this._read = true;
-      if (this._init instanceof ArrayBuffer) return Promise.resolve(this._init);
-      var value = this._init;
+  Body.prototype = {
+    // Promise<ArrayBuffer> arrayBuffer();
+    arrayBuffer: function() {
+      if (this.bodyUsed) return Promise.reject(TypeError());
+      this.bodyUsed = true;
+      if (this._stream instanceof ArrayBuffer) return Promise.resolve(this._stream);
+      var value = this._stream;
       return new Promise(function(resolve, reject) {
         var octets = unescape(encodeURIComponent(value)).split('').map(function(c) {
           return c.charCodeAt(0);
@@ -287,34 +287,34 @@
         resolve(new Uint8Array(octets).buffer);
       });
     },
-    // Promise<Blob> asBlob();
-    asBlob: function() {
-      if (this._read) return Promise.reject(TypeError());
-      this._read = true;
-      if (this._init instanceof Blob) return Promise.resolve(this._init);
-      return Promise.resolve(new Blob([this._init]));
+    // Promise<Blob> blob();
+    blob: function() {
+      if (this.bodyUsed) return Promise.reject(TypeError());
+      this.bodyUsed = true;
+      if (this._stream instanceof Blob) return Promise.resolve(this._stream);
+      return Promise.resolve(new Blob([this._stream]));
     },
-    // Promise<FormData> asFormData();
-    asFormData: function() {
-      if (this._read) return Promise.reject(TypeError());
-      this._read = true;
-      if (this._init instanceof FormData) return Promise.resolve(this._init);
+    // Promise<FormData> formData();
+    formData: function() {
+      if (this.bodyUsed) return Promise.reject(TypeError());
+      this.bodyUsed = true;
+      if (this._stream instanceof FormData) return Promise.resolve(this._stream);
       return Promise.reject(Error('Not yet implemented'));
     },
-    // Promise<JSON> asJSON();
-    asJSON: function() {
-      if (this._read) return Promise.reject(TypeError());
-      this._read = true;
+    // Promise<JSON> json();
+    json: function() {
+      if (this.bodyUsed) return Promise.reject(TypeError());
+      this.bodyUsed = true;
       var that = this;
       return new Promise(function(resolve, reject) {
-        resolve(JSON.parse(that._init));
+        resolve(JSON.parse(that._stream));
       });
     },
-    // Promise<ScalarValueString> asText();
-    asText: function() {
-      if (this._read) return Promise.reject(TypeError());
-      this._read = true;
-      return Promise.resolve(String(this._init));
+    // Promise<ScalarValueString> text();
+    text: function() {
+      if (this.bodyUsed) return Promise.reject(TypeError());
+      this.bodyUsed = true;
+      return Promise.resolve(String(this._stream));
     }
   };
 
@@ -328,6 +328,8 @@
   function Request(input, init) {
     if (arguments.length < 1) throw TypeError('Not enough arguments');
 
+    Body.call(this, null);
+
     // readonly attribute ByteString method;
     this.method = 'GET';
 
@@ -337,9 +339,6 @@
     // readonly attribute Headers headers;
     this.headers = new Headers();
     this.headers._guard = 'request';
-
-    // readonly attribute FetchBodyStream body;
-    this.body = null;
 
     // readonly attribute DOMString referrer;
     this.referrer = null; // TODO: Implement.
@@ -351,11 +350,13 @@
     this.credentials = null; // TODO: Implement.
 
     if (input instanceof Request) {
+      if (input.bodyUsed) throw TypeError();
+      input.bodyUsed = true;
       this.method = input.method;
       this.url = input.url;
       this.headers = new Headers(input.headers);
       this.headers._guard = input.headers._guard;
-      this.body = input.body;
+      this._stream = input._stream;
     } else {
       input = ScalarValueString(input);
       this.url = String(new URL(input, self.location));
@@ -373,12 +374,11 @@
       fill(this.headers, init.headers);
 
     if ('body' in init)
-      this.body = new FetchBodyStream(init.body);
+      this._stream = init.body;
   }
 
   // interface Request
-  Request.prototype = {
-  };
+  Request.prototype = Body.prototype;
 
   //
   // 5.4 Response class
@@ -405,9 +405,11 @@
           var i = header.indexOf(':');
           this.headers.append(header.substring(0, i), header.substring(i + 2));
         }, this);
-      this.body = new FetchBodyStream(xhr.responseText);
+      Body.call(this, xhr.responseText);
       return;
     }
+
+    Body.call(this, body);
 
     init = Object(init) || {};
 
@@ -427,17 +429,13 @@
     // readonly attribute Headers headers;
     if ('headers' in init) fill(this.headers, init);
 
-    // readonly attribute FetchBodyStream body;
-    this.body = new FetchBodyStream(body);
-
     // TODO: Implement these
     // readonly attribute ResponseType type;
     this.type = 'basic'; // TODO: ResponseType
   }
 
   // interface Response
-  Response.prototype = {
-  };
+  Response.prototype = Body.prototype;
 
   Response.redirect = function() {
     // TODO: Implement?
@@ -473,11 +471,7 @@
           resolve(new Response(xhr));
       };
 
-      if (r.body) {
-       xhr.send(r.body._init);
-      } else {
-        xhr.send();
-      }
+      xhr.send(r._stream);
     });
   }
 

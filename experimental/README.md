@@ -21,7 +21,7 @@ Example:
 
 ```js
 fetch('http://example.com/foo.json')
-  .then(function(response) { return response.body.asJSON(); })
+  .then(function(response) { return response.json(); })
   .then(function(data) { console.log(data); });
 ```
 

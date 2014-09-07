@@ -23,7 +23,7 @@ promiseTest('basic fetch', function() {
   return fetch('sample.txt')
     .then(function(response) {
       equal(response.status, 200, 'Response status should be 200');
-      return response.body.asText();
+      return response.text();
     })
     .then(function(text) {
       equal(text, 'Hello, world!\n', 'Fetch should retrieve sample text');
@@ -50,7 +50,7 @@ promiseTest('CORS-denied fetch', function() {
 promiseTest('CORS-accepted fetch (via httpbin.org)', function() {
   return fetch('//httpbin.org/get?key=value')
     .then(function(response) {
-      return response.body.asJSON();
+      return response.json();
     })
     .then(function(json) {
       deepEqual(json.args, {'key': 'value'});
@@ -60,7 +60,7 @@ promiseTest('CORS-accepted fetch (via httpbin.org)', function() {
 promiseTest('FetchBodyStream asText', function() {
   return fetch('sample.json')
     .then(function(response) {
-      return response.body.asText();
+      return response.text();
     })
     .then(function(text) {
       equal(text, '{"key": "value"}\n', 'asText should produce string');
@@ -70,7 +70,7 @@ promiseTest('FetchBodyStream asText', function() {
 promiseTest('FetchBodyStream asJSON', function() {
   return fetch('sample.json')
     .then(function(response) {
-      return response.body.asJSON();
+      return response.json();
     })
     .then(function(json) {
       deepEqual(json, {key: 'value'}, 'asJSON should parse JSON data file');
@@ -80,7 +80,7 @@ promiseTest('FetchBodyStream asJSON', function() {
 promiseTest('FetchBodyStream asArrayBuffer', function() {
   return fetch('sample.json')
     .then(function(response) {
-      return response.body.asArrayBuffer();
+      return response.arrayBuffer();
     })
     .then(function(buffer) {
       deepEqual([].slice.call(new Uint8Array(buffer)),
@@ -92,7 +92,7 @@ promiseTest('FetchBodyStream asArrayBuffer', function() {
 promiseTest('FetchBodyStream asBlob', function() {
   return fetch('sample.json')
     .then(function(response) {
-      return response.body.asBlob();
+      return response.blob();
     })
     .then(function(blob) {
       // TODO: Verify blob contents
@@ -103,8 +103,8 @@ promiseTest('FetchBodyStream asBlob', function() {
 rejectingPromiseTest('FetchBodyStream read flag', function() {
   return fetch('sample.json')
     .then(function(response) {
-      response.body.asText();
-      return response.body.asText();
+      response.body.text();
+      return response.body.text();
     });
 }, function(error) {
   equal(error.name, 'TypeError',
@@ -141,7 +141,7 @@ promiseTest('FormData POST (via httpbin.org)', function() {
   })
     .then(function(response) {
       window.r = response;
-      return response.body.asJSON();
+      return response.json();
     })
     .then(function(json) {
       deepEqual(json.form, {a: '1', b: '2'}, 'FormData key/value pairs should be sent');
