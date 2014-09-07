@@ -328,46 +328,52 @@
   function Request(input, init) {
     if (arguments.length < 1) throw TypeError('Not enough arguments');
 
+    // readonly attribute ByteString method;
     this.method = 'GET';
 
+    // readonly attribute ScalarValueString url;
+    this.url = '';
+
+    // readonly attribute Headers headers;
     this.headers = new Headers();
     this.headers._guard = 'request';
 
+    // readonly attribute FetchBodyStream body;
     this.body = null;
 
-    // TODO: Construct from other Request
-    if (typeof input !== 'string') throw Error('Not yet implemented');
+    // readonly attribute DOMString referrer;
+    this.referrer = null; // TODO: Implement.
 
-    input = ScalarValueString(input);
+    // readonly attribute RequestMode mode;
+    this.mode = null; // TODO: Implement.
+
+    // readonly attribute RequestCredentials credentials;
+    this.credentials = null; // TODO: Implement.
+
+    if (input instanceof Request) {
+      this.method = input.method;
+      this.url = input.url;
+      this.headers = new Headers(input.headers);
+      this.headers._guard = input.headers._guard;
+      this.body = input.body;
+    } else {
+      input = ScalarValueString(input);
+      this.url = String(new URL(input, self.location));
+    }
 
     init = Object(init);
 
-    // readonly attribute ByteString method;
     if ('method' in init) {
       var method = ByteString(init.method);
       if (isForbiddenMethod(method)) throw TypeError();
       this.method = normalizeMethod(method);
     }
 
-    // readonly attribute ScalarValueString url;
-    this.url = String(new URL(input, self.location));
+    if ('headers' in init)
+      fill(this.headers, init.headers);
 
-    // readonly attribute Headers headers;
-    if ('headers' in init) fill(this.headers, init.headers);
-
-    // readonly attribute FetchBodyStream body;
     if ('body' in init)
       this.body = new FetchBodyStream(init.body);
-
-    // TODO: Implement these
-    // readonly attribute DOMString referrer;
-    this.referrer = null;
-
-    // readonly attribute RequestMode mode;
-    this.mode = null;
-
-    // readonly attribute RequestCredentials credentials;
-    this.credentials = null;
   }
 
   // interface Request

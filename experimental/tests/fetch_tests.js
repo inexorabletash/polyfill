@@ -111,11 +111,24 @@ rejectingPromiseTest('FetchBodyStream read flag', function() {
         'FetchBodyStream.asXXX throws once read flag is set');
 });
 
-test('Request constructor', function() {
+test('Request constructor - ScalarValueString', function() {
   var r = new Request('http://example.com');
   equal(r.method, 'GET', 'Default method is GET');
   equal(r.url, 'http://example.com/', 'url property is normalized');
   ok(r.headers instanceof Headers, 'headers property exists');
+});
+
+test('Request constructor - Request', function() {
+  var o = new Request('http://example.com', {
+    method: 'POST',
+    headers: new Headers({A: 1, B: 2})
+  });
+  var r = new Request(o, {headers: new Headers({C: 3})});
+  equal(r.method, 'POST', 'Method copied');
+  equal(r.url, 'http://example.com/', 'URL copied');
+  equal(r.headers.get('A'), '1');
+  equal(r.headers.get('B'), '2');
+  equal(r.headers.get('C'), '3');
 });
 
 promiseTest('FormData POST (via httpbin.org)', function() {
