@@ -1307,7 +1307,8 @@
   // 21.1.3.11 String.prototype.match ( regexp )
   // 21.1.3.12 String.prototype.normalize ( [ form ] )
 
-  // TODO - probably not practical due to table sizes.
+  // Not practical due to table sizes; if needed, pull in:
+  // https://github.com/walling/unorm/
 
   // 21.1.3.13 String.prototype.repeat ( count )
   define(
@@ -2933,9 +2934,7 @@
       ArrayBuffer, 'isView',
       function isView(arg) {
         if (Type(arg) !== 'object') return false;
-        // TODO: Is there a less hackish way?
         if ('buffer' in arg && arg.buffer instanceof ArrayBuffer) return true;
-        // TODO: [[ViewedDataArrayBuffer]] clause?
         return false;
       });
 
@@ -3148,8 +3147,7 @@
 
     function CreatePromiseCapabilityRecord(promise, constructor) {
       // To keep Promise hermetic, this doesn't look much like the spec.
-
-      // TODO: IsConstructor test
+      assert(IsConstructor(constructor));
       var promiseCapability = {};
       set_internal(promiseCapability, '[[Promise]]', promise);
       set_internal(promiseCapability, '[[Resolve]]', undefined);
