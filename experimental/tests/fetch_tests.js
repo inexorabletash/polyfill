@@ -17,6 +17,16 @@ function rejectingPromiseTest(name, func, assert) {
   });
 }
 
+function blobAsText(blob, encoding) {
+  encoding = encoding || 'utf-8';
+  return new Promise(function(resolve, reject) {
+    var reader = new FileReader();
+    reader.readAsText(blob, encoding);
+    reader.onload = function(e) { resolve(reader.result); };
+    reader.onerror = function(e) { reject(reader.error); };
+  });
+}
+
 // Tests
 
 promiseTest('basic fetch', function() {
@@ -57,7 +67,7 @@ promiseTest('CORS-accepted fetch (via httpbin.org)', function() {
     });
 });
 
-promiseTest('FetchBodyStream asText', function() {
+promiseTest('Response.text()', function() {
   return fetch('sample.json')
     .then(function(response) {
       return response.text();
@@ -67,7 +77,7 @@ promiseTest('FetchBodyStream asText', function() {
     });
 });
 
-promiseTest('FetchBodyStream asJSON', function() {
+promiseTest('Response.json()', function() {
   return fetch('sample.json')
     .then(function(response) {
       return response.json();
@@ -77,7 +87,7 @@ promiseTest('FetchBodyStream asJSON', function() {
     });
 });
 
-promiseTest('FetchBodyStream asArrayBuffer', function() {
+promiseTest('Response.arrayBuffer()', function() {
   return fetch('sample.json')
     .then(function(response) {
       return response.arrayBuffer();
@@ -89,21 +99,26 @@ promiseTest('FetchBodyStream asArrayBuffer', function() {
     });
 });
 
-promiseTest('FetchBodyStream asBlob', function() {
+promiseTest('Response.blob()', function() {
   return fetch('sample.json')
     .then(function(response) {
       return response.blob();
     })
     .then(function(blob) {
-      // TODO: Verify blob contents
       equal(blob.size, 17, 'asBlob should yield appropriately sized Blob');
+      return blobAsText(blob);
+    })
+    .then(function(text) {
+      equal(text, '{"key": "value"}\n', 'asBlob should decode to expected text');
     });
 });
 
-rejectingPromiseTest('FetchBodyStream read flag', function() {
+rejectingPromiseTest('Response.bodyUsed flag', function() {
   return fetch('sample.json')
     .then(function(response) {
+      equal(response.bodyUsed, false, 'bodyUsed flag is not set');
       response.body.text();
+      equal(response.bodyUsed, true, 'bodyUsed flag is not set');
       return response.body.text();
     });
 }, function(error) {
