@@ -21,6 +21,17 @@ if ('window' in this && 'document' in this) {
   document.head = document.head || document.getElementsByTagName('head')[0];
 
   //
+  // Ensure correct parsing of newish elements in IE8 ("shiv")
+  //
+  [
+    'abbr', 'article', 'aside', 'audio', 'bdi', 'canvas', 'data', 'datalist',
+    'details', 'dialog', 'figcaption', 'figure', 'footer', 'header', 'hgroup',
+    'main', 'mark', 'meter', 'nav', 'output', 'picture', 'progress', 'section',
+    'summary', 'template', 'time', 'video'].forEach(function(tag) {
+     document.createElement(tag);
+   });
+
+  //
   // XMLHttpRequest (http://www.w3.org/TR/XMLHttpRequest/)
   //
   window.XMLHttpRequest = window.XMLHttpRequest || function () {

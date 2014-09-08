@@ -1,5 +1,6 @@
 
-test("Web Standards Polyfills - Misc", 9, function () {
+test("Web Standards Polyfills - Misc", function () {
+  expect(9);
 
   // document.head
   assertTrue("document.head != null");
@@ -15,7 +16,8 @@ test("Web Standards Polyfills - Misc", 9, function () {
   assertEqual("XMLHttpRequest.DONE", 4);
 });
 
-test("Web Standards Polyfills - base64 encoding", 4, function () {
+test("Web Standards Polyfills - base64 encoding", function () {
+  expect(4);
 
   // window.atob() / window.btoa()
   assertEqual("window.btoa('')", '');
@@ -24,7 +26,8 @@ test("Web Standards Polyfills - base64 encoding", 4, function () {
   assertEqual("window.atob('AAEC/f7/')", '\x00\x01\x02\xfd\xfe\xff');
 });
 
-test("Web Standards Polyfills - querySelector / getElementsByClassName", 22, function () {
+test("Web Standards Polyfills - querySelector / getElementsByClassName", function () {
+  expect(22);
 
   // document.querySelector()
   assertTrue("document.querySelector('#foof') === null");
@@ -55,7 +58,8 @@ test("Web Standards Polyfills - querySelector / getElementsByClassName", 22, fun
   assertEqual("document.getElementsByClassName('gamma').length", 0);
 });
 
-test("Web Standards Polyfills - Enumeration", 29, function () {
+test("Web Standards Polyfills - Enumeration", function () {
+  expect(29);
 
   // Node enumeration
   assertTrue("Node !== null");
@@ -95,6 +99,7 @@ test("Web Standards Polyfills - Element.dataset and data-* attributes", function
 
   // dataset
   if ('dataset' in document.getElementById('datadiv')) {
+    expect(5);
     assertEqual("document.getElementById('datadiv').dataset.foo", "bar");
     assertEqual("document.getElementById('datadiv').dataset.bar", "123");
     assertEqual("document.getElementById('dataspan').dataset['123']", "blah"); // Broken in Chrome 23!
@@ -105,7 +110,8 @@ test("Web Standards Polyfills - Element.dataset and data-* attributes", function
   }
 });
 
-test("Helpers - getClassList() and getRelList()", 45, function () {
+test("Helpers - getClassList() and getRelList()", function () {
+  expect(45);
 
   // getClassList()
   assertEqual("getClassList(document.getElementById('baz')).length", 4);
@@ -177,4 +183,12 @@ test("Helpers - getClassList() and getRelList()", 45, function () {
   // TODO: addEvent/removeEvent
 
   delete elem;
+});
+
+test("Web Standards Polyfills - Parser Shiv", function () {
+  var div = document.getElementById('sectiondiv');
+  var section = document.getElementById('section');
+  var span = document.getElementById('sectionspan');
+  equal(div, section.parentNode, 'div should be parent of section');
+  equal(section, span.parentNode, 'section should be parent of span');
 });

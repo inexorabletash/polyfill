@@ -10,6 +10,12 @@
 <div id="qunit-testrunner-toolbar"></div>
 <h2 id="qunit-userAgent"></h2>
 <ol id="qunit-tests"></ol>
+
+<script type="text/javascript" src="../es5.js"></script>
+<script type="text/javascript" src="../web.js"></script>
+<script type="text/javascript" src="testhelpers.js"></script>
+<script type="text/javascript" src="web_tests.js"></script>
+
 <div id="qunit-fixture">
 
 test markup, will be hidden
@@ -27,9 +33,11 @@ test markup, will be hidden
   <span id="dataspan" data-123="blah"></span>
 </div>
 
+<div id="sectiondiv">
+  <section id="section">
+    <span id="sectionspan">
+    </span>
+  </section>
 </div>
 
-<script type="text/javascript" src="../es5.js"></script>
-<script type="text/javascript" src="../web.js"></script>
-<script type="text/javascript" src="testhelpers.js"></script>
-<script type="text/javascript" src="web_tests.js"></script>
+</div>
