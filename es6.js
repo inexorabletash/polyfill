@@ -3240,8 +3240,8 @@
       // SPEC BUG: promise vs. promiseToResolve
       var resolvingFunctions = CreateResolvingFunctions(promiseToResolve);
       try {
-        var thenCallResult = then(thenable, resolvingFunctions['[[Resolve]]'],
-                                  resolvingFunctions['[[Reject]]']);
+        var thenCallResult = then.call(thenable, resolvingFunctions['[[Resolve]]'],
+                                       resolvingFunctions['[[Reject]]']);
       } catch (thenCallResult) {
         var status = resolvingFunctions['[[Reject]]'].call(undefined, thenCallResult);
         NextJob(status); return;
