@@ -74,9 +74,10 @@ function arrayEqual(typed_array, test) {
   deepEqual(array, test, JSON.stringify(array) + " == " + JSON.stringify(test) + " ?");
 }
 
-var array_types = [Int8Array, Uint8Array, Int16Array, Uint16Array, Int32Array, Uint32Array, Float32Array, Float64Array];
-array_types.forEach(function(type) {
-  if (type) {
+var array_types = ['Int8Array', 'Uint8Array', 'Int16Array', 'Uint16Array', 'Int32Array', 'Uint32Array', 'Float32Array', 'Float64Array'];
+array_types.forEach(function(typeName) {
+  if (typeName in self) {
+    var type = self[typeName];
     // Add a TypedArray.get(index) accessor if not present, for
     // testing native implementations.
     if (typeof type.prototype.get !== 'function') {
