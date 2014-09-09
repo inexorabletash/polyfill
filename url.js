@@ -202,6 +202,7 @@
               if (pairs[i].name === name) {
                 if (!found) {
                   pairs[i].value = value;
+                  found = true;
                   ++i;
                 } else {
                   pairs.splice(i, 1);
@@ -210,6 +211,11 @@
                 ++i;
               }
             }
+
+            if (!found) {
+              pairs.push({ name: name, value: value });
+            }
+
             updateSteps();
           }
         },

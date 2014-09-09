@@ -134,6 +134,14 @@ test("Parameter Mutation", function () {
   equal(url.searchParams.has('b'), false);
   equal(url.searchParams.get('m'), 9);
   equal(url.searchParams.get('n'), 3);
+
+  url.href = 'http://example.com';
+  url.searchParams.set('a', '1');
+  deepEqual(url.searchParams.getAll('a'), ['1']);
+  url.search = 'a=1&b=1&b=2&c=1';
+  url.searchParams.set('b', '3');
+  deepEqual(url.searchParams.getAll('b'), ['3']);
+  equal(url.href, 'http://example.com/?a=1&b=3&c=1');
 });
 
 test("Parameter Encoding", 5, function () {
