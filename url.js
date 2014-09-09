@@ -212,9 +212,8 @@
               }
             }
 
-            if (!found) {
+            if (!found)
               pairs.push({ name: name, value: value });
-            }
 
             updateSteps();
           }
