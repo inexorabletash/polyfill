@@ -109,7 +109,7 @@
           value: decodeURIComponent(pair.value)
         });
       });
-      return output; // Spec bug?
+      return output;
     }
 
     function URLSearchParams(url_object, init) {
