@@ -98,8 +98,8 @@
           name = bytes;
           value = '';
         }
-        name = name.replace('+', ' ');
-        value = value.replace('+', ' ');
+        name = name.replace(/\+/g, ' ');
+        value = value.replace(/\+/g, ' ');
         pairs.push({ name: name, value: value });
       });
       var output = [];
@@ -109,7 +109,7 @@
           value: decodeURIComponent(pair.value)
         });
       });
-      return output; // Spec bug?
+      return output;
     }
 
     function URLSearchParams(url_object, init) {
@@ -141,7 +141,7 @@
           output += name + '=' + value;
           first = false;
         });
-        return output;
+        return output.replace(/%20/g, '+');
       }
 
       Object.defineProperties(this, {
