@@ -144,7 +144,7 @@ test("Parameter Mutation", function () {
   equal(url.href, 'http://example.com/?a=1&b=3&c=1');
 });
 
-test("Parameter Encoding", 5, function () {
+test("Parameter Encoding", 7, function () {
   var url = new URL("http://example.com");
   equal(url.href, "http://example.com/");
   equal(url.search, "");
@@ -152,6 +152,10 @@ test("Parameter Encoding", 5, function () {
   equal(url.searchParams.get("this\x00&that\x7f\xff"), "1+2=3");
   equal(url.search, "?this%00%26that%7F%C3%BF=1%2B2%3D3");
   equal(url.href, "http://example.com/?this%00%26that%7F%C3%BF=1%2B2%3D3");
+  url.search = "";
+  url.searchParams.append("a  b", "a  b");
+  equal(url.search, "?a++b=a++b");
+  equal(url.searchParams.get("a  b"), "a  b");
 });
 
 test("Base URL", 20, function () {
