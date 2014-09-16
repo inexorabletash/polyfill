@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="polyfill.css">
 
 <h1>Geolocation API Polyfill Demo</h1>
-<p>This demo page overrides your browser's built-in geolocation support, if possible.</p>
+<p>This demo page overrides your browser&#39;s built-in geolocation support, if possible.</p>
 
 <div style="width: 800px; height: 403px; position: relative;">
 <img id="map" src="geo.jpg" style="position: absolute; left: 0; top: 0; width: 800px; height: 403px;">
@@ -14,27 +14,22 @@
 
 <p id="message">Checking position...</p>
 
-<script src="../polyfill.js"></script>
 <script>window.navigator.geolocation = (void 0);</script>
 <script src="../geo.js"></script>
 
 <script>
-function $(s) {
-  return document.querySelector(s);
-}
 function message(s) {
-  var div = $("#message");
-  while (div.firstChild) {
+  var div = document.getElementById('message');
+  while (div.firstChild)
     div.removeChild(div.firstChild);
-  }
   div.appendChild(document.createTextNode(s));
 }
 
-function locate(lat, long) {
-  var map = $("#map");
-  var x = map.offsetWidth * ((long + 180) % 360) / 360;
+function locate(lat, lng) {
+  var map = document.getElementById('map');
+  var x = map.offsetWidth * ((lng + 180) % 360) / 360;
   var y = map.offsetHeight * (90 - lat) / 180;
-  var locator = $("#locator");
+  var locator = document.getElementById('locator');
   locator.style.display = '';
   locator.style.left = String(x) + 'px';
   locator.style.top = String(y) + 'px';
@@ -44,9 +39,9 @@ window.onload = function () {
   navigator.geolocation.getCurrentPosition(
     function (position) {
       var lat = position.coords.latitude;
-      var long = position.coords.longitude;
-      locate(lat, long);
-      message('Latitude: ' + lat + ' Longitude: ' + long);
+      var lng = position.coords.longitude;
+      locate(lat, lng);
+      message('Latitude: ' + lat + ' Longitude: ' + lng);
     },
     function (error) {
       message('Error: ' + error.message);
