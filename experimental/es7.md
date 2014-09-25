@@ -15,5 +15,4 @@
 
 
 ### See Also
-* [ES7 Proposals](experimental/README.md)
 * [Object.observe polyfill](https://gist.github.com/inexorabletash/8010316)
