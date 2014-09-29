@@ -663,6 +663,7 @@ if (!Date.prototype.toISOString) {
   }
 
   // Document.querySelector method
+  // Needed for: IE7-
   if (!document.querySelector) {
     document.querySelector = function(selectors) {
       var elements = document.querySelectorAll(selectors);
@@ -671,6 +672,7 @@ if (!Date.prototype.toISOString) {
   }
 
   // Document.getElementsByClassName method
+  // Needed for: IE8-
   if (!document.getElementsByClassName) {
     document.getElementsByClassName = function(classNames) {
       classNames = String(classNames).replace(/^|\s+/g, '.');
