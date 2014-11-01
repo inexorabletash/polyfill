@@ -98,3 +98,35 @@ test("Proposed String Extras", function() {
   assertEqual("'a'.rpad(2, '[]')", 'a[]');
 
 });
+
+test("Proposed Math Extras", function() {
+  assertEqual("Math.denormz(0)", 0);
+  assertEqual("Math.denormz(-0)", -0);
+  assertEqual("Math.denormz(1)", 1);
+  assertEqual("Math.denormz(-1)", -1);
+  assertEqual("Math.denormz(Math.pow(2,-126))", Math.pow(2,-126));
+  assertEqual("Math.denormz(Math.pow(2,-127))", Math.pow(2,-127));
+  assertEqual("Math.denormz(Math.pow(2,-1022))", Math.pow(2,-1022));
+  assertEqual("Math.denormz(Math.pow(2,-1023))", 0);
+  assertEqual("Math.denormz(Number.MIN_VALUE)", 0);
+  assertEqual("Math.denormz(-Math.pow(2,-126))", -Math.pow(2,-126));
+  assertEqual("Math.denormz(-Math.pow(2,-127))", -Math.pow(2,-127));
+  assertEqual("Math.denormz(-Math.pow(2,-1022))", -Math.pow(2,-1022));
+  assertEqual("Math.denormz(-Math.pow(2,-1023))", -0);
+  assertEqual("Math.denormz(-Number.MIN_VALUE)", -0);
+
+  assertEqual("Math.fdenormz(0)", 0);
+  assertEqual("Math.fdenormz(-0)", -0);
+  assertEqual("Math.fdenormz(1)", 1);
+  assertEqual("Math.fdenormz(-1)", -1);
+  assertEqual("Math.fdenormz(Math.pow(2,-126))", Math.pow(2,-126));
+  assertEqual("Math.fdenormz(Math.pow(2,-127))", 0);
+  assertEqual("Math.fdenormz(Math.pow(2,-1022))", 0);
+  assertEqual("Math.fdenormz(Math.pow(2,-1023))", 0);
+  assertEqual("Math.fdenormz(Number.MIN_VALUE)", 0);
+  assertEqual("Math.fdenormz(-Math.pow(2,-126))", -Math.pow(2,-126));
+  assertEqual("Math.fdenormz(-Math.pow(2,-127))", -0);
+  assertEqual("Math.fdenormz(-Math.pow(2,-1022))", -0);
+  assertEqual("Math.fdenormz(-Math.pow(2,-1023))", -0);
+  assertEqual("Math.fdenormz(-Number.MIN_VALUE)", -0);
+});

@@ -336,4 +336,23 @@
       return s + sFillVal;
     });
 
+  var MIN_NORMALIZED_F32 = Math.pow(2,-126);
+  var MIN_NORMALIZED_F64 = Math.pow(2,-1022);
+
+  define(
+    Math, 'denormz',
+    function denormz(x) {
+      if (x > 0 && x < MIN_NORMALIZED_F64) return 0;
+      if (x < 0 && x > -MIN_NORMALIZED_F64) return -0;
+      return x;
+    });
+
+  define(
+    Math, 'fdenormz',
+    function fdenormz(x) {
+      if (x > 0 && x < MIN_NORMALIZED_F32) return 0;
+      if (x < 0 && x > -MIN_NORMALIZED_F32) return -0;
+      return x;
+    });
+
 }(this));
