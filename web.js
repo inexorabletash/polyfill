@@ -585,8 +585,11 @@
     function FormData(form) {
       this._data = [];
       if (!form) return;
-      for (var i = 0; i < form.elements.length; ++i)
-        this.append(form.elements[i].name, form.elements[i].value);
+      for (var i = 0; i < form.elements.length; ++i) {
+        var element = form.elements[i];
+        if (element.name !== '')
+          this.append(element.name, element.value);
+      }
     }
 
     FormData.prototype = {

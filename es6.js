@@ -2204,7 +2204,9 @@
       return map;
     }
 
-    if (!global.Map || new global.Map([['a', 1]]).size !== 1)
+    if (!global.Map ||
+        (function() { try { new Map([]); return false; } catch (_) { return true; } }() ) ||
+        new global.Map([['a', 1]]).size !== 1)
       global.Map = Map;
 
     function MapDataIndexOf(mapData, key) {
