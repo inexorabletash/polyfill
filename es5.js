@@ -138,12 +138,15 @@ if (!Function.prototype.bind) {
   Function.prototype.bind = function (o) {
     if (typeof this !== 'function') { throw TypeError("Bind must be called on a function"); }
     var slice = [].slice,
-        args = slice.call(arguments, 1),
+        length = arguments.length,
+        args = (arguments.length > 1) ? slice.call(arguments, 1) : [],
         self = this,
         bound = function () {
-          return self.apply(this instanceof nop ? this : (o || {}),
+          return self.apply(this instanceof nop ? this : o,
                             args.concat(slice.call(arguments)));
         };
+    
+    o = (length > 0) ? 0 : {};
 
     /** @constructor */
     function nop() {}
