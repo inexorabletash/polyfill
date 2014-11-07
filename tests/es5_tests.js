@@ -1,8 +1,4 @@
-
-test("ECMAScript 5 Polyfills", 36, function () {
-
-  // Object constructor properties
-
+test("Object constructor properties", function() {
   assertEqual("Object.getPrototypeOf([])", Array.prototype);
   assertEqual("Object.getPrototypeOf({})", Object.prototype);
 
@@ -32,18 +28,41 @@ test("ECMAScript 5 Polyfills", 36, function () {
 
   assertEqual("String(Object.keys({a: 1, b: 2, c: 3}))", 'a,b,c');
 
-  // Function prototype properties
+  delete p;
+  delete C;
+  delete o;
+});
 
+test("Function prototype properties", function() {
   assertEqual("((function(){ return this.foo; }).bind({foo:123}))()", 123);
 
-  // Array constructor properties
+  (function() {
+    // non-strict
+    function that(o) { return this; }
+    equal(that.bind(123)(), 123);
+    equal(that.bind(0)(), 0);
+    equal(that.bind(false)(), false);
+    equal(that.bind(null)(), self);
+    equal(that.bind(undefined)(), self);
+  });
+  (function() {
+    'use strict';
+    function that(o) { return this; }
+    equal(that.bind(123)(), 123);
+    equal(that.bind(0)(), 0);
+    equal(that.bind(false)(), false);
+    equal(that.bind(null)(), null);
+    equal(that.bind(undefined)(), undefined);
+  }());
+});
 
+test("Array constructor properties", function() {
   assertTrue("Array.isArray([])");
   assertTrue("Array.isArray(new Array)");
   assertFalse("Array.isArray({length:0})");
+});
 
-  // Array prototype properties
-
+test("Array prototype properties", function() {
   assertEqual("[1,2,3,2,3].indexOf(3)", 2);
   assertEqual("[1,2,3,2,3].lastIndexOf(3)", 4);
   assertTrue("[0,2,4,6,8].every(function(x){return !(x % 2);})");
@@ -55,27 +74,23 @@ test("ECMAScript 5 Polyfills", 36, function () {
   assertEqual("String([1,2,3,4,5].filter(function(x){return x % 2;}))", '1,3,5');
   assertEqual("[1,2,3,4,5,6,7,8,9,10].reduce(function(a,b){return a-b;})", -53);
   assertEqual("[1,2,3,4,5,6,7,8,9,10].reduceRight(function(a,b){return a-b;})", -35);
+});
 
-  // String prototype properties
-
+test("String prototype properties", function() {
   assertEqual("''.trim()", '');
   assertEqual("'  '.trim()", '');
   assertEqual("'abc'.trim()", 'abc');
   assertEqual("'   abc   '.trim()", 'abc');
   assertEqual("' \\t\\n\\rabc\\t\\n\\r'.trim()", 'abc');
   assertEqual("' a b c '.trim()", 'a b c');
+});
 
-  // Date constructor properties
-
+test("Date constructor properties", function() {
   assertTrue("Math.abs(Date.now() - Number(new Date())) < 100");
+});
 
-  // Date prototype properties
-
+test("Date prototype properties", function() {
   // milliseconds are optional, so verify with a regexp
   assertEqual("new Date(0).toISOString()", /1970-01-01T00:00:00(\.000)?Z/);
   assertEqual("new Date(1e12).toISOString()", /2001-09-09T01:46:40(\.000)?Z/);
-
-  delete p;
-  delete C;
-  delete o;
 });
