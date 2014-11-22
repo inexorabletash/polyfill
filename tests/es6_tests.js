@@ -69,7 +69,7 @@ test("Native implementations", function () {
     'String.fromCodePoint',
     'String.raw',
     'String.prototype.codePointAt',
-    'String.prototype.contains',
+    'String.prototype.includes',
     'String.prototype.endsWith',
     'String.prototype.repeat',
     'String.prototype.startsWith'
@@ -435,11 +435,11 @@ test("String", function () {
   assertTrue("'abcdef'.endsWith('de', 5)");
   assertTrue("''.endsWith.length", 1);
 
-  // String.prototype.contains
-  assertTrue("'abcdef'.contains('bcd')");
-  assertFalse("'abcdef'.contains('mno')");
-  assertTrue("'abcdef'.contains('')");
-  assertTrue("''.contains.length", 1);
+  // String.prototype.includes
+  assertTrue("'abcdef'.includes('bcd')");
+  assertFalse("'abcdef'.includes('mno')");
+  assertTrue("'abcdef'.includes('')");
+  assertTrue("''.includes.length", 1);
 });
 
 test("String - Unicode helpers", function () {
@@ -679,6 +679,11 @@ test("RegExp", function() {
 
   assertTrue("'match' in /.*/");
   deepEqual(/(.a)/g.match('california'), ['ca', 'ia'], 'RegExp match()');
+
+  assertEqual('(/abc/).flags', '');
+  assertEqual('(/abc/g).flags', 'g');
+  assertEqual('(/abc/gim).flags', 'gim');
+  assertEqual('(/abc/mig).flags', 'gim');
 });
 
 module("Symbols");
@@ -959,12 +964,6 @@ test("WeakMap", function () {
   wm1.set(x, v);
   wm2.set(y, v);
   assertTrue("wm1.get(x) === wm2.get(y)");
-
-  wm1.clear();
-  assertFalse("wm1.has(x)");
-  assertTrue("wm2.has(y)");
-  assertTrue("wm2.delete(y)");
-  assertFalse("wm2.delete(y)");
 
   assertEqual("wm1.set(x, v)", wm1);
 

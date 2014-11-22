@@ -1268,9 +1268,10 @@
   // 21.1.3.4 String.prototype.concat ( ...args )
   // 21.1.3.5 String.prototype.constructor
   // 21.1.3.6 String.prototype.contains ( searchString [ , position ] )
+  // NOTE: Renamed at 2014-11 TC-39
   define(
-    String.prototype, 'contains',
-    function contains(searchString) {
+    String.prototype, 'includes',
+    function includes(searchString) {
       var position = arguments[1];
 
       var o = strict(this);
@@ -1484,6 +1485,16 @@
   // 21.2.5.15 RegExp.prototype [ @@isRegExp ]
   // 21.2.6 Properties of RegExp Instances
   // 21.2.6.1 lastIndex
+
+  // NOTE: Added at 2014-11 TC-39
+  if (!('flags' in RegExp.prototype))
+    Object.defineProperty(
+      RegExp.prototype, 'flags', {
+        get: function() {
+          var s = String(this);
+          return s.substring(s.lastIndexOf('/') + 1);
+        }
+      });
 
   // (No polyfillable changes from ES5)
 
@@ -2730,14 +2741,7 @@
     // 23.3.3 Properties of the WeakMap Prototype Object
 
     // 23.3.3.1 WeakMap.prototype.clear ()
-    define(
-      WeakMap.prototype, 'clear',
-      function clear() {
-        var M = strict(this);
-        if (Type(M) !== 'object') throw TypeError();
-        if (M['[[WeakMapData]]'] === undefined) throw TypeError();
-        M['[[WeakMapData]]'].clear();
-      });
+    // NOTE: Removed at 2014-11 TC-39
 
     // 23.3.3.2 WeakMap.prototype.constructor
 
@@ -2856,14 +2860,7 @@
       });
 
     // 23.4.3.2 WeakSet.prototype.clear ()
-    define(
-      WeakSet.prototype, 'clear',
-      function clear() {
-        var S = strict(this);
-        if (Type(S) !== 'object') throw TypeError();
-        if (S['[[WeakSetData]]'] === undefined) throw TypeError();
-        S['[[WeakSetData]]'].clear();
-      });
+    // NOTE: Removed at 2014-11 TC-39
 
     // 23.4.3.3 WeakSet.prototype.constructor
     // 23.4.3.4 WeakSet.prototype.delete ( value )
