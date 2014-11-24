@@ -997,9 +997,6 @@ test("WeakSet", function () {
   assertFalse("set.has(x)");
   assertFalse("set.has(y)");
   set.add(x);
-  set.clear();
-  assertFalse("set.has(x)");
-  assertFalse("set.has(y)");
 
   set = new WeakSet([x, y]);
   assertTrue("set.has(x)");
@@ -1224,4 +1221,40 @@ module("Reflection");
 test("Reflect", function() {
   assertEqual('Reflect.construct(Date, [1970, 1]).getMonth()', 1);
   assertEqual('Reflect.enumerate({a:1}).next().value', 'a');
+
+  var o = {};
+  Object.defineProperty(o, 'p', {configurable: true, writable: true, value: 123});
+  Object.defineProperty(o, 'q', {configurable: false, value: 456});
+  equal(Reflect.get(o, 'p'), 123);
+  equal(Reflect.get(o, 'q'), 456);
+
+  equal(Reflect.defineProperty(o, 'p', {configurable: true, writable: true, value: 789}), true,
+        'Reflect.defineProperty should return true if it succeeds');
+  equal(Reflect.defineProperty(o, 'q', {configurable: true, value: 012}), false,
+        'Reflect.defineProperty should return false if it fails');
+  equal(Reflect.get(o, 'p'), 789);
+  equal(Reflect.get(o, 'q'), 456);
+
+  equal(Reflect.set(o, 'p', 111), true,
+        'Reflect.set should return true if it succeeds');
+  equal(Reflect.set(o, 'q', 222), false,
+        'Reflect.set should return false if it fails');
+  equal(Reflect.get(o, 'p'), 111);
+  equal(Reflect.get(o, 'q'), 456);
+
+  equal(Reflect.deleteProperty(o, 'p'), true,
+        'Reflect.deleteProperty should return true if it succeeds');
+  equal(Reflect.deleteProperty(o, 'q'), false,
+        'Reflect.deleteProperty should return false if it fails');
+  equal(Reflect.get(o, 'p'), undefined);
+  equal(Reflect.get(o, 'q'), 456);
+
+  var p = {};
+  equal(Reflect.getPrototypeOf(o), Object.prototype);
+  equal(Reflect.setPrototypeOf(o, p), true);
+  equal(Reflect.getPrototypeOf(o), p);
+
+  var f = Object.freeze(o);
+  equal(Reflect.setPrototypeOf(f, p), false);
+
 });

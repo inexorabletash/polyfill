@@ -32,6 +32,16 @@
     return (typeof s === 'symbol') || ('Symbol' in global && s instanceof global.Symbol);
   }
 
+  function getPropertyDescriptor(target, name) {
+    var desc = Object.getOwnPropertyDescriptor(target, name);
+    var proto = Object.getPrototypeOf(target);
+    while (!desc && proto) {
+      desc = Object.getOwnPropertyDescriptor(proto, name);
+      proto = Object.getPrototypeOf(proto);
+    }
+    return desc;
+  }
+
   function define(o, p, v, override) {
     if (p in o && !override)
       return;
@@ -3518,13 +3528,25 @@
     // 26.1.3 Reflect.defineProperty ( target, propertyKey, attributes )
     define(
       Reflect, 'defineProperty',
-      Object.defineProperty);
+      function defineProperty(target, propertyKey, attributes) {
+        try {
+          Object.defineProperty(target, propertyKey, attributes);
+          return true;
+        } catch (_) {
+          return false;
+        }
+      });
 
     // 26.1.4 Reflect.deleteProperty ( target, propertyKey )
     define(
       Reflect, 'deleteProperty',
       function deleteProperty(target,name) {
-        delete target[name];
+        try {
+          delete target[name];
+          return !HasOwnProperty(target, name);
+        } catch (_) {
+          return false;
+        }
       });
 
     // 26.1.5 Reflect.enumerate ( target )
@@ -3543,10 +3565,9 @@
         target = ToObject(target);
         name = String(name);
         receiver = (receiver === undefined) ? target : ToObject(receiver);
-        var desc = Object.getPropertyDescriptor(target, name);
-        if ('get' in desc) {
+        var desc = getPropertyDescriptor(target, name);
+        if (desc && 'get' in desc)
           return Function.prototype.call.call(desc['get'], receiver);
-        }
         return target[name];
       });
 
@@ -3590,22 +3611,32 @@
     // 26.1.13 Reflect.set ( target, propertyKey, V [ , receiver ] )
     define(
       Reflect, 'set',
-      function set(target,name,value,receiver) {
+      function set(target, name, value, receiver) {
         target = ToObject(target);
         name = String(name);
         receiver = (receiver === undefined) ? target : ToObject(receiver);
-        var desc = Object.getPropertyDescriptor(target, name);
-        if ('set' in desc) {
-          return Function.prototype.call.call(desc['set'], receiver, value);
+        var desc = getPropertyDescriptor(target, name);
+        try {
+          if (desc && 'set' in desc)
+            Function.prototype.call.call(desc['set'], receiver, value);
+          else
+            target[name] = value;
+          return true;
+        } catch (_) {
+          return false;
         }
-        return target[name] = value;
       });
 
     // 26.1.14 Reflect.setPrototypeOf ( target, proto )
     define(
       Reflect, 'setPrototypeOf',
       function setPrototypeOf(target, proto) {
-        target.__proto__ = proto;
+        try {
+          target.__proto__ = proto;
+          return Reflect.getPrototypeOf(target) === proto;
+        } catch(_) {
+          return false;
+        }
       });
 
     global.Reflect = global.Reflect || Reflect;
