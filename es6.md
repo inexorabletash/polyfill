@@ -24,7 +24,8 @@ In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification
 * String: `fromCodePoint()`, `raw`
 * String prototype: `codePointAt()`, `endsWith()`, `includes()`, `repeat()`, `startsWith()`, `[@@iterator]()`
   * Not supported: `String.prototype.normalize()` - see https://github.com/walling/unorm/
-* RegExp prototype: `replace()`, `search()`, `match()`, `flags`
+* RegExp prototype: `@@match()`, `@@replace()`, `@@search()`, `@@split()`, `flags`
+* String.prototype `match()`, `replace()`, `search()`, and `split()` dispatch through RegExp symbol methods
 
 #### Indexed Collections
 * Array: `from()`, `of()`

@@ -661,24 +661,52 @@ test("Typed Array", function() {
 });
 
 test("RegExp", function() {
-  assertTrue("'replace' in /.*/");
+  assertTrue("Symbol.replace in /.*/");
 
-  assertEqual("/a/.replace('california', 'x')", 'cxlifornia');
-  assertEqual("/a/g.replace('california', 'x')", 'cxlifornix');
+  assertEqual("/a/[Symbol.replace]('california', 'x')", 'cxlifornia');
+  assertEqual("/a/g[Symbol.replace]('california', 'x')", 'cxlifornix');
 
-  assertTrue("'search' in /.*/");
-  assertEqual("/a/.search('california', 'x')", 1);
+  assertTrue("Symbol.search in /.*/");
+  assertEqual("/a/[Symbol.search]('california', 'x')", 1);
 
-  assertTrue("'split' in /.*/");
-  deepEqual(/a/.split('california'), ['c', 'liforni', ''], 'RegExp split()');
+  assertTrue("Symbol.split in /.*/");
+  deepEqual(/a/[Symbol.split]('california'), ['c', 'liforni', ''], 'RegExp split()');
 
-  assertTrue("'match' in /.*/");
-  deepEqual(/(.a)/g.match('california'), ['ca', 'ia'], 'RegExp match()');
+  assertTrue("Symbol.match in /.*/");
+  deepEqual(/(.a)/g[Symbol.match]('california'), ['ca', 'ia'], 'RegExp match()');
 
   assertEqual('(/abc/).flags', '');
   assertEqual('(/abc/g).flags', 'g');
   assertEqual('(/abc/gim).flags', 'gim');
   assertEqual('(/abc/mig).flags', 'gim');
+});
+
+test("RegExp dispatch", function() {
+  var calls = [];
+  var rx = {};
+  rx[Symbol.match] = function() {
+    calls.push('match');
+    return 1;
+  };
+  rx[Symbol.replace] = function() {
+    calls.push('replace');
+    return 2;
+  };
+  rx[Symbol.search] = function() {
+    calls.push('search');
+    return 3;
+  };
+  rx[Symbol.split] = function() {
+    calls.push('split');
+    return 4;
+  };
+
+  equal('abc'.match(rx), 1);
+  equal('abc'.replace(rx), 2);
+  equal('abc'.search(rx), 3);
+  equal('abc'.split(rx), 4);
+
+  deepEqual(calls, ['match', 'replace', 'search', 'split']);
 });
 
 module("Symbols");
@@ -739,6 +767,16 @@ test("Symbol", function() {
     throws(function() { return aSymbol + "foo"; }, TypeError, 'Symbols don\'t auto-convert to strings');
     throws(function() { return Number(aSymbol); }, TypeError, 'Symbols don\'t auto-convert to numbers');
   }());
+
+  assertTrue('Symbol.match !== undefined');
+  assertTrue('Symbol.replace !== undefined');
+  assertTrue('Symbol.search !== undefined');
+  assertTrue('Symbol.split !== undefined');
+
+  assertTrue('Symbol.match in RegExp.prototype');
+  assertTrue('Symbol.replace in RegExp.prototype');
+  assertTrue('Symbol.search in RegExp.prototype');
+  assertTrue('Symbol.split in RegExp.prototype');
 });
 
 module("Containers and Iterators");

@@ -93,6 +93,11 @@
       random = Math.random,
       sqrt = Math.sqrt;
 
+  var orig_match = String.prototype.match,
+      orig_replace = String.prototype.replace,
+      orig_search = String.prototype.search,
+      orig_split = String.prototype.split;
+
   // These are used for implementing the polyfills, but not exported.
 
   // Inspired by https://gist.github.com/1638059
@@ -241,6 +246,12 @@
     // 19.4.2.11 Symbol.unscopables
     // 19.4.2.12 Symbol [ @@create ] ()
 
+    // TC39 2014-11
+    define(global.Symbol, 'match', global.Symbol('Symbol.match'));
+    define(global.Symbol, 'replace', global.Symbol('Symbol.replace'));
+    define(global.Symbol, 'search', global.Symbol('Symbol.search'));
+    define(global.Symbol, 'split', global.Symbol('Symbol.split'));
+
     // 19.4.3 Properties of the Symbol Prototype Object
     // 19.4.3.1 Symbol.prototype.constructor
 
@@ -288,6 +299,10 @@
 
   // 6.1.5.1 Well-Known Symbols
   var $$iterator = global.Symbol.iterator,
+      $$match = global.Symbol.match,
+      $$replace = global.Symbol.replace,
+      $$search = global.Symbol.search,
+      $$split = global.Symbol.split,
       $$toStringTag = global.Symbol.toStringTag;
 
   //----------------------------------------
@@ -415,7 +430,14 @@
   // - just use o.p = v or o[p] = v
 
   // 7.3.8 HasProperty (O, P)
-  function HasProperty(o, p) { return p in o; }
+  function HasProperty(o, p) {
+    while (o) {
+      if (Object.prototype.hasOwnProperty.call(o, p)) return true;
+      if (Type(o) !== 'object') return false;
+      o = Object.getPrototypeOf(o);
+    }
+    return false;
+  }
 
   // 7.3.9 HasOwnProperty (O, P)
   function HasOwnProperty(o, p) { return Object.prototype.hasOwnProperty.call(o, p); }
@@ -1183,6 +1205,12 @@
   // 21 Text Processing
   // ---------------------------------------
 
+  var string_regexp_dispatch = (function() {
+    var faux = {}, secret = Symbol();
+    faux[Symbol.match] = function() { return secret; };
+    return ("").match(faux) === secret;
+  }());
+
   // 21.1 String Objects
   // 21.1.1 The String Constructor
   // 21.1.1.1 String ( value )
@@ -1310,6 +1338,16 @@
   // 21.1.3.9 String.prototype.lastIndexOf ( searchString [ , position ] )
   // 21.1.3.10 String.prototype.localeCompare ( that [, reserved1 [ , reserved2 ] ] )
   // 21.1.3.11 String.prototype.match ( regexp )
+  define(
+    String.prototype, 'match',
+    function match(regexp) {
+      var o = strict(this);
+      var s = String(o);
+      if (HasProperty(regexp, $$match)) var rx = regexp;
+      else rx = new RegExp(regexp);
+      return rx[$$match](s);
+    }, !string_regexp_dispatch);
+
   // 21.1.3.12 String.prototype.normalize ( [ form ] )
 
   // Not practical due to table sizes; if needed, pull in:
@@ -1329,9 +1367,36 @@
     });
 
   // 21.1.3.14 String.prototype.replace (searchValue, replaceValue )
+  define(
+    String.prototype, 'replace',
+    function replace(searchValue, replaceValue) {
+      var o = strict(this);
+      if (HasProperty(searchValue, $$replace))
+        return searchValue[$$replace](o, replaceValue);
+      return orig_replace.call(o, searchValue, replaceValue);
+    }, !string_regexp_dispatch);
+
   // 21.1.3.15 String.prototype.search ( regexp )
+  define(
+    String.prototype, 'search',
+    function search(regexp) {
+      var o = strict(this);
+      var string = String(o);
+      if (HasProperty(regexp, $$search)) var rx = regexp;
+      else rx = new RegExp(regexp);
+      return rx[$$search](string);
+    }, !string_regexp_dispatch);
+
   // 21.1.3.16 String.prototype.slice ( start, end )
   // 21.1.3.17 String.prototype.split ( separator, limit )
+  define(
+    String.prototype, 'split',
+    function split(separator, limit) {
+      var o = strict(this);
+      if (HasProperty(separator, $$split))
+        return separator[$$split](o, limit);
+      return orig_split.call(o, separator, limit);
+    }, !string_regexp_dispatch);
 
   // 21.1.3.18 String.prototype.startsWith ( searchString [, position ] )
   define(
@@ -1455,31 +1520,31 @@
   // 21.2.5.4 get RegExp.prototype.ignoreCase
 
   // 21.2.5.5 RegExp.prototype.match ( string )
-  define(RegExp.prototype, 'match', function match(string) {
+  define(RegExp.prototype, $$match, function(string) {
     var o = strict(this);
-    return String(string).match(o);
+    return orig_match.call(string, o);
   });
 
   // 21.2.5.6 get RegExp.prototype.multiline
 
   // 21.2.5.7 RegExp.prototype.replace ( string, replaceValue )
-  define(RegExp.prototype, 'replace', function replace(S, replaceValue) {
+  define(RegExp.prototype, $$replace, function(string, replaceValue) {
     var o = strict(this);
-    return String(S).replace(o, replaceValue);
+    return orig_replace.call(string, o, replaceValue);
   });
 
   // 21.2.5.8 RegExp.prototype.search ( string )
-  define(RegExp.prototype, 'search', function search(S) {
+  define(RegExp.prototype, $$search, function(string) {
     var o = strict(this);
-    return String(S).search(o);
+    return orig_search.call(string, o);
   });
 
   // 21.2.5.9 get RegExp.prototype.source
 
   // 21.2.5.10 RegExp.prototype.split ( string, limit )
-  define(RegExp.prototype, 'split', function split(S) {
+  define(RegExp.prototype, $$split, function(string, limit) {
     var o = strict(this);
-    return String(S).split(o);
+    return orig_split.call(string, o, limit);
   });
 
   // 21.2.5.11 get RegExp.prototype.sticky
