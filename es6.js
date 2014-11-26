@@ -564,20 +564,14 @@
         if (nextSource === undefined || nextSource === null) continue;
         var from = ToObject(nextSource);
         var keysArray = OwnPropertyKeys(from);
-        var pendingException = undefined;
         for (var keysIndex = 0; keysIndex < keysArray.length; ++keysIndex) {
           var nextKey = keysArray[keysIndex];
-          try {
-            var desc = Object.getOwnPropertyDescriptor(from, nextKey);
-            if (desc !== undefined && desc.enumerable) {
-              var propValue = from[nextKey];
-              to[nextKey] = propValue;
-            }
-          } catch (exception) {
-            if (pendingException === undefined) pendingException = exception;
+          var desc = Object.getOwnPropertyDescriptor(from, nextKey);
+          if (desc !== undefined && desc.enumerable) {
+            var propValue = from[nextKey];
+            to[nextKey] = propValue;
           }
         }
-        if (pendingException !== undefined) throw pendingException;
       }
       return to;
     });
