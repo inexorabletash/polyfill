@@ -230,11 +230,11 @@
       return;
     });
 
-  // es-discuss: DOMStringList replacement
   // https://github.com/domenic/Array.prototype.contains/
+  // TC39 2014-11 renamed to 'includes'
   define(
-    Array.prototype, 'contains',
-    function contains(target) {
+    Array.prototype, 'includes',
+    function includes(target) {
       var fromIndex = arguments[1];
 
       var o = ToObject(this);

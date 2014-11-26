@@ -81,10 +81,10 @@ test("Native implementations", function () {
   ok(nativeFunctions.length === 0,
      'Native implementations of the following functions exist, so the ' +
      'test results below do not reflect the behavior of the polyfill:\n' +
-     nativeFunctions.join('\n'));
+     nativeFunctions.join(' '));
   ok(true,
      'The following lack native implementations, so the polyfills are tested:\n' +
-     polyfilledFunctions.join('\n'));
+     polyfilledFunctions.join(' '));
 });
 
 
@@ -474,13 +474,8 @@ test("String - Unicode helpers", function () {
 });
 
 test("String Iterators", function () {
-  s = new Set("ABC");
-  assertTrue("s.has('A')");
-  assertFalse("s.has('Z')");
-  assertEqual("s.size", 3);
-  delete s;
-
-  assertTrue('Symbol.iterator in String.prototype');
+  ok(Symbol.iterator in String.prototype);
+  verifyIterator(('ABC')[Symbol.iterator](), ['A', 'B', 'C']);
 });
 
 test("Array", function () {
@@ -866,8 +861,10 @@ test("Set", function () {
   });
   equal(3, count, 'Set iteration yields expected number of items');
 
-  verifyIterator(new Set("ABC").values(), ['A', 'B', 'C']);
-  verifyIterator(new Set("ABC").keys(), ['A', 'B', 'C']);
+  set = new Set(('ABC')[Symbol.iterator]());
+  verifyIterator(set.values(), ['A', 'B', 'C']);
+  verifyIterator(set.keys(), ['A', 'B', 'C']);
+  verifyIterator(set.entries(), [['A', 'A'], ['B', 'B'], ['C', 'C']]);
 
   // Verify |empty| behavior
   set = new Set();

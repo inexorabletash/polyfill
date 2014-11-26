@@ -5,11 +5,11 @@
 
 #### Not Yet Approved
 * Number: `compare()`
-* Array prototype: `pushAll()`, `contains()` [ref](https://github.com/domenic/Array.prototype.contains/)
+* Array prototype: `pushAll()`, `includes()` [ref](https://github.com/domenic/Array.prototype.contains/)
 * Object iterators: `Object.values()`, `Object.entries()`
 * Reflection: `Object.getPropertyDescriptor(o)`, `Object.getPropertyNames(o)`
 * RegExp extras: `RegExp.escape()` [ref](http://esdiscuss.org/topic/regexp-escape)
-* String extras: `String.prototype.at()` [ref](http://wiki.ecmascript.org/doku.php?id=strawman:string_at), 
+* String extras: `String.prototype.at()` [ref](http://wiki.ecmascript.org/doku.php?id=strawman:string_at),
   `String.prototype.lpad()`, `String.prototype.rpad()` [ref](http://wiki.ecmascript.org/doku.php?id=strawman:string_padding)
 
 

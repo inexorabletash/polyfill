@@ -21,25 +21,25 @@ test("Proposed Array extras", function () {
   a = []; a.pushAll([1,2]); deepEqual(a, [1,2]);
   a = [1,2]; a.pushAll([1,2]); deepEqual(a, [1,2,1,2]);
 
-  assertTrue("'contains' in Array.prototype");
-  assertEqual("typeof Array.prototype.contains", 'function');
-  assertTrue("[1,2,3].contains(1)");
-  assertFalse("[1,2,3].contains(0)");
-  assertTrue("[1,NaN,3].contains(NaN)");
-  assertFalse("[1,2,3].contains(NaN)");
-  assertTrue("[1,-0,3].contains(-0)");
-  assertFalse("[1,-0,3].contains(0)");
-  assertFalse("[1,[],3].contains([])");
-  assertFalse("[1,{},3].contains({})");
-  assertFalse("[1,2,3].contains(Math)");
-  assertTrue("[1,Math,3].contains(Math)");
-  assertFalse("[1,2,3].contains(undefined)");
-  assertTrue("[1,undefined,3].contains(undefined)");
-  assertFalse("[1,2,3].contains(null)");
-  assertTrue("[1,null,3].contains(null)");
+  assertTrue("'includes' in Array.prototype");
+  assertEqual("typeof Array.prototype.includes", 'function');
+  assertTrue("[1,2,3].includes(1)");
+  assertFalse("[1,2,3].includes(0)");
+  assertTrue("[1,NaN,3].includes(NaN)");
+  assertFalse("[1,2,3].includes(NaN)");
+  assertTrue("[1,-0,3].includes(-0)");
+  assertFalse("[1,-0,3].includes(0)");
+  assertFalse("[1,[],3].includes([])");
+  assertFalse("[1,{},3].includes({})");
+  assertFalse("[1,2,3].includes(Math)");
+  assertTrue("[1,Math,3].includes(Math)");
+  assertFalse("[1,2,3].includes(undefined)");
+  assertTrue("[1,undefined,3].includes(undefined)");
+  assertFalse("[1,2,3].includes(null)");
+  assertTrue("[1,null,3].includes(null)");
 
-  assertTrue("[1,2,3].contains(3, 2)");
-  assertFalse("[1,2,3].contains(2, 2)");
+  assertTrue("[1,2,3].includes(3, 2)");
+  assertFalse("[1,2,3].includes(2, 2)");
 });
 
 test("Proposed Object Extras", function() {

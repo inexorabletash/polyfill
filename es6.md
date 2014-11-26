@@ -22,9 +22,9 @@ In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification
 #### Text Processing
 * See also: [uate - ES5 "Tagged Template Strings"](https://github.com/inexorabletash/uate)
 * String: `fromCodePoint()`, `raw`
-* String prototype: `codePointAt()`, `contains()`, `endsWith()`, `repeat()`, `startsWith()`, `[@@iterator]()`
+* String prototype: `codePointAt()`, `endsWith()`, `includes()`, `repeat()`, `startsWith()`, `[@@iterator]()`
   * Not supported: `String.prototype.normalize()` - see https://github.com/walling/unorm/
-* RegExp prototype: `replace()`, `search()`, `match()`
+* RegExp prototype: `replace()`, `search()`, `match()`, `flags`
 
 #### Indexed Collections
 * Array: `from()`, `of()`
