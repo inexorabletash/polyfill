@@ -355,4 +355,52 @@
       return x;
     });
 
+  // Inspired by Hacker's Delight - http://hackersdelight.org
+
+  define(
+    Math, 'imulh',
+    function imulh(u, v) {
+      var u0 = u & 0xFFFF, u1 = u >> 16;
+      var v0 = v & 0xFFFF, v1 = v >> 16;
+      var w0 = u0 * v0;
+      var t = ((u1 * v0) >>> 0) + (w0 >>> 16);
+      var w1 = t & 0xFFFF;
+      var w2 = t >> 16;
+      w1 = ((u0 * v1) >>> 0) + w1;
+      return u1 * v1 + w2 + (w1 >> 16);
+    });
+
+  define(
+    Math, 'umulh',
+    function umulh(u, v) {
+      var u0 = u & 0xFFFF, u1 = u >>> 16;
+      var v0 = v & 0xFFFF, v1 = v >>> 16;
+      var w0 = u0 * v0;
+      var t = ((u1 * v0) >>> 0) + (w0 >>> 16);
+      var w1 = t & 0xFFFF;
+      var w2 = t >>> 16;
+      w1 = ((u0 * v1) >>> 0) + w1;
+      return u1 * v1 + w2 + (w1 >>> 16);
+    });
+
+  define(
+    Math, 'iaddh',
+    function iaddh(x0, x1, y0, y1) {
+      x0 = x0 >>> 0; x1 = x1 >>> 0; y0 = y0 >>> 0; y1 = y1 >>> 0;
+      var z0 = (x0 + y0) >>> 0;
+      var c = ((x0 & y0) | (x0 | y0) & ~z0) >>> 31;
+      var z1 = x1 + y1 + c;
+      return z1 | 0;
+    });
+
+  define(
+    Math, 'isubh',
+    function isubh(x0, x1, y0, y1) {
+      x0 = x0 >>> 0; x1 = x1 >>> 0; y0 = y0 >>> 0; y1 = y1 >>> 0;
+      var z0 = (x0 - y0) >>> 0;
+      var b = ((~x0 & y0) | (~(x0 ^ y0) & z0)) >>> 31;
+      var z1 = x1 - y1 - b;
+      return z1 | 0;
+    });
+
 }(this));
