@@ -17,15 +17,15 @@
 //     for floating point values, number of decimal places (rounded or padded to fit)
 //     otherwise, ignored
 //   specifier:
-//     % - literal '%' character, e.g. sprintf("we're %d%% complete", percent)
-//     c - character; numeric arg treated as char code; otherwise first char of arg as string
-//     s - string
-//     d - decimal integer, via Math.floor()
-//     o - octal integer, via Math.floor()
-//     b - binary integer, via Math.floor()
-//     x - hexadecimal integer (lowercase, e.g. d00d), via Math.floor()
-//     X - hexadecimal integer (uppercase, e.g. D00D), via Math.floor()
-//     f - decimal floating point
+//     %   - literal '%' character, e.g. sprintf("we're %d%% complete", percent)
+//     c   - character; numeric arg treated as char code; otherwise first char of arg as string
+//     s   - string
+//     i,d - decimal integer, via Math.floor()
+//     o   - octal integer, via Math.floor()
+//     b   - binary integer, via Math.floor()
+//     x   - hexadecimal integer (lowercase, e.g. d00d), via Math.floor()
+//     X   - hexadecimal integer (uppercase, e.g. D00D), via Math.floor()
+//     f   - decimal floating point
 //
 // Exceptions:
 //   If insufficient arguments specified, e.g. sprintf("%s %s", "abc")
@@ -85,6 +85,7 @@
         if (precision !== (void 0)) { r = r.substring(0, precision); }
         break;
 
+      case 'i': // decimal
       case 'd': // decimal
       case 'o': // octal
       case 'b': // binary
@@ -95,6 +96,7 @@
         neg = (r < 0);
         r = Math.abs(r);
         switch (specifier) {
+        case 'i':
         case 'd': r = Math.floor(r).toString(10); break;
         case 'o': r = Math.floor(r).toString(8); break;
         case 'b': r = Math.floor(r).toString(2); break;
