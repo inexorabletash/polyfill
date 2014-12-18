@@ -17,15 +17,17 @@
 //     for floating point values, number of decimal places (rounded or padded to fit)
 //     otherwise, ignored
 //   specifier:
-//     %   - literal '%' character, e.g. sprintf("we're %d%% complete", percent)
-//     c   - character; numeric arg treated as char code; otherwise first char of arg as string
-//     s   - string
-//     i,d - decimal integer, via Math.floor()
-//     o   - octal integer, via Math.floor()
-//     b   - binary integer, via Math.floor()
-//     x   - hexadecimal integer (lowercase, e.g. d00d), via Math.floor()
-//     X   - hexadecimal integer (uppercase, e.g. D00D), via Math.floor()
-//     f   - decimal floating point
+//     % - literal '%' character, e.g. sprintf("we're %d%% complete", percent)
+//     c - character; numeric arg treated as char code; otherwise first char of arg as string
+//     s - string
+//     d - decimal integer, via Math.floor()
+//     i - decimal integer, via |0
+//     u - decimal integer, via >>>0
+//     o - octal integer, via Math.floor()
+//     b - binary integer, via Math.floor()
+//     x - hexadecimal integer (lowercase, e.g. d00d), via Math.floor()
+//     X - hexadecimal integer (uppercase, e.g. D00D), via Math.floor()
+//     f - decimal floating point
 //
 // Exceptions:
 //   If insufficient arguments specified, e.g. sprintf("%s %s", "abc")
@@ -42,7 +44,7 @@
       return args[arg++];
     }
 
-    var regex = /([^%]|%([\-+0]*)(\d+)?(\.\d+)?([%csidobxXf]))/g;
+    var regex = /([^%]|%([\-+0]*)(\d+)?(\.\d+)?([%csiudobxXf]))/g;
 
     function repl(str, unit, flags, width, precision, specifier) {
 
@@ -85,7 +87,8 @@
         if (precision !== (void 0)) { r = r.substring(0, precision); }
         break;
 
-      case 'i': // decimal
+      case 'i': // int32
+      case 'u': // uint32
       case 'd': // decimal
       case 'o': // octal
       case 'b': // binary
@@ -96,7 +99,8 @@
         neg = (r < 0);
         r = Math.abs(r);
         switch (specifier) {
-        case 'i':
+        case 'i': r = (r|0).toString(10); break;
+        case 'u': r = (r>>>0).toString(10); break;
         case 'd': r = Math.floor(r).toString(10); break;
         case 'o': r = Math.floor(r).toString(8); break;
         case 'b': r = Math.floor(r).toString(2); break;
