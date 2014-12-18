@@ -42,7 +42,7 @@
       return args[arg++];
     }
 
-    var regex = /([^%]|%([\-+0]*)(\d+)?(\.\d+)?([%csdobxXf]))/g;
+    var regex = /([^%]|%([\-+0]*)(\d+)?(\.\d+)?([%csidobxXf]))/g;
 
     function repl(str, unit, flags, width, precision, specifier) {
 
