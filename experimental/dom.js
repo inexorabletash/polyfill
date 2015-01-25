@@ -69,8 +69,7 @@
       var nodes = [].slice.call(arguments);
       if (!this.parentNode) return;
       nodes = mutationMethodMacro(nodes);
-      this.parentNode.insertBefore(nodes, this);
-      this.parentNode.removeChild(this);
+      this.parentNode.replaceChild(nodes, this);
     },
     remove: function() {
       if (!this.parentNode) return;
