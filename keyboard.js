@@ -18,6 +18,7 @@
 // (keydown, keyup) which are delivered to applications but
 // simultaneously processed by the operating system to perform actions
 // or generate characters. For example:
+//
 //    Keys: [A] - generate character 'a'
 //    Keys: [Shift] - no character generated
 //    Keys: [Shift]+[A] - generate character 'A'
@@ -29,6 +30,7 @@
 //    Keys: [Alt]+[0],[1],[2],[8] - generate Euro symbol
 //    Keys: [Enter] - generate 0x0D character (maybe)
 //    Keys: [Esc] - generate 0x1B character (maybe)
+//
 // And of course, for non-Latin languages things get even more
 // complicated including IMEs where multiple keystrokes may generate a
 // list of candidate characters in an OS- or application-provided
@@ -40,13 +42,13 @@
 // ---------------------------------------------------------------------
 //
 // Keyboard events were implemented before a specification was
-// written; as such, the behavior across browsers is very
-// different. The HTML4 spec defines the model as sending 'keydown'
-// and 'keyup' events corresponding to physical actions with the keys
-// (with possibly repeated 'keydown' events due to auto-repeat), and
-// 'keypress' events corresponding to the generation of a
-// character. The actual properties identifying the key are
-// unspecified, but can be described as:
+// written; as such, the behavior across browsers is very different.
+// The HTML4 spec defines the model as sending 'keydown' and 'keyup'
+// events corresponding to physical actions with the keys (with
+// possibly repeated 'keydown' events due to auto-repeat), and
+// 'keypress' events corresponding to the generation of a character.
+// The actual properties identifying the key are unspecified, but can
+// be described as:
 //
 //   readonly attribute unsigned long keyCode;
 //   readonly attribute unsigned long charCode;
@@ -96,16 +98,15 @@
 // The DOM Level 3 Events (D3E) draft specification defines new
 // properties for keyboard events:
 //
-//   readonly attribute DOMString char;
+//   readonly attribute DOMString code;
 //   readonly attribute DOMString key;
 //   readonly attribute unsigned long location;
 //
-//   |char| is a string representing the character data being typed,
-//   |or empty
+//   |code| is a standardized key identifier mapping to a physical key
+//   on the device, rather like a USB code.
 //
-//   |key| is a string identifying a key... mostly. There's a complex
-//   algorithm for filling in the details which makes the property
-//   not ideal for actually identifying a physical key
+//   |key| is a string giving the printed representation of the key,
+//   or other identifier.
 //
 //   |location| is a number identifying the physical location of the
 //   key - standard, left vs. right, numpad, etc.
@@ -115,15 +116,13 @@
 // of |char|. Some browsers (Chrome, Safari) have partial
 // implementation of these earlier properties.
 //
-// The DOM Level 4 Events (D4E) draft specification defines one new
-// property:
+// The DOM Level 4 Events (D4E) draft specification defines a new
+// method:
 //
-//   readonly attribute DOMString code;
+//   static DOMString queryKeyCap (DOMString code, optional DOMString locale);
 //
-//   |code| is a standardized key identifier mapping to a physical key
-//   on the device, rather like a USB code.
 //
-// D3E Spec: http://www.w3.org/TR/DOM-Level-3-Events#keys
+// D3E Spec: https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3-Events.html#interface-KeyboardEvent
 // D4E Spec: https://dvcs.w3.org/hg/d4e/raw-file/tip/source_respec.htm#keyboard-events
 //
 // For cross-browser legacy mappings, see:
@@ -637,6 +636,87 @@ window.KeyboardEvent.DOM_KEY_LOCATION_NUMPAD        = 0x03; // e.g. Numpad 0 or 
   });
 
 
+  //--------------------------------------------------------------------
+  //
+  // Keyboard Layout Mapping
+  //
+  //--------------------------------------------------------------------
+
+  // This assumes US Standard 101 layout
+  var codeToKeyTable = {
+    ShiftLeft: { key: 'Shift' },
+    ShiftRight: { key: 'Shift' },
+    ControlLeft: { key: 'Control' },
+    ControlRight: { key: 'Control' },
+    AltLeft: { key: 'Alt' },
+    AltRight: { key: 'Alt' },
+
+    Space: { key: ' ' },
+    Digit0: { key: '0', shiftKey: ')' },
+    Digit1: { key: '1', shiftKey: '!' },
+    Digit2: { key: '2', shiftKey: '@' },
+    Digit3: { key: '3', shiftKey: '#' },
+    Digit4: { key: '4', shiftKey: '$' },
+    Digit5: { key: '5', shiftKey: '%' },
+    Digit6: { key: '6', shiftKey: '^' },
+    Digit7: { key: '7', shiftKey: '&' },
+    Digit8: { key: '8', shiftKey: '*' },
+    Digit9: { key: '9', shiftKey: '(' },
+    KeyA: { key: 'a', shiftKey: 'A' },
+    KeyB: { key: 'b', shiftKey: 'B' },
+    KeyC: { key: 'c', shiftKey: 'C' },
+    KeyD: { key: 'd', shiftKey: 'D' },
+    KeyE: { key: 'e', shiftKey: 'E' },
+    KeyF: { key: 'f', shiftKey: 'F' },
+    KeyG: { key: 'g', shiftKey: 'G' },
+    KeyH: { key: 'h', shiftKey: 'H' },
+    KeyI: { key: 'i', shiftKey: 'I' },
+    KeyJ: { key: 'j', shiftKey: 'J' },
+    KeyK: { key: 'k', shiftKey: 'K' },
+    KeyL: { key: 'l', shiftKey: 'L' },
+    KeyM: { key: 'm', shiftKey: 'M' },
+    KeyN: { key: 'n', shiftKey: 'N' },
+    KeyO: { key: 'o', shiftKey: 'O' },
+    KeyP: { key: 'p', shiftKey: 'P' },
+    KeyQ: { key: 'q', shiftKey: 'Q' },
+    KeyR: { key: 'r', shiftKey: 'R' },
+    KeyS: { key: 's', shiftKey: 'S' },
+    KeyT: { key: 't', shiftKey: 'T' },
+    KeyU: { key: 'u', shiftKey: 'U' },
+    KeyV: { key: 'v', shiftKey: 'V' },
+    KeyW: { key: 'w', shiftKey: 'W' },
+    KeyX: { key: 'x', shiftKey: 'X' },
+    KeyY: { key: 'y', shiftKey: 'Y' },
+    KeyZ: { key: 'z', shiftKey: 'Z' },
+    Numpad0: { key: '0' },
+    Numpad1: { key: '1' },
+    Numpad2: { key: '2' },
+    Numpad3: { key: '3' },
+    Numpad4: { key: '4' },
+    Numpad5: { key: '5' },
+    Numpad6: { key: '6' },
+    Numpad7: { key: '7' },
+    Numpad8: { key: '8' },
+    Numpad9: { key: '9' },
+    NumpadMultiply: { key: '*' },
+    NumpadAdd: { key: '+' },
+    NumpadComma: { key: ',' },
+    NumpadSubtract: { key: '-' },
+    NumpadDecimal: { key: '.' },
+    NumpadDivide: { key: '/' },
+    Semicolon: { key: ';', shiftKey: ':' },
+    Equal: { key: '=', shiftKey: '+' },
+    Comma: { key: ',', shiftKey: '<' },
+    Minus: { key: '-', shiftKey: '_' },
+    Period: { key: '.', shiftKey: '>' },
+    Slash: { key: '/', shiftKey: '?' },
+    Backquote: { key: '`', shiftKey: '~' },
+    BracketLeft: { key: '[', shiftKey: '{' },
+    Backslash: { key: '\\', shiftKey: '|' },
+    BracketRight: { key: ']', shiftKey: '}' },
+    Quote: { key: '\'', shiftKey: '"' },
+    IntlBackslash: { key: '\\', shiftKey: '|' }
+  };
 
   //--------------------------------------------------------------------
   //
@@ -681,6 +761,23 @@ window.KeyboardEvent.DOM_KEY_LOCATION_NUMPAD        = 0x03; // e.g. Numpad 0 or 
       case 'U+001F': keyInfo = { code: 'ArrowDown' }; break;
       }
     }
+
+    if (!keyInfo)
+      return null;
+
+    var key = (function() {
+      var entry = codeToKeyTable[keyInfo.code];
+      if (!entry) return keyInfo.code;
+      return (event.shiftKey && 'shiftKey' in entry) ? entry.shiftKey : entry.key;
+    }());
+
+    return {
+      code: keyInfo.code,
+      key: key,
+      location: keyInfo.location,
+      keyCap: keyInfo.keyCap
+    };
+
     return keyInfo;
   }
 
@@ -701,7 +798,12 @@ window.KeyboardEvent.DOM_KEY_LOCATION_NUMPAD        = 0x03; // e.g. Numpad 0 or 
 
       define(KeyboardEvent.prototype, 'code', { get: function() {
         var keyInfo = keyInfoForEvent(this);
-        return (keyInfo && 'code' in keyInfo) ? keyInfo.code : '';
+        return keyInfo ? keyInfo.code : '';
+      }});
+
+      define(KeyboardEvent.prototype, 'key', { get: function() {
+        var keyInfo = keyInfoForEvent(this);
+        return (keyInfo && 'key' in keyInfo) ? keyInfo.key : 'Unidentified';
       }});
 
       define(KeyboardEvent.prototype, 'location', { get: function() {
@@ -727,7 +829,8 @@ window.KeyboardEvent.DOM_KEY_LOCATION_NUMPAD        = 0x03; // e.g. Numpad 0 or 
       return;
 
     var keyInfo = keyInfoForEvent(event);
-    event.code = (keyInfo && 'code' in keyInfo) ? keyInfo.code : '';
+    event.code = keyInfo ? keyInfo.code : '';
+    event.key = (keyInfo && 'key' in keyInfo) ? keyInfo.key : 'Unidentified';
     event.location = ('location' in event) ? event.location :
       ('keyLocation' in event) ? event.keyLocation :
       (keyInfo && 'location' in keyInfo) ? keyInfo.location : STANDARD;

@@ -62,7 +62,7 @@ built-in object prototypes, helper functions used instead that can be used if IE
     * `Event.defaultPrevented`
     * `Event.stopPropagation()`
     * `Event.cancelBubble()`
-  * Non-standard Event helpers for IE7- - adapted from 
+  * Non-standard Event helpers for IE7- - adapted from
 [QuirksMode](http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html)
     * `window.addEvent(EventTarget, event, handler)`
     * `window.removeEvent(EventTarget, event, handler)`
@@ -132,13 +132,14 @@ Keyboard Events
 ```javascript
 // Adds the following properties to each KeyboardEvent:
 event.code
+event.key
 event.location
 
 // You can get a label for the key using:
 KeyboardEvent.queryKeyCap(code);
 
 // IE7- only: In your keydown/keyup handler, call this in your handler
-// before accessing the `code` or `location` properties:
+// before accessing the `code`, `key`, or `location` properties:
 window.identifyKey(keyboardEvent);
 ```
 
