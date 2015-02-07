@@ -37,6 +37,7 @@ target.addEventListener('blur', function (e) {
 });
 
 function hex(x, w) {
+  if (x === undefined) return x;
   x = Number(x);
   w = Number(w) || 2;
   return '0x' + ('0'.repeat(w) + x.toString(16)).slice(-w);
@@ -44,35 +45,67 @@ function hex(x, w) {
 
 function show(selector, e) {
   var elem = document.querySelector(selector),
-      data = {
-        code: e.code,
-        location: e.location,
-        cap: KeyboardEvent.queryKeyCap(e.code),
-        key: e.key,
-        char: e.char,
-        keyChar: e.keyChar,
-        keyCode: hex(e.keyCode),
-        keyIdentifier: e.keyIdentifier,
-        keyLocation: e.keyLocation,
-        keyName: e.keyName,
-        which: hex(e.which),
-        altKey: e.altKey,
-        charCode: e.charCode,
-        ctrlKey: e.ctrlKey,
-        metaKey: e.metaKey,
-        shiftKey: e.shiftKey,
-        repeat: e.repeat
-      };
+      data = [
+        {
+          category: 'DOM 3 Events',
+          attributes: {
+            code: e.code,
+            key: e.key,
+            location: e.location
+          }
+        },
+
+        {
+          category: 'DOM 4 Events',
+          attributes: {
+            'queryKeyCap()': KeyboardEvent.queryKeyCap(e.code)
+          }
+        },
+
+        {
+          category: 'Legacy user agents',
+          attributes: {
+            charCode: hex(e.charCode),
+            keyCode: hex(e.keyCode),
+            which: hex(e.which),
+            char: e.char // IE only
+          }
+        },
+
+        {
+          category: 'Abandoned proposals',
+          attributes: {
+            keyChar: e.keyChar,
+            keyIdentifier: e.keyIdentifier,
+            keyLocation: e.keyLocation,
+            keyName: e.keyName
+          }
+        },
+
+        {
+          category: 'Modifiers',
+          attributes: {
+            altKey: e.altKey,
+            ctrlKey: e.ctrlKey,
+            metaKey: e.metaKey,
+            shiftKey: e.shiftKey,
+            repeat: e.repeat
+          }
+        }
+      ];
 
   while (elem.hasChildNodes())
     elem.removeChild(elem.firstChild);
 
-  var s = Object.keys(data).filter(function(k){
-    return typeof data[k] !== 'undefined';
-  }).map(function(k){
-    return k + ": " + data[k] + "\n";
-  });
-  elem.appendChild(document.createTextNode(s.join('')));
+  var s = data.map(function(cat) {
+    return cat.category + ':\n' +
+      Object.keys(cat.attributes).filter(function(k) {
+        return typeof cat.attributes[k] !== 'undefined';
+      }).map(function(k) {
+        return '  ' + k + ': ' + cat.attributes[k] + '\n';
+      }).join('');
+  }).join('\n');
+  elem.appendChild(document.createTextNode(s));
 }
 
 target.addEventListener('keydown', function (e) {
