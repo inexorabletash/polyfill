@@ -143,6 +143,9 @@ KeyboardEvent.queryKeyCap(code);
 window.identifyKey(keyboardEvent);
 ```
 
+[more details](keyboard.md)
+
+
 Geolocation API
 ---------------
 [script](geo.js) -
