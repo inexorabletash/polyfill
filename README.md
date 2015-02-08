@@ -91,6 +91,8 @@ XMLHttpRequest
 
 Timing
 ------
+[script](timing.js)
+
 * [W3C Timing control for script-based animations](http://www.w3.org/TR/animation-timing/) - [demo page](http://inexorabletash.github.io/polyfill/demos/raf.html)
   * `id = window.requestAnimationFrame()`
   * `window.cancelAnimationFrame(id)`
