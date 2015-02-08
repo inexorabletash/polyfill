@@ -485,22 +485,14 @@ if (!Date.prototype.toISOString) {
       pad3(this.getUTCMilliseconds()) + 'Z';
   };
 }
-//----------------------------------------------------------------------
-//
-// Browser Polyfills
-//
-// This assumes ES5 or ES3 + es5.js
-// (polyfill.js is es5.js + web.js for convenience)
-//
-//----------------------------------------------------------------------
-
 (function(global) {
   if (!('window' in global && 'document' in global))
     return;
 
   //----------------------------------------------------------------------
   //
-  // HTML - https://html.spec.whatwg.org
+  // HTML
+  // https://html.spec.whatwg.org
   //
   //----------------------------------------------------------------------
 
@@ -628,10 +620,15 @@ if (!Date.prototype.toISOString) {
     global.atob = atob;
     global.btoa = btoa;
   }());
+}(this));
+(function(global) {
+  if (!('window' in global && 'document' in global))
+    return;
 
   //----------------------------------------------------------------------
   //
-  // DOM - https://dom.spec.whatwg.org/
+  // DOM
+  // https://dom.spec.whatwg.org/
   //
   //----------------------------------------------------------------------
 
@@ -1039,81 +1036,38 @@ if (!Date.prototype.toISOString) {
       addToElementPrototype('relList', function() { return new DOMTokenListShim(this, 'rel'); } );
     }
   }());
+}(this));
+(function(global) {
+  if (!('window' in global && 'document' in global))
+    return;
 
   //----------------------------------------------------------------------
   //
-  // XMLHttpRequest - https://xhr.spec.whatwg.org
+  // CSSOM View Module
+  // https://dev.w3.org/csswg/cssom-view/
   //
   //----------------------------------------------------------------------
 
-  // XMLHttpRequest interface
-  // Needed for: IE7-
-  global.XMLHttpRequest = global.XMLHttpRequest || function() {
-    try { return new ActiveXObject("Msxml2.XMLHTTP.6.0"); } catch (_) { }
-    try { return new ActiveXObject("Msxml2.XMLHTTP.3.0"); } catch (_) { }
-    try { return new ActiveXObject("Msxml2.XMLHTTP"); } catch (_) { }
-    throw Error("This browser does not support XMLHttpRequest.");
-  };
-
-  // XMLHttpRequest interface constants
-  // Needed for IE8-
-  XMLHttpRequest.UNSENT = 0;
-  XMLHttpRequest.OPENED = 1;
-  XMLHttpRequest.HEADERS_RECEIVED = 2;
-  XMLHttpRequest.LOADING = 3;
-  XMLHttpRequest.DONE = 4;
-
-  // FormData interface
-  // Needed for: IE9-
-  (function() {
-    if ('FormData' in global)
-      return;
-
-    function FormData(form) {
-      this._data = [];
-      if (!form) return;
-      for (var i = 0; i < form.elements.length; ++i) {
-        var element = form.elements[i];
-        if (element.name !== '')
-          this.append(element.name, element.value);
-      }
-    }
-
-    FormData.prototype = {
-      append: function(name, value /*, filename */) {
-        if ('Blob' in global && value instanceof global.Blob)
-          throw TypeError("Blob not supported");
-        name = String(name);
-        this._data.push([name, value]);
-      },
-
-      toString: function() {
-        return this._data.map(function(pair) {
-          return encodeURIComponent(pair[0]) + '=' + encodeURIComponent(pair[1]);
-        }).join('&');
-      }
-    };
-
-    global.FormData = FormData;
-    var send = global.XMLHttpRequest.prototype.send;
-    global.XMLHttpRequest.prototype.send = function(body) {
-      if (body instanceof FormData) {
-        this.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        arguments[0] = body.toString();
-      }
-      return send.apply(this, arguments);
-    };
-  }());
+  // Fix for IE8-'s Element.getBoundingClientRect()
+  if ('TextRectangle' in this && !('width' in TextRectangle.prototype)) {
+    Object.defineProperties(TextRectangle.prototype, {
+      'width': { get: function() { return this.right - this.left; } },
+      'height': { get: function() { return this.bottom - this.top; } }
+    });
+  }
+}(this));
+(function(global) {
+  if (!('window' in global && 'document' in global))
+    return;
 
   //----------------------------------------------------------------------
   //
-  // Other
+  // Timing control for script-based animations
+  // https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/RequestAnimationFrame/Overview.html
   //
   //----------------------------------------------------------------------
 
-  // requestAnimationFrame
-  // http://www.w3.org/TR/animation-timing/
-  // Needed for: IE9-
+  // requestAnimationFrame - needed for IE9-
   (function() {
     if ('requestAnimationFrame' in global)
       return;
@@ -1158,18 +1112,16 @@ if (!Date.prototype.toISOString) {
     global.cancelAnimationFrame = cancelAnimationFrame;
   }());
 
-  // CSSOM View Module - http://dev.w3.org/csswg/cssom-view/
-  // Fix for IE8-'s Element.getBoundingClientRect()
-  if ('TextRectangle' in this && !('width' in TextRectangle.prototype)) {
-    Object.defineProperties(TextRectangle.prototype, {
-      'width': { get: function() { return this.right - this.left; } },
-      'height': { get: function() { return this.bottom - this.top; } }
-    });
-  }
 
-  // setImmediate
+  //----------------------------------------------------------------------
+  //
+  // Efficient Script Yielding
   // https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html
   // (Not widely adopted.)
+  //
+  //----------------------------------------------------------------------
+
+  // setImmediate
   (function() {
     if ('setImmediate' in global)
       return;
@@ -1188,44 +1140,4 @@ if (!Date.prototype.toISOString) {
     global.setImmediate = setImmediate;
     global.clearImmediate = clearImmediate;
   }());
-
 }(this));
-//----------------------------------------------------------------------
-//
-// Non-standard JavaScript (Mozilla) functions
-//
-//----------------------------------------------------------------------
-
-(function () {
-  // JavaScript 1.8.1
-  String.prototype.trimLeft = String.prototype.trimLeft || function () {
-    return String(this).replace(/^\s+/, '');
-  };
-
-  // JavaScript 1.8.1
-  String.prototype.trimRight = String.prototype.trimRight || function () {
-    return String(this).replace(/\s+$/, '');
-  };
-
-  // JavaScript 1.?
-  var ESCAPES = {
-    //'\x00': '\\0', Special case in FF3.6, removed by FF10
-    '\b': '\\b',
-    '\t': '\\t',
-    '\n': '\\n',
-    '\f': '\\f',
-    '\r': '\\r',
-    '"' : '\\"',
-    '\\': '\\\\'
-  };
-  String.prototype.quote = String.prototype.quote || function() {
-    return '"' + String(this).replace(/[\x00-\x1F"\\\x7F-\uFFFF]/g, function(c) {
-      if (Object.prototype.hasOwnProperty.call(ESCAPES, c))
-        return ESCAPES[c];
-      var cc = c.charCodeAt(0);
-      if (cc <= 0xFF)
-        return '\\x' + ('00' + cc.toString(16).toUpperCase()).slice(-2);
-      return '\\u' + ('0000' + cc.toString(16).toUpperCase()).slice(-4);
-    }) + '"';
-  };
-}());
