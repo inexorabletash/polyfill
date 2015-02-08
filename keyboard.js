@@ -1,10 +1,9 @@
-window.KeyboardEvent = window.KeyboardEvent || function KeyboardEvent() { throw TypeError('Illegal constructor'); };
-window.KeyboardEvent.DOM_KEY_LOCATION_STANDARD      = 0x00; // Default or unknown location
-window.KeyboardEvent.DOM_KEY_LOCATION_LEFT          = 0x01; // e.g. Left Alt key
-window.KeyboardEvent.DOM_KEY_LOCATION_RIGHT         = 0x02; // e.g. Right Alt key
-window.KeyboardEvent.DOM_KEY_LOCATION_NUMPAD        = 0x03; // e.g. Numpad 0 or +
-
 (function(global) {
+  global.KeyboardEvent = global.KeyboardEvent || function KeyboardEvent() { throw TypeError('Illegal constructor'); };
+  global.KeyboardEvent.DOM_KEY_LOCATION_STANDARD      = 0x00; // Default or unknown location
+  global.KeyboardEvent.DOM_KEY_LOCATION_LEFT          = 0x01; // e.g. Left Alt key
+  global.KeyboardEvent.DOM_KEY_LOCATION_RIGHT         = 0x02; // e.g. Right Alt key
+  global.KeyboardEvent.DOM_KEY_LOCATION_NUMPAD        = 0x03; // e.g. Numpad 0 or +
 
   var STANDARD = window.KeyboardEvent.DOM_KEY_LOCATION_STANDARD,
       LEFT = window.KeyboardEvent.DOM_KEY_LOCATION_LEFT,
