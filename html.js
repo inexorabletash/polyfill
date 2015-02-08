@@ -133,4 +133,5 @@
     global.atob = atob;
     global.btoa = btoa;
   }());
+
 }(this));

@@ -134,6 +134,7 @@
     global.atob = atob;
     global.btoa = btoa;
   }());
+
 }(this));
 (function(global) {
   if (!('window' in global && 'document' in global))
