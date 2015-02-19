@@ -651,6 +651,26 @@
         return keyInfo ? keyInfo.code : '';
       }});
 
+      // Fix for nonstandard `key` values (FF36-)
+      if ('key' in KeyboardEvent.prototype) {
+        var desc = Object.getOwnPropertyDescriptor(KeyboardEvent.prototype, 'key');
+        Object.defineProperty(KeyboardEvent.prototype, 'key', { get: function() {
+          var key = desc.get.call(this);
+          if ((key === 'Shift' || key === 'Control' || key === 'Alt') && this.location)
+            return key + (['Left', 'Right'][this.location - 1]);
+          if (key === 'Meta' && this.location)
+            return 'OS' + (['Left', 'Right'][this.location - 1]);
+          return {
+            Down: 'ArrowDown',
+            Up: 'ArrowUp',
+            Left: 'ArrowLeft',
+            Right: 'ArrowRight',
+            Esc: 'Escape',
+            Del: 'Delete'
+          }[key] || key;
+        }});
+      }
+
       define(KeyboardEvent.prototype, 'key', { get: function() {
         var keyInfo = keyInfoForEvent(this);
         return (keyInfo && 'key' in keyInfo) ? keyInfo.key : 'Unidentified';
