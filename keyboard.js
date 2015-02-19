@@ -72,7 +72,8 @@
   //--------------------------------------------------------------------
 
   // "keyInfo" is a dictionary:
-  //   code: string - name from D4E or other spec
+  //   code: string - name from DOM Level 3 KeyboardEvent code Values
+  //     https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3Events-code.html
   //   location (optional): number - one of the DOM_KEY_LOCATION values
   //   keyCap (optional): string - keyboard label in en-US locale
   // USB code Usage ID from page 0x07 unless otherwise noted (Informative)
@@ -81,7 +82,7 @@
   var keyCodeToInfoTable = {
     // 0x01 - VK_LBUTTON
     // 0x02 - VK_RBUTTON
-    0x03: { code: 'Cancel' }, // [USB: 0x9b] char \x0018 ??? - In D3E, not in D4E
+    0x03: { code: 'Cancel' }, // [USB: 0x9b] char \x0018 ??? (Not in D3E)
     // 0x04 - VK_MBUTTON
     // 0x05 - VK_XBUTTON1
     // 0x06 - VK_XBUTTON2
@@ -90,7 +91,7 @@
     0x08: { code: 'Backspace' }, // [USB: 0x2a] Labelled Delete on Macintosh keyboards.
     0x09: { code: 'Tab' }, // [USB: 0x2b]
     // 0x0A-0x0B - reserved
-    0X0C: { code: 'Clear' }, // [USB: 0x9c] NumPad Center - In D3E, not in D4E
+    0X0C: { code: 'Clear' }, // [USB: 0x9c] NumPad Center (Not in D3E)
     0X0D: { code: 'Enter' }, // [USB: 0x28]
     // 0x0E-0x0F - undefined
 
@@ -99,18 +100,17 @@
     0x12: { code: 'Alt' },
     0x13: { code: 'Pause' }, // [USB: 0x48]
     0x14: { code: 'CapsLock' }, // [USB: 0x39]
-    0x15: { code: 'KanaMode' }, // [USB: 0x88]
+    0x15: { code: 'KanaMode' }, // [USB: 0x88] - "HangulMode" for Korean layout
     0x16: { code: 'HangulMode' }, // [USB: 0x90] 0x15 as well in MSDN VK table ???
-    0x17: { code: 'JunjaMode' }, // In D3E, not in D4E
-    0x18: { code: 'FinalMode' }, // In D3E, not in D4E
-    0x19: { code: 'Hanja' }, // [USB: 0x91]
-    // 0x19: { code: 'KanjiMode', location: STANDARD }, // duplicate on Windows
+    0x17: { code: 'JunjaMode' }, // (Not in D3E)
+    0x18: { code: 'FinalMode' }, // (Not in D3E)
+    0x19: { code: 'KanjiMode' }, // [USB: 0x91] - "HanjaMode" for Korean layout
     // 0x1A - undefined
     0x1B: { code: 'Escape' }, // [USB: 0x29]
     0x1C: { code: 'Convert' }, // [USB: 0x8a]
-    0x1D: { code: 'NoConvert' }, // [USB: 0x8b]
-    0x1E: { code: 'Accept' }, // In D3E, not in D4E
-    0x1F: { code: 'ModeChange' }, // In D3E, not in D4E
+    0x1D: { code: 'NonConvert' }, // [USB: 0x8b]
+    0x1E: { code: 'Accept' }, // (Not in D3E)
+    0x1F: { code: 'ModeChange' }, // (Not in D3E)
 
     0x20: { code: 'Space' }, // [USB: 0x2c]
     0x21: { code: 'PageUp' }, // [USB: 0x4b]
@@ -121,9 +121,9 @@
     0x26: { code: 'ArrowUp' }, // [USB: 0x52]
     0x27: { code: 'ArrowRight' }, // [USB: 0x4f]
     0x28: { code: 'ArrowDown' }, // [USB: 0x51]
-    0x29: { code: 'Select' }, // In D3E, not in D4E
-    0x2A: { code: 'Print' }, // In D3E, not in D4E
-    0x2B: { code: 'Execute' }, // [USB: 0x74] In D3E, not in D4E
+    0x29: { code: 'Select' }, // (Not in D3E)
+    0x2A: { code: 'Print' }, // (Not in D3E)
+    0x2B: { code: 'Execute' }, // [USB: 0x74] (Not in D3E)
     0x2C: { code: 'PrintScreen' }, // [USB: 0x46]
     0x2D: { code: 'Insert' }, // [USB: 0x49]
     0x2E: { code: 'Delete' }, // [USB: 0x4c]
@@ -172,7 +172,7 @@
     0x5C: { code: 'OSRight', location: RIGHT }, // [USB: 0xe7]
     0x5D: { code: 'ContextMenu' }, // [USB: 0x65] Context Menu
     // 0x5E - reserved
-    // 0x5F - VK_SLEEP 'Sleep' TODO ???
+    0x5F: { code: 'Standby' }, // [USB: 0x82] Sleep
 
     0x60: { code: 'Numpad0', keyCap: '0', location: NUMPAD }, // [USB: 0x62]
     0x61: { code: 'Numpad1', keyCap: '1', location: NUMPAD }, // [USB: 0x59]
@@ -186,7 +186,7 @@
     0x69: { code: 'Numpad9', keyCap: '9', location: NUMPAD }, // [USB: 0x61]
     0x6A: { code: 'NumpadMultiply', keyCap: '*', location: NUMPAD }, // [USB: 0x55]
     0x6B: { code: 'NumpadAdd', keyCap: '+', location: NUMPAD }, // [USB: 0x57]
-    0x6C: { code: 'NumpadComma', keyCap: ',', location: NUMPAD }, // [USB: 0x85] In D3E, not in D4E
+    0x6C: { code: 'NumpadComma', keyCap: ',', location: NUMPAD }, // [USB: 0x85]
     0x6D: { code: 'NumpadSubtract', keyCap: '-', location: NUMPAD }, // [USB: 0x56]
     0x6E: { code: 'NumpadDecimal', keyCap: '.', location: NUMPAD }, // [USB: 0x63]
     0x6F: { code: 'NumpadDivide', keyCap: '/', location: NUMPAD }, // [USB: 0x54]
@@ -242,8 +242,8 @@
     0xAE: { code: 'VolumeDown' }, // [USB: 0x81]
     0xAF: { code: 'VolumeUp' }, // [USB: 0x80]
 
-    0xB0: { code: 'MediaNextTrack' }, // [USB: 0x0c/0x00b5]
-    0xB1: { code: 'MediaPreviousTrack' }, // [USB: 0x0c/0x00b6]
+    0xB0: { code: 'MediaTrackNext' }, // [USB: 0x0c/0x00b5]
+    0xB1: { code: 'MediaTrackPrevious' }, // [USB: 0x0c/0x00b6]
     0xB2: { code: 'MediaStop' }, // [USB: 0x0c/0x00b7]
     0xB3: { code: 'MediaPlayPause' }, // [USB: 0x0c/0x00cd]
     0xB4: { code: 'LaunchMail' }, // [USB: 0x0c/0x018a]
@@ -273,25 +273,25 @@
     // 0xE1 - OEM specific
     0xE2: { code: 'IntlBackslash',  keyCap: '\\' }, // [USB: 0x64] \| (UK Standard 102)
     // 0xE3-0xE4 - OEM specific
-    0xE5: { code: 'Process' }, // In D3E, not in D4E
+    0xE5: { code: 'Process' }, // (Not in D3E)
     // 0xE6 - OEM specific
     // 0xE7 - VK_PACKET
     // 0xE8 - unassigned
     // 0xE9-0xEF - OEM specific
 
     // 0xF0-0xF5 - OEM specific
-    0xF6: { code: 'Attn' }, // [USB: 0x9a] In D3E, not in D4E
-    0xF7: { code: 'Crsel' }, // [USB: 0xa3] In D3E, not in D4E
-    0xF8: { code: 'Exsel' }, // [USB: 0xa4] In D3E, not in D4E
-    0xF9: { code: 'EraseEof' }, // In D3E, not in D4E
-    0xFA: { code: 'Play' }, // In D3E, not in D4E
-    0xFB: { code: 'Zoom' }, // In D3E, not in D4E
+    0xF6: { code: 'Attn' }, // [USB: 0x9a] (Not in D3E)
+    0xF7: { code: 'CrSel' }, // [USB: 0xa3] (Not in D3E)
+    0xF8: { code: 'ExSel' }, // [USB: 0xa4] (Not in D3E)
+    0xF9: { code: 'EraseEof' }, // (Not in D3E)
+    0xFA: { code: 'Play' }, // (Not in D3E)
+    0xFB: { code: 'ZoomToggle' }, // (Not in D3E)
     // 0xFC - VK_NONAME - reserved
     // 0xFD - VK_PA1
-    0xFE: { code: 'Clear' } // [USB: 0x9c] In D3E, not in D4E
+    0xFE: { code: 'Clear' } // [USB: 0x9c] (Not in D3E)
   };
 
-  // In D4E spec, but legacy keyCode is unknown:
+  // No legacy keyCode, but listed in D3E:
 
   // code: usb
   // 'IntlHash': 0x070032,
@@ -373,19 +373,6 @@
             0x5B: { code: 'OSLeft', location: LEFT }, // [USB: 0xe3]
             0x5D: { code: 'OSRight', location: RIGHT }, // [USB: 0xe7]
             0xE5: { code: 'KeyQ', keyCap: 'Q' } // [USB: 0x14] On alternate presses, Ctrl+Q sends this
-          });
-
-  // TODO: Haven't tested Opera in a while, probably obsolete:
-  mergeIf(keyCodeToInfoTable,
-          'opera', {
-            // NOTE: several of these collide in theory, but most other keys are unrepresented
-            0x2F: { code: 'NumpadDivide', keyCap: '/', location: NUMPAD }, // [USB: 0x54] Same as 'Help'
-            0x2A: { code: 'NumpadMultiply', keyCap: '*', location: NUMPAD }, // [USB: 0x55] Same as 'Print'
-            //0x2D: { code: 'NumpadSubtract', keyCap: '-', location: NUMPAD }, // [USB: 0x56] Same as 'Insert'
-            0x2B: { code: 'NumpaddAdd', keyCap: '+', location: NUMPAD }, // Same as 'Execute'
-            0x3B: { code: 'Semicolon', keyCap: ';' }, // [USB: 0x33] ;: (US Standard 101)
-            0x3D: { code: 'Equal', keyCap: '=' }, // [USB: 0x2e] =+
-            0x6D: { code: 'Minus', keyCap: '-'} // [USB: 0x2d] -_
           });
 
   //--------------------------------------------------------------------
@@ -488,20 +475,32 @@
 
   //--------------------------------------------------------------------
   //
-  // Keyboard Layout Mapping
+  // Key Values
   //
   //--------------------------------------------------------------------
 
-  // This assumes US Standard 101 layout
+  // Mapping from `code` values to `key` values. Values defined at:
+  // https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3Events-key.html
+  // Entries are only provided when `key` differs from `code`. If
+  // printable, `shiftKey` has the shifted printable character. This
+  // assumes US Standard 101 layout
+
   var codeToKeyTable = {
+    // Modifier Keys
     ShiftLeft: { key: 'Shift' },
     ShiftRight: { key: 'Shift' },
     ControlLeft: { key: 'Control' },
     ControlRight: { key: 'Control' },
     AltLeft: { key: 'Alt' },
     AltRight: { key: 'Alt' },
+    OSLeft: { key: 'OS' },
+    OSRight: { key: 'OS' },
 
+    // Whitespace Keys
+    NumpadEnter: { key: 'Enter' },
     Space: { key: ' ' },
+
+    // Printable Keys
     Digit0: { key: '0', shiftKey: ')' },
     Digit1: { key: '1', shiftKey: '!' },
     Digit2: { key: '2', shiftKey: '@' },
@@ -566,6 +565,33 @@
     BracketRight: { key: ']', shiftKey: '}' },
     Quote: { key: '\'', shiftKey: '"' },
     IntlBackslash: { key: '\\', shiftKey: '|' }
+  };
+
+  mergeIf(codeToKeyTable, 'mac', {
+    OSLeft: { key: 'Meta' },
+    OSRight: { key: 'Meta' }
+  });
+
+  // Corrections for 'key' names in older browsers (e.g. FF36-)
+  // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent.key#Key_values
+  var keyFixTable = {
+    Esc: 'Escape',
+    Nonconvert: 'NonConvert',
+    Left: 'ArrowLeft',
+    Up: 'ArrowUp',
+    Right: 'ArrowRight',
+    Down: 'ArrowDown',
+    Del: 'Delete',
+    Menu: 'ContextMenu',
+    MediaNextTrack: 'MediaTrackNext',
+    MediaPreviousTrack: 'MediaTrackPrevious',
+    SelectMedia: 'MediaSelect',
+    HalfWidth: 'Hankaku',
+    FullWidth: 'Zenkaku',
+    RomanCharacters: 'Romaji',
+    Crsel: 'CrSel',
+    Exsel: 'ExSel',
+    Zoom: 'ZoomToggle'
   };
 
   //--------------------------------------------------------------------
@@ -656,14 +682,7 @@
         var desc = Object.getOwnPropertyDescriptor(KeyboardEvent.prototype, 'key');
         Object.defineProperty(KeyboardEvent.prototype, 'key', { get: function() {
           var key = desc.get.call(this);
-          return {
-            Down: 'ArrowDown',
-            Up: 'ArrowUp',
-            Left: 'ArrowLeft',
-            Right: 'ArrowRight',
-            Esc: 'Escape',
-            Del: 'Delete'
-          }[key] || key;
+          return keyFixTable.hasOwnProperty(key) ? keyFixTable[key] : key;
         }});
       }
 
