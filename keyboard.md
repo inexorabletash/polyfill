@@ -31,7 +31,7 @@ properties.
 ```js
 div.onkeydown = function(e) {
   identifyKey(e); // for IE7-
-  switch (e.code) {
+  switch (e.key) {
     case 'ArrowLeft': map.scroll(-10, 0); break;
     case 'ArrowRight': map.scroll(10, 0); break;
     case 'ArrowUp': map.scroll(0, -10); break;
