@@ -10,8 +10,8 @@ Polyfill for the additional `KeyboardEvent` properties defined in the D3E and D4
 For all browsers (except IE7-) this adds the following properties to
 KeyboardEvent instances:
 
-* `event.code` - (string) identifier of the key from D3E
-* `event.key` - (string) printed representation of the key from D3E
+* `event.code` - (string) identifier of the key - [code values](https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3Events-code.html)
+* `event.key` - (string) printed representation of the key - [key values](https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3Events-key.html)
 * `event.location` - (number) location of key on device, from the DOM 3 Events working draft
 
 It also adds a static method:
@@ -29,6 +29,7 @@ properties.
 ## Example
 
 ```js
+// Applications that need physical keys should use `code`:
 div.onkeydown = function(e) {
   identifyKey(e); // for IE7-
   switch (e.code) {
@@ -36,6 +37,17 @@ div.onkeydown = function(e) {
     case 'KeyA': character.moveLeft(); break;
     case 'KeyS': character.moveBackward(); break;
     case 'KeyD': character.moveRight(); break;
+  }
+};
+
+// Applications that need logical key should use `key`:
+div.onkeydown = function(e) {
+  identifyKey(e); // for IE7-
+  switch (e.key) {
+    case 'ArrowLeft': map.scroll(-10, 0); break;
+    case 'ArrowRight': map.scroll(10, 0); break;
+    case 'ArrowUp': map.scroll(0, -10); break;
+    case 'ArrowDown': map.scroll(0, 10); break;
   }
 };
 ```
