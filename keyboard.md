@@ -10,9 +10,9 @@ Polyfill for the additional `KeyboardEvent` properties defined in the D3E and D4
 For all browsers (except IE7-) this adds the following properties to
 KeyboardEvent instances:
 
-* `event.code` - (string) identifier of the key - [code values](https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3Events-code.html)
-* `event.key` - (string) printed representation of the key - [key values](https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3Events-key.html)
-* `event.location` - (number) location of key on device, from the DOM 3 Events working draft
+* `event.code` - (string) identifies the physical key - [code values](https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3Events-code.html)
+* `event.key` - (string) printed representation of the key, or control key identifier - [key values](https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3Events-key.html)
+* `event.location` - (number) location of key (0 = standard, 1 = left, 2 = right, 3 = numpad)
 
 It also adds a static method:
 
