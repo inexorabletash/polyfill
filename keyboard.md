@@ -148,8 +148,8 @@ properties for `KeyboardEvent`:
   key - standard, left vs. right, numpad, etc.
 
 Earlier drafts of the specs use `keyLocation` instead of
-`location`, `keyIdentifier` instead of `key`, and `keyChar` instead
-of `char`. Some browsers (Chrome, Safari) have partial
+`location`, `keyIdentifier` instead of `code`, and `keyChar` instead
+of `key`. Some browsers (Chrome, Safari) have partial
 implementation of these earlier properties.
 
 The DOM Level 4 Events (D4E) draft specification defines a new
