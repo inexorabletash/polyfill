@@ -32,10 +32,10 @@ properties.
 div.onkeydown = function(e) {
   identifyKey(e); // for IE7-
   switch (e.code) {
-    case 'ArrowLeft': map.scroll(-10, 0); break;
-    case 'ArrowRight': map.scroll(10, 0); break;
-    case 'ArrowUp': map.scroll(0, -10); break;
-    case 'ArrowDown': map.scroll(0, 10); break;
+    case 'KeyW': character.moveForward(); break;
+    case 'KeyA': character.moveLeft(); break;
+    case 'KeyS': character.moveBackward(); break;
+    case 'KeyD': character.moveRight(); break;
   }
 };
 ```
@@ -92,7 +92,7 @@ be described as:
   `charCode` combined with `keyCode`
 
 For compatibility most browsers conform on the `keyCode` values
-produced by Microsoft Internet Explorer. But some browsers deviate 
+produced by Microsoft Internet Explorer. But some browsers deviate
 - notably Firefox - and there several are OS- and browser-specific quirks.
 
 IE's keyCode values derive from Windows Virtual Key Codes.
