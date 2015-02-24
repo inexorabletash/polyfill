@@ -653,8 +653,6 @@
       location: keyInfo.location,
       keyCap: keyInfo.keyCap
     };
-
-    return keyInfo;
   }
 
   function queryKeyCap(code, locale) {
