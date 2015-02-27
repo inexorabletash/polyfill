@@ -32,7 +32,7 @@ ECMAScript / JavaScript Polyfills
 
 HTML
 ----
-[script](html.js) - [spec](https://html.spec.whatwg.org)
+[script](html.js) - [living standard](https://html.spec.whatwg.org)
 
 * `document.head` (for IE8-)
 * 'shiv' of newer HTML elements (`section`, `aside`, etc), to fix parsing (for IE8-)
@@ -46,7 +46,7 @@ HTML
 
 DOM
 ---
-[script](dom.js) - [spec](https://dom.spec.whatwg.org)
+[script](dom.js) - [living standard](https://dom.spec.whatwg.org)
 
 * [Selectors](https://dom.spec.whatwg.org/#scope-match-a-selectors-string) (for IE7-) - adapted from [Paul Young](http://ajaxian.com/archives/creating-a-queryselector-for-ie-that-runs-at-native-speed)
   * `element = document.querySelector(selector)`
@@ -87,7 +87,7 @@ DOM
 
 XMLHttpRequest
 --------------
-[script](xhr.js) - [spec](https://xhr.spec.whatwg.org/)
+[script](xhr.js) - [living standard](https://xhr.spec.whatwg.org/)
 * [`XMLHttpRequest`](https://xhr.spec.whatwg.org/#interface-xmlhttprequest) (for IE6-)
 * [`FormData`](https://xhr.spec.whatwg.org/#interface-formdata) (for IE9-)
 
