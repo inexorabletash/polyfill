@@ -6,7 +6,7 @@ Polyfill for the additional `KeyboardEvent` properties defined in the D3E and D4
 * [UI Events](https://dvcs.w3.org/hg/d4e/raw-file/tip/source_respec.htm) [D4E]
 
 Demo: https://inexorabletash.github.io/polyfill/demos/keyboard.html
-    
+
 ## Details
 
 For all browsers (except IE7-) this adds the following properties to
@@ -31,17 +31,6 @@ properties.
 ## Example
 
 ```js
-// Applications that need physical keys should use `code`:
-div.onkeydown = function(e) {
-  identifyKey(e); // for IE7-
-  switch (e.code) {
-    case 'KeyW': character.moveForward(); break;
-    case 'KeyA': character.moveLeft(); break;
-    case 'KeyS': character.moveBackward(); break;
-    case 'KeyD': character.moveRight(); break;
-  }
-};
-
 // Applications that need logical key should use `key`:
 div.onkeydown = function(e) {
   identifyKey(e); // for IE7-
@@ -50,6 +39,17 @@ div.onkeydown = function(e) {
     case 'ArrowRight': map.scroll(10, 0); break;
     case 'ArrowUp': map.scroll(0, -10); break;
     case 'ArrowDown': map.scroll(0, 10); break;
+  }
+};
+
+// Applications that need physical keys should use `code`:
+div.onkeydown = function(e) {
+  identifyKey(e); // for IE7-
+  switch (e.code) {
+    case 'KeyW': character.moveForward(); break;
+    case 'KeyA': character.moveLeft(); break;
+    case 'KeyS': character.moveBackward(); break;
+    case 'KeyD': character.moveRight(); break;
   }
 };
 ```
