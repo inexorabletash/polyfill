@@ -14,7 +14,7 @@ Proposed for ES7 - http://wiki.ecmascript.org/doku.php?id=harmony:typed_objects
 
 ### Fetch
 
-[tests](https://inexorabletash.github.io/polyfill/experimental/tests/fetch.html) -
+[tests](http://inexorabletash.github.io/polyfill/experimental/tests/fetch.html) -
 [living standard](https://fetch.spec.whatwg.org)
 
 Example:
