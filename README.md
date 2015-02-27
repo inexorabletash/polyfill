@@ -10,8 +10,11 @@ Note that my general approach to polyfills is not to produce 100% compliant beha
 
 I use these in various pages on my sites; most are by me, or I have at least tweaked them. A more comprehensive list can be found at [The All-In-One Entirely-Not-Alphabetical No-Bullshit Guide to HTML5 Fallbacks](https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills) by Paul Irish.
 
-* See [polyfill.js](polyfill.js) for a bundle of the most common JS/Web polyfills
 * See [web.js](web.js) for a bundle of the most common Web polyfills (assumes ES5)
+  * Includes: [html.js](html.js) [dom.js](dom.js) [xhr.js](xhr.js) [cssom.js](cssom.js) [timing.js](timing.js)
+* And [polyfill.js](polyfill.js) has everything in [web.js](web.js) plus [es5.js](es5.js)
+* Minified [web.min.js](web.min.js) and [polyfill.min.js](polyfill.min.js) are also provided c/o
+  http://javascript-minifier.com/
 
 
 ECMAScript / JavaScript Polyfills
