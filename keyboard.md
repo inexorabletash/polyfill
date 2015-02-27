@@ -5,6 +5,8 @@ Polyfill for the additional `KeyboardEvent` properties defined in the D3E and D4
 * [DOM Level 3 Events](https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3-Events.html) [D3E]
 * [UI Events](https://dvcs.w3.org/hg/d4e/raw-file/tip/source_respec.htm) [D4E]
 
+Demo: https://inexorabletash.github.io/polyfill/demos/keyboard.html
+    
 ## Details
 
 For all browsers (except IE7-) this adds the following properties to
