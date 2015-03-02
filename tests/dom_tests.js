@@ -1,32 +1,4 @@
-
-test("Web Standards Polyfills - Misc", function () {
-  expect(9);
-
-  // document.head
-  assertTrue("document.head != null");
-  assertEqual("document.head.tagName", "HEAD");
-
-  // XMLHttpRequest
-  assertTrue("XMLHttpRequest != null");
-  assertTrue("new XMLHttpRequest() != null");
-  assertEqual("XMLHttpRequest.UNSENT", 0);
-  assertEqual("XMLHttpRequest.OPENED", 1);
-  assertEqual("XMLHttpRequest.HEADERS_RECEIVED", 2);
-  assertEqual("XMLHttpRequest.LOADING", 3);
-  assertEqual("XMLHttpRequest.DONE", 4);
-});
-
-test("Web Standards Polyfills - base64 encoding", function () {
-  expect(4);
-
-  // window.atob() / window.btoa()
-  assertEqual("window.btoa('')", '');
-  assertEqual("window.atob('')", '');
-  assertEqual("window.btoa('\\x00\\x01\\x02\\xfd\\xfe\\xff')", 'AAEC/f7/');
-  assertEqual("window.atob('AAEC/f7/')", '\x00\x01\x02\xfd\xfe\xff');
-});
-
-test("Web Standards Polyfills - querySelector / getElementsByClassName", function () {
+test("querySelector / getElementsByClassName", function () {
   expect(22);
 
   // document.querySelector()
@@ -58,7 +30,7 @@ test("Web Standards Polyfills - querySelector / getElementsByClassName", functio
   assertEqual("document.getElementsByClassName('gamma').length", 0);
 });
 
-test("Web Standards Polyfills - Enumeration", function () {
+test("Enumerations", function () {
   expect(29);
 
   // Node enumeration
@@ -93,21 +65,6 @@ test("Web Standards Polyfills - Enumeration", function () {
   assertEqual("DOMException.INVALID_MODIFICATION_ERR", 13);
   assertEqual("DOMException.NAMESPACE_ERR", 14);
   assertEqual("DOMException.INVALID_ACCESS_ERR", 15);
-});
-
-test("Web Standards Polyfills - Element.dataset and data-* attributes", function () {
-
-  // dataset
-  if ('dataset' in document.getElementById('datadiv')) {
-    expect(5);
-    assertEqual("document.getElementById('datadiv').dataset.foo", "bar");
-    assertEqual("document.getElementById('datadiv').dataset.bar", "123");
-    assertEqual("document.getElementById('dataspan').dataset['123']", "blah"); // Broken in Chrome 23!
-    assertTrue("!document.getElementById('dataspan').dataset['abc']");
-
-    document.getElementById('datadiv').dataset.foo = "new";
-    assertEqual("document.getElementById('datadiv').dataset.foo", "new");
-  }
 });
 
 test("Helpers - getClassList() and getRelList()", function () {
@@ -183,12 +140,4 @@ test("Helpers - getClassList() and getRelList()", function () {
   // TODO: addEvent/removeEvent
 
   delete elem;
-});
-
-test("Web Standards Polyfills - Parser Shiv", function () {
-  var div = document.getElementById('sectiondiv');
-  var section = document.getElementById('section');
-  var span = document.getElementById('sectionspan');
-  equal(div, section.parentNode, 'div should be parent of section');
-  equal(section, span.parentNode, 'section should be parent of span');
 });

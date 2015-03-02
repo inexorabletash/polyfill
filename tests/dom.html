@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<title>DOM Polyfill Unit Tests</title>
+<meta charset="UTF-8">
+
+<script src="//code.jquery.com/qunit/qunit-1.12.0.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/qunit/qunit-1.12.0.css" type="text/css" media="screen" >
+
+<h1 id="qunit-header">DOM Polyfill Unit Tests</h1>
+<h2 id="qunit-banner"></h2>
+<div id="qunit-testrunner-toolbar"></div>
+<h2 id="qunit-userAgent"></h2>
+<ol id="qunit-tests"></ol>
+
+<script type="text/javascript" src="../es5.js"></script>
+<script type="text/javascript" src="../dom.js"></script>
+<script type="text/javascript" src="testhelpers.js"></script>
+<script type="text/javascript" src="dom_tests.js"></script>
+
+<div id="qunit-fixture">
+
+test markup, will be hidden
+
+<div>
+  <div id="foo" class="alpha">
+    <div id="bar" class="beta">
+      <span id="baz" class="beta delta epsilon phi"></span>
+    </div>
+  </div>
+  <span id="bat" class="alpha"></span>
+</div>
+
+<div id="datadiv" data-foo="bar" data-bar="123">
+  <span id="dataspan" data-123="blah"></span>
+</div>
+
+<div id="sectiondiv">
+  <section id="section">
+    <span id="sectionspan">
+    </span>
+  </section>
+</div>
+
+</div>
