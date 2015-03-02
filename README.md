@@ -10,8 +10,11 @@ Note that my general approach to polyfills is not to produce 100% compliant beha
 
 I use these in various pages on my sites; most are by me, or I have at least tweaked them. A more comprehensive list can be found at [The All-In-One Entirely-Not-Alphabetical No-Bullshit Guide to HTML5 Fallbacks](https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills) by Paul Irish.
 
-* See [polyfill.js](polyfill.js) for a bundle of the most common JS/Web polyfills
 * See [web.js](web.js) for a bundle of the most common Web polyfills (assumes ES5)
+  * Includes: [html.js](html.js) [dom.js](dom.js) [xhr.js](xhr.js) [cssom.js](cssom.js) [timing.js](timing.js)
+* And [polyfill.js](polyfill.js) has everything in [web.js](web.js) plus [es5.js](es5.js)
+* Minified [web.min.js](web.min.js) and [polyfill.min.js](polyfill.min.js) are also provided c/o
+  http://javascript-minifier.com/
 
 
 ECMAScript / JavaScript Polyfills
@@ -31,7 +34,7 @@ HTML
 ----
 [script](html.js) -
 [tests](http://inexorabletash.github.io/polyfill/tests/html.html) -
- [spec](https://html.spec.whatwg.org)
+[living standard](https://html.spec.whatwg.org)
 
 * `document.head` (for IE8-)
 * 'shiv' of newer HTML elements (`section`, `aside`, etc), to fix parsing (for IE8-)
@@ -47,7 +50,7 @@ DOM
 ---
 [script](dom.js) -
 [tests](http://inexorabletash.github.io/polyfill/tests/dom.html) -
-[spec](https://dom.spec.whatwg.org)
+[living standard](https://dom.spec.whatwg.org)
 
 * [Selectors](https://dom.spec.whatwg.org/#scope-match-a-selectors-string) (for IE7-) - adapted from [Paul Young](http://ajaxian.com/archives/creating-a-queryselector-for-ie-that-runs-at-native-speed)
   * `element = document.querySelector(selector)`
@@ -90,7 +93,7 @@ XMLHttpRequest
 --------------
 [script](xhr.js) -
 [tests](http://inexorabletash.github.io/polyfill/tests/xhr.html) -
-[spec](https://xhr.spec.whatwg.org/)
+[living standard](https://xhr.spec.whatwg.org/)
 * [`XMLHttpRequest`](https://xhr.spec.whatwg.org/#interface-xmlhttprequest) (for IE6-)
 * [`FormData`](https://xhr.spec.whatwg.org/#interface-formdata) (for IE9-)
 
