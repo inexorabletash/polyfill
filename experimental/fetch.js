@@ -476,9 +476,11 @@
   }
 
   // Exported
-  global.Headers = Headers;
-  global.Request = Request;
-  global.Response = Response;
-  global.fetch = fetch;
+  if (!('fetch' in global)) {
+    global.Headers = Headers;
+    global.Request = Request;
+    global.Response = Response;
+    global.fetch = fetch;
+  }
 
 }(self));
