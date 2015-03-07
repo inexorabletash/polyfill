@@ -76,9 +76,17 @@
     var instance = URLUtils(url || '');
 
     // Detect for ES5 getter/setter support
-    var ES5_GET_SET = (Object.defineProperties && (function () {
-      var o = {}; Object.defineProperties(o, { p: { 'get': function () { return true; } } }); return o.p;
-    }()));
+    // (an Object.defineProperties polyfill that doesn't support getters/setters may throw)
+    var ES5_GET_SET = (function() {
+      if (!('defineProperties' in Object)) return false;
+      try {
+        var obj = {};
+        Object.defineProperties(obj, { prop: { 'get': function () { return true; } } });
+        return obj.prop;
+      } catch (_) {
+        return false;
+      }
+    })();
 
     var self = ES5_GET_SET ? this : document.createElement('a');
 
