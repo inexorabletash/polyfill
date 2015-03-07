@@ -233,6 +233,20 @@
           }
         }
       });
+
+      if ('Symbol' in global && 'iterator' in global.Symbol) {
+        Object.defineProperty(this, global.Symbol.iterator, {
+          value: function() {
+            var index = 0;
+            return { next: function() {
+              if (index >= pairs.length)
+                return {done: true, value: undefined};
+              var pair = pairs[index++];
+              return {done: false, value: [pair.name, pair.value]};
+            }};
+          }
+        });
+      }
     };
 
     var queryObject = new URLSearchParams(

@@ -158,7 +158,8 @@ test("Parameter Encoding", 7, function () {
   equal(url.searchParams.get("a  b"), "a  b");
 });
 
-test("Base URL", 20, function () {
+test("Base URL", function () {
+  expect(20);
   // fully qualified URL
   equal(new URL("http://example.com", "https://example.org").href, "http://example.com/");
   equal(new URL("http://example.com/foo/bar", "https://example.org").href, "http://example.com/foo/bar");
@@ -187,3 +188,13 @@ test("Base URL", 20, function () {
   equal(new URL("?ab", "https://example.org/foo").href, "https://example.org/foo?ab");
   equal(new URL("#cd", "https://example.org/foo").href, "https://example.org/foo#cd");
 });
+
+if ('Symbol' in self && 'iterator' in self.Symbol) {
+  test('URLSearchParams iteration', function() {
+    var u = new URL('http://example.com?a=1&b=2');
+    var it = u.searchParams[Symbol.iterator]();
+    deepEqual(it.next(), {done: false, value: ['a', '1']});
+    deepEqual(it.next(), {done: false, value: ['b', '2']});
+    deepEqual(it.next(), {done: true, value: undefined});
+  });
+}

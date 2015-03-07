@@ -141,6 +141,7 @@ URLSearchParams objects have:
 * `getAll(name)`
 * `has(name)`
 * `set(name, value)`
+* `[Symbol.iterator]()` - if defined
 
 Keyboard Events
 ---------------
