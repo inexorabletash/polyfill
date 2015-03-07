@@ -132,24 +132,15 @@ url.searchParams.delete(name);
 ```
 
 URL objects have properties:
-* `href`
-* `origin`
-* `protocol`
-* `username`
-* `password`
-* `host`
-* `hostname`
-* `port`
-* `pathname`
-* `search`
-* `searchParams`
-  * `append(name, value)`
-  * `delete(name)`
-  * `get(name)`
-  * `getAll(name)`
-  * `has(name)`
-  * `set(name, value)`
-* `hash`
+* `href`, `origin`, `protocol`, `username`, `password`, `host`, `hostname`, `port`, `pathname`, `search`, `searchParams`, `hash`
+
+URLSearchParams objects have:
+* `append(name, value)`
+* `delete(name)`
+* `get(name)`
+* `getAll(name)`
+* `has(name)`
+* `set(name, value)`
 
 Keyboard Events
 ---------------
