@@ -419,27 +419,27 @@ test("String", function () {
   assertThrows("'ab'.repeat(Infinity)");
   assertEqual("'ab'.repeat(1)", 'ab');
   assertEqual("'ab'.repeat(10)", 'abababababababababab');
-  assertEqual("''.repeat.length", 1);
+  assertEqual("String.prototype.repeat.length", 1);
 
   // String.prototype.startsWith
   assertTrue("'abcdef'.startsWith('abc')");
   assertFalse("'abcdef'.startsWith('def')");
   assertTrue("'abcdef'.startsWith('')");
   assertTrue("'abcdef'.startsWith('bc', 1)");
-  assertTrue("''.startsWith.length", 1);
+  assertTrue("String.prototype.startsWith.length", 1);
 
   // String.prototype.endsWith
   assertTrue("'abcdef'.endsWith('def')");
   assertFalse("'abcdef'.endsWith('abc')");
   assertTrue("'abcdef'.endsWith('')");
   assertTrue("'abcdef'.endsWith('de', 5)");
-  assertTrue("''.endsWith.length", 1);
+  assertTrue("String.prototype.endsWith.length", 1);
 
   // String.prototype.includes
   assertTrue("'abcdef'.includes('bcd')");
   assertFalse("'abcdef'.includes('mno')");
   assertTrue("'abcdef'.includes('')");
-  assertTrue("''.includes.length", 1);
+  assertTrue("String.prototype.includes.length", 1);
 });
 
 test("String - Unicode helpers", function () {
@@ -518,6 +518,14 @@ test("Array", function () {
 
   assertEqual("String([].entries())", "[object Array Iterator]");
   assertEqual("Object.prototype.toString.call([].entries())", "[object Array Iterator]");
+});
+
+test("Array Iterators", function () {
+  ok(Symbol.iterator in Array.prototype);
+  verifyIterator([1,2,3][Symbol.iterator](), [1,2,3]);
+  verifyIterator(['A','B','C'].keys(), [0,1,2]);
+  verifyIterator(['A','B','C'].values(), ['A','B','C']);
+  verifyIterator(['A','B','C'].entries(), [[0,'A'],[1,'B'],[2,'C']]);
 });
 
 test("Array.prototype.find/findIndex", function() {
@@ -782,7 +790,7 @@ test("Symbol", function() {
 module("Containers and Iterators");
 
 test("Map", function () {
-  assertEqual("Map.length", 1);
+  assertEqual("Map.length", 0);
 
   map = new Map();
   assertFalse("map.has(-0)");
@@ -862,7 +870,7 @@ test("Map", function () {
 });
 
 test("Set", function () {
-  assertEqual("Set.length", 1);
+  assertEqual("Set.length", 0);
 
   set = new Set();
   assertFalse("set.has(-0)");
@@ -943,7 +951,7 @@ test("Set", function () {
 });
 
 test("WeakMap", function () {
-  assertEqual("WeakMap.length", 1);
+  assertEqual("WeakMap.length", 0);
 
   wm1 = new WeakMap();
   wm2 = new WeakMap();
@@ -1018,7 +1026,7 @@ test("WeakMap", function () {
 });
 
 test("WeakSet", function () {
-  assertEqual("WeakSet.length", 1);
+  assertEqual("WeakSet.length", 0);
 
   set = new WeakSet();
   x = {};
