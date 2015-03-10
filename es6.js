@@ -1533,9 +1533,7 @@
   }
 
   // 21.1.5.2 The %StringIteratorPrototype% Object
-  var $StringIteratorPrototype$ = {
-    __proto__:$IteratorPrototype$
-  };
+  var $StringIteratorPrototype$ = Object.create($IteratorPrototype$);
   StringIterator.prototype = $StringIteratorPrototype$;
 
   // 21.1.5.2.1 %StringIteratorPrototype%.next ( )
@@ -1970,9 +1968,7 @@
   }
 
   // 22.1.5.2 The %ArrayIteratorPrototype% Object
-  var $ArrayIteratorPrototype$ = {
-    __proto__: $IteratorPrototype$
-  };
+  var $ArrayIteratorPrototype$ = Object.create($IteratorPrototype$);
   ArrayIterator.prototype = $ArrayIteratorPrototype$;
 
   // 22.1.5.2.1 %ArrayIteratorPrototype%. next( )
@@ -2589,9 +2585,7 @@
     }
 
     // 23.1.5.2 The %MapIteratorPrototype% Object
-    var $MapIteratorPrototype$ = {
-      __proto__: $IteratorPrototype$
-    };
+    var $MapIteratorPrototype$ = Object.create($IteratorPrototype$);
     MapIterator.prototype = $MapIteratorPrototype$;
 
     // 23.1.5.2.1 %MapIteratorPrototype%.next ( )
@@ -2837,9 +2831,7 @@
     }
 
     // 23.2.5.2 The %SetIteratorPrototype% Object
-    var $SetIteratorPrototype$ = {
-      __proto__: $IteratorPrototype$
-    };
+    var $SetIteratorPrototype$ = Object.create($IteratorPrototype$);
     SetIterator.prototype = $SetIteratorPrototype$;
 
     // 23.2.5.2.1 %SetIteratorPrototype%.next( )
