@@ -1046,8 +1046,8 @@ test("WeakSet", function () {
   assertTrue("set.has(y)");
 
   assertEqual("set.add(x)", set);
-  assertTrue("set.delete(x)");
-  assertFalse("set.delete(x)");
+  assertTrue("set['delete'](x)");
+  assertFalse("set['delete'](x)");
 
   delete set;
   delete x;
