@@ -370,8 +370,10 @@
       this.method = normalizeMethod(method);
     }
 
-    if ('headers' in init)
+    if ('headers' in init) {
+      this.headers = new Headers();
       fill(this.headers, init.headers);
+    }
 
     if ('body' in init)
       this._stream = init.body;

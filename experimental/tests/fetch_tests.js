@@ -136,14 +136,22 @@ test('Request constructor - ScalarValueString', function() {
 test('Request constructor - Request', function() {
   var o = new Request('http://example.com', {
     method: 'POST',
-    headers: new Headers({A: 1, B: 2})
+    headers: new Headers({A: 1})
   });
-  var r = new Request(o, {headers: new Headers({C: 3})});
+  var r = new Request(o);
   equal(r.method, 'POST', 'Method copied');
   equal(r.url, 'http://example.com/', 'URL copied');
   equal(r.headers.get('A'), '1');
+
+  o = new Request('http://example.com', {
+    method: 'POST',
+    headers: new Headers({A: 1})
+  });
+  r = new Request(o, {headers: new Headers({B: 2})});
+  equal(r.method, 'POST', 'Method copied');
+  equal(r.url, 'http://example.com/', 'URL copied');
+  equal(r.headers.get('A'), null);
   equal(r.headers.get('B'), '2');
-  equal(r.headers.get('C'), '3');
 });
 
 promiseTest('FormData POST (via httpbin.org)', function() {
