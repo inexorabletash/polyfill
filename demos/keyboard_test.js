@@ -10,7 +10,7 @@ if (contains(navigator.userAgent, 'CrOS'))
 function select(event) {
   var id = event.code;
   console.log("id: " + id);
-  return [].slice.call(document.querySelectorAll('.' + id));
+  return [].map.call(document.querySelectorAll('.' + id), function(x) { return x; });
 
   // Can't override |location| on KeyboardEvent in some browsers, so it
   // may be wrong, e.g. NumLock in moz-mac
@@ -108,7 +108,8 @@ function show(selector, e) {
   elem.appendChild(document.createTextNode(s));
 }
 
-target.addEventListener('keydown', function (e) {
+target.addEventListener('keydown', function(e) {
+  identifyKey(e); // for IE8-
   lastKey = e.keyCode;
 
   show('#eventdata', e);
@@ -123,7 +124,7 @@ target.addEventListener('keydown', function (e) {
 });
 
 target.addEventListener('keyup', function (e) {
-
+  identifyKey(e); // for IE8-
   if (lastKey == e.keyCode) { lastKey = -1; }
 
   show('#eventdata', e);
@@ -143,7 +144,7 @@ target.addEventListener('keyup', function (e) {
 target.addEventListener('keypress', function (e) {
   e.preventDefault();
   e.stopPropagation();
-});
+  });
 
 target.addEventListener('contextmenu', function (e) {
   e.preventDefault();

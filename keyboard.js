@@ -1,6 +1,9 @@
 (function(global) {
-  global.KeyboardEvent = global.KeyboardEvent || function KeyboardEvent() { throw TypeError('Illegal constructor'); };
-  global.KeyboardEvent.DOM_KEY_LOCATION_STANDARD      = 0x00; // Default or unknown location
+  var nativeKeyboardEvent = ('KeyboardEvent' in global);
+  if (!nativeKeyboardEvent)
+    global.KeyboardEvent = function KeyboardEvent() { throw TypeError('Illegal constructor'); };
+
+  global.KeyboardEvent.DOM_KEY_LOCATION_STANDARD = 0x00; // Default or unknown location
   global.KeyboardEvent.DOM_KEY_LOCATION_LEFT          = 0x01; // e.g. Left Alt key
   global.KeyboardEvent.DOM_KEY_LOCATION_RIGHT         = 0x02; // e.g. Right Alt key
   global.KeyboardEvent.DOM_KEY_LOCATION_NUMPAD        = 0x03; // e.g. Numpad 0 or +
@@ -603,7 +606,9 @@
 
   var codeTable = remap(keyCodeToInfoTable, 'code');
 
-  var nativeLocation = 'KeyboardEvent' in global && 'location' in new KeyboardEvent('');
+  try {
+    var nativeLocation = nativeKeyboardEvent && ('location' in new KeyboardEvent(''));
+  } catch (_) {}
 
   function keyInfoForEvent(event) {
     var keyCode = 'keyCode' in event ? event.keyCode : 'which' in event ? event.which : 0;
@@ -697,16 +702,13 @@
       define(KeyboardEvent.prototype, 'locale', { get: function() {
         return '';
       }});
-
-      define(KeyboardEvent, 'queryKeyCap', { value: queryKeyCap });
     }());
-
-  } else {
-    // Shim for IE7-
-    global.KeyboardEvent = { queryKeyCap: queryKeyCap };
   }
 
-  // Helper for IE7-
+  if (!('queryKeyCap' in global.KeyboardEvent))
+    global.KeyboardEvent.queryKeyCap = queryKeyCap;
+
+  // Helper for IE8-
   global.identifyKey = function(event) {
     if ('code' in event)
       return;

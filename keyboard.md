@@ -9,7 +9,7 @@ Demo: https://inexorabletash.github.io/polyfill/demos/keyboard.html
 
 ## Details
 
-For all browsers (except IE7-) this adds the following properties to
+For all browsers (except IE8-) this adds the following properties to
 KeyboardEvent instances:
 
 * `event.code` - (string) identifies the physical key - [code values](https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3Events-code.html)
@@ -20,7 +20,7 @@ It also adds a static method:
 
 * `KeyboardEvent.queryKeyCap(code)` - yields a human readable label for the key
 
-As a helper for IE7-, it also a non-standard function to the global namespace:
+As a helper for IE8-, it also a non-standard function to the global namespace:
 
 * `identifyKey(keyboardEvent)`
 
@@ -33,7 +33,7 @@ properties.
 ```js
 // Applications that need logical key should use `key`:
 div.onkeydown = function(e) {
-  identifyKey(e); // for IE7-
+  identifyKey(e); // for IE8-
   switch (e.key) {
     case 'ArrowLeft': map.scroll(-10, 0); break;
     case 'ArrowRight': map.scroll(10, 0); break;
@@ -44,7 +44,7 @@ div.onkeydown = function(e) {
 
 // Applications that need physical keys should use `code`:
 div.onkeydown = function(e) {
-  identifyKey(e); // for IE7-
+  identifyKey(e); // for IE8-
   switch (e.code) {
     case 'KeyW': character.moveForward(); break;
     case 'KeyA': character.moveLeft(); break;
