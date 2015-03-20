@@ -36,7 +36,6 @@ promiseTest('basic fetch', function() {
       return response.text();
     })
     .then(function(text) {
-      text = text.replace(/\r\n/g, '\n');
       equal(text, 'Hello, world!\n', 'Fetch should retrieve sample text');
     });
 });
