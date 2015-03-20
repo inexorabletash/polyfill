@@ -3,7 +3,7 @@
 function promiseTest(name, func) {
   asyncTest(name, function() {
     new Promise(function(resolve, reject) { resolve(func()); })
-      .catch(function(error) { ok(false, 'Unexpected error: ' + error); })
+      .catch(function(error) { ok(false, 'Unexpected rejection: ' + error); })
       .then(function() { QUnit.start(); });
   });
 }
@@ -11,7 +11,7 @@ function promiseTest(name, func) {
 function rejectingPromiseTest(name, func, assert) {
   asyncTest(name, function() {
     new Promise(function(resolve, reject) { resolve(func()); })
-      .then(function(v) { ok(false, 'Unexpected success: ' + v); },
+      .then(function(v) { ok(false, 'Unexpected fulfill: ' + v); },
             assert)
       .then(function() { QUnit.start(); });
   });
@@ -36,6 +36,7 @@ promiseTest('basic fetch', function() {
       return response.text();
     })
     .then(function(text) {
+      text = text.replace(/\r\n/g, '\n');
       equal(text, 'Hello, world!\n', 'Fetch should retrieve sample text');
     });
 });

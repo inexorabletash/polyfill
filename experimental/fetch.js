@@ -460,12 +460,13 @@
       var xhr = new XMLHttpRequest(), async = true;
       xhr._url = r.url;
 
-      xhr.open(r.method, r.url, async);
+      try { xhr.open(r.method, r.url, async); } catch (e) { throw TypeError(e.message); }
+
       for (var iter = r.headers[Symbol.iterator](), step = iter.next();
            !step.done; step = iter.next())
         xhr.setRequestHeader(step.value[0], step.value[1]);
 
-      xhr.onreadystatechange = function () {
+      xhr.onreadystatechange = function() {
         if (xhr.readyState !== XMLHttpRequest.DONE) return;
         if (xhr.status === 0)
           reject(new TypeError('Network error'));

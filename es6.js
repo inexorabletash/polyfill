@@ -3581,7 +3581,7 @@
 
     define(Promise.prototype, 'catch', function catch_(onRejected) {
       var promise = this;
-      promise.then(undefined, onRejected);
+      return promise.then(undefined, onRejected);
     });
 
     // 25.4.5.2 Promise.prototype.constructor
