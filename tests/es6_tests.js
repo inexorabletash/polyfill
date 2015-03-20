@@ -1171,6 +1171,15 @@ asyncTest("Multiple thens", function() {
   fulfill(5);
 });
 
+asyncTest("Catch returns Promise", function() {
+  var p = Promise.reject().catch(function(reason) { return 123; });
+  ok(p instanceof Promise, 'catch() should return a Promise');
+  p.then(function(result) {
+    equal(result, 123, 'Returned promise should resolve to returned value');
+    start();
+  });
+});
+
 asyncTest("Promise.resolve()", function() {
 
   var p = new Promise(function(){});
