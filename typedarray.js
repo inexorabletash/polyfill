@@ -135,17 +135,17 @@
 
   function packU8Clamped(n) { n = round(Number(n)); return [n < 0 ? 0 : n > 0xff ? 0xff : n & 0xff]; }
 
-  function packI16(n) { return [(n >> 8) & 0xff, n & 0xff]; }
-  function unpackI16(bytes) { return as_signed(bytes[0] << 8 | bytes[1], 16); }
+  function packI16(n) { return [n & 0xff, (n >> 8) & 0xff]; }
+  function unpackI16(bytes) { return as_signed(bytes[1] << 8 | bytes[0], 16); }
 
-  function packU16(n) { return [(n >> 8) & 0xff, n & 0xff]; }
-  function unpackU16(bytes) { return as_unsigned(bytes[0] << 8 | bytes[1], 16); }
+  function packU16(n) { return [n & 0xff, (n >> 8) & 0xff]; }
+  function unpackU16(bytes) { return as_unsigned(bytes[1] << 8 | bytes[0], 16); }
 
-  function packI32(n) { return [(n >> 24) & 0xff, (n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff]; }
-  function unpackI32(bytes) { return as_signed(bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3], 32); }
+  function packI32(n) { return [n & 0xff, (n >> 8) & 0xff, (n >> 16) & 0xff, (n >> 24) & 0xff]; }
+  function unpackI32(bytes) { return as_signed(bytes[3] << 24 | bytes[2] << 16 | bytes[1] << 8 | bytes[0], 32); }
 
-  function packU32(n) { return [(n >> 24) & 0xff, (n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff]; }
-  function unpackU32(bytes) { return as_unsigned(bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3], 32); }
+  function packU32(n) { return [n & 0xff, (n >> 8) & 0xff, (n >> 16) & 0xff, (n >> 24) & 0xff]; }
+  function unpackU32(bytes) { return as_unsigned(bytes[3] << 24 | bytes[2] << 16 | bytes[1] << 8 | bytes[0], 32); }
 
   function packIEEE754(v, ebits, fbits) {
 
@@ -209,7 +209,7 @@
     // Bits to bytes
     bytes = [];
     while (str.length) {
-      bytes.push(parseInt(str.substring(0, 8), 2));
+      bytes.unshift(parseInt(str.substring(0, 8), 2));
       str = str.substring(8);
     }
     return bytes;
@@ -220,8 +220,8 @@
     var bits = [], i, j, b, str,
         bias, s, e, f;
 
-    for (i = bytes.length; i; i -= 1) {
-      b = bytes[i - 1];
+    for (i = 0; i < bytes.length; ++i) {
+      b = bytes[i];
       for (j = 8; j; j -= 1) {
         bits.push(b % 2 ? 1 : 0); b = b >> 1;
       }
