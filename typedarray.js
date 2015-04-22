@@ -177,7 +177,16 @@
 
       if (v >= pow(2, 1 - bias)) {
         e = min(floor(log(v) / LN2), 1023);
-        f = roundToEven(v / pow(2, e) * pow(2, fbits));
+        var significand = v / pow(2, e);
+        if (significand < 1) {
+          e -= 1;
+          significand *= 2;
+        }
+        if (significand >= 2) {
+          e += 1;
+          significand /= 2;
+        }
+        f = roundToEven(significand * pow(2, fbits));
         if (f / pow(2, fbits) >= 2) {
           e = e + 1;
           f = 1;
