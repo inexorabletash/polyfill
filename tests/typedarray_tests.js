@@ -783,6 +783,11 @@ test('Regression Tests', function() {
   var minFloat32 = 1.401298464324817e-45;
   var truncated = new Float32Array([-minFloat32 / 2 - Math.pow(2, -202)]).get(0);
   stricterEqual(truncated, -minFloat32, 'smallest 32 bit float should not truncate to zero');
+
+  // Bug: https://github.com/inexorabletash/polyfill/issues/66
+  var y = Number.MAX_VALUE / 2, x = new Float64Array([y]);
+  stricterEqual(x.get(0), y, 'rounding for exponent edge cases');
+
 });
 
 test('ES6 Typed Array Extras', function() {
