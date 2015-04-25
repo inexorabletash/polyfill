@@ -1,6 +1,6 @@
 {
   "name": "js-polyfills",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "homepage": "https://github.com/inexorabletash/polyfill",
   "authors": [
     "Joshua Bell <inexorabletash@gmail.com>"
@@ -13,6 +13,7 @@
     "keyboard.js",
     "typedarray.js",
     "url.js"
+    "fetch.js"
   ],
   "keywords": [
     "polyfill",
