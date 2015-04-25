@@ -89,6 +89,28 @@ DOM
     * `tokenList = window.getRelList(element)`
 
 
+Fetch
+-----
+[script](fetch.js) -
+[tests](http://inexorabletash.github.io/polyfill/tests/fetch.html) -
+[living standard](https://fetch.spec.whatwg.org)
+
+Example:
+
+```js
+fetch('http://example.com/foo.json')
+  .then(function(response) { return response.json(); })
+  .then(function(data) { console.log(data); });
+```
+
+Supported:
+* Headers: `new Headers()`, `append(name, value)`, `delete(name)`, `get(name)`, `getAll(name)`, `has(name)`, `set(name, value)`, `[Symbol.iterator]()`
+* Body: `arrayBuffer()`, `blob()`, `formData()`, `json()`, `text()` - but conversions are limited
+* Request: `new Request(input, init)`, `method`, `headers`, `body`, `url`
+* Response: `new Response(body, init)`, `headers`, `url`, `status`, `statusText`, `body`
+* `fetch(input, init)`
+
+
 XMLHttpRequest
 --------------
 [script](xhr.js) -
