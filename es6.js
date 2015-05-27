@@ -15,18 +15,13 @@
 
   // Helpers
 
-  /** @nosideeffects */
-  //function assert(c, m) {
-  //  if (!c) throw Error("Internal assertion failure" + (m ? ': ' + m : ''));
-  //}
-
   function strict(o) {
     return o === global ? undefined : o;
   }
 
   function hook(o, p, f) {
     var op = o[p];
-    //assert(typeof op === 'function', 'Hooking a non-function');
+    console.assert(typeof op === 'function', 'Hooking a non-function');
     o[p] = function() {
       var o = strict(this);
       var r = f.apply(o, arguments);
@@ -62,7 +57,7 @@
 
     if (typeof v === 'function') {
       // Sanity check that functions are appropriately named (where possible)
-      //assert(isSymbol(p) || !('name' in v) || v.name === p || v.name === p + '_', 'Expected function name "' + p.toString() + '", was "' + v.name + '"');
+      console.assert(isSymbol(p) || !('name' in v) || v.name === p || v.name === p + '_', 'Expected function name "' + p.toString() + '", was "' + v.name + '"');
       Object.defineProperty(o, p, {
         value: v,
         configurable: true,
@@ -304,7 +299,7 @@
     // 19.4.4 Properties of Symbol Instances
   }());
 
-  //assert(typeof global.Symbol() === 'symbol' || symbolForKey(String(global.Symbol('x'))));
+  console.assert(typeof global.Symbol() === 'symbol' || symbolForKey(String(global.Symbol('x'))));
 
   // Defined here so that other prototypes can reference it
   // 25.1.2 The %IteratorPrototype% Object
@@ -553,13 +548,13 @@
 
   // 7.4.3 IteratorComplete ( iterResult )
   function IteratorComplete(iterResult) {
-    //assert(Type(iterResult) === 'object');
+    console.assert(Type(iterResult) === 'object');
     return Boolean(iterResult.done);
   }
 
   // 7.4.4 IteratorValue ( iterResult )
   function IteratorValue(iterResult) {
-    //assert(Type(iterResult) === 'object');
+    console.assert(Type(iterResult) === 'object');
     return iterResult.value;
   }
 
@@ -573,7 +568,7 @@
 
   // 7.4.6 IteratorClose( iterator, completion )
   function IteratorClose( iterator, completion ) {
-    //assert(Type(iterator) === 'object');
+    console.assert(Type(iterator) === 'object');
     var _return = GetMethod(iterator, 'return');
     if (_return === undefined) return completion;
     try {
@@ -588,7 +583,7 @@
 
   // 7.4.7 CreateIterResultObject (value, done)
   function CreateIterResultObject(value, done) {
-    //assert(Type(done) === 'boolean');
+    console.assert(Type(done) === 'boolean');
     var obj = {};
     obj["value"] = value;
     obj["done"] = done;
@@ -2080,7 +2075,7 @@
              newObj[k] = mappedValue;
              ++k;
            }
-           //assert(values.length === 0);
+           console.assert(values.length === 0);
            return newObj;
          }
          var arrayLike = ToObject(source);
@@ -2303,7 +2298,7 @@
          var comparefn = arguments[0];
 
          function sortCompare(x, y) {
-           //assert(Type(x) === 'number' && Type(y) === 'number');
+           console.assert(Type(x) === 'number' && Type(y) === 'number');
            if (x !== x && y !== y) return +0;
            if (x !== x) return 1;
            if (y !== y) return -1;
@@ -3223,7 +3218,7 @@
 
     function PromiseRejectFunction() {
       var F = function(reason) {
-        //assert(Type(F['[[Promise]]']) === 'object');
+        console.assert(Type(F['[[Promise]]']) === 'object');
         var promise = F['[[Promise]]'];
         var alreadyResolved = F['[[AlreadyResolved]]'];
         if (alreadyResolved['[[value]]']) return undefined;
@@ -3237,7 +3232,7 @@
 
     function PromiseResolveFunction() {
       var F = function(resolution) {
-        //assert(Type(F['[[Promise]]']) === 'object');
+        console.assert(Type(F['[[Promise]]']) === 'object');
         var promise = F['[[Promise]]'];
         var alreadyResolved = F['[[AlreadyResolved]]'];
         if (alreadyResolved['[[value]]']) return undefined;
@@ -3265,7 +3260,7 @@
     // 25.4.1.4 FulfillPromise ( promise, value )
 
     function FulfillPromise(promise, value) {
-      //assert(promise['[[PromiseState]]'] === 'pending');
+      console.assert(promise['[[PromiseState]]'] === 'pending');
       var reactions = promise['[[PromiseFulfillReactions]]'];
       set_internal(promise, '[[PromiseResult]]', value);
       set_internal(promise, '[[PromiseFulfillReactions]]', undefined);
@@ -3285,7 +3280,7 @@
 
     function CreatePromiseCapabilityRecord(promise, constructor) {
       // To keep Promise hermetic, this doesn't look much like the spec.
-      //assert(IsConstructor(constructor));
+      console.assert(IsConstructor(constructor));
       var promiseCapability = {};
       set_internal(promiseCapability, '[[Promise]]', promise);
       set_internal(promiseCapability, '[[Resolve]]', undefined);
@@ -3307,7 +3302,7 @@
 
     function GetCapabilitiesExecutor() {
       var F = function(resolve, reject) {
-        //assert(F['[[Capability]]']);
+        console.assert(F['[[Capability]]']);
         var promiseCapability = F['[[Capability]]'];
         if (promiseCapability['[[Resolve]]'] !== undefined) throw TypeError();
         if (promiseCapability['[[Reject]]'] !== undefined) throw TypeError();
@@ -3330,7 +3325,7 @@
     // 25.4.1.7 RejectPromise ( promise, reason )
 
     function RejectPromise(promise, reason) {
-      //assert(promise['[[PromiseState]]'] === 'pending');
+      console.assert(promise['[[PromiseState]]'] === 'pending');
       var reactions = promise['[[PromiseRejectReactions]]'];
       set_internal(promise, '[[PromiseResult]]', reason);
       set_internal(promise, '[[PromiseFulfillReactions]]', undefined);
@@ -3408,8 +3403,8 @@
     // 25.4.3.1.1 InitializePromise ( promise, executor )
 
     function InitializePromise(promise, executor) {
-      //assert('[[PromiseState]]' in promise);
-      //assert(IsCallable(executor));
+      console.assert('[[PromiseState]]' in promise);
+      console.assert(IsCallable(executor));
       set_internal(promise, '[[PromiseState]]', 'pending');
       set_internal(promise, '[[PromiseFulfillReactions]]', []);
       set_internal(promise, '[[PromiseRejectReactions]]', []);
