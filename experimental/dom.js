@@ -14,17 +14,16 @@
   // Interface ParentNode
   // https://dom.spec.whatwg.org/#interface-parentnode
 
-  function mutationMethodMacro(nodes) {
+  function convertNodesIntoANode(nodes) {
     var node = null;
     nodes = nodes.map(function(node) {
-      return (typeof node !== 'object') ? document.createTextNode(node) : node;
+      return !(node instanceof Node) ? document.createTextNode(node) : node;
     });
-    // TODO: Spec doesn't handle 0 length
-    if (nodes.length !== 1) {
+    if (nodes.length === 1) {
+      node = nodes[0];
+    } else {
       node = document.createDocumentFragment();
       nodes.forEach(function(n) { node.appendChild(n); });
-    } else {
-      node = nodes[0];
     }
     return node;
   }
@@ -32,12 +31,12 @@
   var ParentNode = {
     prepend: function(/*...nodes*/) {
       var nodes = [].slice.call(arguments);
-      nodes = mutationMethodMacro(nodes);
+      nodes = convertNodesIntoANode(nodes);
       this.insertBefore(nodes, this.firstChild);
     },
     append: function(/*...nodes*/) {
       var nodes = [].slice.call(arguments);
-      nodes = mutationMethodMacro(nodes);
+      nodes = convertNodesIntoANode(nodes);
       this.appendChild(nodes);
     }
   };
@@ -52,24 +51,38 @@
   var ChildNode = {
     before: function(/*...nodes*/) {
       var nodes = [].slice.call(arguments);
-      if (!this.parentNode) return;
-      nodes = mutationMethodMacro(nodes);
-      this.parentNode.insertBefore(nodes, this);
+      var parent = this.parentNode;
+      if (!parent) return;
+      var viablePreviousSibling = this.previousSibling;
+      while (nodes.indexOf(viablePreviousSibling) !== -1)
+        viablePreviousSibling = viablePreviousSibling.previousSibling;
+      var node = convertNodesIntoANode(nodes);
+      parent.insertBefore(node, viablePreviousSibling ?
+                          viablePreviousSibling.nextSibling : parent.firstChild);
     },
     after: function(/*...nodes*/) {
       var nodes = [].slice.call(arguments);
-      if (!this.parentNode) return;
-      nodes = mutationMethodMacro(nodes);
-      if (this.nextSibling)
-        this.parentNode.insertBefore(nodes, this.nextSibling);
-      else
-        this.parentNode.appendChild(nodes);
+      var parent = this.parentNode;
+      if (!parent) return;
+      var viableNextSibling = this.nextSibling;
+      while (nodes.indexOf(viableNextSibling) !== -1)
+        viableNextSibling = viableNextSibling.nextSibling;
+      var node = convertNodesIntoANode(nodes);
+      parent.insertBefore(node, viableNextSibling);
     },
     replaceWith: function(/*...nodes*/) {
       var nodes = [].slice.call(arguments);
-      if (!this.parentNode) return;
-      nodes = mutationMethodMacro(nodes);
-      this.parentNode.replaceChild(nodes, this);
+      var parent = this.parentNode;
+      if (!parent) return;
+      var viableNextSibling = this.nextSibling;
+      while (nodes.indexOf(viableNextSibling) !== -1)
+        viableNextSibling = viableNextSibling.nextSibling;
+      var node = convertNodesIntoANode(nodes);
+
+      if (this.parentNode === parent)
+        parent.replaceChild(node, this);
+      else
+        parent.insertBefore(node, viableNextSibling);
     },
     remove: function() {
       if (!this.parentNode) return;

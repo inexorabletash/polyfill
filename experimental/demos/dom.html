@@ -113,4 +113,44 @@ function assert_equals(a, b, m) { assert(a === b, 'Expected ' + b + ', saw: ' + 
   assert_equals(span.parentNode, null);
 }());
 
+// Behavior when nodes contains context node or siblings
+(function(){
+  function span(t) {
+    var s = document.createElement('span');
+    s.append(t);
+    return s;
+  }
+  var s1 = span('1');
+  var s2 = span('2');
+  var s3 = span('3');
+  var s4 = span('4');
+
+  var div = document.createElement('div');
+  function reset() {
+    div.append(s1, s2, s3, s4);
+    assert_equals(div.textContent, '1234');
+  }
+
+  reset();
+  s2.replaceWith(s3, s2);
+  assert_equals(div.textContent, '1324', 'replaceWith should handle replacing self');
+
+  reset();
+  s1.before(s3, s2, s1);
+  assert_equals(div.textContent, '3214', 'before should handle replacing self');
+
+  reset();
+  s2.before(s3, s2, s1);
+  assert_equals(div.textContent, '3214', 'before should work when prior is removed');
+
+  reset();
+  s4.after(s4, s3, s2);
+  assert_equals(div.textContent, '1432', 'after should handle replacing self');
+
+  reset();
+  s3.after(s4, s3, s2);
+  assert_equals(div.textContent, '1432', 'after should work when successor is removed');
+}());
+
+
 </script>
