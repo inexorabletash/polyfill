@@ -750,7 +750,7 @@
       if (init)
         pairs = parse(init);
 
-      this._setPairs = function (list) { pairs = list; };
+      this._setPairs = function (list) { if (!updating) pairs = list; };
       this._updateSteps = function () { updateSteps(); };
 
       var updating = false;
@@ -759,6 +759,11 @@
         updating = true;
 
         // TODO: For all associated url objects
+
+        // Partial workaround for IE issue with 'about:'
+        if (url_object.protocol === 'about:' && url_object.pathname.indexOf('?') !== -1)
+          url_object.pathname = url_object.pathname.split('?')[0];
+
         url_object.search = serialize(pairs);
 
         updating = false;
@@ -1689,7 +1694,7 @@
       if (init)
         pairs = parse(init);
 
-      this._setPairs = function (list) { pairs = list; };
+      this._setPairs = function (list) { if (!updating) pairs = list; };
       this._updateSteps = function () { updateSteps(); };
 
       var updating = false;
@@ -1698,6 +1703,11 @@
         updating = true;
 
         // TODO: For all associated url objects
+
+        // Partial workaround for IE issue with 'about:'
+        if (url_object.protocol === 'about:' && url_object.pathname.indexOf('?') !== -1)
+          url_object.pathname = url_object.pathname.split('?')[0];
+
         url_object.search = serialize(pairs);
 
         updating = false;

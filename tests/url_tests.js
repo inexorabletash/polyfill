@@ -198,3 +198,11 @@ if ('Symbol' in self && 'iterator' in self.Symbol) {
     deepEqual(it.next(), {done: true, value: undefined});
   });
 }
+
+test('Regression tests', function() {
+  // IE mangles the pathname when assigning to search with 'about:' URLs
+  var p = new URL('about:blank').searchParams;
+  p.append('a', 1);
+  p.append('b', 2);
+  equal(p.toString(), 'a=1&b=2');
+});
