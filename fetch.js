@@ -399,6 +399,7 @@
       this.type = 'basic'; // TODO: ResponseType
       this.url = ScalarValueString(xhr._url);
       this.status = xhr.status;
+      this.ok = this.status >= 200 && this.status < 300
       this.statusText = xhr.statusText;
       xhr.getAllResponseHeaders()
         .split(/\r?\n/)
@@ -422,6 +423,7 @@
     if ('status' in init) {
       if (ushort(init.status) < 200 || ushort(init.status) > 599) throw RangeError();
       this.status = ushort(init.status);
+      this.ok = this.status >= 200 && this.status < 300
     }
 
     // readonly attribute ByteString statusText;
