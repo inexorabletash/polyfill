@@ -5627,7 +5627,8 @@ function __cons(t, a) {
 
   // Constructor(optional FetchBodyInit body, optional ResponseInit init)
   function Response(body, init) {
-    if (arguments.length < 1) throw TypeError('Not enough arguments');
+    if (arguments.length < 1)
+      body = '';
 
     this.headers = new Headers();
     this.headers._guard = 'response';
@@ -5638,6 +5639,7 @@ function __cons(t, a) {
       this.type = 'basic'; // TODO: ResponseType
       this.url = ScalarValueString(xhr._url);
       this.status = xhr.status;
+      this.ok = 200 <= this.status && this.status <= 299;
       this.statusText = xhr.statusText;
       xhr.getAllResponseHeaders()
         .split(/\r?\n/)
@@ -5658,14 +5660,18 @@ function __cons(t, a) {
     this.url = '';
 
     // readonly attribute unsigned short status;
-    if ('status' in init) {
-      if (ushort(init.status) < 200 || ushort(init.status) > 599) throw RangeError();
-      this.status = ushort(init.status);
-    }
+    var status = 'status' in init ? ushort(init.status) : 200;
+    if (status < 200 || status > 599) throw RangeError();
+    this.status = status;
+
+    // readonly attribute boolean ok;
+    this.ok = 200 <= this.status && this.status <= 299;
 
     // readonly attribute ByteString statusText;
-    if ('statusText' in init)
-      this.statusText = String(init.statusText); // TODO: Validate
+    var statusText = 'statusText' in init ? String(init.statusText) : 'OK';
+    console.log(JSON.stringify(statusText));
+    if (/[^\x00-\xFF]/.test(statusText)) throw TypeError();
+    this.statusText = statusText;
 
     // readonly attribute Headers headers;
     if ('headers' in init) fill(this.headers, init);
@@ -5718,7 +5724,7 @@ function __cons(t, a) {
   }
 
   // Exported
-  if (!('fetch' in global)) {
+  if (true || !('fetch' in global)) {
     global.Headers = Headers;
     global.Request = Request;
     global.Response = Response;
@@ -6571,7 +6577,8 @@ function __cons(t, a) {
 
   // Constructor(optional FetchBodyInit body, optional ResponseInit init)
   function Response(body, init) {
-    if (arguments.length < 1) throw TypeError('Not enough arguments');
+    if (arguments.length < 1)
+      body = '';
 
     this.headers = new Headers();
     this.headers._guard = 'response';
@@ -6582,6 +6589,7 @@ function __cons(t, a) {
       this.type = 'basic'; // TODO: ResponseType
       this.url = ScalarValueString(xhr._url);
       this.status = xhr.status;
+      this.ok = 200 <= this.status && this.status <= 299;
       this.statusText = xhr.statusText;
       xhr.getAllResponseHeaders()
         .split(/\r?\n/)
@@ -6602,14 +6610,18 @@ function __cons(t, a) {
     this.url = '';
 
     // readonly attribute unsigned short status;
-    if ('status' in init) {
-      if (ushort(init.status) < 200 || ushort(init.status) > 599) throw RangeError();
-      this.status = ushort(init.status);
-    }
+    var status = 'status' in init ? ushort(init.status) : 200;
+    if (status < 200 || status > 599) throw RangeError();
+    this.status = status;
+
+    // readonly attribute boolean ok;
+    this.ok = 200 <= this.status && this.status <= 299;
 
     // readonly attribute ByteString statusText;
-    if ('statusText' in init)
-      this.statusText = String(init.statusText); // TODO: Validate
+    var statusText = 'statusText' in init ? String(init.statusText) : 'OK';
+    console.log(JSON.stringify(statusText));
+    if (/[^\x00-\xFF]/.test(statusText)) throw TypeError();
+    this.statusText = statusText;
 
     // readonly attribute Headers headers;
     if ('headers' in init) fill(this.headers, init);
@@ -6662,7 +6674,7 @@ function __cons(t, a) {
   }
 
   // Exported
-  if (!('fetch' in global)) {
+  if (true || !('fetch' in global)) {
     global.Headers = Headers;
     global.Request = Request;
     global.Response = Response;

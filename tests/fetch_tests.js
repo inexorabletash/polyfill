@@ -33,6 +33,7 @@ promiseTest('basic fetch', function() {
   return fetch('sample.txt')
     .then(function(response) {
       equal(response.status, 200, 'Response status should be 200');
+      equal(response.ok, true, 'Response should be ok');
       return response.text();
     })
     .then(function(text) {
@@ -44,6 +45,7 @@ promiseTest('basic failed fetch', function() {
   return fetch('no-such-resource')
     .then(function(response) {
       equal(response.status, 404, 'Response status should be 404');
+      equal(response.ok, false, 'Response should be not ok');
       equal(response.statusText, 'Not Found', 'Response status should be "Not Found"');
     });
 });
@@ -73,7 +75,7 @@ promiseTest('Response.text()', function() {
       return response.text();
     })
     .then(function(text) {
-      equal(text, '{"key": "value"}\n', 'asText should produce string');
+      equal(text, '{"key": "value"}\n', 'text() should produce string');
     });
 });
 
@@ -83,7 +85,7 @@ promiseTest('Response.json()', function() {
       return response.json();
     })
     .then(function(json) {
-      deepEqual(json, {key: 'value'}, 'asJSON should parse JSON data file');
+      deepEqual(json, {key: 'value'}, 'json() should parse JSON data file');
     });
 });
 
@@ -95,7 +97,7 @@ promiseTest('Response.arrayBuffer()', function() {
     .then(function(buffer) {
       deepEqual([].slice.call(new Uint8Array(buffer)),
                 [123, 34, 107, 101, 121, 34, 58, 32, 34, 118, 97, 108, 117, 101, 34, 125, 10],
-               'asArrayBuffer should return buffer with expected octets');
+               'arrayBuffer() should return buffer with expected octets');
     });
 });
 
@@ -105,11 +107,11 @@ promiseTest('Response.blob()', function() {
       return response.blob();
     })
     .then(function(blob) {
-      equal(blob.size, 17, 'asBlob should yield appropriately sized Blob');
+      equal(blob.size, 17, 'blob() should yield appropriately sized Blob');
       return blobAsText(blob);
     })
     .then(function(text) {
-      equal(text, '{"key": "value"}\n', 'asBlob should decode to expected text');
+      equal(text, '{"key": "value"}\n', 'blob() should decode to expected text');
     });
 });
 
@@ -153,6 +155,27 @@ test('Request constructor - Request', function() {
   equal(r.headers.get('A'), null);
   equal(r.headers.get('B'), '2');
 });
+
+test('Response constructor', function() {
+  equal(new Response().status, 200);
+  equal(new Response().statusText, 'OK');
+  equal(new Response().ok, true);
+  equal(new Response('', {status: 234}).status, 234);
+  equal(new Response('', {status: 234}).ok, true);
+  equal(new Response('', {status: 345}).ok, false);
+  equal(new Response('', {statusText: 'nope'}).statusText, 'nope');
+  raises(function() { new Response('', {status: 0}); });
+  raises(function() { new Response('', {status: 600}); });
+  raises(function() { new Response('', {statusText: 'bogus \u0100'}); });
+});
+
+promiseTest('Synthetic Response.text()', function() {
+  return new Response('sample body').text()
+    .then(function(text) {
+      equal(text, 'sample body');
+    });
+});
+
 
 promiseTest('FormData POST (via httpbin.org)', function() {
   var fd = new FormData();
