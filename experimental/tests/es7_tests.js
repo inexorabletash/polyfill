@@ -97,6 +97,14 @@ test("Proposed String Extras", function() {
   assertEqual("'a'.padRight(3, '__')", 'a__');
   assertEqual("'a'.padRight(2, '[]')", 'a[');
 
+  equal(''.trimLeft(), '');
+  equal('a'.trimLeft(), 'a');
+  equal(' \t\r\n\u00A0a \t\r\n\u00A0'.trimLeft(), 'a \t\r\n\u00A0');
+  equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimLeft(), '');
+  equal(''.trimRight(), '');
+  equal('a'.trimRight(), 'a');
+  equal(' \t\r\n\u00A0a \t\r\n\u00A0'.trimRight(), ' \t\r\n\u00A0a');
+  equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimRight(), '');
 });
 
 test("Proposed Math Extras", function() {

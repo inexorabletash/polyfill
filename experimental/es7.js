@@ -346,6 +346,21 @@
       return s + stringFiller.substring(0, fillLen);
     });
 
+  // https://gist.github.com/DmitrySoshnikov/65a2070477fffb465048
+  define(
+    String.prototype, 'trimLeft',
+    function trimLeft() {
+      return String(this).replace(/^\s+/, '');
+    });
+
+  // https://gist.github.com/DmitrySoshnikov/65a2070477fffb465048
+  define(
+    String.prototype, 'trimRight',
+    function trimRight() {
+      return String(this).replace(/\s+$/, '');
+    });
+
+
   var MIN_NORMALIZED_F32 = Math.pow(2,-126);
   var MIN_NORMALIZED_F64 = Math.pow(2,-1022);
 
