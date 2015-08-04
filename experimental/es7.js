@@ -298,42 +298,52 @@
 
   // http://wiki.ecmascript.org/doku.php?id=strawman:string_padding
   define(
-    String.prototype, 'lpad',
-    function lpad() {
-      var minLength = arguments[0];
-      var fillStr = arguments[1];
+    String.prototype, 'padLeft',
+    function padLeft(maxLength) {
+      var fillString = arguments[1];
 
+      var o = this;
+      // ReturnIfAbrupt(o)
       var s = String(this);
-      if (minLength === undefined) return s; // NOTE: Wiki is bogus here
-      var intMinLength = ToInteger(minLength);
-      var fillLen = intMinLength - s.length; // NOTE: Wiki is bogus here
-      if (fillLen < 0) throw RangeError();
-      if (fillLen === Infinity) throw RangeError();
-      var sFillStr = String(fillStr);
-      if (fillStr === undefined) sFillStr = ' '; // NOTE: Wiki is bogus here
-      var sFillVal = '';
-      while (sFillVal.length < fillLen) sFillVal += sFillStr;
-      return sFillVal + s;
+      // ReturnIfAbrupt(s)
+      var stringLength = s.length;
+      if (fillString === undefined) var fillStr = '';
+      else fillStr = String(fillString);
+      // ReturnIfAbrupt(fillStr)
+      if (fillStr === '') fillStr = ' ';
+      var intMaxLength = ToLength(maxLength);
+      // ReturnIfAbrupt(intMaxLength)
+      if (intMaxLength <= stringLength) return s;
+      var fillLen = intMaxLength - stringLength;
+      var stringFiller = '';
+      while (stringFiller.length < fillLen)
+        stringFiller = stringFiller + fillStr;
+      return stringFiller.substring(0, fillLen) + s;
     });
 
   // http://wiki.ecmascript.org/doku.php?id=strawman:string_padding
   define(
-    String.prototype, 'rpad',
-    function rpad() {
-      var minLength = arguments[0];
-      var fillStr = arguments[1];
+    String.prototype, 'padRight',
+    function padRight(maxLength) {
+      var fillString = arguments[1];
 
+      var o = this;
+      // ReturnIfAbrupt(o)
       var s = String(this);
-      if (minLength === undefined) return s; // NOTE: Wiki is bogus here
-      var intMinLength = ToInteger(minLength);
-      var fillLen = intMinLength - s.length; // NOTE: Wiki is bogus here
-      if (fillLen < 0) throw RangeError();
-      if (fillLen === Infinity) throw RangeError();
-      var sFillStr = String(fillStr);
-      if (fillStr === undefined) sFillStr = ' '; // NOTE: Wiki is bogus here
-      var sFillVal = '';
-      while (sFillVal.length < fillLen) sFillVal += sFillStr;
-      return s + sFillVal;
+      // ReturnIfAbrupt(s)
+      var stringLength = s.length;
+      if (fillString === undefined) var fillStr = '';
+      else fillStr = String(fillString);
+      // ReturnIfAbrupt(fillStr)
+      if (fillStr === '') fillStr = ' ';
+      var intMaxLength = ToLength(maxLength);
+      // ReturnIfAbrupt(intMaxLength)
+      if (intMaxLength <= stringLength) return s;
+      var fillLen = intMaxLength - stringLength;
+      var stringFiller = '';
+      while (stringFiller.length < fillLen)
+        stringFiller = stringFiller + fillStr;
+      return s + stringFiller.substring(0, fillLen);
     });
 
   var MIN_NORMALIZED_F32 = Math.pow(2,-126);

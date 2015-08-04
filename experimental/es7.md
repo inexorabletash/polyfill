@@ -10,7 +10,7 @@
 * Reflection: `Object.getPropertyDescriptor(o)`, `Object.getPropertyNames(o)`
 * RegExp extras: `RegExp.escape()` [ref](http://esdiscuss.org/topic/regexp-escape)
 * String extras: `String.prototype.at()` [ref](http://wiki.ecmascript.org/doku.php?id=strawman:string_at),
-  `String.prototype.lpad()`, `String.prototype.rpad()` [ref](http://wiki.ecmascript.org/doku.php?id=strawman:string_padding)
+  `String.prototype.padLeft()`, `String.prototype.padRight()` [ref](http://wiki.ecmascript.org/doku.php?id=strawman:string_padding)
 
 
 

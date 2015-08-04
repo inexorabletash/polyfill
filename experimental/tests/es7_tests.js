@@ -83,19 +83,19 @@ test("Proposed String Extras", function() {
   assertEqual("'\uDC00'.at(0)", '\uDC00');
   assertEqual("'\uD800\uDC00'.at(1)", '\uDC00');
 
-  assertEqual("'a'.lpad()", 'a');
-  assertEqual("'a'.lpad(1)", 'a');
-  assertEqual("'a'.lpad(2)", ' a');
-  assertEqual("'a'.lpad(2, '_')", '_a');
-  assertEqual("'a'.lpad(3, '_')", '__a');
-  assertEqual("'a'.lpad(2, '[]')", '[]a');
+  assertEqual("'a'.padLeft()", 'a');
+  assertEqual("'a'.padLeft(1)", 'a');
+  assertEqual("'a'.padLeft(2)", ' a');
+  assertEqual("'a'.padLeft(2, '_')", '_a');
+  assertEqual("'a'.padLeft(3, '_')", '__a');
+  assertEqual("'a'.padLeft(2, '[]')", '[a');
 
-  assertEqual("'a'.rpad()", 'a');
-  assertEqual("'a'.rpad(1)", 'a');
-  assertEqual("'a'.rpad(2)", 'a ');
-  assertEqual("'a'.rpad(2, '_')", 'a_');
-  assertEqual("'a'.rpad(3, '__')", 'a__');
-  assertEqual("'a'.rpad(2, '[]')", 'a[]');
+  assertEqual("'a'.padRight()", 'a');
+  assertEqual("'a'.padRight(1)", 'a');
+  assertEqual("'a'.padRight(2)", 'a ');
+  assertEqual("'a'.padRight(2, '_')", 'a_');
+  assertEqual("'a'.padRight(3, '__')", 'a__');
+  assertEqual("'a'.padRight(2, '[]')", 'a[');
 
 });
 
