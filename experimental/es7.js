@@ -141,6 +141,20 @@
   var SameValue = Object.is;
 
   //----------------------------------------
+  // 7.3 Operations on Objects
+  //----------------------------------------
+
+  // 7.3.4
+  function CreateDataProperty(O, P, V) {
+    Object.defineProperty(O, P, {
+      value: V,
+      writable: true,
+      enumerable: true,
+      configurable: true
+    });
+  }
+
+  //----------------------------------------
   // 9 ECMAScript Ordinary and Exotic Objects Behaviors
   //----------------------------------------
 
@@ -197,12 +211,16 @@
     Object, 'getOwnPropertyDescriptors',
     function getOwnPropertyDescriptors(o) {
       var obj = ToObject(o);
+      // ReturnIfAbrupt(obj)
       var keys = Object.getOwnPropertyNames(obj);
+      // ReturnIfAbrupt(keys)
       var descriptors = {};
       for (var i = 0; i < keys.length; ++i) {
         var nextKey = keys[i];
-        var desc = Object.getOwnPropertyDescriptor(obj, nextKey);
-        descriptors[nextKey] = desc;
+        var descriptor = Object.getOwnPropertyDescriptor(obj, nextKey);
+        // ReturnIfAbrupt(desc)
+        // ReturnIfAbrupt(descriptor)
+        CreateDataProperty(descriptors, nextKey, descriptor);
       }
       return descriptors;
     });
@@ -269,13 +287,6 @@
     Object, 'entries',
     function entries(o) {
       return Object.keys(o).map(function(p) { return [p, o[p]]; });
-    });
-
-  // http://esdiscuss.org/topic/regexp-escape
-  define(
-    RegExp, 'escape',
-    function escape(s) {
-      return String(s).replace(/[^a-zA-Z0-9]/g, '\\$&');
     });
 
   // http://wiki.ecmascript.org/doku.php?id=strawman:string_at

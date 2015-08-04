@@ -70,10 +70,6 @@ test("Proposed Object Extras", function() {
   delete d;
 });
 
-test("Proposed RegExp Extras", function() {
-  assertTrue("new RegExp(RegExp.escape('[]{}()*+?.^$|')).test('[]{}()*+?.^$|')");
-});
-
 test("Proposed String Extras", function() {
   assertEqual("'a'.at(0)", 'a');
   assertEqual("'a'.at(-1)", '');
