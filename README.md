@@ -6,15 +6,33 @@ polyfill - JavaScript Polyfills, Shims and More
 * A *prollyfill* is a shim for a proposed API
 * A *helper* helps write cross-browser code where a true API shim/polyfill is not possible.
 
-Note that my general approach to polyfills is not to produce 100% compliant behavior, but to provide a broad subset of functionality so that, where possible, cooperative code can be written to take advantage of new APIs. No assumptions should be made about security or edge cases. It is preferrable to use a shim where it is possible to create one on supported browsers. If not possible, a helper should be used that lets the same code be used in all browsers.
+My philosophy is that it's better to write future-looking code that takes advantage of new Web platform APIs where possible, and fill in the gaps with polyfills. There is no effort to produce 100% compliant behavior, or to completely hide differences in browser behavior. 
 
-I use these in various pages on my sites; most are by me, or I have at least tweaked them. A more comprehensive list can be found at [The All-In-One Entirely-Not-Alphabetical No-Bullshit Guide to HTML5 Fallbacks](https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills) by Paul Irish.
+I use these in various pages on my sites; most are by me, or I have at least tweaked them. A more comprehensive list of polyfills can be found at [The All-In-One Entirely-Not-Alphabetical No-Bullshit Guide to HTML5 Fallbacks](https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills) by Paul Irish.
 
-* See [web.js](web.js) for a bundle of the most common Web polyfills (assumes ES6)
+### Getting the Code ###
+
+You're already here! Great, just download it, or use:
+
+[git](https://git-scm.com/): `git clone https://github.com/inexorabletash/polyfill.git`
+
+[bower](http://bower.io/): `bower install text-encoding`
+
+[npm](https://www.npmjs.com/): `npm install text-encoding`
+
+> It is *not* packaged as Node.js module(s); there's nothing to `require()`, this is just for distribution.
+
+### Files ###
+
+The polyfills are roughly split up into files matching 1:1 with Web standards (specifications, living standards documents, etc). So there is [html.js](html.js) for [HTML](https://html.spec.whatwg.org), [dom.js](dom.js) for [DOM](https://dom.spec.whatwg.org), etc.
+
+Since I generally use several in my hobby projects, bundled/minified versions are available:
+
+* [web.js](web.js) (minified: [web.min.js](web.min.js)) includes the most common Web polyfills - it assumes ES6 support
   * Includes: [html.js](html.js) [dom.js](dom.js) [xhr.js](xhr.js) [cssom.js](cssom.js) [timing.js](timing.js) [url.js](url.js) [fetch.js](fetch.js)
-* And [polyfill.js](polyfill.js) has everything in [web.js](web.js) plus [es5.js](es5.js) and [es6.js](es6.js)
-* Minified [web.min.js](web.min.js) and [polyfill.min.js](polyfill.min.js) are also provided c/o
-  http://javascript-minifier.com/
+* [polyfill.js](polyfill.js) (minified: [polyfill.min.js](polyfill.min.js)) has everything in [web.js](web.js) plus [es5.js](es5.js) and [es6.js](es6.js)
+
+Minification is done via http://javascript-minifier.com/
 
 
 ECMAScript / JavaScript Polyfills
