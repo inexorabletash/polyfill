@@ -1,0 +1,40 @@
+{
+  "name": "js-polyfills",
+  "author": "Joshua Bell <inexorabletash@gmail.com>",
+  "version": "0.1.7",
+  "description": "Collection of Web polyfills.",
+  "main": "polyfill.js",
+  "files": [
+    "README.md",
+    "LICENSE.md",
+    "polyfill.min.js",
+    "web.js",
+    "web.min.js",
+    "es5.md",
+    "es5.js",
+    "es6.md",
+    "es6.js",
+    "html.js",
+    "dom.js",
+    "xhr.js",
+    "url.js",
+    "fetch.js",
+    "cssom.js",
+    "timing.js",
+    "keyboard.md",
+    "keyboard.js",
+    "typedarray.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/inexorabletash/polyfill.git"
+  },
+  "keywords": [
+    "polyfill",
+    "standards",
+  ],
+  "bugs": {
+    "url": "https://github.com/inexorabletash/polyfill/issues"
+  },
+  "homepage": "https://github.com/inexorabletash/polyfill"
+}
