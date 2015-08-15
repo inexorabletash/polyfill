@@ -1461,7 +1461,7 @@
   }
 
   // Exported
-  if (true || !('fetch' in global)) {
+  if ('fetch' in global) {
     global.Headers = Headers;
     global.Request = Request;
     global.Response = Response;
@@ -2411,7 +2411,7 @@
   }
 
   // Exported
-  if (true || !('fetch' in global)) {
+  if ('fetch' in global) {
     global.Headers = Headers;
     global.Request = Request;
     global.Response = Response;
