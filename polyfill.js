@@ -5724,7 +5724,7 @@ function __cons(t, a) {
   }
 
   // Exported
-  if ('fetch' in global) {
+  if (!('fetch' in global)) {
     global.Headers = Headers;
     global.Request = Request;
     global.Response = Response;
@@ -6674,7 +6674,7 @@ function __cons(t, a) {
   }
 
   // Exported
-  if ('fetch' in global) {
+  if (!('fetch' in global)) {
     global.Headers = Headers;
     global.Request = Request;
     global.Response = Response;
