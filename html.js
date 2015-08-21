@@ -33,8 +33,11 @@
         var attr = this.attributes[i];
         if (attr.specified && attr.name.substring(0, 5) === 'data-') {
           (function(element, name) {
-            result[name] = element.getAttribute('data-' + name); // Read-only, for IE8-
-            Object.defineProperty(result, name, {
+            var prop = name.replace(/-([a-z])/g, function(m, p) {
+              return p.toUpperCase();
+            });
+            result[prop] = element.getAttribute('data-' + name); // Read-only, for IE8-
+            Object.defineProperty(result, prop, {
               get: function() {
                 return element.getAttribute('data-' + name);
               },

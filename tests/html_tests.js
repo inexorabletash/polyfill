@@ -28,9 +28,10 @@ test("Element.dataset and data-* attributes", function () {
 
   // dataset
   if ('dataset' in document.getElementById('datadiv')) {
-    expect(5);
+    expect(6);
     assertEqual("document.getElementById('datadiv').dataset.foo", "bar");
     assertEqual("document.getElementById('datadiv').dataset.bar", "123");
+    assertEqual("document.getElementById('datadiv').dataset.aaBbCc", "abc");
     assertEqual("document.getElementById('dataspan').dataset['123']", "blah"); // Broken in Chrome 23!
     assertTrue("!document.getElementById('dataspan').dataset['abc']");
 
