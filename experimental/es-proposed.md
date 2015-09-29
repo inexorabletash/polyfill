@@ -1,7 +1,7 @@
-# ES7
+# ECMAScript - Proposals for Future Editions
 
-[script](es7.js) -
-[unit tests](http://inexorabletash.github.io/polyfill/experimental/tests/es7.html)
+[script](es-proposed.js) -
+[unit tests](http://inexorabletash.github.io/polyfill/experimental/tests/es-proposed.html)
 
 #### Stage 3
 

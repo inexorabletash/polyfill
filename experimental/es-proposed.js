@@ -166,7 +166,7 @@
 
   //----------------------------------------------------------------------
   //
-  // ECMAScript 7 Strawman Proposals
+  // ECMAScript Proposals
   //
   //----------------------------------------------------------------------
 
@@ -248,8 +248,7 @@
       return;
     });
 
-  // https://github.com/domenic/Array.prototype.contains/
-  // TC39 2014-11 renamed to 'includes'
+  // https://github.com/tc39/Array.prototype.includes/
   define(
     Array.prototype, 'includes',
     function includes(target) {
@@ -277,19 +276,21 @@
       return false;
     });
 
+  // https://github.com/ljharb/proposal-object-values-entries
   define(
     Object, 'values',
     function values(o) {
       return Object.keys(o).map(function(p) { return o[p]; });
     });
 
+  // https://github.com/ljharb/proposal-object-values-entries
   define(
     Object, 'entries',
     function entries(o) {
       return Object.keys(o).map(function(p) { return [p, o[p]]; });
     });
 
-  // http://wiki.ecmascript.org/doku.php?id=strawman:string_at
+  // https://github.com/mathiasbynens/String.prototype.at
   define(
     String.prototype, 'at',
     function at(pos) {
@@ -307,7 +308,7 @@
       return String.fromCharCode(cuFirst, cuSecond);
     });
 
-  // http://wiki.ecmascript.org/doku.php?id=strawman:string_padding
+  // https://github.com/ljharb/proposal-string-pad-left-right
   define(
     String.prototype, 'padLeft',
     function padLeft(maxLength) {
@@ -332,7 +333,7 @@
       return stringFiller.substring(0, fillLen) + s;
     });
 
-  // http://wiki.ecmascript.org/doku.php?id=strawman:string_padding
+  // https://github.com/ljharb/proposal-string-pad-left-right
   define(
     String.prototype, 'padRight',
     function padRight(maxLength) {
@@ -357,14 +358,14 @@
       return s + stringFiller.substring(0, fillLen);
     });
 
-  // https://gist.github.com/DmitrySoshnikov/65a2070477fffb465048
+  // https://github.com/sebmarkbage/ecmascript-string-left-right-trim
   define(
     String.prototype, 'trimLeft',
     function trimLeft() {
       return String(this).replace(/^\s+/, '');
     });
 
-  // https://gist.github.com/DmitrySoshnikov/65a2070477fffb465048
+  // https://github.com/sebmarkbage/ecmascript-string-left-right-trim
   define(
     String.prototype, 'trimRight',
     function trimRight() {

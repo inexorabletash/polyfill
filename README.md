@@ -6,7 +6,7 @@ polyfill - JavaScript Polyfills, Shims and More
 * A *prollyfill* is a shim for a proposed API
 * A *helper* helps write cross-browser code where a true API shim/polyfill is not possible.
 
-My philosophy is that it's better to write future-looking code that takes advantage of new Web platform APIs where possible, and fill in the gaps with polyfills. There is no effort to produce 100% compliant behavior, or to completely hide differences in browser behavior. 
+My philosophy is that it's better to write future-looking code that takes advantage of new Web platform APIs where possible, and fill in the gaps with polyfills. There is no effort to produce 100% compliant behavior, or to completely hide differences in browser behavior.
 
 I use these in various pages on my sites; most are by me, or I have at least tweaked them. A more comprehensive list of polyfills can be found at [The All-In-One Entirely-Not-Alphabetical No-Bullshit Guide to HTML5 Fallbacks](https://github.com/Modernizr/Modernizr/wiki/HTML5-Cross-browser-Polyfills) by Paul Irish.
 
@@ -42,7 +42,7 @@ ECMAScript / JavaScript Polyfills
 
 [ECMAScript 6](es6.md) - Based on nearly complete draft standard. Should be stable apart from bug fixes.
 
-[ECMAScript 7](experimental/es7.md) - At the initial proposal/strawman stage. Here there be dragons.
+[ECMAScript proposed](experimental/es-proposed.md) - Proposals for future editions of the standard. Here there be dragons.
 
 [JavaScript 1.X String Extras](js.js) - [ref](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String)
   * String prototype: `trimLeft`, `trimRight`, `quote`
