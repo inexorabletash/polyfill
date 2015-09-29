@@ -67,6 +67,10 @@ test("Proposed Object Extras", function() {
                  value: 2
                 }
              });
+
+  deepEqual(Object.values({a: 1, get b(){delete this.c; return 2}, c: 3}), [1,2]);
+  deepEqual(Object.entries({a: 1, get b(){delete this.c; return 2}, c: 3}), [['a',1],['b',2]]);
+
   delete d;
 });
 

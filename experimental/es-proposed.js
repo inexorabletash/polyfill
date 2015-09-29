@@ -280,15 +280,34 @@
   define(
     Object, 'values',
     function values(o) {
-      return Object.keys(o).map(function(p) { return o[p]; });
+      var obj = ToObject(o);
+      return EnumerableOwnPropertiesAbstraction(obj, 'value');
     });
 
   // https://github.com/ljharb/proposal-object-values-entries
   define(
     Object, 'entries',
     function entries(o) {
-      return Object.keys(o).map(function(p) { return [p, o[p]]; });
+      var obj = ToObject(o);
+      return EnumerableOwnPropertiesAbstraction(obj, 'key+value');
     });
+
+  function EnumerableOwnPropertiesAbstraction(o, kind) {
+    var ownKeys = Object.keys(o);
+    var properties = [];
+    ownKeys.forEach(function(key) {
+      var desc = Object.getOwnPropertyDescriptor(o, key);
+      if (desc && desc.enumerable) {
+        if (kind === 'key') properties.push(key);
+        else {
+          var value = o[key];
+          if (kind === 'value') properties.push(value);
+          else properties.push([key, value]);
+        }
+      }
+    });
+    return properties;
+  }
 
   // https://github.com/mathiasbynens/String.prototype.at
   define(
