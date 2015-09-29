@@ -3,24 +3,34 @@
 [script](es7.js) -
 [unit tests](http://inexorabletash.github.io/polyfill/experimental/tests/es7.html)
 
-#### Stage 1
+#### Stage 3
 
 * `Array.prototype.includes()` [ref](https://github.com/domenic/Array.prototype.contains/)
-* String prototype: `trimLeft()`, `trimRight()` [ref](https://gist.github.com/DmitrySoshnikov/65a2070477fffb465048)
+
+See also:
+
+* SIMD - see https://github.com/tc39/ecmascript_simd/blob/master/src/ecmascript_simd.js
+
+#### Stage 2
+
+* Object iterators: `Object.values()`, `Object.entries()` [ref](https://github.com/ljharb/proposal-object-values-entries)
+
+See also:
+
+* [Object.observe polyfill](https://gist.github.com/inexorabletash/8010316)
+
+#### Stage 1
+
+* String prototype: `trimLeft()`, `trimRight()` [ref](https://github.com/sebmarkbage/ecmascript-string-left-right-trim)
+* String padding:  `padLeft()`, `padRight()` [ref](https://github.com/ljharb/proposal-string-pad-left-right)
 
 #### Stage 0
 
-* String padding:  `padLeft()`, `padRight()` [ref](http://wiki.ecmascript.org/doku.php?id=strawman:string_padding),
-* `String.prototype.at()` [ref](http://wiki.ecmascript.org/doku.php?id=strawman:string_at),
+* `String.prototype.at()` [ref](https://github.com/mathiasbynens/String.prototype.at)
 * `Object.getOwnPropertyDescriptors` [ref](https://gist.github.com/WebReflection/9353781)
 
 #### Informal Proposals
 
 * Number: `compare()`
 * Array prototype: `pushAll()`
-* Object iterators: `Object.values()`, `Object.entries()`
 * Reflection: `Object.getPropertyDescriptor(o)`, `Object.getPropertyNames(o)`
-
-
-### See Also
-* [Object.observe polyfill](https://gist.github.com/inexorabletash/8010316)
