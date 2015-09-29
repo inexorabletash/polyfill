@@ -134,3 +134,22 @@ test("Proposed Math Extras", function() {
   assertEqual("Math.fdenormz(-Math.pow(2,-1023))", -0);
   assertEqual("Math.fdenormz(-Number.MIN_VALUE)", -0);
 });
+
+test("String.prototype.matchAll", function() {
+  function matchAllTest(string, regex, expected) {
+    var results = [];
+    for (var iter = string.matchAll(regex), step = iter.next(); !step.done; step = iter.next()) {
+      results.push(step.value[0]);
+    }
+    deepEqual(results, expected);
+  }
+
+  matchAllTest('banana CAKE', /a./, ['an', 'an', 'a ']);
+  matchAllTest('banana CAKE', /a./g, ['an', 'an', 'a ']);
+  matchAllTest('banana CAKE', /A./, ['AK']);
+  matchAllTest('banana CAKE', /A./g, ['AK']);
+  matchAllTest('banana CAKE', /a./i, ['an', 'an', 'a ', 'AK']);
+  matchAllTest('banana CAKE', /a./ig, ['an', 'an', 'a ', 'AK']);
+
+  throws(function() { 'abc'.matchAll({}); }, TypeError);
+});

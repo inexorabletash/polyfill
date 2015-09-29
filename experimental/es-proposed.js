@@ -440,4 +440,44 @@
       return z1 | 0;
     });
 
+  // https://github.com/ljharb/String.prototype.matchAll
+  define(
+    String.prototype, 'matchAll',
+    function matchAll(regexp) {
+      var o = strict(this);
+      if (!(regexp instanceof RegExp)) throw TypeError();
+      var s = String(o);
+      var flags = String(regexp['flags']);
+      if (flags.indexOf('g') === -1) flags = flags + 'g';
+      var rx = new RegExp(regexp.source, flags);
+      var lastIndex = ToLength(regexp['lastIndex']);
+      rx['lastIndex'] = lastIndex;
+      return CreateRegExpStringIterator(rx, s);
+    });
+
+  function CreateRegExpStringIterator(regexp, string) {
+    var iterator = Object.create($RegExpStringIteratorPrototype$);
+    iterator['[[IteratingRegExp]]'] = regexp;
+    iterator['[[IteratedString]]'] = string;
+    return iterator;
+  }
+
+  var $RegExpStringIteratorPrototype$ = Object.create({}); // TODO: %IteratorPrototype%
+
+  define(
+    $RegExpStringIteratorPrototype$, 'next',
+    function next() {
+      var o = strict(this);
+      if (Type(o) !== 'object') throw TypeError();
+      var regexp = o['[[IteratingRegExp]]'];
+      var string = o['[[IteratedString]]'];
+      var match = regexp.exec(string);
+      if (match === null)
+        return {value: null, done: true};
+      else
+        return {value: match, done: false};
+    });
+
+  define($RegExpStringIteratorPrototype$, Symbol.toStringTag, 'RegExp String Iterator');
+
 }(this));

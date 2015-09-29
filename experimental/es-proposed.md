@@ -23,6 +23,7 @@ See also:
 
 * String prototype: `trimLeft()`, `trimRight()` [ref](https://github.com/sebmarkbage/ecmascript-string-left-right-trim)
 * String padding:  `padLeft()`, `padRight()` [ref](https://github.com/ljharb/proposal-string-pad-left-right)
+* String.prototype: `matchAll()` [ref](https://github.com/ljharb/String.prototype.matchAll)
 
 #### Stage 0
 
