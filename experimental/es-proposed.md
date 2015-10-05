@@ -32,6 +32,10 @@ See also:
 * `String.prototype.at()` [ref](https://github.com/mathiasbynens/String.prototype.at)
 * `Object.getOwnPropertyDescriptors` [ref](https://gist.github.com/WebReflection/9353781)
 
+See also:
+
+* [Int64](https://github.com/inexorabletash/int64)
+
 #### Informal Proposals
 
 * Number: `compare()`
