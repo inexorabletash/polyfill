@@ -16,9 +16,9 @@ You're already here! Great, just download it, or use:
 
 [git](https://git-scm.com/): `git clone https://github.com/inexorabletash/polyfill.git`
 
-[bower](http://bower.io/): `bower install text-encoding`
+[bower](http://bower.io/): `bower install js-polyfills`
 
-[npm](https://www.npmjs.com/): `npm install text-encoding`
+[npm](https://www.npmjs.com/): `npm install js-polyfills`
 
 > It is *not* packaged as Node.js module(s); there's nothing to `require()`, this is just for distribution.
 
