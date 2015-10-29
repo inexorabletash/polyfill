@@ -51,7 +51,7 @@ ECMAScript / JavaScript Polyfills
 HTML
 ----
 [script](html.js) -
-[tests](http://inexorabletash.github.io/polyfill/tests/html.html) -
+[tests](https://inexorabletash.github.io/polyfill/tests/html.html) -
 [living standard](https://html.spec.whatwg.org)
 
 * `document.head` (for IE8-)
@@ -67,7 +67,7 @@ HTML
 DOM
 ---
 [script](dom.js) -
-[tests](http://inexorabletash.github.io/polyfill/tests/dom.html) -
+[tests](https://inexorabletash.github.io/polyfill/tests/dom.html) -
 [living standard](https://dom.spec.whatwg.org)
 
 * [Selectors](https://dom.spec.whatwg.org/#scope-match-a-selectors-string) (for IE7-) - adapted from [Paul Young](http://ajaxian.com/archives/creating-a-queryselector-for-ie-that-runs-at-native-speed)
@@ -110,7 +110,7 @@ DOM
 Fetch
 -----
 [script](fetch.js) -
-[tests](http://inexorabletash.github.io/polyfill/tests/fetch.html) -
+[tests](https://inexorabletash.github.io/polyfill/tests/fetch.html) -
 [living standard](https://fetch.spec.whatwg.org)
 
 Example:
@@ -132,7 +132,7 @@ Supported:
 XMLHttpRequest
 --------------
 [script](xhr.js) -
-[tests](http://inexorabletash.github.io/polyfill/tests/xhr.html) -
+[tests](https://inexorabletash.github.io/polyfill/tests/xhr.html) -
 [living standard](https://xhr.spec.whatwg.org/)
 * [`XMLHttpRequest`](https://xhr.spec.whatwg.org/#interface-xmlhttprequest) (for IE6-)
 * [`FormData`](https://xhr.spec.whatwg.org/#interface-formdata) (for IE9-)
@@ -142,7 +142,7 @@ Timing
 ------
 [script](timing.js)
 
-* [W3C Timing control for script-based animations](http://www.w3.org/TR/animation-timing/) - [demo page](http://inexorabletash.github.io/polyfill/demos/raf.html)
+* [W3C Timing control for script-based animations](http://www.w3.org/TR/animation-timing/) - [demo page](https://inexorabletash.github.io/polyfill/demos/raf.html)
   * `id = window.requestAnimationFrame()`
   * `window.cancelAnimationFrame(id)`
 * [Efficient Script Yielding](https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html)
@@ -160,7 +160,7 @@ Polyfill for `width` and `height` in `getBoundingClientRect()` in IE8-
 URL API
 -------
 [script](url.js) -
-[tests](http://inexorabletash.github.io/polyfill/tests/url.html) -
+[tests](https://inexorabletash.github.io/polyfill/tests/url.html) -
 [living standard](https://url.spec.whatwg.org/)
 
 ```javascript
@@ -186,7 +186,7 @@ URLSearchParams objects have:
 Keyboard Events
 ---------------
 [script](keyboard.js) -
-[demo page](http://inexorabletash.github.io/polyfill/demos/keyboard.html) -
+[demo page](https://inexorabletash.github.io/polyfill/demos/keyboard.html) -
 [draft spec](https://dvcs.w3.org/hg/d4e/raw-file/tip/source_respec.htm#keyboard-events)
 
 ```javascript
@@ -209,9 +209,9 @@ window.identifyKey(keyboardEvent);
 Geolocation API
 ---------------
 [script](geo.js) -
-[demo page](http://inexorabletash.github.io/polyfill/demos/geo.html) -
+[demo page](https://inexorabletash.github.io/polyfill/demos/geo.html) -
 [spec](http://www.w3.org/TR/geolocation-API/) -
-uses [freegeoip.net](http://freegeoip.net/)
+uses [freegeoip.net](https://freegeoip.net/)
 
 ```javascript
 navigator.geolocation.getCurrentPosition(successCallback, errorCallback, options);

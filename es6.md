@@ -1,7 +1,7 @@
 # ECMAScript 6 Polyfill
 
 [script](es6.js) -
-[unit tests](http://inexorabletash.github.io/polyfill/tests/es6.html)
+[unit tests](https://inexorabletash.github.io/polyfill/tests/es6.html)
 
 The standardization of ES6 is currently in progress.
 This will attempt to track the evolving spec, so may change at any time.
@@ -51,8 +51,8 @@ See also: [uate - ES5 "tagged template strings"](https://github.com/inexorableta
 <a name="typedarray"></name>
 # Typed Arrays
 [script](typedarray.js) -
-[unit tests](http://inexorabletash.github.io/polyfill/tests/typedarray.html) -
-[spec](http://www.khronos.org/registry/typedarray/specs/latest/)
+[unit tests](https://inexorabletash.github.io/polyfill/tests/typedarray.html) -
+[spec](https://www.khronos.org/registry/typedarray/specs/latest/)
 
 Originally specified separately, Typed Arrays are now included in ES6.
 

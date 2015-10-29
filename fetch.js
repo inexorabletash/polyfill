@@ -1,5 +1,5 @@
 // Work-In-Progress 'prollyfill' for Fetch API
-// Standard: http://fetch.spec.whatwg.org/#fetch-api
+// Standard: https://fetch.spec.whatwg.org/#fetch-api
 //
 // As usual, the intent is to produce a forward-compatible
 // subset so that code can be written using future standard
@@ -17,15 +17,15 @@
 
   // Web IDL concepts
 
-  // http://heycam.github.io/webidl/#idl-ByteString
+  // https://heycam.github.io/webidl/#idl-ByteString
   function ByteString(value) {
     value = String(value);
     if (value.match(/[^\x00-\xFF]/)) throw TypeError('Not a valid ByteString');
     return value;
   }
 
-  // http://encoding.spec.whatwg.org/#scalarvaluestring
-  function ScalarValueString(value) {
+  // https://heycam.github.io/webidl/#idl-USVString
+  function USVString(value) {
     value = String(value);
     return value.replace(
         /([\u0000-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDFFF])/g,
@@ -310,7 +310,7 @@
         resolve(JSON.parse(that._stream));
       });
     },
-    // Promise<ScalarValueString> text();
+    // Promise<USVString> text();
     text: function() {
       if (this.bodyUsed) return Promise.reject(TypeError());
       this.bodyUsed = true;
@@ -322,7 +322,7 @@
   // 5.3 Request class
   //
 
-  // typedef (Request or ScalarValueString) RequestInfo;
+  // typedef (Request or USVString) RequestInfo;
 
   // Constructor(RequestInfo input, optional RequestInit init)
   function Request(input, init) {
@@ -333,7 +333,7 @@
     // readonly attribute ByteString method;
     this.method = 'GET';
 
-    // readonly attribute ScalarValueString url;
+    // readonly attribute USVString url;
     this.url = '';
 
     // readonly attribute Headers headers;
@@ -358,7 +358,7 @@
       this.headers._guard = input.headers._guard;
       this._stream = input._stream;
     } else {
-      input = ScalarValueString(input);
+      input = USVString(input);
       this.url = String(new URL(input, self.location));
     }
 
@@ -398,7 +398,7 @@
     if (body instanceof XMLHttpRequest && '_url' in body) {
       var xhr = body;
       this.type = 'basic'; // TODO: ResponseType
-      this.url = ScalarValueString(xhr._url);
+      this.url = USVString(xhr._url);
       this.status = xhr.status;
       this.ok = 200 <= this.status && this.status <= 299;
       this.statusText = xhr.statusText;
@@ -417,7 +417,7 @@
 
     init = Object(init) || {};
 
-    // readonly attribute ScalarValueString url;
+    // readonly attribute USVString url;
     this.url = '';
 
     // readonly attribute unsigned short status;

@@ -3,7 +3,7 @@
 Per https://github.com/tc39/ecma262
 
 [script](es-proposed.js) -
-[unit tests](http://inexorabletash.github.io/polyfill/experimental/tests/es-proposed.html)
+[unit tests](https://inexorabletash.github.io/polyfill/experimental/tests/es-proposed.html)
 
 #### Stage 3
 

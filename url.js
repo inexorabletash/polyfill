@@ -1,5 +1,5 @@
 // URL Polyfill
-// Draft specification: http://url.spec.whatwg.org
+// Draft specification: https://url.spec.whatwg.org
 
 // Notes:
 // - Primarily useful for parsing URLs and modifying query parameters

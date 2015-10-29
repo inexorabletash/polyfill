@@ -11,7 +11,7 @@
 
   if (!('now' in Date)) Date.now = function() { return Number(new Date); };
 
-  var GEOIP_SERVICE_JSONP = 'http://freegeoip.net/json/google.com?callback=';
+  var GEOIP_SERVICE_JSONP = 'https://freegeoip.net/json/google.com?callback=';
   var SERVICE_THROTTLE_QPS = 1000 / (60 * 60); // 1000/hour
   var POLITENESS_FACTOR = 2;
   var POLL_TIMER_MS = (1000 / SERVICE_THROTTLE_QPS) * POLITENESS_FACTOR;
