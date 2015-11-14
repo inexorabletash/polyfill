@@ -4916,6 +4916,50 @@ function __cons(t, a) {
     }
   } catch (_) {}
 
+  // NOTE: Doesn't do the encoding/decoding dance
+  function urlencoded_serialize(pairs) {
+    var output = '', first = true;
+    pairs.forEach(function (pair) {
+      var name = encodeURIComponent(pair.name);
+      var value = encodeURIComponent(pair.value);
+      if (!first) output += '&';
+      output += name + '=' + value;
+      first = false;
+    });
+    return output.replace(/%20/g, '+');
+  }
+
+  // NOTE: Doesn't do the encoding/decoding dance
+  function urlencoded_parse(input, isindex) {
+    var sequences = input.split('&');
+    if (isindex && sequences[0].indexOf('=') === -1)
+      sequences[0] = '=' + sequences[0];
+    var pairs = [];
+    sequences.forEach(function (bytes) {
+      if (bytes.length === 0) return;
+      var index = bytes.indexOf('=');
+      if (index !== -1) {
+        var name = bytes.substring(0, index);
+        var value = bytes.substring(index + 1);
+      } else {
+        name = bytes;
+        value = '';
+      }
+      name = name.replace(/\+/g, ' ');
+      value = value.replace(/\+/g, ' ');
+      pairs.push({ name: name, value: value });
+    });
+    var output = [];
+    pairs.forEach(function (pair) {
+      output.push({
+        name: decodeURIComponent(pair.name),
+        value: decodeURIComponent(pair.value)
+      });
+    });
+    return output;
+  }
+
+
   function URLUtils(url) {
     if (nativeURL)
       return new origURL(url);
@@ -4924,7 +4968,169 @@ function __cons(t, a) {
     return anchor;
   }
 
-  global.URL = function URL(url, base) {
+  function URLSearchParams(init) {
+    var $this = this;
+    this._pairs = [];
+    if (init) this._pairs = urlencoded_parse(init);
+
+    this._url_object = null;
+    this._setPairs = function (list) { if (!updating) $this._pairs = list; };
+
+    var updating = false;
+    this._update_steps = function() {
+      if (updating) return;
+      updating = true;
+
+      if (!$this._url_object) return;
+
+      // Partial workaround for IE issue with 'about:'
+      if ($this._url_object.protocol === 'about:' &&
+          $this._url_object.pathname.indexOf('?') !== -1) {
+          $this._url_object.pathname = $this._url_object.pathname.split('?')[0];
+      }
+
+      $this._url_object.search = urlencoded_serialize($this._pairs);
+
+      updating = false;
+    };
+  }
+
+
+  Object.defineProperties(URLSearchParams.prototype, {
+    append: {
+      value: function (name, value) {
+        this._pairs.push({ name: name, value: value });
+        this._update_steps();
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    'delete': {
+      value: function (name) {
+        for (var i = 0; i < this._pairs.length;) {
+          if (this._pairs[i].name === name)
+            this._pairs.splice(i, 1);
+          else
+            ++i;
+        }
+        this._update_steps();
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    get: {
+      value: function (name) {
+        for (var i = 0; i < this._pairs.length; ++i) {
+          if (this._pairs[i].name === name)
+            return this._pairs[i].value;
+        }
+        return null;
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    getAll: {
+      value: function (name) {
+        var result = [];
+        for (var i = 0; i < this._pairs.length; ++i) {
+          if (this._pairs[i].name === name)
+            result.push(this._pairs[i].value);
+        }
+        return result;
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    has: {
+      value: function (name) {
+        for (var i = 0; i < this._pairs.length; ++i) {
+          if (this._pairs[i].name === name)
+            return true;
+        }
+        return false;
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    set: {
+      value: function (name, value) {
+        var found = false;
+        for (var i = 0; i < this._pairs.length;) {
+          if (this._pairs[i].name === name) {
+            if (!found) {
+              this._pairs[i].value = value;
+              found = true;
+              ++i;
+            } else {
+              this._pairs.splice(i, 1);
+            }
+          } else {
+            ++i;
+          }
+        }
+
+        if (!found)
+          this._pairs.push({ name: name, value: value });
+
+        this._update_steps();
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    entries: {
+      value: function() {
+        var $this = this, index = 0;
+        return { next: function() {
+          if (index >= $this._pairs.length)
+            return {done: true, value: undefined};
+          var pair = $this._pairs[index++];
+          return {done: false, value: [pair.name, pair.value]};
+        }};
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    keys: {
+      value: function() {
+        var $this = this, index = 0;
+        return { next: function() {
+          if (index >= $this._pairs.length)
+            return {done: true, value: undefined};
+          var pair = $this._pairs[index++];
+          return {done: false, value: pair.name};
+        }};
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    values: {
+      value: function() {
+        var $this = this, index = 0;
+        return { next: function() {
+          if (index >= $this._pairs.length)
+            return {done: true, value: undefined};
+          var pair = $this._pairs[index++];
+          return {done: false, value: pair.value};
+        }};
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    forEach: {
+      value: function(callback) {
+        var thisArg = (arguments.length > 1) ? arguments[1] : undefined;
+        this._pairs.forEach(function(pair, index) {
+          callback.call(thisArg, pair.name, pair.value);
+        });
+
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    toString: {
+      value: function () {
+        return urlencoded_serialize(this._pairs);
+      }, writable: true, enumerable: false, configurable: true
+    }
+  });
+
+  if ('Symbol' in global && 'iterator' in global.Symbol) {
+    Object.defineProperty(URLSearchParams.prototype, global.Symbol.iterator, {
+      value: URLSearchParams.prototype.entries,
+      writable: true, enumerable: true, configurable: true});
+  }
+
+  function URL(url, base) {
     if (!(this instanceof global.URL))
       throw new TypeError("Failed to construct 'URL': Please use the 'new' operator.");
 
@@ -4981,195 +5187,39 @@ function __cons(t, a) {
 
     var self = ES5_GET_SET ? this : document.createElement('a');
 
-    // NOTE: Doesn't do the encoding/decoding dance
-    function parse(input, isindex) {
-      var sequences = input.split('&');
-      if (isindex && sequences[0].indexOf('=') === -1)
-        sequences[0] = '=' + sequences[0];
-      var pairs = [];
-      sequences.forEach(function (bytes) {
-        if (bytes.length === 0) return;
-        var index = bytes.indexOf('=');
-        if (index !== -1) {
-          var name = bytes.substring(0, index);
-          var value = bytes.substring(index + 1);
-        } else {
-          name = bytes;
-          value = '';
-        }
-        name = name.replace(/\+/g, ' ');
-        value = value.replace(/\+/g, ' ');
-        pairs.push({ name: name, value: value });
-      });
-      var output = [];
-      pairs.forEach(function (pair) {
-        output.push({
-          name: decodeURIComponent(pair.name),
-          value: decodeURIComponent(pair.value)
-        });
-      });
-      return output;
-    }
 
-    function URLSearchParams(url_object, init) {
-      var pairs = [];
-      if (init)
-        pairs = parse(init);
 
-      this._setPairs = function (list) { if (!updating) pairs = list; };
-      this._updateSteps = function () { updateSteps(); };
-
-      var updating = false;
-      function updateSteps() {
-        if (updating) return;
-        updating = true;
-
-        // TODO: For all associated url objects
-
-        // Partial workaround for IE issue with 'about:'
-        if (url_object.protocol === 'about:' && url_object.pathname.indexOf('?') !== -1)
-          url_object.pathname = url_object.pathname.split('?')[0];
-
-        url_object.search = serialize(pairs);
-
-        updating = false;
-      }
-
-      // NOTE: Doesn't do the encoding/decoding dance
-      function serialize(pairs) {
-        var output = '', first = true;
-        pairs.forEach(function (pair) {
-          var name = encodeURIComponent(pair.name);
-          var value = encodeURIComponent(pair.value);
-          if (!first) output += '&';
-          output += name + '=' + value;
-          first = false;
-        });
-        return output.replace(/%20/g, '+');
-      }
-
-      Object.defineProperties(this, {
-        append: {
-          value: function (name, value) {
-            pairs.push({ name: name, value: value });
-            updateSteps();
-          }
-        },
-
-        'delete': {
-          value: function (name) {
-            for (var i = 0; i < pairs.length;) {
-              if (pairs[i].name === name)
-                pairs.splice(i, 1);
-              else
-                ++i;
-            }
-            updateSteps();
-          }
-        },
-
-        get: {
-          value: function (name) {
-            for (var i = 0; i < pairs.length; ++i) {
-              if (pairs[i].name === name)
-                return pairs[i].value;
-            }
-            return null;
-          }
-        },
-
-        getAll: {
-          value: function (name) {
-            var result = [];
-            for (var i = 0; i < pairs.length; ++i) {
-              if (pairs[i].name === name)
-                result.push(pairs[i].value);
-            }
-            return result;
-          }
-        },
-
-        has: {
-          value: function (name) {
-            for (var i = 0; i < pairs.length; ++i) {
-              if (pairs[i].name === name)
-                return true;
-            }
-            return false;
-          }
-        },
-
-        set: {
-          value: function (name, value) {
-            var found = false;
-            for (var i = 0; i < pairs.length;) {
-              if (pairs[i].name === name) {
-                if (!found) {
-                  pairs[i].value = value;
-                  found = true;
-                  ++i;
-                } else {
-                  pairs.splice(i, 1);
-                }
-              } else {
-                ++i;
-              }
-            }
-
-            if (!found)
-              pairs.push({ name: name, value: value });
-
-            updateSteps();
-          }
-        },
-
-        toString: {
-          value: function () {
-            return serialize(pairs);
-          }
-        }
-      });
-
-      if ('Symbol' in global && 'iterator' in global.Symbol) {
-        Object.defineProperty(this, global.Symbol.iterator, {
-          value: function() {
-            var index = 0;
-            return { next: function() {
-              if (index >= pairs.length)
-                return {done: true, value: undefined};
-              var pair = pairs[index++];
-              return {done: false, value: [pair.name, pair.value]};
-            }};
-          }
-        });
-      }
-    };
-
-    var queryObject = new URLSearchParams(
-      self, instance.search ? instance.search.substring(1) : null);
+    var query_object = new URLSearchParams(
+      instance.search ? instance.search.substring(1) : null);
+    query_object._url_object = self;
 
     Object.defineProperties(self, {
       href: {
         get: function () { return instance.href; },
-        set: function (v) { instance.href = v; tidy_instance(); update_steps(); }
+        set: function (v) { instance.href = v; tidy_instance(); update_steps(); },
+        enumerable: true, configurable: true
       },
       origin: {
         get: function () {
           if ('origin' in instance) return instance.origin;
           return this.protocol + '//' + this.host;
-        }
+        },
+        enumerable: true, configurable: true
       },
       protocol: {
         get: function () { return instance.protocol; },
-        set: function (v) { instance.protocol = v; }
+        set: function (v) { instance.protocol = v; },
+        enumerable: true, configurable: true
       },
       username: {
         get: function () { return instance.username; },
-        set: function (v) { instance.username = v; }
+        set: function (v) { instance.username = v; },
+        enumerable: true, configurable: true
       },
       password: {
         get: function () { return instance.password; },
-        set: function (v) { instance.password = v; }
+        set: function (v) { instance.password = v; },
+        enumerable: true, configurable: true
       },
       host: {
         get: function () {
@@ -5177,15 +5227,18 @@ function __cons(t, a) {
           var re = {'http:': /:80$/, 'https:': /:443$/, 'ftp:': /:21$/}[instance.protocol];
           return re ? instance.host.replace(re, '') : instance.host;
         },
-        set: function (v) { instance.host = v; }
+        set: function (v) { instance.host = v; },
+        enumerable: true, configurable: true
       },
       hostname: {
         get: function () { return instance.hostname; },
-        set: function (v) { instance.hostname = v; }
+        set: function (v) { instance.hostname = v; },
+        enumerable: true, configurable: true
       },
       port: {
         get: function () { return instance.port; },
-        set: function (v) { instance.port = v; }
+        set: function (v) { instance.port = v; },
+        enumerable: true, configurable: true
       },
       pathname: {
         get: function () {
@@ -5193,28 +5246,33 @@ function __cons(t, a) {
           if (instance.pathname.charAt(0) !== '/') return '/' + instance.pathname;
           return instance.pathname;
         },
-        set: function (v) { instance.pathname = v; }
+        set: function (v) { instance.pathname = v; },
+        enumerable: true, configurable: true
       },
       search: {
         get: function () { return instance.search; },
         set: function (v) {
           if (instance.search === v) return;
           instance.search = v; tidy_instance(); update_steps();
-        }
+        },
+        enumerable: true, configurable: true
       },
       searchParams: {
-        get: function () { return queryObject; }
-        // TODO: implement setter
+        get: function () { return query_object; },
+        enumerable: true, configurable: true
       },
       hash: {
         get: function () { return instance.hash; },
-        set: function (v) { instance.hash = v; tidy_instance(); }
+        set: function (v) { instance.hash = v; tidy_instance(); },
+        enumerable: true, configurable: true
       },
       toString: {
-        value: function() { return instance.toString(); }
+        value: function() { return instance.toString(); },
+        enumerable: false, configurable: true
       },
       valueOf: {
-        value: function() { return instance.valueOf(); }
+        value: function() { return instance.valueOf(); },
+        enumerable: false, configurable: true
       }
     });
 
@@ -5225,12 +5283,12 @@ function __cons(t, a) {
     }
 
     function update_steps() {
-      queryObject._setPairs(instance.search ? parse(instance.search.substring(1)) : []);
-      queryObject._updateSteps();
+      query_object._setPairs(instance.search ? urlencoded_parse(instance.search.substring(1)) : []);
+      query_object._update_steps();
     };
 
     return self;
-  };
+  }
 
   if (origURL) {
     for (var i in origURL) {
@@ -5238,6 +5296,9 @@ function __cons(t, a) {
         global.URL[i] = origURL[i];
     }
   }
+
+  global.URL = URL;
+  global.URLSearchParams = URLSearchParams;
 
 }(this));
 // Work-In-Progress 'prollyfill' for Fetch API
@@ -5866,6 +5927,50 @@ function __cons(t, a) {
     }
   } catch (_) {}
 
+  // NOTE: Doesn't do the encoding/decoding dance
+  function urlencoded_serialize(pairs) {
+    var output = '', first = true;
+    pairs.forEach(function (pair) {
+      var name = encodeURIComponent(pair.name);
+      var value = encodeURIComponent(pair.value);
+      if (!first) output += '&';
+      output += name + '=' + value;
+      first = false;
+    });
+    return output.replace(/%20/g, '+');
+  }
+
+  // NOTE: Doesn't do the encoding/decoding dance
+  function urlencoded_parse(input, isindex) {
+    var sequences = input.split('&');
+    if (isindex && sequences[0].indexOf('=') === -1)
+      sequences[0] = '=' + sequences[0];
+    var pairs = [];
+    sequences.forEach(function (bytes) {
+      if (bytes.length === 0) return;
+      var index = bytes.indexOf('=');
+      if (index !== -1) {
+        var name = bytes.substring(0, index);
+        var value = bytes.substring(index + 1);
+      } else {
+        name = bytes;
+        value = '';
+      }
+      name = name.replace(/\+/g, ' ');
+      value = value.replace(/\+/g, ' ');
+      pairs.push({ name: name, value: value });
+    });
+    var output = [];
+    pairs.forEach(function (pair) {
+      output.push({
+        name: decodeURIComponent(pair.name),
+        value: decodeURIComponent(pair.value)
+      });
+    });
+    return output;
+  }
+
+
   function URLUtils(url) {
     if (nativeURL)
       return new origURL(url);
@@ -5874,7 +5979,169 @@ function __cons(t, a) {
     return anchor;
   }
 
-  global.URL = function URL(url, base) {
+  function URLSearchParams(init) {
+    var $this = this;
+    this._pairs = [];
+    if (init) this._pairs = urlencoded_parse(init);
+
+    this._url_object = null;
+    this._setPairs = function (list) { if (!updating) $this._pairs = list; };
+
+    var updating = false;
+    this._update_steps = function() {
+      if (updating) return;
+      updating = true;
+
+      if (!$this._url_object) return;
+
+      // Partial workaround for IE issue with 'about:'
+      if ($this._url_object.protocol === 'about:' &&
+          $this._url_object.pathname.indexOf('?') !== -1) {
+          $this._url_object.pathname = $this._url_object.pathname.split('?')[0];
+      }
+
+      $this._url_object.search = urlencoded_serialize($this._pairs);
+
+      updating = false;
+    };
+  }
+
+
+  Object.defineProperties(URLSearchParams.prototype, {
+    append: {
+      value: function (name, value) {
+        this._pairs.push({ name: name, value: value });
+        this._update_steps();
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    'delete': {
+      value: function (name) {
+        for (var i = 0; i < this._pairs.length;) {
+          if (this._pairs[i].name === name)
+            this._pairs.splice(i, 1);
+          else
+            ++i;
+        }
+        this._update_steps();
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    get: {
+      value: function (name) {
+        for (var i = 0; i < this._pairs.length; ++i) {
+          if (this._pairs[i].name === name)
+            return this._pairs[i].value;
+        }
+        return null;
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    getAll: {
+      value: function (name) {
+        var result = [];
+        for (var i = 0; i < this._pairs.length; ++i) {
+          if (this._pairs[i].name === name)
+            result.push(this._pairs[i].value);
+        }
+        return result;
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    has: {
+      value: function (name) {
+        for (var i = 0; i < this._pairs.length; ++i) {
+          if (this._pairs[i].name === name)
+            return true;
+        }
+        return false;
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    set: {
+      value: function (name, value) {
+        var found = false;
+        for (var i = 0; i < this._pairs.length;) {
+          if (this._pairs[i].name === name) {
+            if (!found) {
+              this._pairs[i].value = value;
+              found = true;
+              ++i;
+            } else {
+              this._pairs.splice(i, 1);
+            }
+          } else {
+            ++i;
+          }
+        }
+
+        if (!found)
+          this._pairs.push({ name: name, value: value });
+
+        this._update_steps();
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    entries: {
+      value: function() {
+        var $this = this, index = 0;
+        return { next: function() {
+          if (index >= $this._pairs.length)
+            return {done: true, value: undefined};
+          var pair = $this._pairs[index++];
+          return {done: false, value: [pair.name, pair.value]};
+        }};
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    keys: {
+      value: function() {
+        var $this = this, index = 0;
+        return { next: function() {
+          if (index >= $this._pairs.length)
+            return {done: true, value: undefined};
+          var pair = $this._pairs[index++];
+          return {done: false, value: pair.name};
+        }};
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    values: {
+      value: function() {
+        var $this = this, index = 0;
+        return { next: function() {
+          if (index >= $this._pairs.length)
+            return {done: true, value: undefined};
+          var pair = $this._pairs[index++];
+          return {done: false, value: pair.value};
+        }};
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    forEach: {
+      value: function(callback) {
+        var thisArg = (arguments.length > 1) ? arguments[1] : undefined;
+        this._pairs.forEach(function(pair, index) {
+          callback.call(thisArg, pair.name, pair.value);
+        });
+
+      }, writable: true, enumerable: true, configurable: true
+    },
+
+    toString: {
+      value: function () {
+        return urlencoded_serialize(this._pairs);
+      }, writable: true, enumerable: false, configurable: true
+    }
+  });
+
+  if ('Symbol' in global && 'iterator' in global.Symbol) {
+    Object.defineProperty(URLSearchParams.prototype, global.Symbol.iterator, {
+      value: URLSearchParams.prototype.entries,
+      writable: true, enumerable: true, configurable: true});
+  }
+
+  function URL(url, base) {
     if (!(this instanceof global.URL))
       throw new TypeError("Failed to construct 'URL': Please use the 'new' operator.");
 
@@ -5931,195 +6198,39 @@ function __cons(t, a) {
 
     var self = ES5_GET_SET ? this : document.createElement('a');
 
-    // NOTE: Doesn't do the encoding/decoding dance
-    function parse(input, isindex) {
-      var sequences = input.split('&');
-      if (isindex && sequences[0].indexOf('=') === -1)
-        sequences[0] = '=' + sequences[0];
-      var pairs = [];
-      sequences.forEach(function (bytes) {
-        if (bytes.length === 0) return;
-        var index = bytes.indexOf('=');
-        if (index !== -1) {
-          var name = bytes.substring(0, index);
-          var value = bytes.substring(index + 1);
-        } else {
-          name = bytes;
-          value = '';
-        }
-        name = name.replace(/\+/g, ' ');
-        value = value.replace(/\+/g, ' ');
-        pairs.push({ name: name, value: value });
-      });
-      var output = [];
-      pairs.forEach(function (pair) {
-        output.push({
-          name: decodeURIComponent(pair.name),
-          value: decodeURIComponent(pair.value)
-        });
-      });
-      return output;
-    }
 
-    function URLSearchParams(url_object, init) {
-      var pairs = [];
-      if (init)
-        pairs = parse(init);
 
-      this._setPairs = function (list) { if (!updating) pairs = list; };
-      this._updateSteps = function () { updateSteps(); };
-
-      var updating = false;
-      function updateSteps() {
-        if (updating) return;
-        updating = true;
-
-        // TODO: For all associated url objects
-
-        // Partial workaround for IE issue with 'about:'
-        if (url_object.protocol === 'about:' && url_object.pathname.indexOf('?') !== -1)
-          url_object.pathname = url_object.pathname.split('?')[0];
-
-        url_object.search = serialize(pairs);
-
-        updating = false;
-      }
-
-      // NOTE: Doesn't do the encoding/decoding dance
-      function serialize(pairs) {
-        var output = '', first = true;
-        pairs.forEach(function (pair) {
-          var name = encodeURIComponent(pair.name);
-          var value = encodeURIComponent(pair.value);
-          if (!first) output += '&';
-          output += name + '=' + value;
-          first = false;
-        });
-        return output.replace(/%20/g, '+');
-      }
-
-      Object.defineProperties(this, {
-        append: {
-          value: function (name, value) {
-            pairs.push({ name: name, value: value });
-            updateSteps();
-          }
-        },
-
-        'delete': {
-          value: function (name) {
-            for (var i = 0; i < pairs.length;) {
-              if (pairs[i].name === name)
-                pairs.splice(i, 1);
-              else
-                ++i;
-            }
-            updateSteps();
-          }
-        },
-
-        get: {
-          value: function (name) {
-            for (var i = 0; i < pairs.length; ++i) {
-              if (pairs[i].name === name)
-                return pairs[i].value;
-            }
-            return null;
-          }
-        },
-
-        getAll: {
-          value: function (name) {
-            var result = [];
-            for (var i = 0; i < pairs.length; ++i) {
-              if (pairs[i].name === name)
-                result.push(pairs[i].value);
-            }
-            return result;
-          }
-        },
-
-        has: {
-          value: function (name) {
-            for (var i = 0; i < pairs.length; ++i) {
-              if (pairs[i].name === name)
-                return true;
-            }
-            return false;
-          }
-        },
-
-        set: {
-          value: function (name, value) {
-            var found = false;
-            for (var i = 0; i < pairs.length;) {
-              if (pairs[i].name === name) {
-                if (!found) {
-                  pairs[i].value = value;
-                  found = true;
-                  ++i;
-                } else {
-                  pairs.splice(i, 1);
-                }
-              } else {
-                ++i;
-              }
-            }
-
-            if (!found)
-              pairs.push({ name: name, value: value });
-
-            updateSteps();
-          }
-        },
-
-        toString: {
-          value: function () {
-            return serialize(pairs);
-          }
-        }
-      });
-
-      if ('Symbol' in global && 'iterator' in global.Symbol) {
-        Object.defineProperty(this, global.Symbol.iterator, {
-          value: function() {
-            var index = 0;
-            return { next: function() {
-              if (index >= pairs.length)
-                return {done: true, value: undefined};
-              var pair = pairs[index++];
-              return {done: false, value: [pair.name, pair.value]};
-            }};
-          }
-        });
-      }
-    };
-
-    var queryObject = new URLSearchParams(
-      self, instance.search ? instance.search.substring(1) : null);
+    var query_object = new URLSearchParams(
+      instance.search ? instance.search.substring(1) : null);
+    query_object._url_object = self;
 
     Object.defineProperties(self, {
       href: {
         get: function () { return instance.href; },
-        set: function (v) { instance.href = v; tidy_instance(); update_steps(); }
+        set: function (v) { instance.href = v; tidy_instance(); update_steps(); },
+        enumerable: true, configurable: true
       },
       origin: {
         get: function () {
           if ('origin' in instance) return instance.origin;
           return this.protocol + '//' + this.host;
-        }
+        },
+        enumerable: true, configurable: true
       },
       protocol: {
         get: function () { return instance.protocol; },
-        set: function (v) { instance.protocol = v; }
+        set: function (v) { instance.protocol = v; },
+        enumerable: true, configurable: true
       },
       username: {
         get: function () { return instance.username; },
-        set: function (v) { instance.username = v; }
+        set: function (v) { instance.username = v; },
+        enumerable: true, configurable: true
       },
       password: {
         get: function () { return instance.password; },
-        set: function (v) { instance.password = v; }
+        set: function (v) { instance.password = v; },
+        enumerable: true, configurable: true
       },
       host: {
         get: function () {
@@ -6127,15 +6238,18 @@ function __cons(t, a) {
           var re = {'http:': /:80$/, 'https:': /:443$/, 'ftp:': /:21$/}[instance.protocol];
           return re ? instance.host.replace(re, '') : instance.host;
         },
-        set: function (v) { instance.host = v; }
+        set: function (v) { instance.host = v; },
+        enumerable: true, configurable: true
       },
       hostname: {
         get: function () { return instance.hostname; },
-        set: function (v) { instance.hostname = v; }
+        set: function (v) { instance.hostname = v; },
+        enumerable: true, configurable: true
       },
       port: {
         get: function () { return instance.port; },
-        set: function (v) { instance.port = v; }
+        set: function (v) { instance.port = v; },
+        enumerable: true, configurable: true
       },
       pathname: {
         get: function () {
@@ -6143,28 +6257,33 @@ function __cons(t, a) {
           if (instance.pathname.charAt(0) !== '/') return '/' + instance.pathname;
           return instance.pathname;
         },
-        set: function (v) { instance.pathname = v; }
+        set: function (v) { instance.pathname = v; },
+        enumerable: true, configurable: true
       },
       search: {
         get: function () { return instance.search; },
         set: function (v) {
           if (instance.search === v) return;
           instance.search = v; tidy_instance(); update_steps();
-        }
+        },
+        enumerable: true, configurable: true
       },
       searchParams: {
-        get: function () { return queryObject; }
-        // TODO: implement setter
+        get: function () { return query_object; },
+        enumerable: true, configurable: true
       },
       hash: {
         get: function () { return instance.hash; },
-        set: function (v) { instance.hash = v; tidy_instance(); }
+        set: function (v) { instance.hash = v; tidy_instance(); },
+        enumerable: true, configurable: true
       },
       toString: {
-        value: function() { return instance.toString(); }
+        value: function() { return instance.toString(); },
+        enumerable: false, configurable: true
       },
       valueOf: {
-        value: function() { return instance.valueOf(); }
+        value: function() { return instance.valueOf(); },
+        enumerable: false, configurable: true
       }
     });
 
@@ -6175,12 +6294,12 @@ function __cons(t, a) {
     }
 
     function update_steps() {
-      queryObject._setPairs(instance.search ? parse(instance.search.substring(1)) : []);
-      queryObject._updateSteps();
+      query_object._setPairs(instance.search ? urlencoded_parse(instance.search.substring(1)) : []);
+      query_object._update_steps();
     };
 
     return self;
-  };
+  }
 
   if (origURL) {
     for (var i in origURL) {
@@ -6188,6 +6307,9 @@ function __cons(t, a) {
         global.URL[i] = origURL[i];
     }
   }
+
+  global.URL = URL;
+  global.URLSearchParams = URLSearchParams;
 
 }(this));
 // Work-In-Progress 'prollyfill' for Fetch API

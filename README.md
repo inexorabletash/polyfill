@@ -169,6 +169,8 @@ var value = url.searchParams.get(name);
 var valueArray = url.searchParams.getAll(name);
 url.searchParams.append(name, valueOrValues);
 url.searchParams.delete(name);
+
+var p = new URLSearchParams('a=1&b=2');
 ```
 
 URL objects have properties:
@@ -181,7 +183,7 @@ URLSearchParams objects have:
 * `getAll(name)`
 * `has(name)`
 * `set(name, value)`
-* `[Symbol.iterator]()` - if defined
+* `entries()`, `keys()`, `values()`, `forEach(callback)` and `[Symbol.iterator]()` (if defined)
 
 Keyboard Events
 ---------------
