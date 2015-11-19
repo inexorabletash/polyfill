@@ -8,6 +8,8 @@ Per https://github.com/tc39/ecma262
 #### Stage 3
 
 * `Array.prototype.includes()` [ref](https://github.com/domenic/Array.prototype.contains/)
+* Object iterators: `Object.values()`, `Object.entries()` [ref](https://github.com/ljharb/proposal-object-values-entries)
+* String padding:  `padStart()`, `padEnd()` [ref](https://github.com/ljharb/proposal-string-pad-start-end)
 
 See also:
 
@@ -15,16 +17,13 @@ See also:
 
 #### Stage 2
 
-* Object iterators: `Object.values()`, `Object.entries()` [ref](https://github.com/ljharb/proposal-object-values-entries)
-
 See also:
 
 * [Object.observe polyfill](https://gist.github.com/inexorabletash/8010316)
 
 #### Stage 1
 
-* String prototype: `trimLeft()`, `trimRight()` [ref](https://github.com/sebmarkbage/ecmascript-string-left-right-trim)
-* String padding:  `padLeft()`, `padRight()` [ref](https://github.com/ljharb/proposal-string-pad-left-right)
+* String prototype: `trimStart()`, `trimEnd()` [ref](https://github.com/sebmarkbage/ecmascript-string-left-right-trim) (and  `trimLeft()`, `trimRight()` aliases)
 * String.prototype: `matchAll()` [ref](https://github.com/ljharb/String.prototype.matchAll)
 
 #### Stage 0

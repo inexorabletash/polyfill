@@ -327,10 +327,10 @@
       return String.fromCharCode(cuFirst, cuSecond);
     });
 
-  // https://github.com/ljharb/proposal-string-pad-left-right
+  // https://github.com/ljharb/proposal-string-pad-start-end
   define(
-    String.prototype, 'padLeft',
-    function padLeft(maxLength) {
+    String.prototype, 'padStart',
+    function padStart(maxLength) {
       var fillString = arguments[1];
 
       var o = this;
@@ -352,10 +352,10 @@
       return stringFiller.substring(0, fillLen) + s;
     });
 
-  // https://github.com/ljharb/proposal-string-pad-left-right
+  // https://github.com/ljharb/proposal-string-pad-start-end
   define(
-    String.prototype, 'padRight',
-    function padRight(maxLength) {
+    String.prototype, 'padEnd',
+    function padEnd(maxLength) {
       var fillString = arguments[1];
 
       var o = this;
@@ -383,11 +383,21 @@
     function trimLeft() {
       return String(this).replace(/^\s+/, '');
     });
+  define(
+    String.prototype, 'trimStart',
+    function trimStart() {
+      return String(this).replace(/^\s+/, '');
+    });
 
   // https://github.com/sebmarkbage/ecmascript-string-left-right-trim
   define(
     String.prototype, 'trimRight',
     function trimRight() {
+      return String(this).replace(/\s+$/, '');
+    });
+  define(
+    String.prototype, 'trimEnd',
+    function trimEnd() {
       return String(this).replace(/\s+$/, '');
     });
 
