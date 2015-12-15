@@ -189,7 +189,7 @@
         f = roundToEven(significand * pow(2, fbits));
         if (f / pow(2, fbits) >= 2) {
           e = e + 1;
-          f = 1;
+          f = pow(2, fbits);
         }
         if (e > bias) {
           // Overflow

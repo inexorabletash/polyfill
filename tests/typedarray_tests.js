@@ -23,7 +23,9 @@ function extractbits(bytes, lo, hi) {
 }
 
 
-test('ArrayBuffer', 7, function () {
+test('ArrayBuffer', function () {
+  expect(7);
+
   var b;
 
   stricterEqual(new ArrayBuffer().byteLength, 0, 'no length');
@@ -39,7 +41,9 @@ test('ArrayBuffer', 7, function () {
 });
 
 
-test('ArrayBufferView', 6, function () {
+test('ArrayBufferView', function () {
+  expect(6);
+
   var ab = new ArrayBuffer(48);
   var i32 = new Int32Array(ab, 16);
   i32.set([1, 2, 3, 4, 5, 6, 7, 8]);
@@ -55,7 +59,9 @@ test('ArrayBufferView', 6, function () {
 });
 
 
-test('TypedArrays', 32, function () {
+test('TypedArrays', function () {
+  expect(32);
+
   var a;
 
   stricterEqual(Int8Array.BYTES_PER_ELEMENT, 1, 'Int8Array.BYTES_PER_ELEMENT');
@@ -108,7 +114,8 @@ test('TypedArrays', 32, function () {
 });
 
 
-test('typed array constructors', 45, function () {
+test('typed array constructors', function () {
+  expect(45);
 
   arrayEqual(new Int8Array({ length: 3 }), [0, 0, 0]);
   var rawbuf = (new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7])).buffer;
@@ -178,7 +185,9 @@ test('typed array constructors', 45, function () {
 });
 
 
-test('TypedArray clone constructor', 3, function () {
+test('TypedArray clone constructor', function () {
+  expect(3);
+
   var src = new Int32Array([1, 2, 3, 4, 5, 6, 7, 8]);
   var dst = new Int32Array(src);
   arrayEqual(dst, [1, 2, 3, 4, 5, 6, 7, 8]);
@@ -188,7 +197,9 @@ test('TypedArray clone constructor', 3, function () {
 });
 
 
-test('conversions', 6, function () {
+test('conversions', function () {
+  expect(6);
+
   var uint8 = new Uint8Array([1, 2, 3, 4]),
       uint16 = new Uint16Array(uint8.buffer),
       uint32 = new Uint32Array(uint8.buffer);
@@ -206,7 +217,8 @@ test('conversions', 6, function () {
 });
 
 
-test('signed/unsigned conversions', 11, function () {
+test('signed/unsigned conversions', function () {
+  expect(11);
 
   var int8 = new Int8Array(1), uint8 = new Uint8Array(int8.buffer);
   uint8.set([123]);
@@ -424,7 +436,9 @@ test('IEEE754 double precision packing', function () {
 });
 
 
-test('Int32Array round trips', 9, function () {
+test('Int32Array round trips', function () {
+  expect(9);
+
   var i32 = new Int32Array([0]);
   var data = [
     0,
@@ -446,7 +460,9 @@ test('Int32Array round trips', 9, function () {
 });
 
 
-test('Int16Array round trips', 9, function () {
+test('Int16Array round trips', function () {
+  expect(9);
+
   var i16 = new Int16Array([0]);
   var data = [
     0,
@@ -468,7 +484,9 @@ test('Int16Array round trips', 9, function () {
 });
 
 
-test('Int8Array round trips', 9, function () {
+test('Int8Array round trips', function () {
+  expect(9);
+
   var i8 = new Int8Array([0]);
   var data = [
     0,
@@ -490,7 +508,8 @@ test('Int8Array round trips', 9, function () {
 });
 
 
-test('IEEE754 single precision round trips', 24, function () {
+test('IEEE754 single precision round trips', function () {
+  expect(28);
 
   var f32 = new Float32Array([0]);
 
@@ -500,6 +519,12 @@ test('IEEE754 single precision round trips', 24, function () {
       -1,
     123,
       -456,
+
+    2147483647,
+    -2147483647,
+
+    2147483648,
+    -2147483648,
 
     1.2,
     1.23,
@@ -546,7 +571,8 @@ test('IEEE754 single precision round trips', 24, function () {
 });
 
 
-test('IEEE754 double precision round trips', 24, function () {
+test('IEEE754 double precision round trips', function () {
+  expect(24);
 
   var f64 = new Float64Array([0]);
 
@@ -589,7 +615,8 @@ test('IEEE754 double precision round trips', 24, function () {
 });
 
 
-test('TypedArray setting', 8, function () {
+test('TypedArray setting', function () {
+  expect(8);
 
   var a = new Int32Array([1, 2, 3, 4, 5]);
   var b = new Int32Array(5);
@@ -619,7 +646,8 @@ test('TypedArray setting', 8, function () {
 });
 
 
-test('TypedArray.subarray', 10, function () {
+test('TypedArray.subarray', function () {
+  expect(10);
 
   var a = new Int32Array([1, 2, 3, 4, 5]);
   arrayEqual(a.subarray(3), [4, 5]);
@@ -635,7 +663,8 @@ test('TypedArray.subarray', 10, function () {
 });
 
 
-test('DataView constructors', 6, function () {
+test('DataView constructors', function () {
+  expect(6);
 
   var d = new DataView(new ArrayBuffer(8));
 
@@ -664,7 +693,9 @@ test('DataView constructors', 6, function () {
 });
 
 
-test('DataView accessors', 17, function () {
+test('DataView accessors', function () {
+  expect(17);
+
   var u = new Uint8Array(8), d = new DataView(u.buffer);
   arrayEqual(u, [0, 0, 0, 0, 0, 0, 0, 0]);
 
@@ -705,7 +736,9 @@ test('DataView accessors', 17, function () {
 });
 
 
-test('DataView endian', 27, function () {
+test('DataView endian', function () {
+  expect(27);
+
   var rawbuf = (new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7])).buffer;
   var d;
 
@@ -767,7 +800,9 @@ test('Typed Array getters/setters', function () {
   stricterEqual(bytes[1], 0xff);
 });
 
-test('Uint8ClampedArray', 5, function () {
+test('Uint8ClampedArray', function () {
+  expect(5);
+
   stricterEqual(Uint8ClampedArray.BYTES_PER_ELEMENT, 1, 'Uint8ClampedArray.BYTES_PER_ELEMENT');
   var a = new Uint8ClampedArray([-Infinity, -Number.MAX_VALUE, -1, -Number.MIN_VALUE, -0,
                                  0, Number.MIN_VALUE, 1, 1.1, 1.9, 255, 255.1, 255.9, 256, Number.MAX_VALUE, Infinity,
