@@ -149,9 +149,7 @@
 
   function packIEEE754(v, ebits, fbits) {
 
-    var bias = (1 << (ebits - 1)) - 1,
-        s, e, f, ln,
-        i, bits, str, bytes;
+    var bias = (1 << (ebits - 1)) - 1;
 
     function roundToEven(n) {
       var w = floor(n), f = n - w;
@@ -163,6 +161,7 @@
     }
 
     // Compute sign, exponent, fraction
+    var s, e, f;
     if (v !== v) {
       // NaN
       // http://dev.w3.org/2006/webapi/WebIDL/#es-type-mapping
@@ -176,6 +175,7 @@
       v = abs(v);
 
       if (v >= pow(2, 1 - bias)) {
+        // Normalized
         e = min(floor(log(v) / LN2), 1023);
         var significand = v / pow(2, e);
         if (significand < 1) {
@@ -186,19 +186,17 @@
           e += 1;
           significand /= 2;
         }
-        f = roundToEven(significand * pow(2, fbits));
-        if (f / pow(2, fbits) >= 2) {
-          e = e + 1;
-          f = pow(2, fbits);
+        var d = pow(2, fbits);
+        f = roundToEven(significand * d) - d;
+        e += bias;
+        if (f / d >= 1) {
+          e += 1;
+          f = 0;
         }
-        if (e > bias) {
+        if (e > 2 * bias) {
           // Overflow
           e = (1 << ebits) - 1;
           f = 0;
-        } else {
-          // Normalized
-          e = e + bias;
-          f = f - pow(2, fbits);
         }
       } else {
         // Denormalized
@@ -208,15 +206,15 @@
     }
 
     // Pack sign, exponent, fraction
-    bits = [];
+    var bits = [], i;
     for (i = fbits; i; i -= 1) { bits.push(f % 2 ? 1 : 0); f = floor(f / 2); }
     for (i = ebits; i; i -= 1) { bits.push(e % 2 ? 1 : 0); e = floor(e / 2); }
     bits.push(s ? 1 : 0);
     bits.reverse();
-    str = bits.join('');
+    var str = bits.join('');
 
     // Bits to bytes
-    bytes = [];
+    var bytes = [];
     while (str.length) {
       bytes.unshift(parseInt(str.substring(0, 8), 2));
       str = str.substring(8);
