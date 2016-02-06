@@ -22,6 +22,12 @@ You're already here! Great, just download it, or use:
 
 > It is *not* packaged as Node.js module(s); there's nothing to `require()`, this is just for distribution.
 
+Or just include scripts directly in your page via CDN (c/o [RawGit](https://rawgit.com/)):
+
+    <a script="https://cdn.rawgit.com/inexorabletash/polyfill/$TAGNAME/polyfill.min.js"></script>
+
+(look at [Releases](https://github.com/inexorabletash/polyfill/releases) for the tag name, e.g. "v1.2.3")
+
 ### Files ###
 
 The polyfills are roughly split up into files matching 1:1 with Web standards (specifications, living standards documents, etc). So there is [html.js](html.js) for [HTML](https://html.spec.whatwg.org), [dom.js](dom.js) for [DOM](https://dom.spec.whatwg.org), etc.
