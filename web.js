@@ -1029,7 +1029,7 @@
 
   if (origURL) {
     for (var i in origURL) {
-      if (origURL.hasOwnProperty(i))
+      if (origURL.hasOwnProperty(i) && typeof origURL[i] === 'function')
         global.URL[i] = origURL[i];
     }
   }
@@ -2040,7 +2040,7 @@
 
   if (origURL) {
     for (var i in origURL) {
-      if (origURL.hasOwnProperty(i))
+      if (origURL.hasOwnProperty(i) && typeof origURL[i] === 'function')
         global.URL[i] = origURL[i];
     }
   }
