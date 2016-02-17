@@ -80,6 +80,7 @@ DOM
   * `element = document.querySelector(selector)`
   * `elementArray = document.querySelectorAll(selector)`
 * `elementArray = document.getElementsByClassName(classNames)` (for IE8-)
+* `e = element.nextElementSibling`, `e = element.previousElementSibling` (for IE8)
 * Node constants: `Node.ELEMENT_NODE`, etc (for IE8-)
 * DOMException constants: `DOMException.INDEX_SIZE_ERR` (for IE8-)
 * [Events](https://dom.spec.whatwg.org/) (for IE8)

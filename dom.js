@@ -412,5 +412,27 @@
       window.getRelList = function(elem) { return new DOMTokenListShim(elem, 'rel'); };
       addToElementPrototype('relList', function() { return new DOMTokenListShim(this, 'rel'); } );
     }
+
+    // DOM - Interface NonDocumentTypeChildNode
+    // Interface NonDocumentTypeChildNode
+    // previousElementSibling / nextElementSibling - for IE8
+
+    if (!('previousElementSibling' in document.documentElement)) {
+      addToElementPrototype('previousElementSibling', function() {
+        var n = this.previousSibling;
+        while (n && n.nodeType !== Node.ELEMENT_NODE)
+          n = n.previousSibling;
+        return n;
+      });
+    }
+
+    if (!('nextElementSibling' in document.documentElement)) {
+      addToElementPrototype('nextElementSibling', function() {
+        var n = this.nextSibling;
+        while (n && n.nodeType !== Node.ELEMENT_NODE)
+          n = n.nextSibling;
+        return n;
+      });
+    }
   }());
 }(this));

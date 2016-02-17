@@ -141,3 +141,15 @@ test("Helpers - getClassList() and getRelList()", function () {
 
   delete elem;
 });
+
+test('next/previousElementSibling', function() {
+  expect(6);
+
+  assertTrue("document.querySelector('#one').previousElementSibling === null");
+  assertTrue("document.querySelector('#two').previousElementSibling === document.querySelector('#one')");
+  assertTrue("document.querySelector('#three').previousElementSibling === document.querySelector('#two')");
+
+  assertTrue("document.querySelector('#one').nextElementSibling === document.querySelector('#two')");
+  assertTrue("document.querySelector('#two').nextElementSibling === document.querySelector('#three')");
+  assertTrue("document.querySelector('#three').nextElementSibling === null");
+});
