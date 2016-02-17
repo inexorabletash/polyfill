@@ -79,11 +79,24 @@
 
   function URLSearchParams(init) {
     var $this = this;
-    this._pairs = [];
-    if (init) this._pairs = urlencoded_parse(init);
+    this._list = [];
+
+    if (init === undefined || init === null)
+      init = '';
+
+    if (Object(init) !== init || !(init instanceof URLSearchParams))
+      init = String(init);
+
+    if (typeof init === 'string' && init.substring(0, 1) === '?')
+      init = init.substring(1);
+
+    if (typeof init === 'string')
+      this._list = urlencoded_parse(init);
+    else
+      this._list = init._list.slice();
 
     this._url_object = null;
-    this._setPairs = function (list) { if (!updating) $this._pairs = list; };
+    this._setList = function (list) { if (!updating) $this._list = list; };
 
     var updating = false;
     this._update_steps = function() {
@@ -98,7 +111,7 @@
           $this._url_object.pathname = $this._url_object.pathname.split('?')[0];
       }
 
-      $this._url_object.search = urlencoded_serialize($this._pairs);
+      $this._url_object.search = urlencoded_serialize($this._list);
 
       updating = false;
     };
@@ -108,16 +121,16 @@
   Object.defineProperties(URLSearchParams.prototype, {
     append: {
       value: function (name, value) {
-        this._pairs.push({ name: name, value: value });
+        this._list.push({ name: name, value: value });
         this._update_steps();
       }, writable: true, enumerable: true, configurable: true
     },
 
     'delete': {
       value: function (name) {
-        for (var i = 0; i < this._pairs.length;) {
-          if (this._pairs[i].name === name)
-            this._pairs.splice(i, 1);
+        for (var i = 0; i < this._list.length;) {
+          if (this._list[i].name === name)
+            this._list.splice(i, 1);
           else
             ++i;
         }
@@ -127,9 +140,9 @@
 
     get: {
       value: function (name) {
-        for (var i = 0; i < this._pairs.length; ++i) {
-          if (this._pairs[i].name === name)
-            return this._pairs[i].value;
+        for (var i = 0; i < this._list.length; ++i) {
+          if (this._list[i].name === name)
+            return this._list[i].value;
         }
         return null;
       }, writable: true, enumerable: true, configurable: true
@@ -138,9 +151,9 @@
     getAll: {
       value: function (name) {
         var result = [];
-        for (var i = 0; i < this._pairs.length; ++i) {
-          if (this._pairs[i].name === name)
-            result.push(this._pairs[i].value);
+        for (var i = 0; i < this._list.length; ++i) {
+          if (this._list[i].name === name)
+            result.push(this._list[i].value);
         }
         return result;
       }, writable: true, enumerable: true, configurable: true
@@ -148,8 +161,8 @@
 
     has: {
       value: function (name) {
-        for (var i = 0; i < this._pairs.length; ++i) {
-          if (this._pairs[i].name === name)
+        for (var i = 0; i < this._list.length; ++i) {
+          if (this._list[i].name === name)
             return true;
         }
         return false;
@@ -159,14 +172,14 @@
     set: {
       value: function (name, value) {
         var found = false;
-        for (var i = 0; i < this._pairs.length;) {
-          if (this._pairs[i].name === name) {
+        for (var i = 0; i < this._list.length;) {
+          if (this._list[i].name === name) {
             if (!found) {
-              this._pairs[i].value = value;
+              this._list[i].value = value;
               found = true;
               ++i;
             } else {
-              this._pairs.splice(i, 1);
+              this._list.splice(i, 1);
             }
           } else {
             ++i;
@@ -174,7 +187,7 @@
         }
 
         if (!found)
-          this._pairs.push({ name: name, value: value });
+          this._list.push({ name: name, value: value });
 
         this._update_steps();
       }, writable: true, enumerable: true, configurable: true
@@ -184,9 +197,9 @@
       value: function() {
         var $this = this, index = 0;
         return { next: function() {
-          if (index >= $this._pairs.length)
+          if (index >= $this._list.length)
             return {done: true, value: undefined};
-          var pair = $this._pairs[index++];
+          var pair = $this._list[index++];
           return {done: false, value: [pair.name, pair.value]};
         }};
       }, writable: true, enumerable: true, configurable: true
@@ -196,9 +209,9 @@
       value: function() {
         var $this = this, index = 0;
         return { next: function() {
-          if (index >= $this._pairs.length)
+          if (index >= $this._list.length)
             return {done: true, value: undefined};
-          var pair = $this._pairs[index++];
+          var pair = $this._list[index++];
           return {done: false, value: pair.name};
         }};
       }, writable: true, enumerable: true, configurable: true
@@ -208,9 +221,9 @@
       value: function() {
         var $this = this, index = 0;
         return { next: function() {
-          if (index >= $this._pairs.length)
+          if (index >= $this._list.length)
             return {done: true, value: undefined};
-          var pair = $this._pairs[index++];
+          var pair = $this._list[index++];
           return {done: false, value: pair.value};
         }};
       }, writable: true, enumerable: true, configurable: true
@@ -219,7 +232,7 @@
     forEach: {
       value: function(callback) {
         var thisArg = (arguments.length > 1) ? arguments[1] : undefined;
-        this._pairs.forEach(function(pair, index) {
+        this._list.forEach(function(pair, index) {
           callback.call(thisArg, pair.name, pair.value);
         });
 
@@ -228,7 +241,7 @@
 
     toString: {
       value: function () {
-        return urlencoded_serialize(this._pairs);
+        return urlencoded_serialize(this._list);
       }, writable: true, enumerable: false, configurable: true
     }
   });
@@ -392,7 +405,7 @@
     }
 
     function update_steps() {
-      query_object._setPairs(instance.search ? urlencoded_parse(instance.search.substring(1)) : []);
+      query_object._setList(instance.search ? urlencoded_parse(instance.search.substring(1)) : []);
       query_object._update_steps();
     };
 

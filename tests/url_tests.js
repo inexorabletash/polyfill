@@ -208,6 +208,16 @@ test('URLSearchParams', function () {
   equal(String(new URLSearchParams('a=1')), 'a=1');
   equal(String(new URLSearchParams('a=1&b=1')), 'a=1&b=1');
   equal(String(new URLSearchParams('a=1&b&a')), 'a=1&b=&a=');
+
+  equal(String(new URLSearchParams('?')), '');
+  equal(String(new URLSearchParams('?a=1')), 'a=1');
+  equal(String(new URLSearchParams('?a=1&b=1')), 'a=1&b=1');
+  equal(String(new URLSearchParams('?a=1&b&a')), 'a=1&b=&a=');
+
+  equal(String(new URLSearchParams(new URLSearchParams('?'))), '');
+  equal(String(new URLSearchParams(new URLSearchParams('?a=1'))), 'a=1');
+  equal(String(new URLSearchParams(new URLSearchParams('?a=1&b=1'))), 'a=1&b=1');
+  equal(String(new URLSearchParams(new URLSearchParams('?a=1&b&a'))), 'a=1&b=&a=');
 });
 
 test('URLSearchParams mutation', function () {
@@ -250,6 +260,16 @@ test('URLSearchParams mutation', function () {
   p.set('b', '3');
   deepEqual(p.getAll('b'), ['3']);
   equal(String(p), 'a=1&b=3&c=1');
+
+  // Ensure copy constructor copies by value, not reference.
+  var sp1 = new URLSearchParams('a=1');
+  equal(String(sp1), 'a=1');
+  var sp2 = new URLSearchParams(sp1);
+  equal(String(sp2), 'a=1');
+  sp1.append('b', '2');
+  sp2.append('c', '3');
+  equal(String(sp1), 'a=1&b=2');
+  equal(String(sp2), 'a=1&c=3');
 });
 
 test('URLSearchParams serialization', function() {
