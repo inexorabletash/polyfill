@@ -137,4 +137,4 @@
     global.btoa = btoa;
   }());
 
-}(this));
+}(self));

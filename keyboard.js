@@ -722,4 +722,4 @@
     event.locale = '';
   };
 
-} (window));
+}(self));

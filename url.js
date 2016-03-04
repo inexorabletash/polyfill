@@ -422,4 +422,4 @@
   global.URL = URL;
   global.URLSearchParams = URLSearchParams;
 
-}(this));
+}(self));
