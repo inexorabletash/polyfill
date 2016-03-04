@@ -422,4 +422,4 @@
   global.URL = URL;
   global.URLSearchParams = URLSearchParams;
 
-}(this));
+}(typeof self !== 'undefined' && self || typeof window !== 'undefined' && window || this.content || this));

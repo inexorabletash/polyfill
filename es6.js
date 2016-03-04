@@ -3768,7 +3768,7 @@
 
   // Not polyfillable.
 
-}(this));
+}(typeof self !== 'undefined' && self || typeof window !== 'undefined' && window || this.content || this));
 
 // This helper is defined outside the main scope so that the use of
 // 'eval' does not taint the scope for minifiers.
