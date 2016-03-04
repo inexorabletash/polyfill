@@ -34,6 +34,14 @@
 // Variations:
 //  * Allows typed_array.get/set() as alias for subscripts (typed_array[])
 //  * Gradually migrating structure from Khronos spec to ES6 spec
+//
+// Caveats:
+//  * Beyond 10000 or so entries, polyfilled array accessors (ta[0],
+//    etc) become memory-prohibitive, so array creation will fail. Set
+//    self.TYPED_ARRAY_POLYFILL_NO_ARRAY_ACCESSORS=true to disable
+//    creation of accessors. Your code will need to use the
+//    non-standard get()/set() instead, and will need to add those to
+//    native arrays for interop.
 (function(global) {
   'use strict';
   var undefined = (void 0); // Paranoia
@@ -103,6 +111,9 @@
   // ES5: Make obj[index] an alias for obj._getter(index)/obj._setter(index, value)
   // for index in 0 ... obj.length
   function makeArrayAccessors(obj) {
+    if ('TYPED_ARRAY_POLYFILL_NO_ARRAY_ACCESSORS' in global)
+      return;
+
     if (obj.length > MAX_ARRAY_LENGTH) throw RangeError('Array too large for polyfill');
 
     function makeArrayAccessor(index) {
