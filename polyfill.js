@@ -4255,7 +4255,7 @@ if (!Date.prototype.toISOString) {
 
   // Not polyfillable.
 
-}(this));
+}(self));
 
 // This helper is defined outside the main scope so that the use of
 // 'eval' does not taint the scope for minifiers.
@@ -4401,7 +4401,7 @@ function __cons(t, a) {
     global.btoa = btoa;
   }());
 
-}(this));
+}(self));
 (function(global) {
   if (!('window' in global && 'document' in global))
     return;
@@ -4839,7 +4839,7 @@ function __cons(t, a) {
       });
     }
   }());
-}(this));
+}(self));
 (function(global) {
   if (!('window' in global && 'document' in global))
     return;
@@ -4910,7 +4910,7 @@ function __cons(t, a) {
     };
   }());
 
-}(this));
+}(self));
 // URL Polyfill
 // Draft specification: https://url.spec.whatwg.org
 
@@ -5335,7 +5335,7 @@ function __cons(t, a) {
   global.URL = URL;
   global.URLSearchParams = URLSearchParams;
 
-}(this));
+}(self));
 // Work-In-Progress 'prollyfill' for Fetch API
 // Standard: https://fetch.spec.whatwg.org/#fetch-api
 //
@@ -6359,7 +6359,7 @@ function __cons(t, a) {
   global.URL = URL;
   global.URLSearchParams = URLSearchParams;
 
-}(this));
+}(self));
 // Work-In-Progress 'prollyfill' for Fetch API
 // Standard: https://fetch.spec.whatwg.org/#fetch-api
 //

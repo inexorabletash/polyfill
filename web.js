@@ -138,7 +138,7 @@
     global.btoa = btoa;
   }());
 
-}(this));
+}(self));
 (function(global) {
   if (!('window' in global && 'document' in global))
     return;
@@ -576,7 +576,7 @@
       });
     }
   }());
-}(this));
+}(self));
 (function(global) {
   if (!('window' in global && 'document' in global))
     return;
@@ -647,7 +647,7 @@
     };
   }());
 
-}(this));
+}(self));
 // URL Polyfill
 // Draft specification: https://url.spec.whatwg.org
 
@@ -1072,7 +1072,7 @@
   global.URL = URL;
   global.URLSearchParams = URLSearchParams;
 
-}(this));
+}(self));
 // Work-In-Progress 'prollyfill' for Fetch API
 // Standard: https://fetch.spec.whatwg.org/#fetch-api
 //
@@ -2096,7 +2096,7 @@
   global.URL = URL;
   global.URLSearchParams = URLSearchParams;
 
-}(this));
+}(self));
 // Work-In-Progress 'prollyfill' for Fetch API
 // Standard: https://fetch.spec.whatwg.org/#fetch-api
 //
