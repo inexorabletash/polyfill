@@ -722,4 +722,4 @@
     event.locale = '';
   };
 
-} (typeof self !== 'undefined' && self || typeof window !== 'undefined' && window || this.content || this));
+}(self));
