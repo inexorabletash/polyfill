@@ -5685,7 +5685,7 @@ function __cons(t, a) {
     this.mode = null; // TODO: Implement.
 
     // readonly attribute RequestCredentials credentials;
-    this.credentials = null; // TODO: Implement.
+    this.credentials = 'omit';
 
     if (input instanceof Request) {
       if (input.bodyUsed) throw TypeError();
@@ -5694,6 +5694,7 @@ function __cons(t, a) {
       this.url = input.url;
       this.headers = new Headers(input.headers);
       this.headers._guard = input.headers._guard;
+      this.credentials = input.credentials;
       this._stream = input._stream;
     } else {
       input = USVString(input);
@@ -5715,6 +5716,10 @@ function __cons(t, a) {
 
     if ('body' in init)
       this._stream = init.body;
+
+    if ('credentials' in init &&
+        (['omit', 'same-origin', 'include'].indexOf(init.credentials) !== -1))
+      this.credentials = init.credentials;
   }
 
   // interface Request
@@ -5809,6 +5814,9 @@ function __cons(t, a) {
       for (var iter = r.headers[Symbol.iterator](), step = iter.next();
            !step.done; step = iter.next())
         xhr.setRequestHeader(step.value[0], step.value[1]);
+
+      if (r.credentials === 'include')
+        xhr.withCredentials = true;
 
       xhr.onreadystatechange = function() {
         if (xhr.readyState !== XMLHttpRequest.DONE) return;
@@ -6709,7 +6717,7 @@ function __cons(t, a) {
     this.mode = null; // TODO: Implement.
 
     // readonly attribute RequestCredentials credentials;
-    this.credentials = null; // TODO: Implement.
+    this.credentials = 'omit';
 
     if (input instanceof Request) {
       if (input.bodyUsed) throw TypeError();
@@ -6718,6 +6726,7 @@ function __cons(t, a) {
       this.url = input.url;
       this.headers = new Headers(input.headers);
       this.headers._guard = input.headers._guard;
+      this.credentials = input.credentials;
       this._stream = input._stream;
     } else {
       input = USVString(input);
@@ -6739,6 +6748,10 @@ function __cons(t, a) {
 
     if ('body' in init)
       this._stream = init.body;
+
+    if ('credentials' in init &&
+        (['omit', 'same-origin', 'include'].indexOf(init.credentials) !== -1))
+      this.credentials = init.credentials;
   }
 
   // interface Request
@@ -6833,6 +6846,9 @@ function __cons(t, a) {
       for (var iter = r.headers[Symbol.iterator](), step = iter.next();
            !step.done; step = iter.next())
         xhr.setRequestHeader(step.value[0], step.value[1]);
+
+      if (r.credentials === 'include')
+        xhr.withCredentials = true;
 
       xhr.onreadystatechange = function() {
         if (xhr.readyState !== XMLHttpRequest.DONE) return;
