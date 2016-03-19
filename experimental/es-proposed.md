@@ -10,6 +10,7 @@ Per https://github.com/tc39/ecma262
 * `Array.prototype.includes()` [ref](https://github.com/domenic/Array.prototype.contains/)
 * Object iterators: `Object.values()`, `Object.entries()` [ref](https://github.com/ljharb/proposal-object-values-entries)
 * String padding:  `padStart()`, `padEnd()` [ref](https://github.com/ljharb/proposal-string-pad-start-end)
+* `Object.getOwnPropertyDescriptors` [ref](https://gist.github.com/WebReflection/9353781)
 
 See also:
 
@@ -17,9 +18,7 @@ See also:
 
 #### Stage 2
 
-See also:
-
-* [Object.observe polyfill](https://gist.github.com/inexorabletash/8010316)
+(none)
 
 #### Stage 1
 
@@ -29,7 +28,6 @@ See also:
 #### Stage 0
 
 * `String.prototype.at()` [ref](https://github.com/mathiasbynens/String.prototype.at)
-* `Object.getOwnPropertyDescriptors` [ref](https://gist.github.com/WebReflection/9353781)
 
 See also:
 

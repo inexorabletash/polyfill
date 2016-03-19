@@ -160,7 +160,7 @@
 
   // 9.1.13 ObjectCreate(proto, internalDataList)
   function ObjectCreate(proto, internalDataList) {
-    return Object.create(proto, internalDataList);
+    return Object.create(proto);
   }
 
 
@@ -206,7 +206,7 @@
       return Object.keys(names);
     });
 
-  // https://gist.github.com/WebReflection/9353781
+  // https://github.com/tc39/proposal-object-getownpropertydescriptors
   define(
     Object, 'getOwnPropertyDescriptors',
     function getOwnPropertyDescriptors(o) {
