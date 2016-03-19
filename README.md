@@ -24,7 +24,7 @@ You're already here! Great, just download it, or use:
 
 Or just include scripts directly in your page via CDN (c/o [RawGit](https://rawgit.com/)):
 
-    <a script="https://cdn.rawgit.com/inexorabletash/polyfill/$TAGNAME/polyfill.min.js"></script>
+    <script src="https://cdn.rawgit.com/inexorabletash/polyfill/$TAGNAME/polyfill.min.js"></script>
 
 (look at [Releases](https://github.com/inexorabletash/polyfill/releases) for the tag name, e.g. "v1.2.3")
 
