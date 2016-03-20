@@ -612,7 +612,6 @@
 
   function keyInfoForEvent(event) {
     var keyCode = 'keyCode' in event ? event.keyCode : 'which' in event ? event.which : 0;
-    console.log('keyCode: ' + keyCode);
     var keyInfo = (function(){
       if (nativeLocation || 'keyLocation' in event) {
         var location = nativeLocation ? event.location : event.keyLocation;

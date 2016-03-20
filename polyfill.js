@@ -5773,7 +5773,6 @@ function __cons(t, a) {
 
     // readonly attribute ByteString statusText;
     var statusText = 'statusText' in init ? String(init.statusText) : 'OK';
-    console.log(JSON.stringify(statusText));
     if (/[^\x00-\xFF]/.test(statusText)) throw TypeError();
     this.statusText = statusText;
 
@@ -6805,7 +6804,6 @@ function __cons(t, a) {
 
     // readonly attribute ByteString statusText;
     var statusText = 'statusText' in init ? String(init.statusText) : 'OK';
-    console.log(JSON.stringify(statusText));
     if (/[^\x00-\xFF]/.test(statusText)) throw TypeError();
     this.statusText = statusText;
 
