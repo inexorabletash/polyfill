@@ -696,7 +696,8 @@
   (function() {
     var nativeSymbols = (typeof global.Symbol() === 'symbol'),
         $getOwnPropertyNames = Object.getOwnPropertyNames,
-        $keys = Object.keys;
+        $keys = Object.keys,
+        $window_names = (typeof window === 'object' ? $getOwnPropertyNames(window) : []);
 
     function isStringKey(k) { return !symbolForKey(k); }
 
@@ -704,6 +705,15 @@
     define(
       Object, 'getOwnPropertyNames',
       function getOwnPropertyNames(o) {
+        if (String(o) === '[object Window]') {
+          // Workaround for cross-realm calling by IE itself.
+          // https://github.com/inexorabletash/polyfill/issues/96
+          try {
+            return $getOwnPropertyNames(o).filter(isStringKey);
+          } catch (_) {
+            return $window_names.slice();
+          }
+        }
         return $getOwnPropertyNames(o).filter(isStringKey);
       }, !nativeSymbols);
 

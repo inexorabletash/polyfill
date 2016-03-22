@@ -1310,3 +1310,15 @@ test("Reflect", function() {
   equal(Reflect.setPrototypeOf(f, p), false);
 
 });
+
+module("Regression");
+
+test("IE/getOwnPropertyNames error", function() {
+  // https://github.com/inexorabletash/polyfill/issues/96
+  var iframe = document.createElement('iframe');
+  iframe.src = 'http://example.com';
+  document.documentElement.appendChild(iframe);
+  var w = iframe.contentWindow;
+  document.documentElement.removeChild(iframe);
+  ok(true, "Did not throw");
+});
