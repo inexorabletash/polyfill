@@ -12,8 +12,8 @@ Demo: https://inexorabletash.github.io/polyfill/demos/keyboard.html
 For all browsers (except IE8-) this adds the following properties to
 KeyboardEvent instances:
 
-* `event.code` - (string) identifies the physical key - [code values](https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3Events-code.html)
-* `event.key` - (string) printed representation of the key, or control key identifier - [key values](https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3Events-key.html)
+* `event.code` - (string) identifies the physical key - [code values](https://w3c.github.io/uievents-code/)
+* `event.key` - (string) printed representation of the key, or control key identifier - [key values](https://w3c.github.io/uievents-key/)
 * `event.location` - (number) location of key (0 = standard, 1 = left, 2 = right, 3 = numpad)
 
 It also adds a static method:
