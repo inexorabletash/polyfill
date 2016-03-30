@@ -44,9 +44,9 @@ Minification is done via http://javascript-minifier.com/
 ECMAScript / JavaScript Polyfills
 ---------------------------------
 
-[ECMAScript 5](es5.md) - Most recent standard, supported by all modern browsers. Frozen.
+[ECMAScript 5](es5.md) - Previous standard, supported by all modern browsers. Frozen.
 
-[ECMAScript 6](es6.md) - Based on nearly complete draft standard. Should be stable apart from bug fixes.
+[ECMAScript 2015](es6.md) - Most recent standard. Not fully supported by modern browsers yet.
 
 [ECMAScript proposed](experimental/es-proposed.md) - Proposals for future editions of the standard. Here there be dragons.
 
