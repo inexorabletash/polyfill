@@ -1,13 +1,11 @@
-# ECMAScript 6 Polyfill
+# ECMAScript 2015 Polyfill
 
 [script](es6.js) -
 [unit tests](https://inexorabletash.github.io/polyfill/tests/es6.html)
 
-The standardization of ES6 is currently in progress.
-This will attempt to track the evolving spec, so may change at any time.
 This assumes ES5, so use [es5.js](es5.js) for older browsers (IE9-).
 
-In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts):
+[ECMAScript 2015 Standard](http://www.ecma-international.org/ecma-262/6.0/)
 
 #### Fundamental Objects
 * Object: `assign()`, `is()`, `setPrototypeOf()`
@@ -43,7 +41,6 @@ In the [ES6 Drafts](http://wiki.ecmascript.org/doku.php?id=harmony:specification
 
 #### Asynchronous Programming
 * Promise: `p = new Promise()`, `Promise.resolve()`, `Promise.reject()`, `Promise.cast()`, `Promise.race()`, `Promise.all()`, `p.then()`, `p.catch()`
-* [promises spec](https://github.com/domenic/promises-unwrapping)
 
 See also: [uate - ES5 "tagged template strings"](https://github.com/inexorabletash/uate)
 
