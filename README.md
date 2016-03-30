@@ -34,7 +34,7 @@ The polyfills are roughly split up into files matching 1:1 with Web standards (s
 
 Since I generally use several in my hobby projects, bundled/minified versions are available:
 
-* [web.js](web.js) (minified: [web.min.js](web.min.js)) includes the most common Web polyfills - it assumes ES6 support
+* [web.js](web.js) (minified: [web.min.js](web.min.js)) includes the most common Web polyfills - it assumes ES2015 support
   * Includes: [html.js](html.js) [dom.js](dom.js) [xhr.js](xhr.js) [cssom.js](cssom.js) [timing.js](timing.js) [url.js](url.js) [fetch.js](fetch.js)
 * [polyfill.js](polyfill.js) (minified: [polyfill.min.js](polyfill.min.js)) has everything in [web.js](web.js) plus [es5.js](es5.js) and [es6.js](es6.js)
 

@@ -8,7 +8,7 @@ target IE8 and later. (Since IE7 and earlier did not support modifying
 built-in object prototypes, helper functions used instead that can be
 used if IE7 compatibility is needed.)
 
-Many of these require ES5 or ES6. See [polyfill.js](polyfill.js.md)
+Many of these require ES5 or ES2015. See [polyfill.js](polyfill.js.md)
 
 This bundles shims for:
 

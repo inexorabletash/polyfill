@@ -51,7 +51,7 @@ See also: [uate - ES5 "tagged template strings"](https://github.com/inexorableta
 [unit tests](https://inexorabletash.github.io/polyfill/tests/typedarray.html) -
 [spec](https://www.khronos.org/registry/typedarray/specs/latest/)
 
-Originally specified separately, Typed Arrays are now included in ES6.
+Originally specified separately, Typed Arrays are now included in ES2015.
 
 * `ArrayBuffer`
 * `Uint8Array`, `Int8Array`, `Uint16Array`, `Int16Array`, `Uint32Array`, `Int32Array`, `Float32Array`, `Float64Array`

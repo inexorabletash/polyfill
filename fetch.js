@@ -5,7 +5,7 @@
 // subset so that code can be written using future standard
 // functionality; not every case is considered or supported.
 
-// Requires ES6: Promise, Symbol.iterator (or polyfill)
+// Requires ES2015: Promise, Symbol.iterator (or polyfill)
 // Requires: URL (or polyfill)
 
 // Example:

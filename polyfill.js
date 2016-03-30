@@ -487,7 +487,7 @@ if (!Date.prototype.toISOString) {
 }
 //----------------------------------------------------------------------
 //
-// ECMAScript 6 Polyfills
+// ECMAScript 2015 Polyfills
 //
 //----------------------------------------------------------------------
 
@@ -495,7 +495,7 @@ if (!Date.prototype.toISOString) {
   "use strict";
 
   // Set this to always override native implementations, for testing
-  // the polyfill in browsers with partial/full ES6 support.
+  // the polyfill in browsers with partial/full ES2015 support.
   var OVERRIDE_NATIVE_FOR_TESTING = false;
 
   var undefined = (void 0); // Paranoia
@@ -652,8 +652,8 @@ if (!Date.prototype.toISOString) {
 
   //----------------------------------------------------------------------
   //
-  // ECMAScript 6 Draft
-  // http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts
+  // ECMAScript 2015
+  // http://www.ecma-international.org/ecma-262/6.0/
   //
   //----------------------------------------------------------------------
 
@@ -5353,7 +5353,7 @@ function __cons(t, a) {
 // subset so that code can be written using future standard
 // functionality; not every case is considered or supported.
 
-// Requires ES6: Promise, Symbol.iterator (or polyfill)
+// Requires ES2015: Promise, Symbol.iterator (or polyfill)
 // Requires: URL (or polyfill)
 
 // Example:
@@ -6384,7 +6384,7 @@ function __cons(t, a) {
 // subset so that code can be written using future standard
 // functionality; not every case is considered or supported.
 
-// Requires ES6: Promise, Symbol.iterator (or polyfill)
+// Requires ES2015: Promise, Symbol.iterator (or polyfill)
 // Requires: URL (or polyfill)
 
 // Example:

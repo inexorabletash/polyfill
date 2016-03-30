@@ -825,7 +825,7 @@ test('Regression Tests', function() {
 
 });
 
-test('ES6 Typed Array Extras', function() {
+test('ES2015 Typed Array Extras', function() {
   arrayEqual(Uint16Array.from([1, 2, 3]), [1, 2, 3]);
   equal(Uint16Array.from([1, 2, 3]).byteLength, 6);
 

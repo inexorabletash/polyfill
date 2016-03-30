@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------
 //
-// ECMAScript 6 Polyfills
+// ECMAScript 2015 Polyfills
 //
 //----------------------------------------------------------------------
 
@@ -8,7 +8,7 @@
   "use strict";
 
   // Set this to always override native implementations, for testing
-  // the polyfill in browsers with partial/full ES6 support.
+  // the polyfill in browsers with partial/full ES2015 support.
   var OVERRIDE_NATIVE_FOR_TESTING = false;
 
   var undefined = (void 0); // Paranoia
@@ -165,8 +165,8 @@
 
   //----------------------------------------------------------------------
   //
-  // ECMAScript 6 Draft
-  // http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts
+  // ECMAScript 2015
+  // http://www.ecma-international.org/ecma-262/6.0/
   //
   //----------------------------------------------------------------------
 

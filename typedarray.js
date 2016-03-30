@@ -33,7 +33,7 @@
 //
 // Variations:
 //  * Allows typed_array.get/set() as alias for subscripts (typed_array[])
-//  * Gradually migrating structure from Khronos spec to ES6 spec
+//  * Gradually migrating structure from Khronos spec to ES2015 spec
 //
 // Caveats:
 //  * Beyond 10000 or so entries, polyfilled array accessors (ta[0],
