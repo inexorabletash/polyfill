@@ -270,7 +270,7 @@
           doc.documentElement.appendChild(doc.createElement('body'));
         } else if (window.ActiveXObject) {
           doc = new window.ActiveXObject('htmlfile');
-          doc.write('<head></head><body></body>');
+          doc.write('<head><\/head><body><\/body>');
           doc.close();
         }
 
