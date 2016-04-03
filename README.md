@@ -38,7 +38,7 @@ Since I generally use several in my hobby projects, bundled/minified versions ar
   * Includes: [html.js](html.js) [dom.js](dom.js) [xhr.js](xhr.js) [cssom.js](cssom.js) [timing.js](timing.js) [url.js](url.js) [fetch.js](fetch.js)
 * [polyfill.js](polyfill.js) (minified: [polyfill.min.js](polyfill.min.js)) has everything in [web.js](web.js) plus [es5.js](es5.js) and [es6.js](es6.js)
 
-Minification is done via http://javascript-minifier.com/
+Minification is done via https://github.com/mishoo/UglifyJS2
 
 
 ECMAScript / JavaScript Polyfills
