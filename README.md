@@ -87,28 +87,15 @@ DOM
   * Where `EventTarget` is `window`, `document`, or any element:
     * `EventTarget.addEventListener(event, handler)` - for IE8+
     * `EventTarget.removeEventListener(event, handler)` - for IE8+
-  * `Event.target`
-  * `Event.currentTarget`
-  * `Event.eventPhase`
-  * `Event.bubbles`
-  * `Event.cancelable`
-  * `Event.timeStamp`
-  * `Event.defaultPrevented`
-  * `Event.stopPropagation()`
-  * `Event.cancelBubble()`
+  * Event: `target`, `currentTarget`, `eventPhase`, `bubbles`, `cancelable`, `timeStamp`, `defaultPrevented`, `stopPropagation()`, `cancelBubble()`
 * Non-standard Event helpers for IE7- - adapted from
 [QuirksMode](http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html)
   * `window.addEvent(EventTarget, event, handler)`
   * `window.removeEvent(EventTarget, event, handler)`
 * [DOMTokenList](https://dom.spec.whatwg.org/#interface-domtokenlist) - `classList`[spec](https://dom.spec.whatwg.org/#dom-element-classlist), `relList`[spec](https://html.spec.whatwg.org/multipage/semantics.html#the-link-element)
+  * DOMTokenList: `length`, `item(index)`, `contains(token)`, `add(token)`, `remove(token)`, `toggle(token)`
   * `tokenList = elem.classList` - for IE8+
   * `tokenList = elem.relList` - for IE8+
-  * `tokenList.length`
-  * `tokenList.item(index)`
-  * `tokenList.contains(token)`
-  * `tokenList.add(token)`
-  * `tokenList.remove(token)`
-  * `tokenList.toggle(token)`
   * Non-standard helpers for IE7-:
     * `tokenList = window.getClassList(element)`
     * `tokenList = window.getRelList(element)`
@@ -180,37 +167,19 @@ url.searchParams.delete(name);
 var p = new URLSearchParams('a=1&b=2');
 ```
 
-URL objects have properties:
-* `href`, `origin`, `protocol`, `username`, `password`, `host`, `hostname`, `port`, `pathname`, `search`, `searchParams`, `hash`
+* URL: `href`, `origin`, `protocol`, `username`, `password`, `host`, `hostname`, `port`, `pathname`, `search`, `searchParams`, `hash`
+* URLSearchParams: `append(name, value)`, `delete(name)`, `get(name)`, `getAll(name)`, `has(name)`, `set(name, value)`, `entries()`, `keys()`, `values()`, `forEach(callback)` and `[Symbol.iterator]()` (if defined)
 
-URLSearchParams objects have:
-* `append(name, value)`
-* `delete(name)`
-* `get(name)`
-* `getAll(name)`
-* `has(name)`
-* `set(name, value)`
-* `entries()`, `keys()`, `values()`, `forEach(callback)` and `[Symbol.iterator]()` (if defined)
 
 Keyboard Events
 ---------------
 [script](keyboard.js) -
 [demo page](https://inexorabletash.github.io/polyfill/demos/keyboard.html) -
-[draft spec](https://dvcs.w3.org/hg/d4e/raw-file/tip/source_respec.htm#keyboard-events)
+[draft spec](https://w3c.github.io/uievents/) ([also](https://dvcs.w3.org/hg/d4e/raw-file/tip/source_respec.htm))
 
-```javascript
-// Adds the following properties to each KeyboardEvent:
-event.code
-event.key
-event.location
+KeyboardEvent: `code`, `key`, `location`, `KeyboardEvent.queryKeyCap(code)`
 
-// You can get a label for the key using:
-KeyboardEvent.queryKeyCap(code);
-
-// IE7- only: In your keydown/keyup handler, call this in your handler
-// before accessing the `code`, `key`, or `location` properties:
-window.identifyKey(keyboardEvent);
-```
+IE7- only: Call `window.identifyKey(keyboardEvent);` in `keydown`/`keyup` handlers before accessing above properties.
 
 [more details](keyboard.md)
 
