@@ -301,6 +301,11 @@ test('URLSearchParams iterable methods', function () {
   }
 });
 
+test('URL contains native static methods', function () {
+    ok(typeof URL.createObjectURL == 'function');
+    ok(typeof URL.revokeObjectURL == 'function');
+});
+
 test('Regression tests', function() {
   // IE mangles the pathname when assigning to search with 'about:' URLs
   var p = new URL('about:blank').searchParams;
