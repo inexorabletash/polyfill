@@ -1906,7 +1906,7 @@ if (!Date.prototype.toISOString) {
       var pos = ToInteger(position);
       var len = s.length;
       var start = min(max(pos, 0), len);
-      return s.indexOf(searchStr, pos) !== -1;
+      return s.indexOf(searchStr, start) !== -1;
     });
 
   // 21.1.3.8 String.prototype.indexOf ( searchString [ , position ] )
@@ -4130,8 +4130,8 @@ if (!Date.prototype.toISOString) {
    define(
       Reflect, 'apply',
       function apply(target, thisArgument, argumentsList) {
-        var obj = ToObject(target);
-        return Function.prototype.apply.call(thisArgument, argumentsList);
+        if (!IsCallable(target)) throw TypeError();
+        return Function.prototype.apply.call(target, thisArgument, argumentsList);
       });
 
     // 26.1.2 Reflect.construct ( target, argumentsList [, newTarget] )

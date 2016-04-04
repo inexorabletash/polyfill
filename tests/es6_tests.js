@@ -1271,43 +1271,67 @@ asyncTest("Promise.all() reject", function() {
 module("Reflection");
 
 test("Reflect", function() {
+
+  throws(function() { Reflect.apply(123); }, TypeError,
+        'Reflect.apply throws if argument is not callable');
+  var thisArg, args, t = {};
+  function fn() { thisArg = this; args = arguments; return 123; }
+  equal(Reflect.apply(fn, t, [1, 2]), 123,
+        'Reflect.apply should return result of call');
+  equal(thisArg, t, 'Reflect.apply should call with passed thisArg');
+  equal(args.length, 2, 'Reflect.apply should call with passed args');
+  equal(args[0], 1, 'Reflect.apply should call with passed args');
+  equal(args[1], 2, 'Reflect.apply should call with passed args');
+
   assertEqual('Reflect.construct(Date, [1970, 1]).getMonth()', 1);
   assertEqual('Reflect.enumerate({a:1}).next().value', 'a');
 
   var o = {};
   Object.defineProperty(o, 'p', {configurable: true, writable: true, value: 123});
   Object.defineProperty(o, 'q', {configurable: false, value: 456});
-  equal(Reflect.get(o, 'p'), 123);
-  equal(Reflect.get(o, 'q'), 456);
+  equal(Reflect.get(o, 'p'), 123, 'Reflect.get() works with configurable properties');
+  equal(Reflect.get(o, 'q'), 456, 'Reflect.get() works with non-configurable properties');
 
   equal(Reflect.defineProperty(o, 'p', {configurable: true, writable: true, value: 789}), true,
         'Reflect.defineProperty should return true if it succeeds');
   equal(Reflect.defineProperty(o, 'q', {configurable: true, value: 012}), false,
         'Reflect.defineProperty should return false if it fails');
-  equal(Reflect.get(o, 'p'), 789);
-  equal(Reflect.get(o, 'q'), 456);
+  equal(Reflect.get(o, 'p'), 789,
+        'Reflect.get() should see result of Reflect.defineProperty()');
+  equal(Reflect.get(o, 'q'), 456,
+        'Reflect.get() should not see result of failed Reflect.defineProperty()');
 
   equal(Reflect.set(o, 'p', 111), true,
         'Reflect.set should return true if it succeeds');
   equal(Reflect.set(o, 'q', 222), false,
         'Reflect.set should return false if it fails');
-  equal(Reflect.get(o, 'p'), 111);
-  equal(Reflect.get(o, 'q'), 456);
+  equal(Reflect.get(o, 'p'), 111,
+        'Reflect.get() should see result of Reflect.set()');
+  equal(Reflect.get(o, 'q'), 456,
+        'Reflect.get() should not see result of failed Reflect.set()');
 
   equal(Reflect.deleteProperty(o, 'p'), true,
         'Reflect.deleteProperty should return true if it succeeds');
   equal(Reflect.deleteProperty(o, 'q'), false,
         'Reflect.deleteProperty should return false if it fails');
-  equal(Reflect.get(o, 'p'), undefined);
-  equal(Reflect.get(o, 'q'), 456);
+  equal(Reflect.get(o, 'p'), undefined,
+        'Reflect.get() should see result of Reflect.delete()');
+  equal(Reflect.get(o, 'q'), 456,
+        'Reflect.get() should not see result of failed Reflect.delete()');
 
   var p = {};
-  equal(Reflect.getPrototypeOf(o), Object.prototype);
-  equal(Reflect.setPrototypeOf(o, p), true);
-  equal(Reflect.getPrototypeOf(o), p);
+  equal(Reflect.getPrototypeOf(o), Object.prototype,
+       'Reflect.getPrototypeOf() should yield object\'s prototype');
+  equal(Reflect.getPrototypeOf(o), o.__proto__,
+       'Reflect.getPrototypeOf(o) and o.__proto__ should match');
+  equal(Reflect.setPrototypeOf(o, p), true,
+        'Reflect.setPrototypeOf() should succeed');
+  equal(Reflect.getPrototypeOf(o), p,
+       'Reflect.getPrototypeOf() should yield object\'s new prototype');
 
-  var f = Object.freeze(o);
-  equal(Reflect.setPrototypeOf(f, p), false);
+  Object.freeze(o);
+  equal(Reflect.setPrototypeOf(o, {}), false,
+       'Reflect.setPrototypeOf() on frozen object should fail');
 
 });
 
