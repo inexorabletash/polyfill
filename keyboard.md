@@ -106,8 +106,8 @@ The legacy properties identifying the key are:
   `charCode` combined with `keyCode`
 
 For compatibility most browsers conform on the `keyCode` values
-produced by Microsoft Internet Explorer on Windows. But some browsers deviate
-- notably Firefox - and there several are OS- and browser-specific quirks.
+produced by Microsoft Internet Explorer on Windows. But some browsers deviate -
+notably Firefox - and there several are OS- and browser-specific quirks.
 
 IE's keyCode values derive from Windows Virtual Key Codes.
 [MSDN](http://msdn.microsoft.com/en-us/library/dd375731(VS.85).aspx)
