@@ -16,10 +16,10 @@
 }
 .section { float: left; margin: 10px;}
 
-.key.os-win, .key.os-mac, .key.os-cros { display: none; }
-body.os-win .key.os-win,
-body.os-mac .key.os-mac,
-body.os-cros .key.os-cros { display: inline-block }
+.key.meta-win, .key.meta-mac, .key.meta-cros { display: none; }
+body.meta-win .key.meta-win,
+body.meta-mac .key.meta-mac,
+body.meta-cros .key.meta-cros { display: inline-block }
 
 .key, .gap {
   display: inline-block;
@@ -44,7 +44,7 @@ body.os-cros .key.os-cros { display: inline-block }
 .Backslash { width: 60px; }
 .CapsLock, .standard .Enter { width: 87px; }
 .Shift { width: 113px; }
-.Control, .OS, .OSLeft, .OSRight, .Win, .Meta, .Alt, .ContextMenu { width: 60px; }
+.Control, .Meta, .MetaLeft, .MetaRight, .Win, .Meta, .Alt, .ContextMenu { width: 60px; }
 .Space { width: 254px; }
 .Numpad0 { width: 91px; }
 .NumpadAdd, .NumpadEnter { height: 68px; float: right; margin-right: 6px; }
@@ -139,14 +139,14 @@ body.os-cros .key.os-cros { display: inline-block }
 
 <div>
 <span class="key Control ControlLeft">Ctrl</span>
-<span class="key OSLeft os-win">Win</span>
-<span class="key OSLeft os-mac">&#x2318;</span>
+<span class="key MetaLeft meta-win">Win</span>
+<span class="key MetaLeft meta-mac">&#x2318;</span>
 <span class="key Alt AltLeft">Alt</span>
 <span class="key Space">Spacebar</span>
 <span class="key Alt AltRight">Alt</span>
-<span class="key OSRight os-win">Win</span>
-<span class="key OSRight os-mac">&#x2318;</span>
-<span class="key ContextMenu os-win os-mac">Menu</span>
+<span class="key MetaRight meta-win">Win</span>
+<span class="key MetaRight meta-mac">&#x2318;</span>
+<span class="key ContextMenu meta-win meta-mac">Menu</span>
 <span class="key Control ControlRight">Ctrl</span>
 </div>
 </div>

@@ -75,8 +75,8 @@
   //--------------------------------------------------------------------
 
   // "keyInfo" is a dictionary:
-  //   code: string - name from DOM Level 3 KeyboardEvent code Values
-  //     https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3Events-code.html
+  //   code: string - name from UI Events KeyboardEvent code Values
+  //     https://w3c.github.io/uievents-code/
   //   location (optional): number - one of the DOM_KEY_LOCATION values
   //   keyCap (optional): string - keyboard label in en-US locale
   // USB code Usage ID from page 0x07 unless otherwise noted (Informative)
@@ -103,17 +103,17 @@
     0x12: { code: 'Alt' },
     0x13: { code: 'Pause' }, // [USB: 0x48]
     0x14: { code: 'CapsLock' }, // [USB: 0x39]
-    0x15: { code: 'KanaMode' }, // [USB: 0x88] - "HangulMode" for Korean layout
-    0x16: { code: 'HangulMode' }, // [USB: 0x90] 0x15 as well in MSDN VK table ???
-    0x17: { code: 'JunjaMode' }, // (Not in D3E)
-    0x18: { code: 'FinalMode' }, // (Not in D3E)
-    0x19: { code: 'KanjiMode' }, // [USB: 0x91] - "HanjaMode" for Korean layout
+    0x15: { code: 'KanaMode' }, // [USB: 0x88]
+    0x16: { code: 'Lang1' }, // [USB: 0x90]
+    // 0x17: VK_JUNJA
+    // 0x18: VK_FINAL
+    0x19: { code: 'Lang2' }, // [USB: 0x91]
     // 0x1A - undefined
     0x1B: { code: 'Escape' }, // [USB: 0x29]
     0x1C: { code: 'Convert' }, // [USB: 0x8a]
     0x1D: { code: 'NonConvert' }, // [USB: 0x8b]
-    0x1E: { code: 'Accept' }, // (Not in D3E)
-    0x1F: { code: 'ModeChange' }, // (Not in D3E)
+    0x1E: { code: 'Accept' }, // [USB: ????]
+    0x1F: { code: 'ModeChange' }, // [USB: ????]
 
     0x20: { code: 'Space' }, // [USB: 0x2c]
     0x21: { code: 'PageUp' }, // [USB: 0x4b]
@@ -171,8 +171,8 @@
     0x58: { code: 'KeyX', keyCap: 'x' }, // [USB: 0x1b]
     0x59: { code: 'KeyY', keyCap: 'y' }, // [USB: 0x1c]
     0x5A: { code: 'KeyZ', keyCap: 'z' }, // [USB: 0x1d]
-    0x5B: { code: 'OSLeft', location: LEFT }, // [USB: 0xe3]
-    0x5C: { code: 'OSRight', location: RIGHT }, // [USB: 0xe7]
+    0x5B: { code: 'MetaLeft', location: LEFT }, // [USB: 0xe3]
+    0x5C: { code: 'MetaRight', location: RIGHT }, // [USB: 0xe7]
     0x5D: { code: 'ContextMenu' }, // [USB: 0x65] Context Menu
     // 0x5E - reserved
     0x5F: { code: 'Standby' }, // [USB: 0x82] Sleep
@@ -241,9 +241,9 @@
     0xAA: { code: 'BrowserSearch' }, // [USB: 0x0c/0x0221]
     0xAB: { code: 'BrowserFavorites' }, // [USB: 0x0c/0x0228]
     0xAC: { code: 'BrowserHome' }, // [USB: 0x0c/0x0222]
-    0xAD: { code: 'VolumeMute' }, // [USB: 0x7f]
-    0xAE: { code: 'VolumeDown' }, // [USB: 0x81]
-    0xAF: { code: 'VolumeUp' }, // [USB: 0x80]
+    0xAD: { code: 'AudioVolumeMute' }, // [USB: 0x7f]
+    0xAE: { code: 'AudioVolumeDown' }, // [USB: 0x81]
+    0xAF: { code: 'AudioVolumeUp' }, // [USB: 0x80]
 
     0xB0: { code: 'MediaTrackNext' }, // [USB: 0x0c/0x00b5]
     0xB1: { code: 'MediaTrackPrevious' }, // [USB: 0x0c/0x00b6]
@@ -340,7 +340,7 @@
 
   mergeIf(keyCodeToInfoTable,
           'chrome-mac', {
-            0x5D: { code: 'OSRight', location: RIGHT } // [USB: 0xe7]
+            0x5D: { code: 'MetaRight', location: RIGHT } // [USB: 0xe7]
           });
 
   // Windows via Bootcamp (!)
@@ -373,8 +373,8 @@
 
   mergeIf(keyCodeToInfoTable,
           'safari-mac', {
-            0x5B: { code: 'OSLeft', location: LEFT }, // [USB: 0xe3]
-            0x5D: { code: 'OSRight', location: RIGHT }, // [USB: 0xe7]
+            0x5B: { code: 'MetaLeft', location: LEFT }, // [USB: 0xe3]
+            0x5D: { code: 'MetaRight', location: RIGHT }, // [USB: 0xe7]
             0xE5: { code: 'KeyQ', keyCap: 'Q' } // [USB: 0x14] On alternate presses, Ctrl+Q sends this
           });
 
@@ -449,18 +449,18 @@
     0x6B: { code: 'NumpadAdd', location: NUMPAD } // [USB: 0x57]
   });
   mergeIf(locationTable[LEFT], 'moz-mac', {
-    0xE0: { code: 'OSLeft', location: LEFT } // [USB: 0xe3]
+    0xE0: { code: 'MetaLeft', location: LEFT } // [USB: 0xe3]
   });
   mergeIf(locationTable[RIGHT], 'moz-mac', {
-    0xE0: { code: 'OSRight', location: RIGHT } // [USB: 0xe7]
+    0xE0: { code: 'MetaRight', location: RIGHT } // [USB: 0xe7]
   });
   mergeIf(locationTable[RIGHT], 'moz-win', {
-    0x5B: { code: 'OSRight', location: RIGHT } // [USB: 0xe7]
+    0x5B: { code: 'MetaRight', location: RIGHT } // [USB: 0xe7]
   });
 
 
   mergeIf(locationTable[RIGHT], 'mac', {
-    0x5D: { code: 'OSRight', location: RIGHT } // [USB: 0xe7]
+    0x5D: { code: 'MetaRight', location: RIGHT } // [USB: 0xe7]
   });
 
   mergeIf(locationTable[NUMPAD], 'chrome-mac', {
@@ -483,7 +483,7 @@
   //--------------------------------------------------------------------
 
   // Mapping from `code` values to `key` values. Values defined at:
-  // https://dvcs.w3.org/hg/dom3events/raw-file/tip/html/DOM3Events-key.html
+  // https://w3c.github.io/uievents-key/
   // Entries are only provided when `key` differs from `code`. If
   // printable, `shiftKey` has the shifted printable character. This
   // assumes US Standard 101 layout
@@ -496,8 +496,8 @@
     ControlRight: { key: 'Control' },
     AltLeft: { key: 'Alt' },
     AltRight: { key: 'Alt' },
-    OSLeft: { key: 'OS' },
-    OSRight: { key: 'OS' },
+    MetaLeft: { key: 'Meta' },
+    MetaRight: { key: 'Meta' },
 
     // Whitespace Keys
     NumpadEnter: { key: 'Enter' },
@@ -571,8 +571,8 @@
   };
 
   mergeIf(codeToKeyTable, 'mac', {
-    OSLeft: { key: 'Meta' },
-    OSRight: { key: 'Meta' }
+    MetaLeft: { key: 'Meta' },
+    MetaRight: { key: 'Meta' }
   });
 
   // Corrections for 'key' names in older browsers (e.g. FF36-)

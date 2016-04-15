@@ -1,15 +1,14 @@
 
 function contains(s, ss) { return s.indexOf(ss) != -1; }
 if (contains(navigator.platform, 'Win'))
-  document.body.classList.add('os-win');
+  document.body.classList.add('meta-win');
 if (contains(navigator.platform, 'Mac'))
-  document.body.classList.add('os-mac');
+  document.body.classList.add('meta-mac');
 if (contains(navigator.userAgent, 'CrOS'))
-  document.body.classList.add('os-cros');
+  document.body.classList.add('meta-cros');
 
 function select(event) {
   var id = event.code;
-  console.log("id: " + id);
   return [].map.call(document.querySelectorAll('.' + id), function(x) { return x; });
 
   // Can't override |location| on KeyboardEvent in some browsers, so it
