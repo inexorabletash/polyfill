@@ -915,7 +915,7 @@
         if (document.implementation && document.implementation.createHTMLDocument) {
           doc = document.implementation.createHTMLDocument('');
         } else if (document.implementation && document.implementation.createDocument) {
-          doc = document.implementation.createElement('http://www.w3.org/1999/xhtml', 'html', null);
+          doc = document.implementation.createDocument('http://www.w3.org/1999/xhtml', 'html', null);
           doc.documentElement.appendChild(doc.createElement('head'));
           doc.documentElement.appendChild(doc.createElement('body'));
         } else if (window.ActiveXObject) {
@@ -1946,7 +1946,7 @@
         if (document.implementation && document.implementation.createHTMLDocument) {
           doc = document.implementation.createHTMLDocument('');
         } else if (document.implementation && document.implementation.createDocument) {
-          doc = document.implementation.createElement('http://www.w3.org/1999/xhtml', 'html', null);
+          doc = document.implementation.createDocument('http://www.w3.org/1999/xhtml', 'html', null);
           doc.documentElement.appendChild(doc.createElement('head'));
           doc.documentElement.appendChild(doc.createElement('body'));
         } else if (window.ActiveXObject) {
