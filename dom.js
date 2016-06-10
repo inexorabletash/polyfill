@@ -435,4 +435,31 @@
       });
     }
   }());
+
+  // Element.matches
+  // https://developer.mozilla.org/en/docs/Web/API/Element/matches
+  // Needed for: IE, Firefox 3.6, early Webkit and Opera 15.0
+  // Use msMatchesSelector(selectorString) for IE
+  // Use oMatchesSelector(selectorString) for Opera 15.0
+  // Use mozMatchesSelector(selectorString) for Firefox 3.6
+  // Use webkitMatchesSelector(selectorString) for early Webkit
+  // Use polyfill if no matches() support, but querySelectorAll() support
+  if (!Element.prototype.matches) {
+    if (Element.prototype.msMatchesSelector) {
+      Element.prototype.matches = Element.prototype.msMatchesSelector;
+    } else if (Element.prototype.oMatchesSelector) {
+      Element.prototype.matches = Element.prototype.oMatchesSelector;
+    } else if (Element.prototype.mozMatchesSelector) {
+      Element.prototype.matches = Element.prototype.mozMatchesSelector;
+    } else if (Element.prototype.webkitMatchesSelector) {
+      Element.prototype.matches = Element.prototype.webkitMatchesSelector;
+    } else if (document.querySelectorAll) {
+      Element.prototype.matches = function matchesQueryAllPolyfill(selectorString) {
+        var matches = (this.document || this.ownerDocument).querySelectorAll(selectorString),
+        i = matches.length;
+        while (--i >= 0 && matches.item(i) !== this) {}
+        return i > -1;
+      };
+    }
+  }
 }(self));

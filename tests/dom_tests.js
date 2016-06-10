@@ -153,3 +153,8 @@ test('next/previousElementSibling', function() {
   assertTrue("document.querySelector('#two').nextElementSibling === document.querySelector('#three')");
   assertTrue("document.querySelector('#three').nextElementSibling === null");
 });
+
+test("matches", function() {
+  assertTrue("document.querySelector('#foo').matches('.alpha')");
+  assertTrue("document.querySelector('#baz').matches('.beta')");
+});
