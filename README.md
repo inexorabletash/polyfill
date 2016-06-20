@@ -79,7 +79,7 @@ DOM
 * [Selectors](https://dom.spec.whatwg.org/#scope-match-a-selectors-string) (for IE7-) - adapted from [Paul Young](http://ajaxian.com/archives/creating-a-queryselector-for-ie-that-runs-at-native-speed)
   * `element = document.querySelector(selector)`
   * `elementArray = document.querySelectorAll(selector)`
-* `elem.matches(stringSelector)` (for IE, Firefox 3.6, early Webkit and Opera 15.0)
+* `elem.matches(selector)` (for IE, Firefox 3.6, early Webkit and Opera 15.0)
 * `elementArray = document.getElementsByClassName(classNames)` (for IE8-)
 * `e = element.nextElementSibling`, `e = element.previousElementSibling` (for IE8)
 * Node constants: `Node.ELEMENT_NODE`, etc (for IE8-)
