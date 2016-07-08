@@ -3,6 +3,7 @@
   "author": "Joshua Bell <inexorabletash@gmail.com>",
   "version": "0.1.21",
   "description": "Collection of Web polyfills.",
+  "license": "Unlicense",
   "main": "polyfill.js",
   "files": [
     "README.md",

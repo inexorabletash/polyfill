@@ -6,6 +6,7 @@
     "Joshua Bell <inexorabletash@gmail.com>"
   ],
   "description": "Various Web API and ECMAScript Polyfills",
+  "license": "Unlicense",
   "main": [
     "es5.js",
     "es6.js",
