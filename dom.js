@@ -416,16 +416,17 @@
 
     // Add second argument to native DOMTokenList.toggle() if necessary
     (function() {
-      if (!('DOMTokenList' in global) || !('classList' in document.body)) return;
+      if (!('DOMTokenList' in global)) return;
       var e = document.createElement('span');
+      if (!('classList' in e)) return;
       e.classList.toggle('x', false);
       if (!e.classList.contains('x')) return;
       global.DOMTokenList.prototype.toggle = function toggle(token/*, force*/) {
         var force = arguments[1];
         if (force === undefined) {
-          var has = this.contains(token);
-          this[!has ? 'add' : 'remove'](token);
-          return !has;
+          var add = !this.contains(token);
+          this[add ? 'add' : 'remove'](token);
+          return add;
         }
         force = !!force;
         this[force ? 'add' : 'remove'](token);
