@@ -4754,7 +4754,8 @@ function __cons(t, a) {
           },
 
           toggle: {
-            value: function(token, force) {
+            value: function(token/*, force*/) {
+              var force = arguments[1];
               try {
                 token = String(token);
                 if (token.length === 0) { throw SyntaxError(); }
@@ -4826,6 +4827,26 @@ function __cons(t, a) {
       window.getRelList = function(elem) { return new DOMTokenListShim(elem, 'rel'); };
       addToElementPrototype('relList', function() { return new DOMTokenListShim(this, 'rel'); } );
     }
+
+    // Add second argument to native DOMTokenList.toggle() if necessary
+    (function() {
+      if (!('DOMTokenList' in global) || !('classList' in document.body)) return;
+      var e = document.createElement('span');
+      e.classList.toggle('x', false);
+      if (!e.classList.contains('x')) return;
+      global.DOMTokenList.prototype.toggle = function toggle(token/*, force*/) {
+        var force = arguments[1];
+        if (force === undefined) {
+          var has = this.contains(token);
+          this[!has ? 'add' : 'remove'](token);
+          return !has;
+        }
+        force = !!force;
+        this[force ? 'add' : 'remove'](token);
+        return force;
+      };
+    }());
+
 
     // DOM - Interface NonDocumentTypeChildNode
     // Interface NonDocumentTypeChildNode

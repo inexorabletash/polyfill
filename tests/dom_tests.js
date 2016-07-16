@@ -68,7 +68,7 @@ test("Enumerations", function () {
 });
 
 test("Helpers - getClassList() and getRelList()", function () {
-  expect(45);
+  expect(59);
 
   // getClassList()
   assertEqual("getClassList(document.getElementById('baz')).length", 4);
@@ -109,6 +109,22 @@ test("Helpers - getClassList() and getRelList()", function () {
   assertEqual("getClassList(elem).item(0)", 'bar');
   getClassList(elem).remove('bar');
   assertEqual("getClassList(elem).length", 0);
+
+  assertTrue("getClassList(elem).toggle('a')");
+  assertTrue("getClassList(elem).contains('a')");
+  assertFalse("getClassList(elem).toggle('a')");
+  assertFalse("getClassList(elem).contains('a')");
+  assertTrue("getClassList(elem).toggle('a')");
+  assertTrue("getClassList(elem).contains('a')");
+
+  assertFalse("getClassList(elem).toggle('a', false)");
+  assertFalse("getClassList(elem).contains('a')");
+  assertTrue("getClassList(elem).toggle('a', true)");
+  assertTrue("getClassList(elem).contains('a')");
+  assertTrue("getClassList(elem).toggle('a', true)");
+  assertTrue("getClassList(elem).contains('a')");
+  assertFalse("getClassList(elem).toggle('a', false)");
+  assertFalse("getClassList(elem).contains('a')");
 
   elem = document.createElement('span');
   assertEqual("getClassList(elem).length", 0);
