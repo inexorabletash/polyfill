@@ -100,6 +100,8 @@ DOM
   * Non-standard helpers for IE7-:
     * `tokenList = window.getClassList(element)`
     * `tokenList = window.getRelList(element)`
+* ParentNode: `node.prepend(nodes...)`, `node.append(nodes...)`
+* ChildNode: `node.before(nodes...)` , `node.after(nodes...)` , `node.replaceWith(nodes...)` , `node.remove()`
 
 
 Fetch
