@@ -134,20 +134,30 @@ if (!Object.keys) {
 // ES5 15.3.4.5 Function.prototype.bind ( thisArg [, arg1 [, arg2, ... ]] )
 // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function/bind
 if (!Function.prototype.bind) {
-  Function.prototype.bind = function (o) {
-    if (typeof this !== 'function') { throw TypeError("Bind must be called on a function"); }
-    var slice = [].slice,
-        args = slice.call(arguments, 1),
-        self = this,
-        bound = function () {
-          return self.apply(this instanceof nop ? this : o,
-                            args.concat(slice.call(arguments)));
+  Function.prototype.bind = function(oThis) {
+    if (typeof this !== 'function') {
+      // closest thing possible to the ECMAScript 5
+      // internal IsCallable function
+      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+    }
+
+    var aArgs   = Array.prototype.slice.call(arguments, 1),
+        fToBind = this,
+        fNOP    = function() {},
+        fBound  = function() {
+          return fToBind.apply(this instanceof fNOP
+                 ? this
+                 : oThis,
+                 aArgs.concat(Array.prototype.slice.call(arguments)));
         };
 
-    function nop() {}
-    nop.prototype = self.prototype;
-    bound.prototype = new nop();
-    return bound;
+    if (this.prototype) {
+      // Function.prototype doesn't have a prototype property
+      fNOP.prototype = this.prototype;
+    }
+    fBound.prototype = new fNOP();
+
+    return fBound;
   };
 }
 
