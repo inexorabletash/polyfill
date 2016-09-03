@@ -84,16 +84,15 @@
     if (init === undefined || init === null)
       init = '';
 
-    if (Object(init) !== init || !(init instanceof URLSearchParams))
+    if (Object(init) !== init || (init instanceof URLSearchParams))
       init = String(init);
 
-    if (typeof init === 'string' && init.substring(0, 1) === '?')
-      init = init.substring(1);
-
-    if (typeof init === 'string')
+    if (typeof init === 'string') {
+      if (init.substring(0, 1) === '?') {
+        init = init.substring(1);
+      }
       this._list = urlencoded_parse(init);
-    else
-      this._list = init._list.slice();
+    }
 
     this._url_object = null;
     this._setList = function (list) { if (!updating) $this._list = list; };

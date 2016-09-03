@@ -270,6 +270,16 @@ test('URLSearchParams mutation', function () {
   sp2.append('c', '3');
   equal(String(sp1), 'a=1&b=2');
   equal(String(sp2), 'a=1&c=3');
+
+  var sp3 = new URLSearchParams('a=1');
+  equal(String(sp3), 'a=1');
+  var sp4 = new URLSearchParams(sp3);
+  equal(String(sp4), 'a=1');
+  sp4.set('a', 2);
+  equal(sp3.get('a'), 1);
+  equal(String(sp3), 'a=1');
+  equal(sp4.get('a'), 2);
+  equal(String(sp4), 'a=2');
 });
 
 test('URLSearchParams serialization', function() {
