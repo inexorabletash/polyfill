@@ -5151,16 +5151,15 @@ function __cons(t, a) {
     if (init === undefined || init === null)
       init = '';
 
-    if (Object(init) !== init || !(init instanceof URLSearchParams))
+    if (Object(init) !== init || (init instanceof URLSearchParams))
       init = String(init);
 
-    if (typeof init === 'string' && init.substring(0, 1) === '?')
-      init = init.substring(1);
-
-    if (typeof init === 'string')
+    if (typeof init === 'string') {
+      if (init.substring(0, 1) === '?') {
+        init = init.substring(1);
+      }
       this._list = urlencoded_parse(init);
-    else
-      this._list = init._list.slice();
+    }
 
     this._url_object = null;
     this._setList = function (list) { if (!updating) $this._list = list; };
@@ -5300,7 +5299,7 @@ function __cons(t, a) {
       value: function(callback) {
         var thisArg = (arguments.length > 1) ? arguments[1] : undefined;
         this._list.forEach(function(pair, index) {
-          callback.call(thisArg, pair.name, pair.value);
+          callback.call(thisArg, pair.value, pair.name);
         });
 
       }, writable: true, enumerable: true, configurable: true
@@ -6182,16 +6181,15 @@ function __cons(t, a) {
     if (init === undefined || init === null)
       init = '';
 
-    if (Object(init) !== init || !(init instanceof URLSearchParams))
+    if (Object(init) !== init || (init instanceof URLSearchParams))
       init = String(init);
 
-    if (typeof init === 'string' && init.substring(0, 1) === '?')
-      init = init.substring(1);
-
-    if (typeof init === 'string')
+    if (typeof init === 'string') {
+      if (init.substring(0, 1) === '?') {
+        init = init.substring(1);
+      }
       this._list = urlencoded_parse(init);
-    else
-      this._list = init._list.slice();
+    }
 
     this._url_object = null;
     this._setList = function (list) { if (!updating) $this._list = list; };
@@ -6331,7 +6329,7 @@ function __cons(t, a) {
       value: function(callback) {
         var thisArg = (arguments.length > 1) ? arguments[1] : undefined;
         this._list.forEach(function(pair, index) {
-          callback.call(thisArg, pair.name, pair.value);
+          callback.call(thisArg, pair.value, pair.name);
         });
 
       }, writable: true, enumerable: true, configurable: true

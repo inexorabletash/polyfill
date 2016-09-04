@@ -304,7 +304,7 @@ test('URLSearchParams iterable methods', function () {
     equal(this, thisArg);
     a.push([key, value]);
   }, thisArg);
-  deepEqual(a, [['a', '1'], ['b', '2']]);
+  deepEqual(a, [['1', 'a'], ['2', 'b']]);
 
   if ('Symbol' in self && 'iterator' in self.Symbol) {
     deepEqual(toArray(params[Symbol.iterator]()), [['a', '1'], ['b', '2']]);

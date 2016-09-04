@@ -232,7 +232,7 @@
       value: function(callback) {
         var thisArg = (arguments.length > 1) ? arguments[1] : undefined;
         this._list.forEach(function(pair, index) {
-          callback.call(thisArg, pair.name, pair.value);
+          callback.call(thisArg, pair.value, pair.name);
         });
 
       }, writable: true, enumerable: true, configurable: true
