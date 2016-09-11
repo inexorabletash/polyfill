@@ -136,16 +136,17 @@ if (!Object.keys) {
 if (!Function.prototype.bind) {
   Function.prototype.bind = function (o) {
     if (typeof this !== 'function') { throw TypeError("Bind must be called on a function"); }
-    var slice = [].slice,
-        args = slice.call(arguments, 1),
+
+    var args = Array.prototype.slice.call(arguments, 1),
         self = this,
+        nop = function() {},
         bound = function () {
           return self.apply(this instanceof nop ? this : o,
-                            args.concat(slice.call(arguments)));
+                            args.concat(Array.prototype.slice.call(arguments)));
         };
 
-    function nop() {}
-    nop.prototype = self.prototype;
+    if (this.prototype)
+      nop.prototype = this.prototype;
     bound.prototype = new nop();
     return bound;
   };

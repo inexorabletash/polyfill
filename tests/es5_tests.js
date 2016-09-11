@@ -54,6 +54,8 @@ test("Function prototype properties", function() {
     equal(that.bind(null)(), null);
     equal(that.bind(undefined)(), undefined);
   }());
+
+  equal(Function.prototype.bind()(), undefined);
 });
 
 test("Array constructor properties", function() {
