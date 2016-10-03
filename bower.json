@@ -1,6 +1,6 @@
 {
   "name": "js-polyfills",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "homepage": "https://github.com/inexorabletash/polyfill",
   "authors": [
     "Joshua Bell <inexorabletash@gmail.com>"
@@ -10,6 +10,7 @@
   "main": [
     "es5.js",
     "es6.js",
+    "es2016.js",
     "html.js",
     "dom.js",
     "xhr.js",

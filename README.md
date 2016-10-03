@@ -36,7 +36,7 @@ Since I generally use several in my hobby projects, bundled/minified versions ar
 
 * [web.js](web.js) (minified: [web.min.js](web.min.js)) includes the most common Web polyfills - it assumes ES2015 support
   * Includes: [html.js](html.js) [dom.js](dom.js) [xhr.js](xhr.js) [cssom.js](cssom.js) [timing.js](timing.js) [url.js](url.js) [fetch.js](fetch.js)
-* [polyfill.js](polyfill.js) (minified: [polyfill.min.js](polyfill.min.js)) has everything in [web.js](web.js) plus [es5.js](es5.js) and [es6.js](es6.js)
+* [polyfill.js](polyfill.js) (minified: [polyfill.min.js](polyfill.min.js)) has everything in [web.js](web.js) plus [es5.js](es5.js) and [es6.js](es6.js) and [es2016.js](es2016.js)
 
 Minification is done via https://github.com/mishoo/UglifyJS2
 
@@ -44,9 +44,11 @@ Minification is done via https://github.com/mishoo/UglifyJS2
 ECMAScript / JavaScript Polyfills
 ---------------------------------
 
-[ECMAScript 5](es5.md) - Previous standard, supported by all modern browsers. Frozen.
+[ECMAScript 5](es5.md) - Previous standard, supported by browsers circa 2012..
 
-[ECMAScript 2015](es6.md) - Most recent standard. Not fully supported by modern browsers yet.
+[ECMAScript 2015](es6.md) - Previous standard, supported by browsers circa 2016.
+
+[ECMAScript 2016](es2016.md) - Most recent standard. Not fully supported by modern browsers yet.
 
 [ECMAScript proposed](experimental/es-proposed.md) - Proposals for future editions of the standard. Here there be dragons.
 

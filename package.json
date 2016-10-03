@@ -1,7 +1,7 @@
 {
   "name": "js-polyfills",
   "author": "Joshua Bell <inexorabletash@gmail.com>",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "description": "Collection of Web polyfills.",
   "license": "Unlicense",
   "main": "polyfill.js",
@@ -16,6 +16,8 @@
     "es5.js",
     "es6.md",
     "es6.js",
+    "es2016.md",
+    "es2016.js",
     "html.js",
     "dom.js",
     "xhr.js",

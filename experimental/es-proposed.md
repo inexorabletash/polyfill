@@ -5,10 +5,6 @@ Per https://github.com/tc39/ecma262
 [script](es-proposed.js) -
 [unit tests](https://inexorabletash.github.io/polyfill/experimental/tests/es-proposed.html)
 
-#### In ECMAScript 2016
-
-* `Array.prototype.includes()` [ref](https://github.com/domenic/Array.prototype.contains/)
-
 #### Stage 4 (In drafts for ECMAScript 2017)
 
 * Object iterators: `Object.values()`, `Object.entries()` [ref](https://github.com/ljharb/proposal-object-values-entries)

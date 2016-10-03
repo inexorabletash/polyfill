@@ -248,34 +248,6 @@
       return;
     });
 
-  // https://github.com/tc39/Array.prototype.includes/
-  define(
-    Array.prototype, 'includes',
-    function includes(target) {
-      var fromIndex = arguments[1];
-
-      var o = ToObject(this);
-      var lenValue = o["length"];
-      var len = ToLength(lenValue);
-      if (len === 0) return false;
-      var n = (fromIndex !== undefined) ? ToInteger(fromIndex) : 0;
-      if (n >= len) return false;
-      if (n >= 0) {
-        var k = n;
-      } else {
-        k = len - abs(n);
-        if (k < 0) k = 0;
-      }
-      while (k < len) {
-        // eval('0 in [undefined]') == false in IE8-
-        if (/*i in t &&*/ SameValue(o[k], target)) {
-          return true;
-        }
-        k += 1;
-      }
-      return false;
-    });
-
   // https://github.com/ljharb/proposal-object-values-entries
   define(
     Object, 'values',
