@@ -35,7 +35,7 @@ The polyfills are roughly split up into files matching 1:1 with Web standards (s
 Since I generally use several in my hobby projects, bundled/minified versions are available:
 
 * [web.js](web.js) (minified: [web.min.js](web.min.js)) includes the most common Web polyfills - it assumes ES2015 support
-  * Includes: [html.js](html.js) [dom.js](dom.js) [xhr.js](xhr.js) [cssom.js](cssom.js) [timing.js](timing.js) [url.js](url.js) [fetch.js](fetch.js)
+  * Includes: [html.js](html.js) [dom.js](dom.js) [xhr.js](xhr.js) [cssom.js](cssom.js) [url.js](url.js) [fetch.js](fetch.js)
 * [polyfill.js](polyfill.js) (minified: [polyfill.min.js](polyfill.min.js)) has everything in [web.js](web.js) plus [es5.js](es5.js) and [es6.js](es6.js) and [es2016.js](es2016.js)
 
 Minification is done via https://github.com/mishoo/UglifyJS2
@@ -70,6 +70,9 @@ HTML
 * [Base64 utility methods](https://html.spec.whatwg.org/multipage/webappapis.html#atob) (for IE9-)
   * `encodedString = window.btoa(binaryString)` - Base64 Encode
   * `binaryString = window.atob(encodedString)` - Base64 Decode
+* [Animation Frames](https://html.spec.whatwg.org/multipage/webappapis.html#animation-frames) - [demo page](https://inexorabletash.github.io/polyfill/demos/raf.html)
+  * `id = window.requestAnimationFrame()`
+  * `window.cancelAnimationFrame(id)`
 
 
 DOM
@@ -137,18 +140,6 @@ XMLHttpRequest
 * [`FormData`](https://xhr.spec.whatwg.org/#interface-formdata) (for IE9-)
 
 
-Timing
-------
-[script](timing.js)
-
-* [W3C Timing control for script-based animations](http://www.w3.org/TR/animation-timing/) - [demo page](https://inexorabletash.github.io/polyfill/demos/raf.html)
-  * `id = window.requestAnimationFrame()`
-  * `window.cancelAnimationFrame(id)`
-* [Efficient Script Yielding](https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/setImmediate/Overview.html)
-  * `id = setImmediate(callback, args...)`
-  * `clearImmediate(id)`
-
-
 CSS OM
 ------
 [script](cssom.js) - [spec](https://dev.w3.org/csswg/cssom-view/)
@@ -174,6 +165,20 @@ var p = new URLSearchParams('a=1&b=2');
 
 * URL: `href`, `origin`, `protocol`, `username`, `password`, `host`, `hostname`, `port`, `pathname`, `search`, `searchParams`, `hash`
 * URLSearchParams: `append(name, value)`, `delete(name)`, `get(name)`, `getAll(name)`, `has(name)`, `set(name, value)`, `entries()`, `keys()`, `values()`, `forEach(callback)` and `[Symbol.iterator]()` (if defined)
+
+
+Uncommon Polyfills
+==================
+
+The following are of limited use and are *not* included in the `web.js` / `polyfill.js` bundled versions.
+
+Timing
+------
+[script](timing.js)
+
+* [Efficient Script Yielding](http://w3c.github.io/setImmediate/)
+  * `id = setImmediate(callback, args...)`
+  * `clearImmediate(id)`
 
 
 Keyboard Events
