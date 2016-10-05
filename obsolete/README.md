@@ -80,3 +80,11 @@ used for a few C-to-JavaScript porting projects
 ```javascript
 var str = sprintf("Foo %s bar %d", "hello", 123);
 ```
+
+
+Binary Data
+-----------
+[script](bindata.js) -
+[demo page](https://inexorabletash.github.io/polyfill/obsolete/demos/bindata.html)
+
+Abandoned proposal for ECMAScript http://wiki.ecmascript.org/doku.php?id=harmony:typed_objects
