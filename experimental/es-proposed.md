@@ -18,25 +18,29 @@ See [Finished Proposals](https://github.com/tc39/proposals/blob/master/finished-
 See also:
 
 * SIMD - see https://github.com/tc39/ecmascript_simd/blob/master/src/ecmascript_simd.js
+* `global` [ref](https://github.com/tc39/proposal-global)
 
 #### Stage 2
 
-* String prototype: `trimStart()`, `trimEnd()` [ref](https://github.com/sebmarkbage/ecmascript-string-left-right-trim) (and  `trimLeft()`, `trimRight()` aliases)
+* String prototype: `trimStart()`, `trimEnd()` (and `trimLeft()`, `trimRight()` aliases) [ref](https://github.com/sebmarkbage/ecmascript-string-left-right-trim)
 
 #### Stage 1
 
 * String.prototype: `matchAll()` [ref](https://github.com/ljharb/String.prototype.matchAll)
+* Math extensions: `clamp()`, `scale()`, `radians()`, `degrees()`, `RAD_PER_DEG`, `DEG_PER_RAD` [ref](https://github.com/rwaldron/proposal-math-extensions/blob/master/README.md)
 
 #### Stage 0
 
 * `String.prototype.at()` [ref](https://github.com/mathiasbynens/String.prototype.at)
+* 64-bit Math: `imulh()`, `umulh()`, `iaddh()`, `isubh()`
 
 See also:
 
 * [Int64](https://github.com/inexorabletash/int64)
 
-#### Informal Proposals
+#### Obsolete/Abandoned Proposals
 
 * Number: `compare()`
 * Array prototype: `pushAll()`
 * Reflection: `Object.getPropertyDescriptor(o)`, `Object.getPropertyNames(o)`
+* Math: `denormz()`, `fdenormz()`
