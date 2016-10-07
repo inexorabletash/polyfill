@@ -5,8 +5,20 @@
 <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.0.1.css">
 <script src="https://code.jquery.com/qunit/qunit-2.0.1.js"></script>
 
-<style>.test-message { white-space: pre-wrap; }</style>
+<div style="font-family: sans-serif; font-size: 8pt">
+  <p style="background-color: #ebb; padding: 5px;">
+    Native implementations of the following functions exist, so the
+    test results do not reflect the polyfill:
+    <br>
+    <span style="font-family: monospace;" id="nativeFunctions"></span>
+  </p>
 
+  <p style="background-color: #beb; padding: 5px;">
+    The following lack native implementations, so the polyfills are tested:
+    <br>
+    <span style="font-family: monospace;" id="polyfilledFunctions"></span>
+  </p>
+</div>
 <div id="qunit"></div>
 <div id="qunit-fixture"></div>
 

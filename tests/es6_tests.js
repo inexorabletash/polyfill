@@ -23,7 +23,7 @@ QUnit.assert.epsilon = function(actual, expected, epsilon) {
 };
 
 
-QUnit.test("Native implementations", function(assert) {
+(function() {
   function isNative(t) {
     return String(eval(t)).indexOf('[native code]') !== -1;
   }
@@ -89,14 +89,11 @@ QUnit.test("Native implementations", function(assert) {
   var nativeFunctions = functions.filter(isNative);
   var polyfilledFunctions = functions.filter(negate(isNative));
 
-  assert.ok(nativeFunctions.length === 0,
-            'Native implementations of the following functions exist, so the ' +
-            'test results below do not reflect the behavior of the polyfill:\n' +
-            nativeFunctions.join(' '));
-  assert.ok(true,
-            'The following lack native implementations, so the polyfills are tested:\n' +
-            polyfilledFunctions.join(' '));
-});
+  document.querySelector('#nativeFunctions').appendChild(document.createTextNode(
+            nativeFunctions.join(' ')));
+  document.querySelector('#polyfilledFunctions').appendChild(document.createTextNode(
+            polyfilledFunctions.join(' ')));
+})();
 
 
 QUnit.module("Extras");
