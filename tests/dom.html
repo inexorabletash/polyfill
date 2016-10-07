@@ -1,21 +1,11 @@
 <!DOCTYPE html>
 <title>DOM Polyfill Unit Tests</title>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.0.1.css">
+<script src="https://code.jquery.com/qunit/qunit-2.0.1.js"></script>
 
-<script src="https://code.jquery.com/qunit/qunit-1.21.0.js"></script>
-<link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-1.21.0.css">
-
-<h1 id="qunit-header">DOM Polyfill Unit Tests</h1>
-<h2 id="qunit-banner"></h2>
-<div id="qunit-testrunner-toolbar"></div>
-<h2 id="qunit-userAgent"></h2>
-<ol id="qunit-tests"></ol>
-
-<script type="text/javascript" src="../es5.js"></script>
-<script type="text/javascript" src="../dom.js"></script>
-<script type="text/javascript" src="testhelpers.js"></script>
-<script type="text/javascript" src="dom_tests.js"></script>
-
+<div id="qunit"></div>
 <div id="qunit-fixture">
 
 test markup, will be hidden
@@ -52,3 +42,8 @@ test markup, will be hidden
 <div id=mixin-childnode><span></span></div>
 
 </div>
+
+<script type="text/javascript" src="../es5.js"></script>
+<script type="text/javascript" src="../dom.js"></script>
+
+<script type="text/javascript" src="dom_tests.js"></script>

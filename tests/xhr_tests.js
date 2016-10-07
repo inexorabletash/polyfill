@@ -1,12 +1,14 @@
-test("Constants", function () {
-  expect(7);
+/*global QUnit*/
+
+QUnit.test("Constants", function(assert) {
+  assert.expect(7);
 
   // XMLHttpRequest
-  assertTrue("XMLHttpRequest != null");
-  assertTrue("new XMLHttpRequest() != null");
-  assertEqual("XMLHttpRequest.UNSENT", 0);
-  assertEqual("XMLHttpRequest.OPENED", 1);
-  assertEqual("XMLHttpRequest.HEADERS_RECEIVED", 2);
-  assertEqual("XMLHttpRequest.LOADING", 3);
-  assertEqual("XMLHttpRequest.DONE", 4);
+  assert.notEqual(XMLHttpRequest, null);
+  assert.notEqual(new XMLHttpRequest(), null);
+  assert.equal(XMLHttpRequest.UNSENT, 0);
+  assert.equal(XMLHttpRequest.OPENED, 1);
+  assert.equal(XMLHttpRequest.HEADERS_RECEIVED, 2);
+  assert.equal(XMLHttpRequest.LOADING, 3);
+  assert.equal(XMLHttpRequest.DONE, 4);
 });
