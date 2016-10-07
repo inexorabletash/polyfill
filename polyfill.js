@@ -4125,10 +4125,11 @@ if (!Date.prototype.toISOString) {
 
   (function() {
     // 26.1 The Reflect Object
-    var Reflect = {};
+    if (!('Reflect' in global) || OVERRIDE_NATIVE_FOR_TESTING)
+      global.Reflect = {};
 
     // 26.1.1 Reflect.apply ( target, thisArgument, argumentsList )
-   define(
+    define(
       Reflect, 'apply',
       function apply(target, thisArgument, argumentsList) {
         if (!IsCallable(target)) throw TypeError();
@@ -4256,8 +4257,6 @@ if (!Date.prototype.toISOString) {
         }
       });
 
-    if (!('Reflect' in global) || OVERRIDE_NATIVE_FOR_TESTING)
-      global.Reflect = Reflect;
   }());
 
   // ---------------------------------------

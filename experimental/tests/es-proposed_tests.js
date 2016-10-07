@@ -1,50 +1,50 @@
-module("Stage 4");
+/*global QUnit,global*/
 
-test("Object.values/entries", function() {
-  d = Object.create(null);
-  d['a'] = 1;
-  d['b'] = 2;
+QUnit.module("Stage 4");
 
-  assertTrue("Array.isArray(Object.keys(d))");
-  assertTrue("Array.isArray(Object.values(d))");
-  assertTrue("Array.isArray(Object.entries(d))");
-
-  deepEqual(Object.keys(d), ['a', 'b']);
-  deepEqual(Object.values(d), [1, 2]);
-  deepEqual(Object.entries(d), [['a', 1], ['b', 2]]);
-
-  deepEqual(Object.values({a: 1, get b(){delete this.c; return 2;}, c: 3}), [1,2]);
-  deepEqual(Object.entries({a: 1, get b(){delete this.c; return 2;}, c: 3}), [['a',1],['b',2]]);
-
-  delete d;
-});
-
-test("String padStart/padEnd", function() {
-  assertEqual("'a'.padStart()", 'a');
-  assertEqual("'a'.padStart(1)", 'a');
-  assertEqual("'a'.padStart(2)", ' a');
-  assertEqual("'a'.padStart(2, '_')", '_a');
-  assertEqual("'a'.padStart(3, '_')", '__a');
-  assertEqual("'a'.padStart(2, '[]')", '[a');
-
-  assertEqual("'a'.padEnd()", 'a');
-  assertEqual("'a'.padEnd(1)", 'a');
-  assertEqual("'a'.padEnd(2)", 'a ');
-  assertEqual("'a'.padEnd(2, '_')", 'a_');
-  assertEqual("'a'.padEnd(3, '__')", 'a__');
-  assertEqual("'a'.padEnd(2, '[]')", 'a[');
-});
-
-test("Object.getOwnPropertyDescriptors", function() {
+QUnit.test("Object.values/entries", function(assert) {
   var d = Object.create(null);
   d['a'] = 1;
   d['b'] = 2;
 
-  deepEqual(Object.keys(d), ['a', 'b']);
-  deepEqual(Object.values(d), [1, 2]);
-  deepEqual(Object.entries(d), [['a', 1], ['b', 2]]);
+  assert.ok(Array.isArray(Object.keys(d)));
+  assert.ok(Array.isArray(Object.values(d)));
+  assert.ok(Array.isArray(Object.entries(d)));
 
-  deepEqual(Object.getOwnPropertyDescriptors(d),
+  assert.deepEqual(Object.keys(d), ['a', 'b']);
+  assert.deepEqual(Object.values(d), [1, 2]);
+  assert.deepEqual(Object.entries(d), [['a', 1], ['b', 2]]);
+
+  assert.deepEqual(Object.values({a: 1, get b(){delete this.c; return 2;}, c: 3}), [1,2]);
+  assert.deepEqual(Object.entries({a: 1, get b(){delete this.c; return 2;}, c: 3}), [['a',1],['b',2]]);
+});
+
+QUnit.test("String padStart/padEnd", function(assert) {
+  assert.equal('a'.padStart(), 'a');
+  assert.equal('a'.padStart(1), 'a');
+  assert.equal('a'.padStart(2), ' a');
+  assert.equal('a'.padStart(2, '_'), '_a');
+  assert.equal('a'.padStart(3, '_'), '__a');
+  assert.equal('a'.padStart(2, '[]'), '[a');
+
+  assert.equal('a'.padEnd(), 'a');
+  assert.equal('a'.padEnd(1), 'a');
+  assert.equal('a'.padEnd(2), 'a ');
+  assert.equal('a'.padEnd(2, '_'), 'a_');
+  assert.equal('a'.padEnd(3, '__'), 'a__');
+  assert.equal('a'.padEnd(2, '[]'), 'a[');
+});
+
+QUnit.test("Object.getOwnPropertyDescriptors", function(assert) {
+  var d = Object.create(null);
+  d['a'] = 1;
+  d['b'] = 2;
+
+  assert.deepEqual(Object.keys(d), ['a', 'b']);
+  assert.deepEqual(Object.values(d), [1, 2]);
+  assert.deepEqual(Object.entries(d), [['a', 1], ['b', 2]]);
+
+  assert.deepEqual(Object.getOwnPropertyDescriptors(d),
             {a: {configurable: true,
                  enumerable: true,
                  writable: true,
@@ -59,37 +59,41 @@ test("Object.getOwnPropertyDescriptors", function() {
 });
 
 
-module("Stage 3");
+// ------------------------------------------------------------
 
-test("global", function(assert) {
+QUnit.module("Stage 3");
+
+QUnit.test("global", function(assert) {
   assert.equal(global, Function('return this')());
 });
 
-module("Stage 2");
+// ------------------------------------------------------------
 
-test("String trimStart/trimEnd and aliases", function() {
+QUnit.module("Stage 2");
 
-  equal(''.trimStart(), '');
-  equal('a'.trimStart(), 'a');
-  equal(' \t\r\n\u00A0a \t\r\n\u00A0'.trimStart(), 'a \t\r\n\u00A0');
-  equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimStart(), '');
-  equal(''.trimEnd(), '');
-  equal('a'.trimEnd(), 'a');
-  equal(' \t\r\n\u00A0a \t\r\n\u00A0'.trimEnd(), ' \t\r\n\u00A0a');
-  equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimEnd(), '');
+QUnit.test("String trimStart/trimEnd and aliases", function(assert) {
+
+  assert.equal(''.trimStart(), '');
+  assert.equal('a'.trimStart(), 'a');
+  assert.equal(' \t\r\n\u00A0a \t\r\n\u00A0'.trimStart(), 'a \t\r\n\u00A0');
+  assert.equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimStart(), '');
+  assert.equal(''.trimEnd(), '');
+  assert.equal('a'.trimEnd(), 'a');
+  assert.equal(' \t\r\n\u00A0a \t\r\n\u00A0'.trimEnd(), ' \t\r\n\u00A0a');
+  assert.equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimEnd(), '');
 
   // Annex B versions
-  equal(''.trimLeft(), '');
-  equal('a'.trimLeft(), 'a');
-  equal(' \t\r\n\u00A0a \t\r\n\u00A0'.trimLeft(), 'a \t\r\n\u00A0');
-  equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimLeft(), '');
-  equal(''.trimRight(), '');
-  equal('a'.trimRight(), 'a');
-  equal(' \t\r\n\u00A0a \t\r\n\u00A0'.trimRight(), ' \t\r\n\u00A0a');
-  equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimRight(), '');
+  assert.equal(''.trimLeft(), '');
+  assert.equal('a'.trimLeft(), 'a');
+  assert.equal(' \t\r\n\u00A0a \t\r\n\u00A0'.trimLeft(), 'a \t\r\n\u00A0');
+  assert.equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimLeft(), '');
+  assert.equal(''.trimRight(), '');
+  assert.equal('a'.trimRight(), 'a');
+  assert.equal(' \t\r\n\u00A0a \t\r\n\u00A0'.trimRight(), ' \t\r\n\u00A0a');
+  assert.equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimRight(), '');
 });
 
-test('Promise.prototype.finally', function(assert) {
+QUnit.test('Promise.prototype.finally', function(assert) {
   assert.ok('finally' in Promise.prototype);
   assert.equal(typeof Promise.prototype.finally, 'function');
   assert.equal(Promise.prototype.finally.length, 1);
@@ -129,9 +133,11 @@ test('Promise.prototype.finally', function(assert) {
 
 });
 
-module("Stage 1");
+// ------------------------------------------------------------
 
-test("String matchAll", function(assert) {
+QUnit.module("Stage 1");
+
+QUnit.test("String matchAll", function(assert) {
   function matchAllTest(string, regex, expected) {
     var results = [];
     for (var iter = string.matchAll(regex), step = iter.next(); !step.done; step = iter.next()) {
@@ -150,7 +156,7 @@ test("String matchAll", function(assert) {
   assert.throws(function() { 'abc'.matchAll({}); }, TypeError);
 });
 
-test('Math extensions', function(assert) {
+QUnit.test('Math extensions', function(assert) {
   assert.deepEqual(Math.clamp(0, 0, NaN), NaN);
   assert.deepEqual(Math.clamp(0, NaN, 0), NaN);
   assert.deepEqual(Math.clamp(NaN, 0, 0), NaN);
@@ -184,7 +190,7 @@ test('Math extensions', function(assert) {
 });
 
 
-test('Set and Map .of and .from', function(assert) {
+QUnit.test('Set and Map .of and .from', function(assert) {
   var k1 = {}, k2 = {};
 
   [Set, Map, WeakSet, WeakMap].forEach(function(t) {
@@ -210,73 +216,74 @@ test('Set and Map .of and .from', function(assert) {
   assert.equal(WeakMap.from([[k1, 1], [k2, 2]]).get(k2), 2);
 });
 
-module("Stage 0");
+// ------------------------------------------------------------
 
-test('String.prototype.at()', function() {
-  assertEqual("'a'.at(0)", 'a');
-  assertEqual("'a'.at(-1)", '');
-  assertEqual("'a'.at(2)", '');
-  assertEqual("'\uD800\uDC00'.at(0)", '\uD800\uDC00');
-  assertEqual("'\uD800'.at(0)", '\uD800');
-  assertEqual("'\uDC00'.at(0)", '\uDC00');
-  assertEqual("'\uD800\uDC00'.at(1)", '\uDC00');
+QUnit.module("Stage 0");
+
+QUnit.test('String.prototype.at()', function(assert) {
+  assert.equal('a'.at(0), 'a');
+  assert.equal('a'.at(-1), '');
+  assert.equal('a'.at(2), '');
+  assert.equal('\uD800\uDC00'.at(0), '\uD800\uDC00');
+  assert.equal('\uD800'.at(0), '\uD800');
+  assert.equal('\uDC00'.at(0), '\uDC00');
+  assert.equal('\uD800\uDC00'.at(1), '\uDC00');
 });
 
+// ------------------------------------------------------------
 
+QUnit.module("Obsolete/Abandoned");
 
-
-module("Obsolete/Abandoned");
-
-test("Number.compare", function () {
+QUnit.test("Number.compare", function(assert) {
   // Number.compare
-  assertTrue("'compare' in Number");
-  assertEqual("typeof Number.compare", 'function');
-  assertEqual("Number.compare(0, 0)", 0);
-  assertEqual("Number.compare(1, 0)", 1);
-  assertEqual("Number.compare(0, 1)", -1);
-  assertEqual("Number.compare(0, 0, 1)", 0);
-  assertEqual("Number.compare(1, 0, 1)", 0);
-  assertEqual("Number.compare(0, 1, 1)", 0);
+  assert.ok('compare' in Number);
+  assert.equal(typeof Number.compare, 'function');
+  assert.equal(Number.compare(0, 0), 0);
+  assert.equal(Number.compare(1, 0), 1);
+  assert.equal(Number.compare(0, 1), -1);
+  assert.equal(Number.compare(0, 0, 1), 0);
+  assert.equal(Number.compare(1, 0, 1), 0);
+  assert.equal(Number.compare(0, 1, 1), 0);
 });
 
-test("Array.prototype.pushAll", function () {
-  assertTrue("'pushAll' in Array.prototype");
-  assertEqual("typeof Array.prototype.pushAll", 'function');
+QUnit.test("Array.prototype.pushAll", function(assert) {
+  assert.ok('pushAll' in Array.prototype);
+  assert.equal(typeof Array.prototype.pushAll, 'function');
   var a;
-  a = []; a.pushAll([]); deepEqual(a, []);
-  a = [1,2]; a.pushAll([]); deepEqual(a, [1,2]);
-  a = []; a.pushAll([1,2]); deepEqual(a, [1,2]);
-  a = [1,2]; a.pushAll([1,2]); deepEqual(a, [1,2,1,2]);
+  a = []; a.pushAll([]); assert.deepEqual(a, []);
+  a = [1,2]; a.pushAll([]); assert.deepEqual(a, [1,2]);
+  a = []; a.pushAll([1,2]); assert.deepEqual(a, [1,2]);
+  a = [1,2]; a.pushAll([1,2]); assert.deepEqual(a, [1,2,1,2]);
 });
 
-test("Math: denormalized-to-zero", function() {
-  assertEqual("Math.denormz(0)", 0);
-  assertEqual("Math.denormz(-0)", -0);
-  assertEqual("Math.denormz(1)", 1);
-  assertEqual("Math.denormz(-1)", -1);
-  assertEqual("Math.denormz(Math.pow(2,-126))", Math.pow(2,-126));
-  assertEqual("Math.denormz(Math.pow(2,-127))", Math.pow(2,-127));
-  assertEqual("Math.denormz(Math.pow(2,-1022))", Math.pow(2,-1022));
-  assertEqual("Math.denormz(Math.pow(2,-1023))", 0);
-  assertEqual("Math.denormz(Number.MIN_VALUE)", 0);
-  assertEqual("Math.denormz(-Math.pow(2,-126))", -Math.pow(2,-126));
-  assertEqual("Math.denormz(-Math.pow(2,-127))", -Math.pow(2,-127));
-  assertEqual("Math.denormz(-Math.pow(2,-1022))", -Math.pow(2,-1022));
-  assertEqual("Math.denormz(-Math.pow(2,-1023))", -0);
-  assertEqual("Math.denormz(-Number.MIN_VALUE)", -0);
+QUnit.test("Math: denormalized-to-zero", function(assert) {
+  assert.equal(Math.denormz(0), 0);
+  assert.equal(Math.denormz(-0), -0);
+  assert.equal(Math.denormz(1), 1);
+  assert.equal(Math.denormz(-1), -1);
+  assert.equal(Math.denormz(Math.pow(2,-126)), Math.pow(2,-126));
+  assert.equal(Math.denormz(Math.pow(2,-127)), Math.pow(2,-127));
+  assert.equal(Math.denormz(Math.pow(2,-1022)), Math.pow(2,-1022));
+  assert.equal(Math.denormz(Math.pow(2,-1023)), 0);
+  assert.equal(Math.denormz(Number.MIN_VALUE), 0);
+  assert.equal(Math.denormz(-Math.pow(2,-126)), -Math.pow(2,-126));
+  assert.equal(Math.denormz(-Math.pow(2,-127)), -Math.pow(2,-127));
+  assert.equal(Math.denormz(-Math.pow(2,-1022)), -Math.pow(2,-1022));
+  assert.equal(Math.denormz(-Math.pow(2,-1023)), -0);
+  assert.equal(Math.denormz(-Number.MIN_VALUE), -0);
 
-  assertEqual("Math.fdenormz(0)", 0);
-  assertEqual("Math.fdenormz(-0)", -0);
-  assertEqual("Math.fdenormz(1)", 1);
-  assertEqual("Math.fdenormz(-1)", -1);
-  assertEqual("Math.fdenormz(Math.pow(2,-126))", Math.pow(2,-126));
-  assertEqual("Math.fdenormz(Math.pow(2,-127))", 0);
-  assertEqual("Math.fdenormz(Math.pow(2,-1022))", 0);
-  assertEqual("Math.fdenormz(Math.pow(2,-1023))", 0);
-  assertEqual("Math.fdenormz(Number.MIN_VALUE)", 0);
-  assertEqual("Math.fdenormz(-Math.pow(2,-126))", -Math.pow(2,-126));
-  assertEqual("Math.fdenormz(-Math.pow(2,-127))", -0);
-  assertEqual("Math.fdenormz(-Math.pow(2,-1022))", -0);
-  assertEqual("Math.fdenormz(-Math.pow(2,-1023))", -0);
-  assertEqual("Math.fdenormz(-Number.MIN_VALUE)", -0);
+  assert.equal(Math.fdenormz(0), 0);
+  assert.equal(Math.fdenormz(-0), -0);
+  assert.equal(Math.fdenormz(1), 1);
+  assert.equal(Math.fdenormz(-1), -1);
+  assert.equal(Math.fdenormz(Math.pow(2,-126)), Math.pow(2,-126));
+  assert.equal(Math.fdenormz(Math.pow(2,-127)), 0);
+  assert.equal(Math.fdenormz(Math.pow(2,-1022)), 0);
+  assert.equal(Math.fdenormz(Math.pow(2,-1023)), 0);
+  assert.equal(Math.fdenormz(Number.MIN_VALUE), 0);
+  assert.equal(Math.fdenormz(-Math.pow(2,-126)), -Math.pow(2,-126));
+  assert.equal(Math.fdenormz(-Math.pow(2,-127)), -0);
+  assert.equal(Math.fdenormz(-Math.pow(2,-1022)), -0);
+  assert.equal(Math.fdenormz(-Math.pow(2,-1023)), -0);
+  assert.equal(Math.fdenormz(-Number.MIN_VALUE), -0);
 });
