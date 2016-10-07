@@ -320,6 +320,16 @@
       return String(this).replace(/\s+$/, '');
     });
 
+  // https://github.com/tc39/proposal-promise-finally
+  define(
+    Promise.prototype, 'finally',
+    function finally_(func) {
+      return this.then(
+        function(r) { func(); return r; },
+        function(r) { func(); throw r; }
+      );
+    });
+
   //----------------------------------------------------------------------
   // Stage 1
   //----------------------------------------------------------------------
@@ -407,6 +417,12 @@
   define(Math, 'RAD_PER_DEG', 180 / Math.PI);
 
   define(Math, 'DEG_PER_RAD', Math.PI / 180);
+
+  // https://github.com/leobalter/proposal-setmap-offrom
+  [Map, Set, WeakMap, WeakSet].forEach(function(t) {
+    define(t, 'of', function of(/*args...*/) { return new t(arguments); });
+    define(t, 'from', function from(iterable) { return new t(iterable); });
+  });
 
   //----------------------------------------------------------------------
   // Stage 0

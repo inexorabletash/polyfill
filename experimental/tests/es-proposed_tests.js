@@ -89,6 +89,46 @@ test("String trimStart/trimEnd and aliases", function() {
   equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimRight(), '');
 });
 
+test('Promise.prototype.finally', function(assert) {
+  assert.ok('finally' in Promise.prototype);
+  assert.equal(typeof Promise.prototype.finally, 'function');
+  assert.equal(Promise.prototype.finally.length, 1);
+
+  function async(f) {
+    var done = assert.async();
+    f(done);
+  }
+
+  async(function(done) {
+    Promise.resolve().finally(function() {
+      assert.equal(arguments.length, 0, 'Finally callback gets no args - resolved promise');
+      done();
+    });
+  });
+
+  async(function(done) {
+    Promise.reject().finally(function() {
+      assert.equal(arguments.length, 0, 'Finally callback gets no args - rejected promise');
+      done();
+    }).catch(function() {});
+  });
+
+  async(function(done) {
+    Promise.resolve(2).finally(function() {}).then(function(r) {
+      assert.equal(r, 2, 'Finally passes resolution through promise chain');
+      done();
+    });
+  });
+
+  async(function(done) {
+    Promise.reject(3).finally(function() {}).catch(function(r) {
+      assert.equal(r, 3, 'Finally passes rejection through promise chain');
+      done();
+    });
+  });
+
+});
+
 module("Stage 1");
 
 test("String matchAll", function(assert) {
@@ -143,6 +183,32 @@ test('Math extensions', function(assert) {
   assert.equal(Math.degrees(Math.PI/2), 90);
 });
 
+
+test('Set and Map .of and .from', function(assert) {
+  var k1 = {}, k2 = {};
+
+  [Set, Map, WeakSet, WeakMap].forEach(function(t) {
+    assert.ok('of' in t);
+    assert.equal(typeof t.of, 'function');
+    assert.equal(t.of.length, 0);
+  });
+
+  assert.deepEqual([1, 2, 3], Array.from(Set.of(1, 2, 3)));
+  assert.deepEqual([[1, 2], [3, 4], [5, 6]], Array.from(Map.of([1, 2], [3, 4], [5, 6])));
+  assert.ok(WeakSet.of(k1, k2).has(k2));
+  assert.equal(WeakMap.of([k1, 1], [k2, 2]).get(k2), 2);
+
+  [Set, Map, WeakSet, WeakMap].forEach(function(t) {
+    assert.ok('from' in t);
+    assert.equal(typeof t.from, 'function');
+    assert.equal(t.from.length, 1);
+  });
+
+  assert.deepEqual([1, 2, 3], Array.from(Set.from([1, 2, 3])));
+  assert.deepEqual([[1, 2], [3, 4], [5, 6]], Array.from(Map.from([[1, 2], [3, 4], [5, 6]])));
+  assert.ok(WeakSet.from([k1, k2]).has(k2));
+  assert.equal(WeakMap.from([[k1, 1], [k2, 2]]).get(k2), 2);
+});
 
 module("Stage 0");
 
