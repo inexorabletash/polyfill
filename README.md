@@ -37,6 +37,13 @@ Since I generally use several in my hobby projects, bundled/minified versions ar
 
 Minification is done via https://github.com/mishoo/UglifyJS2
 
+> Some of the files use `console.assert()` calls to catch bugs during development. These are
+> automatically removed from the included minified versions. If you use your own minifying 
+> processor it may cause to assertions to appear when unnecessary function names are stripped.
+> You can safely remove these lines as part of a build step (e.g. using `grep -V`), or use a
+> minifier that does this automatically. For [UglifyJS2](https://github.com/mishoo/UglifyJS2)
+> the option is: `drop_console`
+
 
 ECMAScript / JavaScript Polyfills
 ---------------------------------
