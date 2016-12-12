@@ -30,6 +30,8 @@ See also:
 * String.prototype: `matchAll()` [ref](https://github.com/ljharb/String.prototype.matchAll)
 * Math extensions: `clamp()`, `scale()`, `radians()`, `degrees()`, `RAD_PER_DEG`, `DEG_PER_RAD` [ref](https://github.com/rwaldron/proposal-math-extensions/blob/master/README.md)
 * Set/Map/WeakSet/WeakMap `.of()` and `.from()` [ref](https://github.com/leobalter/proposal-setmap-offrom)
+* Promise: `try()` [ref](https://github.com/ljharb/proposal-promise-try)
+
 
 See also:
 

@@ -216,6 +216,48 @@ QUnit.test('Set and Map .of and .from', function(assert) {
   assert.equal(WeakMap.from([[k1, 1], [k2, 2]]).get(k2), 2);
 });
 
+QUnit.test('Promise.try', function(assert) {
+  function async(f) {
+    var done = assert.async();
+    f(done);
+  }
+
+  async(function(done) {
+    Promise.try().catch(function(x) {
+      assert.ok(x instanceof TypeError, 'Throws TypeError when non-function passed');
+      done();
+    });
+  });
+
+  async(function(done) {
+    Promise.try(function(){ return 123; }).then(function(x) {
+      assert.equal(x, 123, 'Calls function, resolves with synchronous return value');
+      done();
+    });
+  });
+
+  async(function(done) {
+    Promise.try(function(){ return Promise.resolve(123); }).then(function(x) {
+      assert.equal(x, 123, 'Calls function, resolves with asynchronous return value');
+      done();
+    });
+  });
+  async(function(done) {
+    Promise.try(function(){ throw 123; }).catch(function(x) {
+      assert.equal(x, 123, 'Calls function, rejects with synchronous failure value');
+      done();
+    });
+  });
+
+  async(function(done) {
+    Promise.try(function(){ return Promise.reject(123); }).catch(function(x) {
+      assert.equal(x, 123, 'Calls function, rejects with asynchronous failure value');
+      done();
+    });
+  });
+
+});
+
 // ------------------------------------------------------------
 
 QUnit.module("Stage 0");

@@ -424,6 +424,16 @@
     define(t, 'from', function from(iterable) { return new t(iterable); });
   });
 
+  // https://github.com/ljharb/proposal-promise-try
+  define(
+    Promise, 'try',
+    function try_(func) {
+      return new Promise(function(resolve) {
+        resolve(func());
+      });
+    });
+
+
   //----------------------------------------------------------------------
   // Stage 0
   //----------------------------------------------------------------------
