@@ -31,6 +31,10 @@ See also:
 * Math extensions: `clamp()`, `scale()`, `radians()`, `degrees()`, `RAD_PER_DEG`, `DEG_PER_RAD` [ref](https://github.com/rwaldron/proposal-math-extensions/blob/master/README.md)
 * Set/Map/WeakSet/WeakMap `.of()` and `.from()` [ref](https://github.com/leobalter/proposal-setmap-offrom)
 
+See also:
+
+* [Intl.Segmenter](https://gist.github.com/inexorabletash/8c4d869a584bcaa18514729332300356)
+
 #### Stage 0
 
 * `String.prototype.at()` [ref](https://github.com/mathiasbynens/String.prototype.at)
