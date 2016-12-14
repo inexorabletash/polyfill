@@ -577,7 +577,13 @@
 
   // Corrections for 'key' names in older browsers (e.g. FF36-)
   // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent.key#Key_values
-  var keyFixTable = {
+  var keyFixTable = {    
+    Add: '+',
+    Decimal: '.',
+    Divide: '/',
+    Subtract: '-',    
+    Multiply: '*',
+    Spacebar: ' ',
     Esc: 'Escape',
     Nonconvert: 'NonConvert',
     Left: 'ArrowLeft',
