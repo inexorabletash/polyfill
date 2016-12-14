@@ -575,13 +575,13 @@
     MetaRight: { key: 'Meta' }
   });
 
-  // Corrections for 'key' names in older browsers (e.g. FF36-)
+  // Corrections for 'key' names in older browsers (e.g. FF36-, IE9, etc)
   // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent.key#Key_values
-  var keyFixTable = {    
+  var keyFixTable = {
     Add: '+',
     Decimal: '.',
     Divide: '/',
-    Subtract: '-',    
+    Subtract: '-',
     Multiply: '*',
     Spacebar: ' ',
     Esc: 'Escape',

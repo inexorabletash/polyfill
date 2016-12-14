@@ -46,7 +46,8 @@ function show(selector, e) {
   var elem = document.querySelector(selector),
       data = [
         {
-          category: 'DOM 3 Events',
+          category: 'UI Events',
+          link: 'https://w3c.github.io/uievents/',
           attributes: {
             code: e.code,
             key: e.key,
@@ -55,7 +56,8 @@ function show(selector, e) {
         },
 
         {
-          category: 'DOM 4 Events',
+          category: 'UI Events (extension)',
+          link: 'https://dvcs.w3.org/hg/d4e/raw-file/tip/source_respec.htm',
           attributes: {
             'queryKeyCap()': KeyboardEvent.queryKeyCap(e.code)
           }
