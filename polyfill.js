@@ -4284,8 +4284,8 @@ function __cons(t, a) {
 
   // Helpers
 
-  function assert(c, m) {
-    if (!c) throw Error("Internal assertion failure" + (m ? ': ' + m : ''));
+  function isSymbol(s) {
+    return (typeof s === 'symbol') || ('Symbol' in global && s instanceof global.Symbol);
   }
 
   function define(o, p, v, override) {
@@ -4294,7 +4294,7 @@ function __cons(t, a) {
 
     if (typeof v === 'function') {
       // Sanity check that functions are appropriately named (where possible)
-      assert((global.Symbol && p instanceof global.Symbol) || !('name' in v) || v.name === p || v.name === p + '_', 'Expected function name "' + p + '", was "' + v.name + '"');
+      console.assert(isSymbol(p) || !('name' in v) || v.name === p || v.name === p + '_', 'Expected function name "' + p.toString() + '", was "' + v.name + '"');
       Object.defineProperty(o, p, {
         value: v,
         configurable: true,
