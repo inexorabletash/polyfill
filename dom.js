@@ -486,13 +486,19 @@
   }
 
   function mixin(o, ps) {
+    if (!o) return;
     Object.keys(ps).forEach(function(p) {
       if ((p in o) || (p in o.prototype)) return;
-      Object.defineProperty(
-        o.prototype,
-        p,
-        Object.getOwnPropertyDescriptor(ps, p)
-      );
+      try {
+        Object.defineProperty(
+          o.prototype,
+          p,
+          Object.getOwnPropertyDescriptor(ps, p)
+        );
+      } catch (ex) {
+        // Throws in IE8; just copy it
+        o[p] = ps[p];
+      }
     });
   }
 
@@ -526,9 +532,9 @@
     }
   };
 
-  mixin(Document, ParentNode);
-  mixin(DocumentFragment, ParentNode);
-  mixin(Element, ParentNode);
+  mixin(global.Document || global.HTMLDocument, ParentNode); // HTMLDocument for IE8
+  mixin(global.DocumentFragment, ParentNode);
+  mixin(global.Element, ParentNode);
 
   // Mixin ChildNode
   // https://dom.spec.whatwg.org/#interface-childnode
@@ -575,8 +581,8 @@
     }
   };
 
-  mixin(DocumentType, ChildNode);
-  mixin(Element, ChildNode);
-  mixin(CharacterData, ChildNode);
+  mixin(global.DocumentType, ChildNode);
+  mixin(global.Element, ChildNode);
+  mixin(global.CharacterData, ChildNode);
 
 }(self));
