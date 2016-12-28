@@ -5458,39 +5458,18 @@ function __cons(t, a) {
     },
 
     entries: {
-      value: function() {
-        var $this = this, index = 0;
-        return { next: function() {
-          if (index >= $this._list.length)
-            return {done: true, value: undefined};
-          var pair = $this._list[index++];
-          return {done: false, value: [pair.name, pair.value]};
-        }};
-      }, writable: true, enumerable: true, configurable: true
+      value: function() { return new Iterator(this._list, 'key+value'); },
+      writable: true, enumerable: true, configurable: true
     },
 
     keys: {
-      value: function() {
-        var $this = this, index = 0;
-        return { next: function() {
-          if (index >= $this._list.length)
-            return {done: true, value: undefined};
-          var pair = $this._list[index++];
-          return {done: false, value: pair.name};
-        }};
-      }, writable: true, enumerable: true, configurable: true
+      value: function() { return new Iterator(this._list, 'key'); },
+      writable: true, enumerable: true, configurable: true
     },
 
     values: {
-      value: function() {
-        var $this = this, index = 0;
-        return { next: function() {
-          if (index >= $this._list.length)
-            return {done: true, value: undefined};
-          var pair = $this._list[index++];
-          return {done: false, value: pair.value};
-        }};
-      }, writable: true, enumerable: true, configurable: true
+      value: function() { return new Iterator(this._list, 'value'); },
+      writable: true, enumerable: true, configurable: true
     },
 
     forEach: {
@@ -5510,9 +5489,25 @@ function __cons(t, a) {
     }
   });
 
+  function Iterator(source, kind) {
+    var index = 0;
+    this['next'] = function() {
+      if (index >= source.length)
+        return {done: true, value: undefined};
+      var pair = source[index++];
+      return {done: false, value:
+              kind === 'key' ? pair.name :
+              kind === 'value' ? pair.value :
+              [pair.name, pair.value]};
+    };
+  }
+
   if ('Symbol' in global && 'iterator' in global.Symbol) {
     Object.defineProperty(URLSearchParams.prototype, global.Symbol.iterator, {
       value: URLSearchParams.prototype.entries,
+      writable: true, enumerable: true, configurable: true});
+    Object.defineProperty(Iterator.prototype, global.Symbol.iterator, {
+      value: function() { return this; },
       writable: true, enumerable: true, configurable: true});
   }
 

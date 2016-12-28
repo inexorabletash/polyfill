@@ -311,6 +311,13 @@ QUnit.test('URLSearchParams iterable methods', function(assert) {
 
   if ('Symbol' in self && 'iterator' in self.Symbol) {
     assert.deepEqual(toArray(params[Symbol.iterator]()), [['a', '1'], ['b', '2']]);
+
+    ['entries', 'keys', 'values'].forEach(function(m) {
+      assert.equal(typeof params[m]()[Symbol.iterator], 'function',
+                  'Iterator has @@iterator method');
+      var instance = params[m]();
+      assert.equal(instance, instance[Symbol.iterator](), '@@iterator returns self');
+    });
   }
 });
 
