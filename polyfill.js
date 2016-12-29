@@ -1193,7 +1193,7 @@ if (!Date.prototype.toISOString) {
     define(
       Object, 'getOwnPropertyNames',
       function getOwnPropertyNames(o) {
-        if (String(o) === '[object Window]') {
+        if (Object.prototype.toString.call(o) === '[object Window]') {
           // Workaround for cross-realm calling by IE itself.
           // https://github.com/inexorabletash/polyfill/issues/96
           try {
