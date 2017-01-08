@@ -400,6 +400,7 @@
   }());
 
   // CustomEvent
+  // https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent
   // Needed for: IE
   (function () {
     if ('CustomEvent' in global) {

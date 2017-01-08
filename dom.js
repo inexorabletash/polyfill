@@ -213,6 +213,23 @@
     });
   }());
 
+  // CustomEvent
+  // https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent
+  // Needed for: IE
+  (function () {
+    if ('CustomEvent' in global) {
+      if ( typeof global.CustomEvent === "function" ) return false;
+    }
+    function CustomEvent ( event, params ) {
+      params = params || { bubbles: false, cancelable: false, detail: undefined };
+      var evt = document.createEvent( 'CustomEvent' );
+      evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+      return evt;
+    }
+    CustomEvent.prototype = window.Event.prototype;
+    global.CustomEvent = CustomEvent;
+  })();
+
   // Shim for DOM Events for IE7-
   // http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html
   // Use addEvent(object, event, handler) instead of object.addEventListener(event, handler)
