@@ -100,7 +100,7 @@ DOM
   * Event: `target`, `currentTarget`, `eventPhase`, `bubbles`, `cancelable`, `timeStamp`, `defaultPrevented`, `stopPropagation()`, `cancelBubble()`
 * Non-standard Event helpers for IE7- - adapted from
 * [Custom Events](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent)
-[QuirksMode](http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html)
+* [QuirksMode](http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html)
   * `window.addEvent(EventTarget, event, handler)`
   * `window.removeEvent(EventTarget, event, handler)`
 * [DOMTokenList](https://dom.spec.whatwg.org/#interface-domtokenlist) - `classList`[spec](https://dom.spec.whatwg.org/#dom-element-classlist), `relList`[spec](https://html.spec.whatwg.org/multipage/semantics.html#the-link-element)
