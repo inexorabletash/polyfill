@@ -469,3 +469,14 @@ QUnit.test('Mixin ChildNode: before, after, replaceWith - Behavior when nodes co
   s3.after(s4, s3, s2);
   assert.equal(div.textContent, '1432', 'after should work when successor is removed');
 });
+
+QUnit.test('CustomEvent: addEventListener and dispatchEvent', function(assert) {
+  var done = assert.async();
+  var div = document.getElementById('customev');
+  div.addEventListener('customevent', function(e) {
+    assert.equal(e.detail.teststring, "test string");
+    done();
+  });
+  assert.ok(CustomEvent instanceof Function);
+  div.dispatchEvent(new CustomEvent("customevent", { detail: { teststring: "test string" } }));
+});
