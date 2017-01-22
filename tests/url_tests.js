@@ -203,9 +203,6 @@ QUnit.test('Base URL', function(assert) {
 
 QUnit.test('URLSearchParams', function(assert) {
   var url = new URL('http://example.com?a=1&b=2');
-  assert.ok(url.searchParams instanceof URLSearchParams);
-  assert.throws(url.searchParams = new URLSearchParams());
-
   assert.equal(String(new URLSearchParams()), '');
   assert.equal(String(new URLSearchParams('')), '');
   assert.equal(String(new URLSearchParams('a=1')), 'a=1');
@@ -216,6 +213,15 @@ QUnit.test('URLSearchParams', function(assert) {
   assert.equal(String(new URLSearchParams('?a=1')), 'a=1');
   assert.equal(String(new URLSearchParams('?a=1&b=1')), 'a=1&b=1');
   assert.equal(String(new URLSearchParams('?a=1&b&a')), 'a=1&b=&a=');
+
+  assert.equal(String(new URLSearchParams([])), '');
+  assert.equal(String(new URLSearchParams([['a', 1]])), 'a=1');
+  assert.equal(String(new URLSearchParams([['a', 1], ['b', 2], ['b', 3]])), 'a=1&b=2&b=3');
+  assert.throws(function() { new URLSearchParams([['a', 1], ['b']]); });
+
+  assert.equal(String(new URLSearchParams({})), '');
+  assert.equal(String(new URLSearchParams({a: 1})), 'a=1');
+  assert.equal(String(new URLSearchParams({a: 1, b: 2})), 'a=1&b=2');
 
   assert.equal(String(new URLSearchParams(new URLSearchParams('?'))), '');
   assert.equal(String(new URLSearchParams(new URLSearchParams('?a=1'))), 'a=1');
