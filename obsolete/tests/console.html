@@ -2,8 +2,8 @@
 <title>Console Unit Tests</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.0.1.css">
-<script src="https://code.jquery.com/qunit/qunit-2.0.1.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.1.1.css">
+<script src="https://code.jquery.com/qunit/qunit-2.1.1.js"></script>
 
 <div id="qunit"></div>
 <div id="qunit-fixture"></div>
@@ -76,7 +76,7 @@ QUnit.test("Built-ins and non-JS objects", function(assert) {
 
 QUnit.test("Formatting", function(assert) {
   console.log("%%");
-  var data = ['"test"', '123', 'true', 'false', 'undefined', 'null', '{a: 1, b: 2}', 'new Date(0)', 'Math', 'Error', 'document', 'window'];
+  var data = ['"test"', '123', 'true', 'false', 'undefined', 'null', '{a: 1, b: 2}', 'new Date(0)', 'Math', 'Error', 'document'];
   while (data.length) {
     var datum = data.shift();
     var value = eval('value = ' + datum);
