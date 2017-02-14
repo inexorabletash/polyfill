@@ -7,20 +7,7 @@
   ],
   "description": "Various Web API and ECMAScript Polyfills",
   "license": "Unlicense",
-  "main": [
-    "es5.js",
-    "es6.js",
-    "es2016.js",
-    "html.js",
-    "dom.js",
-    "xhr.js",
-    "url.js",
-    "fetch.js",
-    "cssom.js",
-    "timing.js",
-    "keyboard.js",
-    "typedarray.js"
-  ],
+  "main": "polyfill.js",
   "keywords": [
     "polyfill",
     "standards"
