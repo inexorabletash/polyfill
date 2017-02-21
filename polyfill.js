@@ -5377,6 +5377,9 @@ function __cons(t, a) {
 
       if (init === undefined || init === null) {
         // no-op
+      } else if (init instanceof URLSearchParams) {
+        // In ES6 init would be a sequence, but special case for ES5.
+        this._list = urlencoded_parse(String(init));
       } else if (typeof init === 'object' && isSequence(init)) {
         toArray(init).forEach(function(e) {
           if (!isSequence(e)) throw TypeError();
