@@ -1,17 +1,21 @@
 (function(global) {
+  'use strict';
+
   var nativeKeyboardEvent = ('KeyboardEvent' in global);
   if (!nativeKeyboardEvent)
     global.KeyboardEvent = function KeyboardEvent() { throw TypeError('Illegal constructor'); };
 
-  global.KeyboardEvent.DOM_KEY_LOCATION_STANDARD = 0x00; // Default or unknown location
-  global.KeyboardEvent.DOM_KEY_LOCATION_LEFT          = 0x01; // e.g. Left Alt key
-  global.KeyboardEvent.DOM_KEY_LOCATION_RIGHT         = 0x02; // e.g. Right Alt key
-  global.KeyboardEvent.DOM_KEY_LOCATION_NUMPAD        = 0x03; // e.g. Numpad 0 or +
+  [
+    ['DOM_KEY_LOCATION_STANDARD', 0x00], // Default or unknown location
+    ['DOM_KEY_LOCATION_LEFT', 0x01], // e.g. Left Alt key
+    ['DOM_KEY_LOCATION_RIGHT', 0x02], // e.g. Right Alt key
+    ['DOM_KEY_LOCATION_NUMPAD', 0x03], // e.g. Numpad 0 or +
+  ].forEach(function(p) { if (!(p[0] in global.KeyboardEvent)) global.KeyboardEvent[p[0]] = p[1]; });
 
-  var STANDARD = window.KeyboardEvent.DOM_KEY_LOCATION_STANDARD,
-      LEFT = window.KeyboardEvent.DOM_KEY_LOCATION_LEFT,
-      RIGHT = window.KeyboardEvent.DOM_KEY_LOCATION_RIGHT,
-      NUMPAD = window.KeyboardEvent.DOM_KEY_LOCATION_NUMPAD;
+  var STANDARD = global.KeyboardEvent.DOM_KEY_LOCATION_STANDARD,
+      LEFT = global.KeyboardEvent.DOM_KEY_LOCATION_LEFT,
+      RIGHT = global.KeyboardEvent.DOM_KEY_LOCATION_RIGHT,
+      NUMPAD = global.KeyboardEvent.DOM_KEY_LOCATION_NUMPAD;
 
   //--------------------------------------------------------------------
   //
