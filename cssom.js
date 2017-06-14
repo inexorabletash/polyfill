@@ -1,4 +1,6 @@
 (function(global) {
+  'use strict';
+
   if (!('window' in global && 'document' in global))
     return;
 
@@ -10,10 +12,10 @@
   //----------------------------------------------------------------------
 
   // Fix for IE8-'s Element.getBoundingClientRect()
-  if ('TextRectangle' in this && !('width' in TextRectangle.prototype)) {
-    Object.defineProperties(TextRectangle.prototype, {
-      'width': { get: function() { return this.right - this.left; } },
-      'height': { get: function() { return this.bottom - this.top; } }
+  if ('TextRectangle' in global && !('width' in global.TextRectangle.prototype)) {
+    Object.defineProperties(global.TextRectangle.prototype, {
+      width: { get: function() { return this.right - this.left; } },
+      height: { get: function() { return this.bottom - this.top; } }
     });
   }
-}(this));
+}(self));

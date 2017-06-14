@@ -1,4 +1,6 @@
 (function(global) {
+  'use strict';
+
   if (!('window' in global && 'document' in global))
     return;
 
@@ -11,7 +13,8 @@
 
   // document.head attribute
   // Needed for: IE8-
-  document.head = document.head || document.getElementsByTagName('head')[0];
+  if (!('head' in document))
+    document.head = document.getElementsByTagName('head')[0];
 
   // Ensure correct parsing of newish elements ("shiv")
   // Needed for: IE8-

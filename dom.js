@@ -1,4 +1,5 @@
 (function(global) {
+  'use strict';
   if (!('window' in global && 'document' in global))
     return;
 
@@ -53,37 +54,41 @@
   // Node interface constants
   // Needed for: IE8-
   global.Node = global.Node || function() { throw TypeError("Illegal constructor"); };
-  Node.ELEMENT_NODE = 1;
-  Node.ATTRIBUTE_NODE = 2;
-  Node.TEXT_NODE = 3;
-  Node.CDATA_SECTION_NODE = 4;
-  Node.ENTITY_REFERENCE_NODE = 5;
-  Node.ENTITY_NODE = 6;
-  Node.PROCESSING_INSTRUCTION_NODE = 7;
-  Node.COMMENT_NODE = 8;
-  Node.DOCUMENT_NODE = 9;
-  Node.DOCUMENT_TYPE_NODE = 10;
-  Node.DOCUMENT_FRAGMENT_NODE = 11;
-  Node.NOTATION_NODE = 12;
+  [
+    ['ELEMENT_NODE', 1],
+    ['ATTRIBUTE_NODE', 2],
+    ['TEXT_NODE', 3],
+    ['CDATA_SECTION_NODE', 4],
+    ['ENTITY_REFERENCE_NODE', 5],
+    ['ENTITY_NODE', 6],
+    ['PROCESSING_INSTRUCTION_NODE', 7],
+    ['COMMENT_NODE', 8],
+    ['DOCUMENT_NODE', 9],
+    ['DOCUMENT_TYPE_NODE', 10],
+    ['DOCUMENT_FRAGMENT_NODE', 11],
+    ['NOTATION_NODE', 12]
+  ].forEach(function(p) { if (!(p[0] in global.Node)) global.Node[p[0]] = p[1]; });
 
   // DOMException constants
   // Needed for: IE8-
   global.DOMException = global.DOMException || function() { throw TypeError("Illegal constructor"); };
-  DOMException.INDEX_SIZE_ERR = 1;
-  DOMException.DOMSTRING_SIZE_ERR = 2;
-  DOMException.HIERARCHY_REQUEST_ERR = 3;
-  DOMException.WRONG_DOCUMENT_ERR = 4;
-  DOMException.INVALID_CHARACTER_ERR = 5;
-  DOMException.NO_DATA_ALLOWED_ERR = 6;
-  DOMException.NO_MODIFICATION_ALLOWED_ERR = 7;
-  DOMException.NOT_FOUND_ERR = 8;
-  DOMException.NOT_SUPPORTED_ERR = 9;
-  DOMException.INUSE_ATTRIBUTE_ERR = 10;
-  DOMException.INVALID_STATE_ERR = 11;
-  DOMException.SYNTAX_ERR = 12;
-  DOMException.INVALID_MODIFICATION_ERR = 13;
-  DOMException.NAMESPACE_ERR = 14;
-  DOMException.INVALID_ACCESS_ERR = 15;
+  [
+    ['INDEX_SIZE_ERR', 1],
+    ['DOMSTRING_SIZE_ERR', 2],
+    ['HIERARCHY_REQUEST_ERR', 3],
+    ['WRONG_DOCUMENT_ERR', 4],
+    ['INVALID_CHARACTER_ERR', 5],
+    ['NO_DATA_ALLOWED_ERR', 6],
+    ['NO_MODIFICATION_ALLOWED_ERR', 7],
+    ['NOT_FOUND_ERR', 8],
+    ['NOT_SUPPORTED_ERR', 9],
+    ['INUSE_ATTRIBUTE_ERR', 10],
+    ['INVALID_STATE_ERR', 11],
+    ['SYNTAX_ERR', 12],
+    ['INVALID_MODIFICATION_ERR', 13],
+    ['NAMESPACE_ERR', 14],
+    ['INVALID_ACCESS_ERR', 15]
+  ].forEach(function(p) { if (!(p[0] in global.DOMException)) global.DOMException[p[0]] = p[1]; });
 
   // Event and EventTargets interfaces
   // Needed for: IE8

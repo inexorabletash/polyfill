@@ -14,6 +14,7 @@
 //     .then(function(text) { alert(text); });
 
 (function(global) {
+  'use strict';
 
   // Web IDL concepts
 

@@ -1,4 +1,6 @@
 (function(global) {
+  'use strict';
+
   if (!('window' in global && 'document' in global))
     return;
 
@@ -20,11 +22,13 @@
 
   // XMLHttpRequest interface constants
   // Needed for IE8-
-  XMLHttpRequest.UNSENT = 0;
-  XMLHttpRequest.OPENED = 1;
-  XMLHttpRequest.HEADERS_RECEIVED = 2;
-  XMLHttpRequest.LOADING = 3;
-  XMLHttpRequest.DONE = 4;
+  [
+    ['UNSENT', 0],
+    ['OPENED', 1],
+    ['HEADERS_RECEIVED', 2],
+    ['LOADING', 3],
+    ['DONE', 4],
+  ].forEach(function(p) { if (!(p[0] in global.XMLHttpRequest)) global.XMLHttpRequest[p[0]] = p[1]; });
 
   // FormData interface
   // Needed for: IE9-
