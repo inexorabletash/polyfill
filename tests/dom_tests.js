@@ -174,6 +174,13 @@ QUnit.test("matches", function(assert) {
   assert.ok(document.querySelector('#baz').matches('.beta'));
 });
 
+QUnit.test("closest", function(assert) {
+  assert.equal(document.querySelector('#bar').closest('#foo'), document.querySelector('#foo'));
+  assert.equal(document.querySelector('#baz').closest('#foo'), document.querySelector('#foo'));
+  assert.equal(document.querySelector('#foo').closest('#foo'), document.querySelector('#foo'));
+  assert.notOk(document.querySelector('#baz').closest('#bat'));
+});
+
 QUnit.test('Mixin ParentNode: prepend()', function(assert) {
   var elem = document.querySelector('#mixin-parentnode');
   var orig = elem.innerHTML;
