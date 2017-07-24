@@ -177,6 +177,8 @@ QUnit.test("matches", function(assert) {
 QUnit.test("closest", function(assert) {
   assert.equal(document.querySelector('#bar').closest('#foo'), document.querySelector('#foo'));
   assert.equal(document.querySelector('#baz').closest('#foo'), document.querySelector('#foo'));
+  assert.equal(document.querySelector('#foo').closest('#foo'), document.querySelector('#foo'));
+  assert.notOk(document.querySelector('#baz').closest('#bat'));
 });
 
 QUnit.test('Mixin ParentNode: prepend()', function(assert) {
