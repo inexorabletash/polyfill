@@ -1430,7 +1430,7 @@
   }
 
   function byteCaseInsensitiveMatch(a, b) {
-    return byteLowerCase(b) === byteLowerCase(b);
+    return byteLowerCase(a) === byteLowerCase(b);
   }
 
   // 2.1 HTTP
