@@ -845,7 +845,18 @@
       var tmp = Array(len);
       for (var i = 0; i < len; ++i)
         tmp[i] = t._getter(i);
-      if (comparefn) tmp.sort(comparefn); else tmp.sort(); // Hack for IE8/9
+      function sortCompare(x, y) {
+        if (x !== x && y !== y) return +0;
+        if (x !== x) return 1;
+        if (y !== y) return -1;
+        if (comparefn !== undefined) {
+          return comparefn(x, y);
+        }
+        if (x < y) return -1;
+        if (x > y) return 1;
+        return +0;
+      }
+      tmp.sort(sortCompare);
       for (i = 0; i < len; ++i)
         t._setter(i, tmp[i]);
       return t;

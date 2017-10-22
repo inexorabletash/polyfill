@@ -787,7 +787,7 @@ if (!Date.prototype.toISOString) {
     // 19.4.4 Properties of Symbol Instances
   }());
 
-  console.assert(typeof global.Symbol() === 'symbol' || symbolForKey(String(global.Symbol('x'))));
+  console.assert(typeof global.Symbol() === 'symbol' || symbolForKey(String(global.Symbol('x'))) !== undefined);
 
   // Defined here so that other prototypes can reference it
   // 25.1.2 The %IteratorPrototype% Object
