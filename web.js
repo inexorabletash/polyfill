@@ -1185,29 +1185,39 @@
       if (base) {
         url = (function () {
           if (nativeURL) return new origURL(url, base).href;
+          var iframe;
+          try {
+            var doc;
+            // Use another document/base tag/anchor for relative URL resolution, if possible
+            if (navigator.userAgent.match(/Opera Mini/)) {
+              iframe = document.createElement('iframe');
+              iframe.style.display = 'none';
+              document.documentElement.appendChild(iframe);
+              doc = iframe.contentWindow.document;
+            } else if (document.implementation && document.implementation.createHTMLDocument) {
+              doc = document.implementation.createHTMLDocument('');
+            } else if (document.implementation && document.implementation.createDocument) {
+              doc = document.implementation.createDocument('http://www.w3.org/1999/xhtml', 'html', null);
+              doc.documentElement.appendChild(doc.createElement('head'));
+              doc.documentElement.appendChild(doc.createElement('body'));
+            } else if (window.ActiveXObject) {
+              doc = new window.ActiveXObject('htmlfile');
+              doc.write('<head><\/head><body><\/body>');
+              doc.close();
+            }
 
-          var doc;
-          // Use another document/base tag/anchor for relative URL resolution, if possible
-          if (document.implementation && document.implementation.createHTMLDocument) {
-            doc = document.implementation.createHTMLDocument('');
-          } else if (document.implementation && document.implementation.createDocument) {
-            doc = document.implementation.createDocument('http://www.w3.org/1999/xhtml', 'html', null);
-            doc.documentElement.appendChild(doc.createElement('head'));
-            doc.documentElement.appendChild(doc.createElement('body'));
-          } else if (window.ActiveXObject) {
-            doc = new window.ActiveXObject('htmlfile');
-            doc.write('<head><\/head><body><\/body>');
-            doc.close();
+            if (!doc) throw Error('base not supported');
+
+            var baseTag = doc.createElement('base');
+            baseTag.href = base;
+            doc.getElementsByTagName('head')[0].appendChild(baseTag);
+            var anchor = doc.createElement('a');
+            anchor.href = url;
+            return anchor.href;
+          } finally {
+            if (iframe)
+              iframe.parentNode.removeChild(iframe);
           }
-
-          if (!doc) throw Error('base not supported');
-
-          var baseTag = doc.createElement('base');
-          baseTag.href = base;
-          doc.getElementsByTagName('head')[0].appendChild(baseTag);
-          var anchor = doc.createElement('a');
-          anchor.href = url;
-          return anchor.href;
         }());
       }
 
