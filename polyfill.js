@@ -507,16 +507,6 @@ if (!Date.prototype.toISOString) {
     return o === global ? undefined : o;
   }
 
-  function hook(o, p, f) {
-    var op = o[p];
-    console.assert(typeof op === 'function', 'Hooking a non-function');
-    o[p] = function() {
-      var o = strict(this);
-      var r = f.apply(o, arguments);
-      return r !== undefined ? r : op.apply(o, arguments);
-    };
-  }
-
   function isSymbol(s) {
     return (typeof s === 'symbol') || ('Symbol' in global && s instanceof global.Symbol);
   }
@@ -1257,13 +1247,14 @@ if (!Date.prototype.toISOString) {
   // 19.1.3.4 Object.prototype.propertyIsEnumerable ( V )
   // 19.1.3.5 Object.prototype.toLocaleString ( [ reserved1 [ , reserved2 ] ] )
   // 19.1.3.6 Object.prototype.toString ( )
-  hook(Object.prototype, 'toString',
+  var o_p_ts = Object.prototype.toString;
+  define(Object.prototype, 'toString',
        function() {
          var o = strict(this);
          if (o === Object(o) && $$toStringTag in o) {
            return '[object ' + o[$$toStringTag] + ']';
          }
-         return undefined;
+         return o_p_ts.apply(o, arguments);
        });
 
   // 19.1.3.7 Object.prototype.valueOf ( )
