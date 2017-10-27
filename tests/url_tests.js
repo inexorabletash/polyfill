@@ -151,6 +151,15 @@ QUnit.test('Parameter Mutation', function(assert) {
   url.searchParams.set('b', '3');
   assert.deepEqual(url.searchParams.getAll('b'), ['3']);
   assert.equal(url.href, 'http://example.com/?a=1&b=3&c=1');
+
+  url.href = 'http://example.com?c=1&a=2&a=4&b=3';
+  url.searchParams.sort();
+  assert.equal(url.search, '?a=2&a=4&b=3&c=1');
+
+  // Preserving the relative order
+  url.href = 'http://example.com?c=1&a=4&a=2&b=3';
+  url.searchParams.sort();
+  assert.equal(url.search, '?a=4&a=2&b=3&c=1');
 });
 
 QUnit.test('Parameter Encoding', function(assert) {

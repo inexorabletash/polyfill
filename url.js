@@ -240,6 +240,14 @@
         }, writable: true, enumerable: true, configurable: true
       },
 
+      sort: {
+        value: function () {
+          this._list.sort(function(pair1, pair2) {
+            return pair1.name.localeCompare(pair2.name);
+          });
+        }, writable: true, enumerable: true, configurable: true
+      },
+
       toString: {
         value: function () {
           return urlencoded_serialize(this._list);
