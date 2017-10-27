@@ -5590,7 +5590,7 @@ function __cons(t, a) {
           try {
             var doc;
             // Use another document/base tag/anchor for relative URL resolution, if possible
-            if (navigator.userAgent.match(/Opera Mini/)) {
+            if (Object.prototype.toString.call(window.operamini) === "[object OperaMini]") {
               iframe = document.createElement('iframe');
               iframe.style.display = 'none';
               document.documentElement.appendChild(iframe);
