@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------
 
 (function (global) {
-  "use strict";
+  'use strict';
   var undefined = (void 0); // Paranoia
 
   // Helpers
@@ -41,35 +41,13 @@
     }
   }
 
-  function set_internal(o, p, v) {
-    Object.defineProperty(o, p, {
-      value: v,
-      configurable: false,
-      enumerable: false,
-      writable: true
-    });
-  }
-
   // Snapshot intrinsic functions
-  var $isNaN = global.isNaN,
-      $isFinite = global.isFinite,
-      $parseInt = global.parseInt,
-      $parseFloat = global.parseFloat;
+  var $isNaN = global.isNaN;
 
-   var E = Math.E,
-      LOG10E = Math.LOG10E,
-      LOG2E = Math.LOG2E,
-      abs = Math.abs,
-      ceil = Math.ceil,
-      exp = Math.exp,
+  var abs = Math.abs,
       floor = Math.floor,
-      log = Math.log,
       max = Math.max,
-      min = Math.min,
-      pow = Math.pow,
-      sqrt = Math.sqrt;
-
-  var empty = Object.create(null);
+      min = Math.min;
 
   //----------------------------------------
   // 6 ECMAScript Data Types and Values
@@ -131,20 +109,6 @@
   var SameValue = Object.is;
 
   //----------------------------------------
-  // 7.3 Operations on Objects
-  //----------------------------------------
-
-  // 7.3.4
-  function CreateDataProperty(O, P, V) {
-    Object.defineProperty(O, P, {
-      value: V,
-      writable: true,
-      enumerable: true,
-      configurable: true
-    });
-  }
-
-  //----------------------------------------
   // 9 ECMAScript Ordinary and Exotic Objects Behaviors
   //----------------------------------------
 
@@ -159,113 +123,6 @@
   // ECMAScript Proposals
   //
   //----------------------------------------------------------------------
-
-  //----------------------------------------------------------------------
-  // Stage 4 - in ECMAScript 2017 drafts
-  //----------------------------------------------------------------------
-
-  // https://github.com/ljharb/proposal-object-values-entries
-  define(
-    Object, 'values',
-    function values(o) {
-      var obj = ToObject(o);
-      return EnumerableOwnPropertiesAbstraction(obj, 'value');
-    });
-
-  // https://github.com/ljharb/proposal-object-values-entries
-  define(
-    Object, 'entries',
-    function entries(o) {
-      var obj = ToObject(o);
-      return EnumerableOwnPropertiesAbstraction(obj, 'key+value');
-    });
-
-  function EnumerableOwnPropertiesAbstraction(o, kind) {
-    var ownKeys = Object.keys(o);
-    var properties = [];
-    ownKeys.forEach(function(key) {
-      var desc = Object.getOwnPropertyDescriptor(o, key);
-      if (desc && desc.enumerable) {
-        if (kind === 'key') properties.push(key);
-        else {
-          var value = o[key];
-          if (kind === 'value') properties.push(value);
-          else properties.push([key, value]);
-        }
-      }
-    });
-    return properties;
-  }
-
-
-  // https://github.com/ljharb/proposal-string-pad-start-end
-  define(
-    String.prototype, 'padStart',
-    function padStart(maxLength) {
-      var fillString = arguments[1];
-
-      var o = this;
-      // ReturnIfAbrupt(o)
-      var s = String(this);
-      // ReturnIfAbrupt(s)
-      var stringLength = s.length;
-      if (fillString === undefined) var fillStr = '';
-      else fillStr = String(fillString);
-      // ReturnIfAbrupt(fillStr)
-      if (fillStr === '') fillStr = ' ';
-      var intMaxLength = ToLength(maxLength);
-      // ReturnIfAbrupt(intMaxLength)
-      if (intMaxLength <= stringLength) return s;
-      var fillLen = intMaxLength - stringLength;
-      var stringFiller = '';
-      while (stringFiller.length < fillLen)
-        stringFiller = stringFiller + fillStr;
-      return stringFiller.substring(0, fillLen) + s;
-    });
-
-  // https://github.com/ljharb/proposal-string-pad-start-end
-  define(
-    String.prototype, 'padEnd',
-    function padEnd(maxLength) {
-      var fillString = arguments[1];
-
-      var o = this;
-      // ReturnIfAbrupt(o)
-      var s = String(this);
-      // ReturnIfAbrupt(s)
-      var stringLength = s.length;
-      if (fillString === undefined) var fillStr = '';
-      else fillStr = String(fillString);
-      // ReturnIfAbrupt(fillStr)
-      if (fillStr === '') fillStr = ' ';
-      var intMaxLength = ToLength(maxLength);
-      // ReturnIfAbrupt(intMaxLength)
-      if (intMaxLength <= stringLength) return s;
-      var fillLen = intMaxLength - stringLength;
-      var stringFiller = '';
-      while (stringFiller.length < fillLen)
-        stringFiller = stringFiller + fillStr;
-      return s + stringFiller.substring(0, fillLen);
-    });
-
-  // https://github.com/tc39/proposal-object-getownpropertydescriptors
-  define(
-    Object, 'getOwnPropertyDescriptors',
-    function getOwnPropertyDescriptors(o) {
-      var obj = ToObject(o);
-      // ReturnIfAbrupt(obj)
-      var keys = Object.getOwnPropertyNames(obj);
-      // ReturnIfAbrupt(keys)
-      var descriptors = {};
-      for (var i = 0; i < keys.length; ++i) {
-        var nextKey = keys[i];
-        var descriptor = Object.getOwnPropertyDescriptor(obj, nextKey);
-        // ReturnIfAbrupt(desc)
-        // ReturnIfAbrupt(descriptor)
-        CreateDataProperty(descriptors, nextKey, descriptor);
-      }
-      return descriptors;
-    });
 
 
   //----------------------------------------------------------------------
