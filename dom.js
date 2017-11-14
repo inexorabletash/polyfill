@@ -418,7 +418,7 @@
 
     // HTML - https://html.spec.whatwg.org
     // Element.classList
-    if ('classList' in document.createElement('span')) {
+    if ('classList' in document.createElementNS('http://www.w3.org/2000/svg', 'svg')) {
       window.getClassList = function(elem) { return elem.classList; };
     } else {
       window.getClassList = function(elem) { return new DOMTokenListShim(elem, 'className'); };
