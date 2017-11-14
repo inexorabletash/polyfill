@@ -80,7 +80,7 @@ QUnit.test("Helpers - getClassList() and getRelList()", function(assert) {
   assert.ok(getClassList(document.getElementById('baz')).contains('epsilon'));
   assert.ok(getClassList(document.getElementById('baz')).contains('phi'));
 
-  var elem = document.createElement('span');
+  var elem = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   elem.className = 'foo';
 
   assert.equal(getClassList(elem).length, 1);
@@ -127,7 +127,7 @@ QUnit.test("Helpers - getClassList() and getRelList()", function(assert) {
   assert.notOk(getClassList(elem).toggle('a', false));
   assert.notOk(getClassList(elem).contains('a'));
 
-  elem = document.createElement('span');
+  elem = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   assert.equal(getClassList(elem).length, 0);
 
   assert.throws(function() { getClassList(elem).contains(''); });
