@@ -8,32 +8,6 @@ QUnit.test("global", function(assert) {
   assert.equal(global, Function('return this')());
 });
 
-// ------------------------------------------------------------
-
-QUnit.module("Stage 2");
-
-QUnit.test("String trimStart/trimEnd and aliases", function(assert) {
-
-  assert.equal(''.trimStart(), '');
-  assert.equal('a'.trimStart(), 'a');
-  assert.equal(' \t\r\n\u00A0a \t\r\n\u00A0'.trimStart(), 'a \t\r\n\u00A0');
-  assert.equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimStart(), '');
-  assert.equal(''.trimEnd(), '');
-  assert.equal('a'.trimEnd(), 'a');
-  assert.equal(' \t\r\n\u00A0a \t\r\n\u00A0'.trimEnd(), ' \t\r\n\u00A0a');
-  assert.equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimEnd(), '');
-
-  // Annex B versions
-  assert.equal(''.trimLeft(), '');
-  assert.equal('a'.trimLeft(), 'a');
-  assert.equal(' \t\r\n\u00A0a \t\r\n\u00A0'.trimLeft(), 'a \t\r\n\u00A0');
-  assert.equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimLeft(), '');
-  assert.equal(''.trimRight(), '');
-  assert.equal('a'.trimRight(), 'a');
-  assert.equal(' \t\r\n\u00A0a \t\r\n\u00A0'.trimRight(), ' \t\r\n\u00A0a');
-  assert.equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimRight(), '');
-});
-
 QUnit.test('Promise.prototype.finally', function(assert) {
   assert.ok('finally' in Promise.prototype);
   assert.equal(typeof Promise.prototype.finally, 'function');
@@ -74,11 +48,53 @@ QUnit.test('Promise.prototype.finally', function(assert) {
 
 });
 
+QUnit.test('Array.prototype.flatMap', function(assert) {
+  assert.deepEqual(['abc', 'def'].flatMap(function(s) { return s.split('');}),
+                   ['a', 'b', 'c', 'd', 'e', 'f']);
+});
+
+QUnit.test('Array.prototype.flatten', function(assert) {
+  assert.deepEqual([[1,2,3], [4,5,6]].flatten(), [1,2,3,4,5,6]);
+  assert.deepEqual([[1,[2,[3]]]].flatten(), [1,[2,[3]]]);
+  assert.deepEqual([[1,[2,[3]]]].flatten(0), [[1,[2,[3]]]]);
+  assert.deepEqual([[1,[2,[3]]]].flatten(1), [1,[2,[3]]]);
+  assert.deepEqual([[1,[2,[3]]]].flatten(2), [1,2,[3]]);
+  assert.deepEqual([[1,[2,[3]]]].flatten(3), [1,2,3]);
+});
+
 // ------------------------------------------------------------
 
-QUnit.module("Stage 1");
+QUnit.module("Stage 2");
+
+QUnit.test("String trimStart/trimEnd and aliases", function(assert) {
+
+  assert.equal(''.trimStart(), '');
+  assert.equal('a'.trimStart(), 'a');
+  assert.equal(' \t\r\n\u00A0a \t\r\n\u00A0'.trimStart(), 'a \t\r\n\u00A0');
+  assert.equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimStart(), '');
+  assert.equal(''.trimEnd(), '');
+  assert.equal('a'.trimEnd(), 'a');
+  assert.equal(' \t\r\n\u00A0a \t\r\n\u00A0'.trimEnd(), ' \t\r\n\u00A0a');
+  assert.equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimEnd(), '');
+
+  // Annex B versions
+  assert.equal(''.trimLeft(), '');
+  assert.equal('a'.trimLeft(), 'a');
+  assert.equal(' \t\r\n\u00A0a \t\r\n\u00A0'.trimLeft(), 'a \t\r\n\u00A0');
+  assert.equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimLeft(), '');
+  assert.equal(''.trimRight(), '');
+  assert.equal('a'.trimRight(), 'a');
+  assert.equal(' \t\r\n\u00A0a \t\r\n\u00A0'.trimRight(), ' \t\r\n\u00A0a');
+  assert.equal(' \t\r\n\u00A0 \t\r\n\u00A0'.trimRight(), '');
+});
 
 QUnit.test("String matchAll", function(assert) {
+
+  assert.equal(typeof "".matchAll(/./)[Symbol.iterator], 'function');
+
+  var it = "".matchAll(/./);
+  assert.equal(it, it[Symbol.iterator]());
+
   function matchAllTest(string, regex, expected) {
     var results = [];
     for (var iter = string.matchAll(regex), step = iter.next(); !step.done; step = iter.next()) {
@@ -96,6 +112,11 @@ QUnit.test("String matchAll", function(assert) {
 
   assert.throws(function() { 'abc'.matchAll({}); }, TypeError);
 });
+
+
+// ------------------------------------------------------------
+
+QUnit.module("Stage 1");
 
 QUnit.test('Math extensions', function(assert) {
   assert.deepEqual(Math.clamp(0, 0, NaN), NaN);
@@ -197,6 +218,51 @@ QUnit.test('Promise.try', function(assert) {
     });
   });
 
+});
+
+QUnit.test("String replaceAll", function(assert) {
+  assert.equal(''.replaceAll('a', 'b'), '');
+  assert.equal('abcabc'.replaceAll('a', 'x'), 'xbcxbc');
+  assert.equal('abcabc'.replaceAll('bc', 'x'), 'axax');
+  assert.equal('abcabc'.replaceAll('ca', 'x'), 'abxbc');
+  assert.equal('abcabc'.replaceAll('a', 'xxx'), 'xxxbcxxxbc');
+  assert.equal('abcabc'.replaceAll('bc', 'xxx'), 'axxxaxxx');
+  assert.equal('abcabc'.replaceAll('ca', 'xxx'), 'abxxxbc');
+});
+
+QUnit.test("String codePoints", function(assert) {
+
+  assert.equal(typeof "".codePoints()[Symbol.iterator], 'function');
+
+  var it = "".codePoints(/./);
+  assert.equal(it, it[Symbol.iterator]());
+
+  function codePointsTest(string, expected) {
+    var results = [];
+    for (var iter = string.codePoints(), step = iter.next(); !step.done; step = iter.next()) {
+      results.push(step.value);
+    }
+    assert.deepEqual(results, expected);
+  }
+
+  codePointsTest('', []);
+  codePointsTest('abc', [97, 98, 99]);
+  codePointsTest('abc\uD800\uDC00def', [97, 98, 99, 0x10000, 100, 101, 102]);
+  codePointsTest('abc\uDC00\uD800def', [97, 98, 99, 0xDC00, 0xD800, 100, 101, 102]);
+});
+
+QUnit.test('Math signbit()', function(assert) {
+  assert.equal(Math.signbit('x'), false);
+  assert.equal(Math.signbit(NaN), false);
+  assert.equal(Math.signbit(undefined), false);
+
+  assert.equal(Math.signbit(0), false);
+  assert.equal(Math.signbit(123), false);
+  assert.equal(Math.signbit(Infinity), false);
+
+  assert.equal(Math.signbit(-0), true);
+  assert.equal(Math.signbit(-123), true);
+  assert.equal(Math.signbit(-Infinity), true);
 });
 
 // ------------------------------------------------------------

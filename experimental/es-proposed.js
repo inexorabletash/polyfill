@@ -67,7 +67,7 @@
     }
   }
 
-  // 6.1.7.4 Well-Known Symbols and Intrinsics
+  // 6.1.5.1 Well-Known Symbols
   var $$iterator = global.Symbol.iterator,
       $$toStringTag = global.Symbol.toStringTag;
 
@@ -105,8 +105,24 @@
   // 7.2 Testing and Comparison Operations
   //----------------------------------------
 
-  // 7.2.3
+  // 7.2.2 IsArray ( argument )
+  var IsArray = Array.isArray;
+
+  // 7.2.3 IsCallable ( argument )
+  function IsCallable(o) { return typeof o === 'function'; }
+
+  // 7.2.9 SameValue ( x, y )
   var SameValue = Object.is;
+
+  // 7.3.10 HasProperty ( O, P )
+  function HasProperty(o, p) {
+    while (o) {
+      if (Object.prototype.hasOwnProperty.call(o, p)) return true;
+      if (Type(o) !== 'object') return false;
+      o = Object.getPrototypeOf(o);
+    }
+    return false;
+  }
 
   //----------------------------------------
   // 9 ECMAScript Ordinary and Exotic Objects Behaviors
@@ -139,6 +155,84 @@
     });
   }
 
+  // https://github.com/tc39/proposal-promise-finally
+  define(
+    Promise.prototype, 'finally',
+    function finally_(func) {
+      return this.then(
+        function(r) { func(); return r; },
+        function(r) { func(); throw r; }
+      );
+    });
+
+
+  // https://tc39.github.io/proposal-flatMap/
+  define(
+    Array.prototype, 'flatMap',
+    function flatMap(mapperFunction) {
+      var thisArg = arguments[1];
+
+      var o = ToObject(strict(this));
+      if (!IsCallable(mapperFunction)) throw TypeError();
+      var t = thisArg;
+      var sourceLen = ToLength(o.length);
+      var a = []; // TODO: ArraySpeciesCreate(O, 0)
+      var nextIndex = FlattenIntoArray(a, o, o, sourceLen, 0, 1, mapperFunction, t);
+      a.length = nextIndex;
+      return a;
+    });
+
+  // https://tc39.github.io/proposal-flatMap/
+  define(
+    Array.prototype, 'flatten',
+    function flatten() {
+      var depth = arguments[0];
+
+      var o = ToObject(strict(this));
+      var depthNum = 1;
+      if (depth !== undefined)
+        depthNum = ToInteger(depth);
+      var sourceLen = ToLength(o.length);
+      var a = []; // TODO: ArraySpeciesCreate(O, 0)
+      var nextIndex = FlattenIntoArray(a, o, o, sourceLen, 0, depthNum);
+      a.length = nextIndex;
+      return a;
+    });
+
+  // https://tc39.github.io/proposal-flatMap/
+  function FlattenIntoArray(target, original, source, sourceLen, start, depth) {
+    var mapperFunction = arguments[6];
+    var thisArg = arguments[7];
+
+    var targetIndex = start;
+    var sourceIndex = 0;
+    while (sourceIndex < sourceLen) {
+      var p = String(sourceIndex);
+      var exists = HasProperty(source, p);
+      if (exists) {
+        var element = source[p];
+        if (mapperFunction) {
+          element = mapperFunction.call(
+            thisArg, element, sourceIndex, original);
+        }
+        var flattenable = IsArray(element);
+        if (flattenable && depth > 0) {
+          var elementLen = ToLength(element.length);
+          var nextIndex = FlattenIntoArray(
+            target, original, element, elementLen, targetIndex, depth - 1);
+          targetIndex = nextIndex - 1;
+        } else {
+          if (targetIndex >= 0x20000000000000 - 1) throw TypeError();  // 2^53-1
+          target[targetIndex] = element;
+        }
+        targetIndex += 1;
+      }
+      sourceIndex += 1;
+    }
+
+    return targetIndex;
+  }
+
   //----------------------------------------------------------------------
   // Stage 2
   //----------------------------------------------------------------------
@@ -166,20 +260,6 @@
     function trimEnd() {
       return String(this).replace(/\s+$/, '');
     });
-
-  // https://github.com/tc39/proposal-promise-finally
-  define(
-    Promise.prototype, 'finally',
-    function finally_(func) {
-      return this.then(
-        function(r) { func(); return r; },
-        function(r) { func(); throw r; }
-      );
-    });
-
-  //----------------------------------------------------------------------
-  // Stage 1
-  //----------------------------------------------------------------------
 
   // https://github.com/ljharb/String.prototype.matchAll
   define(
@@ -219,7 +299,12 @@
         return {value: match, done: false};
     });
 
+  define($RegExpStringIteratorPrototype$, Symbol.iterator, function() { return this; });
   define($RegExpStringIteratorPrototype$, Symbol.toStringTag, 'RegExp String Iterator');
+
+  //----------------------------------------------------------------------
+  // Stage 1
+  //----------------------------------------------------------------------
 
   // https://github.com/rwaldron/proposal-math-extensions/blob/master/README.md
 
@@ -281,6 +366,84 @@
     });
 
 
+
+  // https://github.com/tc39/proposal-string-replace-all
+  define(
+    String.prototype, 'replaceAll',
+    function replaceAll(a, b) {
+      var s = String(this);
+      a = String(a);
+      b = String(b);
+      var out = '';
+      var cur = 0;
+      var pos;
+      while ((pos = s.indexOf(a, cur)) !== -1) {
+        out += s.substring(cur, pos);
+        out += b;
+        cur = pos + a.length;
+      }
+      return out + s.substring(cur);
+    });
+
+  // https://github.com/RReverser/string-prototype-codepoints
+  define(
+    String.prototype, 'codePoints',
+    function codePoints() {
+      var o = strict(this);
+      var s = String(o);
+      return CreateCodePointStringIterator(s);
+    });
+
+  function CreateCodePointStringIterator(string) {
+    var iterator = Object.create($CodePointStringIteratorPrototype$);
+    iterator['[[IteratedString]]'] = string;
+    iterator['[[NextIndex]]'] = 0;
+    return iterator;
+  }
+
+  var $CodePointStringIteratorPrototype$ = Object.create({});
+
+  define(
+    $CodePointStringIteratorPrototype$, 'next',
+    function next() {
+    var s = this['[[IteratedString]]'];
+    var pos = this['[[NextIndex]]'];
+    var len = s.length;
+
+    if (pos >= len)
+      return {done: true};
+    var result, resultSize;
+    var first = s.charCodeAt(pos);
+    if (first < 0xD800 || first > 0xDBFF || pos + 1 == len) {
+      result = first;
+      resultSize = 1;
+    } else {
+      var second = s.charCodeAt(pos + 1);
+      if (second < 0xDC00 || second > 0xDFFF) {
+        result = first;
+        resultSize = 1;
+      } else {
+        result = 0x10000 + ((first & 0x3FF) << 10) + (second & 0x3FF);
+        resultSize = 2;
+      }
+    }
+    this['[[NextIndex]]'] += resultSize;
+    return {value: result, done: false};
+  });
+
+  define($CodePointStringIteratorPrototype$, Symbol.iterator, function() { return this; });
+  define($CodePointStringIteratorPrototype$, Symbol.toStringTag, 'CodePoint String Iterator');
+
+  define(
+    Math, 'signbit',
+    function signbit(x) {
+      if ($isNaN(x)) return false;
+      if (SameValue(x, -0)) return true;
+      if (x < 0) return true;
+      return false;
+    });
+
+
   //----------------------------------------------------------------------
   // Stage 0
   //----------------------------------------------------------------------
@@ -301,57 +464,6 @@
       var second = s.charAt(position + 1);
       var cp = (first - 0xD800) * 0x400 + (second - 0xDC00) + 0x10000;
       return String.fromCharCode(cuFirst, cuSecond);
-    });
-
-
-  // https://gist.github.com/BrendanEich/4294d5c212a6d2254703
-
-  // Inspired by Hacker's Delight - http://hackersdelight.org
-
-  define(
-    Math, 'imulh',
-    function imulh(u, v) {
-      var u0 = u & 0xFFFF, u1 = u >> 16;
-      var v0 = v & 0xFFFF, v1 = v >> 16;
-      var w0 = u0 * v0;
-      var t = ((u1 * v0) >>> 0) + (w0 >>> 16);
-      var w1 = t & 0xFFFF;
-      var w2 = t >> 16;
-      w1 = ((u0 * v1) >>> 0) + w1;
-      return u1 * v1 + w2 + (w1 >> 16);
-    });
-
-  define(
-    Math, 'umulh',
-    function umulh(u, v) {
-      var u0 = u & 0xFFFF, u1 = u >>> 16;
-      var v0 = v & 0xFFFF, v1 = v >>> 16;
-      var w0 = u0 * v0;
-      var t = ((u1 * v0) >>> 0) + (w0 >>> 16);
-      var w1 = t & 0xFFFF;
-      var w2 = t >>> 16;
-      w1 = ((u0 * v1) >>> 0) + w1;
-      return u1 * v1 + w2 + (w1 >>> 16);
-    });
-
-  define(
-    Math, 'iaddh',
-    function iaddh(x0, x1, y0, y1) {
-      x0 = x0 >>> 0; x1 = x1 >>> 0; y0 = y0 >>> 0; y1 = y1 >>> 0;
-      var z0 = (x0 + y0) >>> 0;
-      var c = ((x0 & y0) | (x0 | y0) & ~z0) >>> 31;
-      var z1 = x1 + y1 + c;
-      return z1 | 0;
-    });
-
-  define(
-    Math, 'isubh',
-    function isubh(x0, x1, y0, y1) {
-      x0 = x0 >>> 0; x1 = x1 >>> 0; y0 = y0 >>> 0; y1 = y1 >>> 0;
-      var z0 = (x0 - y0) >>> 0;
-      var b = ((~x0 & y0) | (~(x0 ^ y0) & z0)) >>> 31;
-      var z1 = x1 - y1 - b;
-      return z1 | 0;
     });
 
 
@@ -437,5 +549,54 @@
       return x;
     });
 
+  // https://gist.github.com/BrendanEich/4294d5c212a6d2254703
+
+  // Inspired by Hacker's Delight - http://hackersdelight.org
+
+  define(
+    Math, 'imulh',
+    function imulh(u, v) {
+      var u0 = u & 0xFFFF, u1 = u >> 16;
+      var v0 = v & 0xFFFF, v1 = v >> 16;
+      var w0 = u0 * v0;
+      var t = ((u1 * v0) >>> 0) + (w0 >>> 16);
+      var w1 = t & 0xFFFF;
+      var w2 = t >> 16;
+      w1 = ((u0 * v1) >>> 0) + w1;
+      return u1 * v1 + w2 + (w1 >> 16);
+    });
+
+  define(
+    Math, 'umulh',
+    function umulh(u, v) {
+      var u0 = u & 0xFFFF, u1 = u >>> 16;
+      var v0 = v & 0xFFFF, v1 = v >>> 16;
+      var w0 = u0 * v0;
+      var t = ((u1 * v0) >>> 0) + (w0 >>> 16);
+      var w1 = t & 0xFFFF;
+      var w2 = t >>> 16;
+      w1 = ((u0 * v1) >>> 0) + w1;
+      return u1 * v1 + w2 + (w1 >>> 16);
+    });
+
+  define(
+    Math, 'iaddh',
+    function iaddh(x0, x1, y0, y1) {
+      x0 = x0 >>> 0; x1 = x1 >>> 0; y0 = y0 >>> 0; y1 = y1 >>> 0;
+      var z0 = (x0 + y0) >>> 0;
+      var c = ((x0 & y0) | (x0 | y0) & ~z0) >>> 31;
+      var z1 = x1 + y1 + c;
+      return z1 | 0;
+    });
+
+  define(
+    Math, 'isubh',
+    function isubh(x0, x1, y0, y1) {
+      x0 = x0 >>> 0; x1 = x1 >>> 0; y0 = y0 >>> 0; y1 = y1 >>> 0;
+      var z0 = (x0 - y0) >>> 0;
+      var b = ((~x0 & y0) | (~(x0 ^ y0) & z0)) >>> 31;
+      var z1 = x1 - y1 - b;
+      return z1 | 0;
+    });
 
 }(this));

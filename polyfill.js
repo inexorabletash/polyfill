@@ -922,7 +922,6 @@ if (!Date.prototype.toISOString) {
   }
 
   // 7.2.8 IsRegExp ( argument )
-  // 7.2.5 IsConstructor ( argument )
 
   // 7.2.9 SameValue(x, y)
   function SameValue(x, y) {
