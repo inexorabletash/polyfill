@@ -581,8 +581,6 @@
 
   // 7.4.8 CreateListIterator (list)
   // 7.4.8.1 ListIterator next( )
-  // 7.4.9 CreateCompoundIterator ( iterator1, iterator2 )
-  // 7.4.9.1 CompoundIterator next( )
 
   //----------------------------------------
   // 8 Executable Code and Execution Contexts
