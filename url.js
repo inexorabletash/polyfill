@@ -32,10 +32,20 @@
     try {
       if (origURL) {
         nativeURL = new global.URL('http://example.com');
-        if ('searchParams' in nativeURL)
-          return;
-        if (!('href' in nativeURL))
-          nativeURL = undefined;
+        if ('searchParams' in nativeURL) {
+					var url = new URL('http://example.com');
+					url.search = 'a=1&b=2';
+					if (url.href === 'http://example.com/?a=1&b=2') {
+						url.search = '';
+						if (url.href === 'http://example.com/') {
+							return;
+						}
+					}
+				}
+        if (!('href' in nativeURL)) {
+					nativeURL = undefined;
+				}
+				nativeURL = undefined;
       }
     } catch (_) {}
 
