@@ -742,7 +742,7 @@ QUnit.test("Symbol", function(assert) {
   assert.ok(Symbol.iterator in Map.prototype);
   assert.ok(Symbol.iterator in Set.prototype);
 
-  assert.equal(Symbol.keyFor(Symbol.for('key')), 'key');
+  assert.equal(Symbol.keyFor(Symbol['for']('key')), 'key');
 
   o = {};
   o['a'] = 1;
