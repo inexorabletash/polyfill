@@ -119,7 +119,9 @@
     while (o) {
       if (Object.prototype.hasOwnProperty.call(o, p)) return true;
       if (Type(o) !== 'object') return false;
-      o = Object.getPrototypeOf(o);
+      var op = Object.getPrototypeOf(o);
+      if (op === o) return false; // IE8 has self-referential prototypes
+      o = op;
     }
     return false;
   }

@@ -990,7 +990,9 @@ if (!Date.prototype.toISOString) {
     while (o) {
       if (Object.prototype.hasOwnProperty.call(o, p)) return true;
       if (Type(o) !== 'object') return false;
-      o = Object.getPrototypeOf(o);
+      var op = Object.getPrototypeOf(o);
+      if (op === o) return false; // IE8 has self-referential prototypes
+      o = op;
     }
     return false;
   }
@@ -1069,8 +1071,6 @@ if (!Date.prototype.toISOString) {
 
   // 7.4.8 CreateListIterator (list)
   // 7.4.8.1 ListIterator next( )
-  // 7.4.9 CreateCompoundIterator ( iterator1, iterator2 )
-  // 7.4.9.1 CompoundIterator next( )
 
   //----------------------------------------
   // 8 Executable Code and Execution Contexts
