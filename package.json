@@ -1,5 +1,5 @@
 {
-  "name": "js-polyfills",
+  "name": "@searchfe/polyfills",
   "author": "Joshua Bell <inexorabletash@gmail.com>",
   "version": "0.1.41",
   "description": "Collection of Web polyfills.",
