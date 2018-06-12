@@ -291,10 +291,6 @@
               doc = document.implementation.createDocument('http://www.w3.org/1999/xhtml', 'html', null);
               doc.documentElement.appendChild(doc.createElement('head'));
               doc.documentElement.appendChild(doc.createElement('body'));
-            } else if (window.ActiveXObject) {
-              doc = new window.ActiveXObject('htmlfile');
-              doc.write('<head><\/head><body><\/body>');
-              doc.close();
             }
 
             if (!doc) throw Error('base not supported');
