@@ -1,5 +1,12 @@
 ### Polyfills (most of the content of this repository)
 
+The polyfills code of this repository is released under the Unlicense
+license (license text below) and is also dual-licensed under an [MIT
+license](./LICENSE-MIT.md) (for the greatest freedom from restrictions
+and the widest jurisdictional compatibility).
+
+#### Unlicense
+
 This is free and unencumbered software released into the public domain.
 
 Anyone is free to copy, modify, publish, use, compile, sell, or
@@ -25,10 +32,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 For more information, please refer to <http://unlicense.org/>
 
-
 ### Typed Arrays - typedarray.js
+
 Copyright (C) 2010 Linden Research, Inc.
-Originally published at: https://bitbucket.org/lindenlab/llsd/
+Originally published at: <https://bitbucket.org/lindenlab/llsd/>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
