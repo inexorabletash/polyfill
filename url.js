@@ -31,11 +31,15 @@
     var nativeURL;
     try {
       if (origURL) {
-        nativeURL = new global.URL('http://example.com');
-        if ('searchParams' in nativeURL)
-          return;
-        if (!('href' in nativeURL))
+        nativeURL = new global.URL('http://example.com/?a=1');
+        // Test for some version of Safari not removing trailing `?`
+        // In this case, apply polyfill
+        // See https://bugs.webkit.org/show_bug.cgi?id=162345
+        nativeURL.search = '';
+        if (!('href' in nativeURL) || nativeURL.href !== 'http://example.com/')
           nativeURL = undefined;
+        else if ('searchParams' in nativeURL)
+          return;
       }
     } catch (_) {}
 
