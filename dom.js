@@ -222,15 +222,18 @@
   // https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent
   // Needed for: IE
   (function () {
-    if ('CustomEvent' in global && typeof global.CustomEvent === "function")
+    if (typeof global.CustomEvent === "function")
       return;
     function CustomEvent ( event, params ) {
       params = params || { bubbles: false, cancelable: false, detail: undefined };
-      var evt = document.createEvent( 'CustomEvent' );
+      var evt = createCustomEvent();
       evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
       return evt;
     }
-    CustomEvent.prototype = global.Event.prototype;
+    function createCustomEvent() {
+      return document.createEvent( 'CustomEvent' );
+    }
+    CustomEvent.prototype = createCustomEvent().constructor.prototype;
     global.CustomEvent = CustomEvent;
   })();
 
