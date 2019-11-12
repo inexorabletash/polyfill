@@ -169,6 +169,19 @@ QUnit.test('next/previousElementSibling', function(assert) {
   assert.equal(document.querySelector('#three').nextElementSibling, null);
 });
 
+QUnit.test('first/lastElementChild, childElementCount', function(assert) {
+  assert.expect(6);
+
+  assert.equal(document.querySelector('#mixed').firstElementChild, document.querySelector('#one'));
+  assert.equal(document.querySelector('#one').firstElementChild, null);
+
+  assert.equal(document.querySelector('#mixed').lastElementChild, document.querySelector('#three'));
+  assert.equal(document.querySelector('#one').lastElementChild, null);
+
+  assert.equal(document.querySelector('#mixed').childElementCount, 3);
+  assert.equal(document.querySelector('#one').childElementCount, 0);
+});
+
 QUnit.test("matches", function(assert) {
   assert.ok(document.querySelector('#foo').matches('.alpha'));
   assert.ok(document.querySelector('#baz').matches('.beta'));

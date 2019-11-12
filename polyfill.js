@@ -5269,6 +5269,30 @@ function __cons(t, a) {
     });
   }
 
+  if (!('firstElementChild' in document.documentElement)) {
+    addToElementPrototype('firstElementChild', function() {
+	  for(var nodes = this.children, n, i = 0, l = nodes.length; i < l; ++i)
+        if(n = nodes[i], 1 === n.nodeType) return n;
+      return null;
+    });
+  }
+
+  if (!('lastElementChild' in document.documentElement)) {
+    addToElementPrototype('lastElementChild', function() {
+      for(var nodes = this.children, n, i = nodes.length - 1; i >= 0; --i)
+        if(n = nodes[i], 1 === n.nodeType) return n;
+      return null;
+    });
+  }
+
+  if (!('childElementCount' in document.documentElement)) {
+    addToElementPrototype('childElementCount', function() {
+      for(var c = 0, nodes = this.children, n, i = 0, l = nodes.length; i < l; ++i)
+        (n = nodes[i], 1 === n.nodeType) && ++c;
+      return c;
+    });
+  }
+
 
   // Element.matches
   // https://developer.mozilla.org/en/docs/Web/API/Element/matches
