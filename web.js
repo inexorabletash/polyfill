@@ -454,6 +454,13 @@
     }
   };
 
+
+  function addToElementPrototype(p, f) {
+    if ('Element' in global && Element.prototype && Object.defineProperty) {
+      Object.defineProperty(Element.prototype, p, { get: f });
+    }
+  }
+
   // DOMTokenList interface and Element.classList / Element.relList
   // Needed for: IE9-
   // Use getClassList(elem) instead of elem.classList() if IE7- support is needed
@@ -599,12 +606,6 @@
       }
     }
 
-    function addToElementPrototype(p, f) {
-      if ('Element' in global && Element.prototype && Object.defineProperty) {
-        Object.defineProperty(Element.prototype, p, { get: f });
-      }
-    }
-
     // HTML - https://html.spec.whatwg.org
     // Element.classList
     if ('classList' in document.createElement('span')) {
@@ -644,29 +645,30 @@
       };
     }());
 
-
-    // DOM - Interface NonDocumentTypeChildNode
-    // Interface NonDocumentTypeChildNode
-    // previousElementSibling / nextElementSibling - for IE8
-
-    if (!('previousElementSibling' in document.documentElement)) {
-      addToElementPrototype('previousElementSibling', function() {
-        var n = this.previousSibling;
-        while (n && n.nodeType !== Node.ELEMENT_NODE)
-          n = n.previousSibling;
-        return n;
-      });
-    }
-
-    if (!('nextElementSibling' in document.documentElement)) {
-      addToElementPrototype('nextElementSibling', function() {
-        var n = this.nextSibling;
-        while (n && n.nodeType !== Node.ELEMENT_NODE)
-          n = n.nextSibling;
-        return n;
-      });
-    }
   }());
+
+
+  // DOM - Interface NonDocumentTypeChildNode
+  // Interface NonDocumentTypeChildNode
+  // previousElementSibling / nextElementSibling - for IE8
+
+  if (!('previousElementSibling' in document.documentElement)) {
+    addToElementPrototype('previousElementSibling', function() {
+      var n = this.previousSibling;
+      while (n && n.nodeType !== Node.ELEMENT_NODE)
+        n = n.previousSibling;
+      return n;
+    });
+  }
+
+  if (!('nextElementSibling' in document.documentElement)) {
+    addToElementPrototype('nextElementSibling', function() {
+      var n = this.nextSibling;
+      while (n && n.nodeType !== Node.ELEMENT_NODE)
+        n = n.nextSibling;
+      return n;
+    });
+  }
 
   // Element.matches
   // https://developer.mozilla.org/en/docs/Web/API/Element/matches
