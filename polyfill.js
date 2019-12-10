@@ -5053,6 +5053,13 @@ function __cons(t, a) {
     }
   };
 
+
+  function addToElementPrototype(p, f) {
+    if ('Element' in global && Element.prototype && Object.defineProperty) {
+      Object.defineProperty(Element.prototype, p, { get: f });
+    }
+  }
+
   // DOMTokenList interface and Element.classList / Element.relList
   // Needed for: IE9-
   // Use getClassList(elem) instead of elem.classList() if IE7- support is needed
@@ -5198,12 +5205,6 @@ function __cons(t, a) {
       }
     }
 
-    function addToElementPrototype(p, f) {
-      if ('Element' in global && Element.prototype && Object.defineProperty) {
-        Object.defineProperty(Element.prototype, p, { get: f });
-      }
-    }
-
     // HTML - https://html.spec.whatwg.org
     // Element.classList
     if ('classList' in document.createElement('span')) {
@@ -5243,29 +5244,55 @@ function __cons(t, a) {
       };
     }());
 
-
-    // DOM - Interface NonDocumentTypeChildNode
-    // Interface NonDocumentTypeChildNode
-    // previousElementSibling / nextElementSibling - for IE8
-
-    if (!('previousElementSibling' in document.documentElement)) {
-      addToElementPrototype('previousElementSibling', function() {
-        var n = this.previousSibling;
-        while (n && n.nodeType !== Node.ELEMENT_NODE)
-          n = n.previousSibling;
-        return n;
-      });
-    }
-
-    if (!('nextElementSibling' in document.documentElement)) {
-      addToElementPrototype('nextElementSibling', function() {
-        var n = this.nextSibling;
-        while (n && n.nodeType !== Node.ELEMENT_NODE)
-          n = n.nextSibling;
-        return n;
-      });
-    }
   }());
+
+
+  // DOM - Interface NonDocumentTypeChildNode
+  // Interface NonDocumentTypeChildNode
+  // previousElementSibling / nextElementSibling - for IE8
+
+  if (!('previousElementSibling' in document.documentElement)) {
+    addToElementPrototype('previousElementSibling', function() {
+      var n = this.previousSibling;
+      while (n && n.nodeType !== Node.ELEMENT_NODE)
+        n = n.previousSibling;
+      return n;
+    });
+  }
+
+  if (!('nextElementSibling' in document.documentElement)) {
+    addToElementPrototype('nextElementSibling', function() {
+      var n = this.nextSibling;
+      while (n && n.nodeType !== Node.ELEMENT_NODE)
+        n = n.nextSibling;
+      return n;
+    });
+  }
+
+  if (!('firstElementChild' in document.documentElement)) {
+    addToElementPrototype('firstElementChild', function() {
+	  for(var nodes = this.children, n, i = 0, l = nodes.length; i < l; ++i)
+        if(n = nodes[i], 1 === n.nodeType) return n;
+      return null;
+    });
+  }
+
+  if (!('lastElementChild' in document.documentElement)) {
+    addToElementPrototype('lastElementChild', function() {
+      for(var nodes = this.children, n, i = nodes.length - 1; i >= 0; --i)
+        if(n = nodes[i], 1 === n.nodeType) return n;
+      return null;
+    });
+  }
+
+  if (!('childElementCount' in document.documentElement)) {
+    addToElementPrototype('childElementCount', function() {
+      for(var c = 0, nodes = this.children, n, i = 0, l = nodes.length; i < l; ++i)
+        (n = nodes[i], 1 === n.nodeType) && ++c;
+      return c;
+    });
+  }
+
 
   // Element.matches
   // https://developer.mozilla.org/en/docs/Web/API/Element/matches
