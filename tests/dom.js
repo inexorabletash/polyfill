@@ -130,12 +130,12 @@ QUnit.test("Helpers - getClassList() and getRelList()", function(assert) {
   elem = document.createElement('span');
   assert.equal(getClassList(elem).length, 0);
 
-  assert.throws(function() { getClassList(elem).contains(''); });
+  assert.notOk(getClassList(elem).contains(''));
   assert.throws(function() { getClassList(elem).add(''); });
   assert.throws(function() { getClassList(elem).remove(''); });
   assert.throws(function() { getClassList(elem).toggle(''); });
 
-  assert.throws(function() { getClassList(elem).contains('a b'); });
+  assert.notOk(getClassList(elem).contains('a b'));
   assert.throws(function() { getClassList(elem).add('a b'); });
   assert.throws(function() { getClassList(elem).remove('a b'); });
   assert.throws(function() { getClassList(elem).toggle('a b'); });

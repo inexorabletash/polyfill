@@ -5095,8 +5095,6 @@ function __cons(t, a) {
           contains: {
             value: function(token) {
               token = String(token);
-              if (token.length === 0) { throw SyntaxError(); }
-              if (/\s/.test(token)) { throw Error("InvalidCharacterError"); }
               var tokens = split(o[p]);
 
               return tokens.indexOf(token) !== -1;
