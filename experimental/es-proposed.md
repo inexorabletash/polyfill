@@ -9,7 +9,6 @@ Per https://github.com/tc39/ecma262
 
 See also:
 
-* `global` [ref](https://github.com/tc39/proposal-global)
 * Promise prototype: `finally()` [ref](https://github.com/tc39/proposal-promise-finally)
 * Array prototype: `flatten()` and `flatMap()` [ref](https://tc39.github.io/proposal-flatMap/)
 

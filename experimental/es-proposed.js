@@ -147,16 +147,6 @@
   // Stage 3
   //----------------------------------------------------------------------
 
-  // https://github.com/tc39/proposal-global
-  if (!('global' in global)) {
-    Object.defineProperty(global, 'global', {
-      value: global,
-      configurable: true,
-      enumerable: false,
-      writable: true
-    });
-  }
-
   // https://github.com/tc39/proposal-promise-finally
   define(
     Promise.prototype, 'finally',
