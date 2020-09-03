@@ -36,7 +36,6 @@ QUnit.assert.epsilon = function(actual, expected, epsilon) {
     'WeakMap',
     'WeakSet',
     'Promise',
-    'Reflect',
 
     'ArrayBuffer.isView',
     'Object.getOwnPropertyNames',
@@ -83,7 +82,23 @@ QUnit.assert.epsilon = function(actual, expected, epsilon) {
     'String.prototype.includes',
     'String.prototype.endsWith',
     'String.prototype.repeat',
-    'String.prototype.startsWith'
+    'String.prototype.startsWith',
+
+    'Reflect.apply',
+    'Reflect.construct',
+    'Reflect.defineProperty',
+    'Reflect.deleteProperty',
+    'Reflect.enumerate', // Removed in later editions, so this is expected.
+    'Reflect.get',
+    'Reflect.getOwnPropertyDescriptor',
+    'Reflect.getPrototypeOf',
+    'Reflect.has',
+    'Reflect.isExtensible',
+    'Reflect.ownKeys',
+    'Reflect.preventExtensions',
+    'Reflect.set',
+    'Reflect.setPrototypeOf'
+
   ];
 
   var nativeFunctions = functions.filter(isNative);
@@ -1280,6 +1295,9 @@ QUnit.test("Reflect", function(assert) {
   assert.equal(args[1], 2, 'Reflect.apply should call with passed args');
 
   assert.equal(Reflect.construct(Date, [1970, 1]).getMonth(), 1);
+  (function() {
+    assert.equal(Reflect.construct(Date, arguments).getMonth(), 1);
+  })(1970, 1);
   assert.equal(Reflect.enumerate({a:1}).next().value, 'a');
 
   var o = {};
