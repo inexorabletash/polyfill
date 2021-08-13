@@ -6089,7 +6089,7 @@ function __cons(t, a) {
   }
 
   function isName(s) {
-    return /^[!#$%&'*+\-.09A-Z^_`a-z|~]+$/.test(s);
+    return /^[!#$%&'*+\-.0-9A-Z^_`a-z|~]+$/.test(s);
   }
   function isValue(s) {
     // TODO: Implement me
