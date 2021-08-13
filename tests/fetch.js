@@ -215,3 +215,8 @@ rejectingPromiseTest('Bad protocol', function(assert) {
 }, function(assert, error) {
   assert.equal(error.name, 'TypeError', 'Network error appears as TypeError');
 });
+
+QUnit.test('Regression test: Header name validity', function(assert) {
+  var headers = new Headers({P3P: 1});
+  assert.equal(headers.get('P3P'), '1', '0-9 are valid header characters');
+});
