@@ -229,6 +229,10 @@ QUnit.test('URLSearchParams', function(assert) {
   assert.equal(String(new URLSearchParams(new URLSearchParams('?a=1&b&a'))), 'a=1&b=&a=');
 });
 
+QUnit.test('instanceof URLSearchParams', function(assert) {
+  assert.ok((new URLSearchParams()) instanceof URLSearchParams);
+});
+
 QUnit.test('URLSearchParams mutation', function(assert) {
   var p = new URLSearchParams();
   assert.equal(p.get('a'), null);

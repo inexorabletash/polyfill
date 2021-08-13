@@ -31,11 +31,15 @@
     var nativeURL;
     try {
       if (origURL) {
-        nativeURL = new global.URL('http://example.com');
-        if ('searchParams' in nativeURL)
-          return;
-        if (!('href' in nativeURL))
+        nativeURL = new global.URL('http://example.com/?a=1');
+        // Test for some version of Safari not removing trailing `?`
+        // In this case, apply polyfill
+        // See https://bugs.webkit.org/show_bug.cgi?id=162345
+        nativeURL.search = '';
+        if (!('href' in nativeURL) || nativeURL.href !== 'http://example.com/')
           nativeURL = undefined;
+        else if ('searchParams' in nativeURL)
+          return;
       }
     } catch (_) {}
 
@@ -456,27 +460,38 @@
     if (new global.URLSearchParams([['a', 1]]).get('a') === '1' &&
         new global.URLSearchParams({a: 1}).get('a') === '1')
       return;
+
     var orig = global.URLSearchParams;
-    global.URLSearchParams = function(init) {
+    var URLSearchParams = function(init) {
+      var o;
       if (init && typeof init === 'object' && isSequence(init)) {
-        var o = new orig();
+        o = new orig();
         toArray(init).forEach(function(e) {
           if (!isSequence(e)) throw TypeError();
           var nv = toArray(e);
           if (nv.length !== 2) throw TypeError();
           o.append(nv[0], nv[1]);
         });
-        return o;
       } else if (init && typeof init === 'object') {
         o = new orig();
         Object.keys(init).forEach(function(key) {
           o.set(key, init[key]);
         });
-        return o;
       } else {
-        return new orig(init);
+        o = new orig(init);
       }
+      if (Object.setPrototypeOf) {
+        Object.setPrototypeOf(o, URLSearchParams.prototype);
+      } else {
+        o.__proto__ = URLSearchParams.prototype;
+      }
+      return o;
     };
+
+    URLSearchParams.prototype = Object.create(orig.prototype);
+    URLSearchParams.prototype.constructor = URLSearchParams;
+
+    global.URLSearchParams = URLSearchParams;
   }());
 
 }(self));
