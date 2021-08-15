@@ -125,4 +125,4 @@
       return false;
     });
 
-}(this));
+}(self));

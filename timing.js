@@ -28,4 +28,4 @@
     global.setImmediate = setImmediate;
     global.clearImmediate = clearImmediate;
   }());
-}(this));
+}(self));

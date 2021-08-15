@@ -205,4 +205,4 @@
       return stringFiller.substring(0, fillLen) + s;
     });
 
-}(this));
+}(self));

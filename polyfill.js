@@ -4389,7 +4389,7 @@ function __cons(t, a) {
       return false;
     });
 
-}(this));
+}(self));
 //----------------------------------------------------------------------
 //
 // ECMAScript 2017 Polyfills
@@ -4597,7 +4597,7 @@ function __cons(t, a) {
       return stringFiller.substring(0, fillLen) + s;
     });
 
-}(this));
+}(self));
 (function(global) {
   'use strict';
 
